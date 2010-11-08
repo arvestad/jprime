@@ -8,12 +8,21 @@
   <packaging>jar</packaging>
 
   <name>JPrIME</name>
+  <description>Probabilistic phylogenetic inference tools employing primarily an MCMC framework.</description>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <issueManagement>
+  	<system>Google Code Issues</system>
+  	<url>https://code.google.com/p/jprime/issues/list</url>
+  </issueManagement>
+  <organization>
+  	<name>Computational biology &amp; bioinformatics at KTH &amp; SU, Stockholm, Sweden</name>
+  	<url>http://www.sbc.su.se</url>
+  </organization>
   <dependencies>
   	<dependency>
   		<groupId>junit</groupId>
