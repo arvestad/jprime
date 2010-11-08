@@ -8,14 +8,16 @@
 Below summary refers to Eclipse. Use of NetBeans, etc. should be similar.
 The latest verified version is shown within brackets.
 
-  # Download and install _Eclipse_.
-  # Download and Install required development tools:
-    * Install Maven.
+  # Download and install Eclipse [Eclipse Helios].
+  # Download and Install required tools:
+    * Install Maven [Maven 2].
     * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
   # Install recommended Eclipse plugins:
-    * Java Development Tools, if not already in place.
-    * Subversive with SVNKit or similarly, which enables SVN handling from within the IDE.
-    * Maven Integration for Eclipse.
+    * Java Development Tools, if not already in place [3.6.1].
+    * Subversive with SVNKit or similarly, which enables SVN handling from within the IDE [0.7.9 and 2.2.2].
+    * Maven Integration for Eclipse [0.10.2].
+  # Install external JARs which are not available through open Maven repositories. Store these in your local Maven folder, typically ~/.m2.
+    * Download BioJava [1.7.1].
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on the wiki.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
   # Activate Maven for the project.
@@ -23,9 +25,11 @@ The latest verified version is shown within brackets.
 
 == Good to know ==
   * Make sure that only things that should be kept under version control goes into SVN. Dot directories, target directories, external dependencies, etc. should be added to svn:ignore.
-  * Builds and dependencies are handled using Maven. Always add additional dependencies using the pom.xml or similarly. Maven is extremely capable.
+  * Builds and dependencies are handled using Maven.
+     * Builds can be made into a JAR file using the Maven JAR plugin.
+     * Always try adding additional dependencies using the pom.xml. When a dependency does not exist in the open Maven repositories, one must add it as in the installation instructions above (and of course update these!).
   * Logging is not handled with the built-in logger, but with Logback.
   * Bug tracking is handled using the Issues page here at Google Code.
-  * Application parameter parsing can be achieved in (somewhat) GNU style using JCommander.
-  * Unit tests and test suites are handled with JUnit. Test reside under the src/test/java folder in a package structure which is aligned with that of the source code.
-  * When the need for a new root directory seems necessary, try adhering to the Maven standard directory layout, as other programs may rely on it.
+  * Application parameter parsing can be achieved in (almost) GNU style using JCommander.
+  * Unit tests and test suites are handled with JUnit. Tests reside under the src/test/java folder in a package structure  aligned with that of the source code.
+  * When the need for a new root directory emerges, try adhering to the Maven standard directory layout, as other programs may rely on it.
