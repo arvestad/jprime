@@ -1,5 +1,5 @@
 #summary List of features needed.
-#labels Phase-Requirements,Phase-Design
+#labels Phase-Requirements,Phase-Design,Featured
 
 = Wishlist =
 
@@ -12,7 +12,7 @@ Below is a list of features that should / has already been added with noteworthy
 || Program manuals auto-generated from Javadoc ||  || Low ||
 || Unit testing framework || Now using JUnit. || In place ||
 || GCC option parsing || Now using JCommander. Not quite pure GNU style though. || In place  ||
-||Logging "Logback" or "log4j"? ||  || Low ||
+||Logging || Logback now used instead of native logger. || In place ||
 || Build system  || Now using Maven, See Maven JAR plugin for packaging. || In place ||
 || Bug-tracking || Now using issue tracking within Google Code. || In place ||
 || Profiling tool ||  Not of major importance for now. || Low ||
