@@ -1,0 +1,15 @@
+#summary How to get started as a developer (not end user).
+
+= Getting started developing =
+
+Below summary refers to Eclipse. Use of NetBeans, etc. should be similar.
+_The latest verified version is shown within brackets._
+
+# Download and install Eclipse.
+# Download and Install required development tools:
+   * Install Maven.
+   * Possibly install external Subversion client if Subversive (see below) not sufficient.
+# Install recommended Eclipse plugins:
+   *_ Java Development Tools_, if not already in place.
+   * _Subversive_ with _SVNKit_ or similarly, which enables Subversion handling from within the IDE.
+   * _Maven Integration for Eclipse_.
