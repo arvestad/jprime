@@ -27,7 +27,7 @@ The latest verified version is shown within brackets.
   * Make sure that only things that should be kept under version control goes into SVN. Dot directories, target directories, external dependencies, etc. should be added to svn:ignore.
   * Builds and dependencies are handled using Maven.
      * Builds can be made into a JAR file using the Maven JAR plugin.
-     * Always try adding additional dependencies using the pom.xml. When a dependency does not exist in the open Maven repositories, one must add it as in the installation instructions above (and of course update these!).
+     * Always try adding additional dependencies using the pom.xml. When a dependency does not exist in the open Maven repositories, one must add it as in the installation instructions above (and of course update the latter!).
   * Logging is not handled with the built-in logger, but with Logback.
   * Bug tracking is handled using the Issues page here at Google Code.
   * Application parameter parsing can be achieved in (almost) GNU style using JCommander.
