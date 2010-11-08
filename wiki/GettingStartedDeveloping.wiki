@@ -1,4 +1,5 @@
 #summary How to get started as a developer (not end user).
+#labels Phase-Design,Phase-Implementation,Phase-QA
 
 = Getting started developing =
 
@@ -26,3 +27,5 @@ The latest verified version is shown within brackets.
   * Logging is not handled with the built-in logger, but rather Logback or log4j (not decided yet).
   * Bug tracking is handled using the Issues page here at Google Code.
   * Application parameter parsing can be achieved in (somewhat) GNU style using JCommander.
+  * Unit tests and test suites handled using JUnit. These reside under the src/test/java folder in a package structure which is aligned with that of the source code.
+  * When the need for a new root directory seems necessary, try adhering to the _Maven standard directory layout_, as other programs may assume it.
