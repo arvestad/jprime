@@ -5,8 +5,8 @@
 Below is a list of features that should / has already been added with noteworthy remarks.
 
 || *Feature* ||  *Comment* || *Priority* ||
-|| MPI parallelization  || Use of some Java port, which one? ||Medium ||
-|| XML input and output ||  || Low ||
+|| MPI parallelization  || Use of some Java port, which one? || Medium ||
+|| XML input and output || External library required for condensed XML? || Low ||
 || Multicore parallelization ||  || Low ||
 || Program manuals auto-generated from Javadoc ||  || Low ||
 || Unit testing framework || Now using JUnit. || In place ||
