@@ -1,5 +1,5 @@
 #summary How to get started as a developer (not an end-user).
-#labels Phase-Design,Phase-Implementation,Phase-QA,Featured
+#labels Phase-Design,Phase-Implementation,Phase-QA
 
 = Getting started developing =
 
