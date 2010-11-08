@@ -1,0 +1,23 @@
+#summary One-sentence summary of this page.
+
+= Wishlist =
+
+Below is a list of features that should / has already been added with noteworthy remarks.
+
+|| *Feature* ||  *Comment* || *Priority* ||
+|| MPI parallelization  || Use of some Java port, which one? ||Medium ||
+|| XML input and output ||  ||  ||
+|| Multicore parallelization ||  ||  ||
+|| Program manuals auto-generated from Javadoc ||  ||  ||
+|| Unit testing framework ||  ||  ||
+|| GCC option parsing ||  ||  ||
+||Logging  ||  ||  ||
+|| Build system ||  ||  ||
+|| Bug-tracking ||  ||  ||
+|| Profiling tool ||  || Not of major importance in the beginning, but surely later. ||
+|| Numeric methods package. ||  ||  ||
+||  ||  ||  ||
+||  ||  ||  ||
+||  ||  ||  ||
+||  ||  ||  ||
+||  ||  ||  ||
