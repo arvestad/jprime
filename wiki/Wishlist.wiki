@@ -1,5 +1,5 @@
 #summary List of features needed.
-#labels Phase-Requirements,Phase-Design,Featured
+#labels Phase-Requirements,Phase-Design
 
 = Wishlist =
 
