@@ -5,7 +5,7 @@
 
 == Installation instructions ==
 
-Below summary refers to Eclipse. Use of NetBeans, etc. should be similar.
+Below summary refers to Eclipse. Use of !NetBeans, etc. should be similar.
 The latest verified version is shown within brackets.
 
   # Download and install Eclipse [Eclipse Helios].
@@ -14,10 +14,10 @@ The latest verified version is shown within brackets.
     * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
   # Install recommended Eclipse plugins:
     * Java Development Tools, if not already in place [3.6.1].
-    * Subversive with SVNKit or similarly, which enables SVN handling from within the IDE [0.7.9 and 2.2.2].
+    * Subversive with !SVNKit or similarly, which enables SVN handling from within the IDE [0.7.9 and 2.2.2].
     * Maven Integration for Eclipse [0.10.2].
   # Install external JARs which are not available through open Maven repositories. Store these in your local Maven folder, typically ~/.m2.
-    * Download BioJava [1.7.1].
+    * Download !BioJava [1.7.1].
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on the wiki.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
   # Activate Maven for the project.
