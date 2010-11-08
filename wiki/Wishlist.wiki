@@ -12,7 +12,7 @@ Below is a list of features that should / has already been added with noteworthy
 || Unit testing framework || Now using JUnit. || In place ||
 || GCC option parsing || Now using JCommander. Not quite pure GNU style though. || In place  ||
 ||Logging "Logback" or "log4j"? ||  || Low ||
-|| Build system  || Now using Maven, See Maven JAR plugin for packaging. || In place |
+|| Build system  || Now using Maven, See Maven JAR plugin for packaging. || In place ||
 || Bug-tracking || Now using issue tracking within Google Code. || In place ||
 || Profiling tool ||  Not of major importance for now. || Low ||
 || Numeric methods package. || JBLAS (using JNI) or pure Java implementation? See e.g. http://code.google.com/p/java-matrix-benchmark/, or http://ojalgo.org/matrix%5Fcompare.html, or http://stackoverflow.com/questions/529457/performance-of-java-matrix-math-libraries. || Medium ||
