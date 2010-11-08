@@ -21,6 +21,8 @@ The latest verified version is shown within brackets.
   # Start coding! (...possibly under a new branch).
 
 == Good to know ==
-  # Make sure that only things that should be kept under version control goes into SVN. Dot directories, target directories, external dependencies, etc. should be added to svn:ignore.
-  # Builds and dependencies are handled using Maven. Always add additional dependencies using the pom.xml or similarly. Maven is extremely capable.
-  # Bug tracking is handled using the Issues page here at Google Code.
+  * Make sure that only things that should be kept under version control goes into SVN. Dot directories, target directories, external dependencies, etc. should be added to svn:ignore.
+  * Builds and dependencies are handled using Maven. Always add additional dependencies using the pom.xml or similarly. Maven is extremely capable.
+  * Logging is not handled with the built-in logger, but rather Logback or log4j (not decided yet).
+  * Bug tracking is handled using the Issues page here at Google Code.
+  * Application parameter parsing can be achieved in (somewhat) GNU style using dependency JCommander.
