@@ -38,5 +38,12 @@
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
+  	<dependency>
+  		<groupId>ch.qos.logback</groupId>
+  		<artifactId>logback-classic</artifactId>
+  		<version>0.9.26</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
   </dependencies>
 </project>
