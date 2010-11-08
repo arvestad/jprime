@@ -10,7 +10,7 @@ The latest verified version is shown within brackets.
 
   # Download and install Eclipse [Eclipse Helios].
   # Download and Install required tools:
-    * Install Maven [Maven !2].
+    * Install Maven [Maven 2].
     * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
   # Install recommended Eclipse plugins:
     * Java Development Tools, if not already in place [3.6.1].
