@@ -2,14 +2,25 @@
 
 = Getting started developing =
 
-Below summary refers to Eclipse. Use of NetBeans, etc. should be similar.
-_The latest verified version is shown within brackets._
+== Installation instructions ==
 
-# Download and install Eclipse.
-# Download and Install required development tools:
-   * Install Maven.
-   * Possibly install external Subversion client if Subversive (see below) not sufficient.
-# Install recommended Eclipse plugins:
-   *_ Java Development Tools_, if not already in place.
-   * _Subversive_ with _SVNKit_ or similarly, which enables Subversion handling from within the IDE.
-   * _Maven Integration for Eclipse_.
+Below summary refers to Eclipse. Use of _NetBeans_, etc. should be similar.
+The latest verified version is shown within brackets.
+
+  # Download and install _Eclipse_.
+  # Download and Install required development tools:
+    * Install _Maven_.
+    * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
+  # Install recommended Eclipse plugins:
+    * _ Java Development Tools_, if not already in place.
+    * _Subversive_ with _SVNKit_ or similarly, which enables SVN handling from within the IDE.
+    * _Maven Integration for Eclipse_.
+  # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on the wiki.
+  # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
+  # Activate Maven for the project.
+  # Start coding! (...possibly under a new branch).
+
+== Good to know ==
+  # Make sure that only things that should be kept under version control goes into SVN. Dot directories, target directories, external dependencies, etc. should be added to svn:ignore.
+  # Builds and dependencies are handled using Maven. Always add additional dependencies using the pom.xml or similarly. Maven is extremely capable.
+  # Bug tracking is handled using the Issues page here at Google Code.
