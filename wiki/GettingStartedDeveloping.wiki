@@ -21,13 +21,25 @@ The latest verified version is shown within brackets.
   # Activate Maven for the project.
   # Start coding! (...possibly under a new branch).
 
-== Good to know ==
-  * Make sure that only things that should be kept under version control goes into SVN. Dot directories, target directories, external dependencies, etc. should be added to svn:ignore.
-  * Builds and dependencies are handled using Maven.
-     * Builds can be made into a JAR file using the Maven JAR plugin.
-     * Always try adding additional dependencies using the pom.xml. When a dependency does not exist in the open Maven repositories, one must use some workaround. Currently we do this by adding the JAR to the lib folder in the SVN repository and then adding a system scope reference to the JAR in Maven. 
-  * Logging is not handled with the built-in logger, but with Logback.
-  * Bug tracking is handled using the Issues page here at Google Code.
-  * Application parameter parsing can be achieved in (almost) GNU style using JCommander.
-  * Unit tests and test suites are handled with JUnit. Tests reside under the src/test/java folder in a package structure  aligned with that of the source code.
-  * When the need for a new root directory emerges, try adhering to the Maven standard directory layout, as other programs may rely on it.
+== Version control ==
+As mentioned, the source code is under version control using Subversion (SVN). Please note that "dot directories", target directories, and similar should not be under version control, i.e. be added to svn:ignore.
+
+== Builds and file structure ==
+Builds are handled using the very competent (and alas complex) framework Maven. In particular, Maven takes care of all external dependencies (see also below). One may build a project JAR file using the Maven JAR plugin. Please also note that the source file structure adheres to the Maven standard directory layout (as a subset thereof). Before adding new root folders, consider using this standard.
+
+== Dependencies ==
+Maven handles all external dependencies (most commonly JAR files). Typically, for a user, dependencies are retrieved and stored under the ~/.m2 folder. When there is a need for a new dependency, do the following:
+  # Try searching for the dependency using the interface shown for pom.xml in the source root. If it is found, just add it. Note that work versions (as opposed to proper releases) are often denoted SNAPSHOT.
+  # If the dependency does not exist in an open Maven repository, one must use a workaround. Currently, this consists of adding the JAR to the lib folder in the SVN repository and then adding a system scope reference to the JAR in pom.xml (typically without aid of the interface). 
+
+== Testing ==
+Unit tests and test suites are handled with JUnit. Tests reside under the src/test/java folder in a package structure  aligned with that of the source code. Maven can be told to run test suites when building.
+
+== Bug tracking ==
+ Bug tracking is handled using the Issues page here at Google Code.
+
+== Logging ==
+Logging is not handled with the built-in logger, but with Logback, which is a successor of log4j.
+
+== Application parameter parsing ==
+Parameter parsing can be achieved in (almost) GNU style using the dependency JCommander.
