@@ -30,9 +30,9 @@ Builds are handled using the very competent (and alas complex) framework Maven. 
 == File structure ==
 The source file structure adheres to the Maven standard directory layout (as a subset thereof). Before adding new root folders, consider using a folder name proposed by this standard. Of particular importance are:
   * src/main/java - where main source code goes. Note that there is a package for applications and tools, but that that these are not separated.
- * src/test/java - where unit tests and test suites go.
-* target - where local builds are kept (not under version control).
-* lib - where non-Mavenized dependencies are held, see below.
+  * src/test/java - where unit tests and test suites go.
+  * target - where local builds are kept (not under version control).
+  * lib - where non-Mavenized dependencies are held, see below.
 
 == Dependencies ==
 Maven handles all external dependencies (most commonly JAR files). Typically, for a user, dependencies are retrieved and stored under the ~/.m2 folder. When there is a need for a new dependency, do the following:
