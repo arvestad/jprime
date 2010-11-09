@@ -36,7 +36,7 @@ Maven handles all external dependencies (most commonly JAR files). Typically, fo
 Unit tests and test suites are handled with JUnit. Tests reside under the src/test/java folder in a package structure  aligned with that of the source code. Maven can be told to run test suites when building.
 
 == Bug tracking ==
- Bug tracking is handled using the Issues page here at Google Code.
+Bug tracking is handled using the Issues page here at Google Code.
 
 == Logging ==
 Logging is not handled with the built-in logger, but with Logback, which is a successor of log4j.
