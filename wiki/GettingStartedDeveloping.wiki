@@ -24,8 +24,15 @@ The latest verified version is shown within brackets.
 == Version control ==
 As mentioned, the source code is under version control using Subversion (SVN). Please note that "dot directories", target directories, and similar should not be under version control, i.e. they should be added to svn:ignore.
 
-== Builds and file structure ==
-Builds are handled using the very competent (and alas complex) framework Maven. In particular, Maven takes care of all external dependencies (see also below). One may build a project JAR file using the Maven JAR plugin. Please also note that the source file structure adheres to the Maven standard directory layout (as a subset thereof). Before adding new root folders, consider using this standard.
+== Builds ==
+Builds are handled using the very competent (and alas complex) framework Maven. In particular, Maven takes care of all external dependencies (see also below). One may build a project JAR file using the Maven JAR plugin.
+
+== File structure ==
+The source file structure adheres to the Maven standard directory layout (as a subset thereof). Before adding new root folders, consider using a folder name proposed by this standard. Of particular importance are:
+  * src/main/java - where main source code goes. Note that there is a package for applications and tools, but that that these are not separated.
+ * src/test/java - where unit tests and test suites go.
+* target - where local builds are kept (not under version control).
+* lib - where non-Mavenized dependencies are held, see below.
 
 == Dependencies ==
 Maven handles all external dependencies (most commonly JAR files). Typically, for a user, dependencies are retrieved and stored under the ~/.m2 folder. When there is a need for a new dependency, do the following:
