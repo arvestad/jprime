@@ -7,13 +7,13 @@ package se.cbb.jprime.probability;
  * "Continuous" is here used in the sense distinguishing it from discrete distributions.
  * It is thus perfectly allowed to have an implementation which is piecewise continuous, e.g.
  * resembling a histogram. We do, however, require that all implementations are defined
- * for a single domain [a,b], (a,b], [a,b) or (a,b), where the boundaries a&lt;b may take on
+ * for a single domain interval [a,b], (a,b], [a,b) or (a,b), where the bounds a&lt;b may take on
  * real numbers as well as negative and positive infinity.
  * 
  * @author Joel Sjöstrand.
  */
-public interface Continuous1DProbabilityDistribution extends ProbabilityDistribution {
-
+public interface Continuous1DPD extends ProbabilityDistribution {
+	
 	/**
 	 * Returns the probability density function f(x) for
 	 * a specified value x.
@@ -76,33 +76,8 @@ public interface Continuous1DProbabilityDistribution extends ProbabilityDistribu
 	public double getCV() throws ProbabilityException;
 	
 	/**
-	 * Returns the lower boundary of the domain on which the distribution is defined.
-	 * May be negative infinity. To determine whether this point is part of the domain, use
-	 * lowerDomainBoundaryIsIncluded().
-	 * @return the lower boundary of the domain.
+	 * Returns the domain interval.
+	 * @return the domain interval.
 	 */
-	public double getLowerDomainBoundary();
-	
-	/**
-	 * Returns the upper boundary of the domain on which the distribution is defined.
-	 * May be positive infinity. To determine whether this point is part of the domain, use
-	 * upperDomainBoundaryIsIncluded().
-	 * @return the lower boundary of the domain.
-	 */
-	public double getUpperDomainBoundary();
-	
-	/**
-	 * Returns true if the lower boundary of the domain is included in the domain, e.g.
-	 * a domain [a,b) returns true whereas (a,b) would return false.
-	 * @return true if the endpoint is part of the domain set.
-	 */
-	public boolean lowerDomainBoundaryIsIncluded();
-	
-	/**
-	 * Returns true if the upper boundary of the domain is included in the domain, e.g.
-	 * a domain (a,b] returns true whereas (a,b) would return false.
-	 * @return true if the endpoint is part of the domain set.
-	 */
-	public boolean upperDomainBoundaryIsIncluded();
-	
+	public Interval getDomainInterval();
 }
