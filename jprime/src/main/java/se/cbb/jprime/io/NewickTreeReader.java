@@ -1,7 +1,10 @@
 package se.cbb.jprime.io;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.List;
 import se.cbb.jprime.misc.CharQueue;
 
 /**
@@ -43,8 +46,8 @@ public class NewickTreeReader {
 	 * @param doSort true to sort the tree according to vertex names.
 	 * @return the trees in a list.
 	 */
-	public static ArrayList<NewickTree> readTrees(String str, boolean doSort) throws NewickIOException {
-		ArrayList<NewickTree> trees;
+	public static List<NewickTree> readTrees(String str, boolean doSort) throws NewickIOException {
+		List<NewickTree> trees;
 		CharQueue q = NewickStringAlgorithms.strip(str, Integer.MAX_VALUE);
 		try {
 			trees = readTreeSet(q, doSort);
@@ -54,6 +57,29 @@ public class NewickTreeReader {
 		return trees;
 	}
 
+	/**
+	 * Reads consecutive plain Newick trees from a file, disregarding meta info.
+	 * Empty input is allowed and renders an empty list.
+	 * Vertices of each tree are numbered post-order starting with 0 at first leaf.
+	 * Not optimised for large files.
+	 * @param f the input file.
+	 * @param doSort true to sort the tree according to vertex names.
+	 * @return the trees in a list.
+	 * @throws IOException.
+	 */
+	public static List<NewickTree> readTrees(File f, boolean doSort) throws NewickIOException, IOException {
+		byte[] buffer = new byte[(int) f.length()];
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(f);
+			fis.read(buffer);
+		} finally {
+			if (fis != null) try { fis.close(); } catch (IOException ex) {}
+		}
+	    String str = new String(buffer);
+	    return readTrees(str, doSort);
+	}
+	
 	/**
 	 * Reads exactly one plain Newick tree from input, disregarding meta info.
 	 * Additional trees following the first tree will be ignored and not cause parse errors.
@@ -76,13 +102,37 @@ public class NewickTreeReader {
 	}
 	
 	/**
+	 * Reads exactly one plain Newick tree from a file, disregarding meta info.
+	 * Additional trees following the first tree will be ignored and not cause parse errors.
+	 * If input is just comprised of the tree, a semi-colon at the end is not compulsory.
+	 * Vertices are numbered post-order starting with 0 at first leaf.
+	 * Not optimised for large files.
+	 * @param f the input file.
+	 * @param doSort true to sort the tree according to vertex names.
+	 * @return the tree.
+	 * @throws IOException.
+	 */
+	public static NewickTree readTree(File f, boolean doSort) throws NewickIOException, IOException {
+		byte[] buffer = new byte[(int) f.length()];
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(f);
+			fis.read(buffer);
+		} finally {
+			if (fis != null) try { fis.close(); } catch (IOException ex) {}
+		}
+	    String str = new String(buffer);
+	    return readTree(str, doSort);
+	}
+	
+	/**
 	 * Parses according to &lt;treeset&gt;.
 	 * @param q remaining characters.
 	 * @param doSort true to sort the tree according to vertex names.
 	 * @return list of parsed trees.
 	 * @throws NewickIOException.
 	 */
-	private static ArrayList<NewickTree> readTreeSet(CharQueue q, boolean doSort) throws NewickIOException {
+	private static List<NewickTree> readTreeSet(CharQueue q, boolean doSort) throws NewickIOException {
 		ArrayList<NewickTree> trees = new ArrayList<NewickTree>();		
 		while (!q.isEmpty()) {
 			trees.add(readTree(q, doSort));
