@@ -8,6 +8,8 @@ import java.util.List;
 import se.cbb.jprime.misc.CharQueue;
 
 /**
+ * <b>Note: This should be handled by a proper JFlex parser in the future.</b>
+ * <p/>
  * Handles input of Newick trees, creating node-based, intermediate
  * representations. These may then be converted to more efficient, specialised representations.
  * Includes methods to read "pure" Newick trees. For those where PrIME "meta info" has

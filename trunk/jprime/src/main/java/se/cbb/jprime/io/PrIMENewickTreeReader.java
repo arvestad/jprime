@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * <b>Note: This should be handled by a proper JFlex parser in the future.</b>
+ * <p/>
  * Similar to <code>NewickTreeReader</code>, but provides methods
  * for reading trees where PrIME meta info is parsed.
  * 
