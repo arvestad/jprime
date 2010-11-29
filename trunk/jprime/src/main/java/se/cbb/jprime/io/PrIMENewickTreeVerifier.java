@@ -1,7 +1,7 @@
 package se.cbb.jprime.io;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
 
@@ -23,7 +23,7 @@ public class PrIMENewickTreeVerifier {
 	private PrIMENewickTree tree;
 	
 	/** Vertices as array for convenience. */
-	private ArrayList<NewickVertex> vertices;
+	private List<NewickVertex> vertices;
 	
 	/**
 	 * Runs a set of standard validations on a PrIMENewickTree and
@@ -48,7 +48,7 @@ public class PrIMENewickTreeVerifier {
 	 */
 	public PrIMENewickTreeVerifier(PrIMENewickTree tree) {
 		this.tree = tree;
-		this.vertices = tree.getNewickTree().getVerticesAsArray();
+		this.vertices = tree.getNewickTree().getVerticesAsList();
 	}
 	
 	/**
@@ -161,7 +161,7 @@ public class PrIMENewickTreeVerifier {
 		
 		// Verify 0 vertex times at leaves.
 		if (reqZeroAtleaves && vt != null) {
-			ArrayList<NewickVertex> leaves = this.tree.getNewickTree().getLeavesAsArray();
+			List<NewickVertex> leaves = this.tree.getNewickTree().getLeavesAsList();
 			for (NewickVertex l : leaves) {
 				if (vt[l.getNumber()] != 0.0) {
 					throw new NewickIOException("Leaf time at vertex " + l.getNumber() + " is not 0.");

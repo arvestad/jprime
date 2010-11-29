@@ -1,7 +1,5 @@
 package se.cbb.jprime.topology;
 
-import se.cbb.jprime.topology.AcyclicDigraph;
-
 /**
  * Interface for holders of per-vertex values for an acyclic digraph G, e.g. vertex names
  * or branch lengths. A value is accessed using the integer ID of the vertex.
@@ -15,12 +13,6 @@ import se.cbb.jprime.topology.AcyclicDigraph;
  * @author Joel Sjöstrand.
  */
 public interface AcyclicDigraphMap {
-	
-	/**
-	 * Returns the graph to which this map refers.
-	 * @return the underlying graph.
-	 */
-	public AcyclicDigraph getGraph();
 
 	/**
 	 * Returns this map's name, if any.

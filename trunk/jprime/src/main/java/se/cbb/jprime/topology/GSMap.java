@@ -7,6 +7,8 @@ import java.util.Set;
 /**
  * Holds a list of guest tree leaf identifiers and a list of
  * host tree leaf identifiers, and mappings between them.
+ * Does not implement "sigma" functionality for mappings between
+ * reconciled trees.
  * 
  * @author Joel Sjöstrand.
  */

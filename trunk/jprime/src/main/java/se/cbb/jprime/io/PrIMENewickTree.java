@@ -1,8 +1,12 @@
 package se.cbb.jprime.io;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.StringMap;
+import se.cbb.jprime.topology.TimesMap;
 
 /**
  * Wrapper which parses the PrIME-specific meta info of a NewickTree and
@@ -18,7 +22,7 @@ import java.util.regex.Pattern;
  * accordingly.
  * <p/>
  * Vertex times and arc times may coexist, and similarly a "tree top time" may coexist alongside
- * an arc time of the root. However one may verify compatibility of such properties (see
+ * an arc time of the root. However, one may verify compatibility of such properties (see
  * also PrIMENewickTreeVerifier).
  * <p/>
  * The following properties are handled:
@@ -112,7 +116,7 @@ public class PrIMENewickTree {
 	 */
 	public PrIMENewickTree(NewickTree tree, boolean strict) throws NewickIOException {
 		this.newickTree = tree;
-		ArrayList<NewickVertex> vertices = tree.getVerticesAsArray();
+		List<NewickVertex> vertices = tree.getVerticesAsList();
 		this.noOfVertices = vertices.size();
 		parseTreeData();
 		for (NewickVertex v : vertices) {
@@ -333,7 +337,7 @@ public class PrIMENewickTree {
 	/**
 	 * Returns the vertex names. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to null.
-	 * @return the branch lengths.
+	 * @return the vertex names.
 	 */
 	public String[] getVertexNames() {
 		return this.vertexNames;
@@ -353,7 +357,7 @@ public class PrIMENewickTree {
 	 * Returns the vertex weights. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
-	 * @return the branch lengths.
+	 * @return the weights.
 	 */
 	public double[] getVertexWeights() {
 		return this.vertexWeights;
@@ -363,7 +367,7 @@ public class PrIMENewickTree {
 	 * Returns the vertex times. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
-	 * @return the branch lengths.
+	 * @return the vertex times.
 	 */
 	public double[] getVertexTimes() {
 		return this.vertexTimes;
@@ -373,9 +377,43 @@ public class PrIMENewickTree {
 	 * Returns the arc times. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
-	 * @return the branch lengths.
+	 * @return the arc times.
 	 */
 	public double[] getArcTimes() {
 		return this.arcTimes;
 	}
+	
+	/**
+	 * Returns a map of the names indexed by vertex numbers.
+	 * @return the map.
+	 */
+	public StringMap getVertexNamesMap() {
+		return new StringMap("VertexNames", this.getVertexNames());
+	}
+	
+	/**
+	 * Returns a map of the branch lengths indexed by vertex numbers.
+	 * @return the map.
+	 */
+	public DoubleMap getBranchLengthsMap() {
+		return new DoubleMap("BranchLengths", this.getBranchLengths());
+	}
+	
+	/**
+	 * Returns a map of the branch lengths indexed by vertex numbers.
+	 * @return the map.
+	 */
+	public DoubleMap getVertexWeightsMap() {
+		return new DoubleMap("VertexWeights", this.getVertexWeights());
+	}
+	
+	/**
+	 * Returns a map of the times (representing both vertex times and arc times)
+	 * indexed by vertex numbers.
+	 * @return the map.
+	 */
+	public TimesMap getTimesMap() {
+		return new TimesMap("Times", this.vertexTimes, this.arcTimes);
+	}
+	
 }
