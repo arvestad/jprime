@@ -20,7 +20,7 @@ The latest verified version is shown within brackets.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
   # Under project settings, set the Java version to 1.6.
   # Activate Maven for the project by "Maven -> Enable Dependency Management".
-  # Start coding! (...possibly by creating a new branch first!).
+  # Start coding! (...possibly by creating a new branch first!)
 
 == Version control ==
 As mentioned, the source code is under version control using Subversion (SVN). Please note that "dot directories", target directories, and similar should not be under version control, i.e. they should be added to svn:ignore.
