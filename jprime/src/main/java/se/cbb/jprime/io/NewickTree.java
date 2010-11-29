@@ -1,6 +1,10 @@
 package se.cbb.jprime.io;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.StringMap;
 
 /**
  * Holds a "pure" Newick tree. Essentially, this only consists of a tree
@@ -128,7 +132,7 @@ public class NewickTree {
 	 * the first element is the root, whereas the last element is a leaf.
 	 * @return all vertices.
 	 */
-	public ArrayList<NewickVertex> getVerticesAsArray() {
+	public List<NewickVertex> getVerticesAsList() {
 		ArrayList<NewickVertex> q = new ArrayList<NewickVertex>();
 		q.add(getRoot());
 		for (int i = 0; i < q.size(); ++i) {
@@ -143,11 +147,11 @@ public class NewickTree {
 	}
 	
 	/**
-	 * Returns all leaves as an array.
+	 * Returns all leaves as a list.
 	 * @return all vertices.
 	 */
-	public ArrayList<NewickVertex> getLeavesAsArray() {
-		ArrayList<NewickVertex> vs = getVerticesAsArray();
+	public List<NewickVertex> getLeavesAsList() {
+		List<NewickVertex> vs = getVerticesAsList();
 		ArrayList<NewickVertex> ls = new ArrayList<NewickVertex>((vs.size()+1) / 2);
 		for (NewickVertex v : vs) {
 			if (v.isLeaf()) { ls.add(v); }
@@ -163,5 +167,36 @@ public class NewickTree {
 	 */
 	public void sort() throws NewickIOException {
 		this.root.sort();
+	}
+	
+	/**
+	 * Returns a map of the names indexed by vertex numbers.
+	 * @return the map.
+	 */
+	public StringMap getVertexNamesMap() {
+		List<NewickVertex> vertices = this.getVerticesAsList();
+		StringMap names = new StringMap("VertexNames", vertices.size());
+		for (NewickVertex v : vertices) {
+			String n = v.getName();
+			names.set(v.getNumber(), n);
+			if (n == null && v.isLeaf()) {
+				throw new NullPointerException("Missing leaf name in vertex " + v.getNumber() + '.');
+			}
+		}
+		return names;
+	}
+	
+	/**
+	 * Returns a map of the branch lengths indexed by vertex numbers.
+	 * @return the map.
+	 */
+	public DoubleMap getBranchLengthsMap() {
+		List<NewickVertex> vertices = this.getVerticesAsList();
+		DoubleMap bls = new DoubleMap("BranchLengths", vertices.size());
+		for (NewickVertex v : vertices) {
+			Double bl = v.getBranchLength();
+			bls.set(v.getNumber(), bl);
+		}
+		return bls;
 	}
 }

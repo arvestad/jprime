@@ -1,26 +1,26 @@
 package se.cbb.jprime.topology;
 
 /**
- * Holds a string for each vertex/arc of a tree or graph.
+ * Holds an int for each vertex/arc of a tree or graph.
  * 
  * @author Joel Sjöstrand.
  */
-public class StringMap implements AcyclicDigraphMap {
+public class IntMap implements AcyclicDigraphMap {
 	
 	/** The name of this map, if any. */
 	private String name;
 	
 	/** The map values. */
-	private String[] values;
+	private int[] values;
 	
 	/**
 	 * Constructor. Initialises all map values to null.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 */
-	public StringMap(String name, int size) {
+	public IntMap(String name, int size) {
 		this.name = name;
-		this.values = new String[size];
+		this.values = new int[size];
 	}
 	
 	/**
@@ -30,9 +30,9 @@ public class StringMap implements AcyclicDigraphMap {
 	 * @param size the size of the map.
 	 * @param defaultVal default value for all elements.
 	 */
-	public StringMap(String name, int size, String defaultVal) {
+	public IntMap(String name, int size, int defaultVal) {
 		this.name = name;
-		this.values = new String[size];
+		this.values = new int[size];
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
 		}
@@ -44,7 +44,7 @@ public class StringMap implements AcyclicDigraphMap {
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
 	 */
-	public StringMap(String name, String[] vals) {
+	public IntMap(String name, int[] vals) {
 		this.name = name;
 		this.values = vals;
 	}
@@ -61,12 +61,12 @@ public class StringMap implements AcyclicDigraphMap {
 	
 	@Override
 	public Object getAsObject(int x) {
-		return this.values[x];
+		return new Integer(this.values[x]);
 	}
 
 	@Override
 	public void setAsObject(int x, Object value) {
-		this.values[x] = value.toString();
+		this.values[x] = ((Integer) value).intValue();
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class StringMap implements AcyclicDigraphMap {
 	 * @param x the vertex/head of arc.
 	 * @return the value.
 	 */
-	public String get(int x) {
+	public int get(int x) {
 		return this.values[x];
 	}
 	
@@ -83,7 +83,7 @@ public class StringMap implements AcyclicDigraphMap {
 	 * @param x the vertex/head of arc.
 	 * @param val the value.
 	 */
-	public void set(int x, String val) {
+	public void set(int x, int val) {
 		this.values[x] = val;
 	}
 }

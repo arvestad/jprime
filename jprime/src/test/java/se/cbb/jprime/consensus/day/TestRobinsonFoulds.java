@@ -10,7 +10,6 @@ import se.cbb.jprime.consensus.day.TemplatedPSWTree;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.topology.StringMap;
-import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeFactory;
 
@@ -29,16 +28,18 @@ public class TestRobinsonFoulds {
 		String s2 = "(((root,F),(A,G)),((B,C),(D,E)));";
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
-		Pair<RBTree, StringMap> t1 = RBTreeFactory.createTreeAndNames(n1, "t1");
-		Pair<RBTree, StringMap> t2 = RBTreeFactory.createTreeAndNames(n2, "t2");
-		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1.first, t1.second, true);
-		TemplatedPSWTree d2 = new TemplatedPSWTree(t2.first, t2.second, d1);
+		RBTree t1 = RBTreeFactory.createTree(n1, "t1");
+		StringMap names1 = n1.getVertexNamesMap();
+		RBTree t2 = RBTreeFactory.createTree(n2, "t2");
+		StringMap names2 = n2.getVertexNamesMap();
+		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, true);
+		TemplatedPSWTree d2 = new TemplatedPSWTree(t2, names2, d1);
 		
 		// Verify when to treat as unrooted.
 		assertEquals(2, RobinsonFoulds.computeAsymmetricDistance(d2));
-		assertEquals(4, RobinsonFoulds.computeDistance(t1.first, t1.second, t2.first, t2.second, true));
+		assertEquals(4, RobinsonFoulds.computeDistance(t1, names1, t2, names2, true));
 		
 		// Verify distance when treated as rooted.
-		assertEquals(6, RobinsonFoulds.computeDistance(t1.first, t1.second, t2.first, t2.second, false));
+		assertEquals(6, RobinsonFoulds.computeDistance(t1, names1, t2, names2, false));
 	}
 }
