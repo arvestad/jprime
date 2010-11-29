@@ -1,6 +1,6 @@
 package se.cbb.jprime.io;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.* ;
 import static org.junit.Assert.*;
@@ -21,7 +21,7 @@ public class TestNewickTreeReader {
 	@Test
 	public void readNonExistantTree() throws NewickIOException {
 		String in = "";
-		ArrayList<NewickTree> ts = NewickTreeReader.readTrees(in, true);
+		List<NewickTree> ts = NewickTreeReader.readTrees(in, true);
 		assertNotNull(ts);
 		assertTrue(ts.size() == 0);
 	}
@@ -40,7 +40,7 @@ public class TestNewickTreeReader {
 		String in = "(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);\n" +
 				"((A:0.1,B:0.2,(C:0.3,D:0.4)E:0.5)F:1e123,G:-234,(H:0.456,I:12.34)J:-12e-34)K:0;\n" +
 				"((A[],B:123[]):245[],[My info tag])E[My second info tag!][My tree tag!!];";
-		ArrayList<NewickTree> ts = NewickTreeReader.readTrees(in, true);
+		List<NewickTree> ts = NewickTreeReader.readTrees(in, true);
 		NewickTree t0 = ts.get(0);
 		NewickTree t1 = ts.get(1);
 		NewickTree t2 = ts.get(2);
