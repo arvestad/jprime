@@ -4,9 +4,6 @@ import java.util.List;
 
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.NewickTree;
-import se.cbb.jprime.io.PrIMENewickTree;
-import se.cbb.jprime.topology.StringMap;
-import se.cbb.jprime.misc.Pair;
 
 /**
  * Factory class used for creating RBTree instances.
