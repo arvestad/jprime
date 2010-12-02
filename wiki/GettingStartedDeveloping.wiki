@@ -9,6 +9,7 @@ Below summary refers to Eclipse. Use of !NetBeans, etc. should be similar.
 The latest verified version is shown within brackets.
 
   # Download and install Eclipse [Eclipse Helios].
+  # You probably want to set the default encoding to UTF-8 for both "Eclipse -> Preferences -> General -> Workspace" and all text content types under "Eclipse -> Preferences -> General -> Content Types".
   # Download and Install required tools:
     * Install Maven [Maven 2].
     * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
