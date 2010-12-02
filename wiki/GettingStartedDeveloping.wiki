@@ -8,15 +8,15 @@
 Below summary refers to Eclipse. Use of !NetBeans, etc. should be similar.
 The latest verified version is shown within brackets.
 
-  # Download and install Eclipse {{{[Eclipse Helios]}}}.
+  # Download and install Eclipse {{{[Helios]}}}.
   # You probably want to set the default encoding to UTF-8 for both "Eclipse -> Preferences -> General -> Workspace" and all text content types under "Eclipse -> Preferences -> General -> Content Types".
   # Download and Install required tools:
-    * Install Maven [Maven 2].
+    * Install Maven {{{[Maven 2]}}}.
     * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
   # Install recommended Eclipse plugins:
-    * Java Development Tools, if not already in place [3.6.1].
-    * Subversive with !SVNKit or similarly, which enables SVN handling from within the IDE [0.7.9 and 2.2.2].
-    * Maven Integration for Eclipse [0.10.2].
+    * Java Development Tools, if not already in place {{{[3.6.1]}}}.
+    * Subversive with SVNKit or similarly, which enables SVN handling from within the IDE {{{[0.7.9 and 2.2.2]}}}.
+    * Maven Integration for Eclipse {{{[0.10.2]}}}.
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on this wiki.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
   # Under project settings, set the Java version to 1.6.
