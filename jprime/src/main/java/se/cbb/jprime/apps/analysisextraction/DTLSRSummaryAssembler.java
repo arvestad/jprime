@@ -53,6 +53,7 @@ public class DTLSRSummaryAssembler {
 			double burnIn = 0.25;
 			
 			// Parameters to retrieve info for.
+			// TODO: "molli" should be exchanged for regexp.
 			ArrayList<Parameter> params = new ArrayList<Parameter>();
 			params.add(new TreeParameter("Tree_Model1.Tree"));
 			params.add(new FloatParameter("molli_DupLossTrans0.birthRate"));

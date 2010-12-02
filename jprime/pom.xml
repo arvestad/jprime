@@ -19,6 +19,11 @@
   	<system>Google Code Issues</system>
   	<url>https://code.google.com/p/jprime/issues/list</url>
   </issueManagement>
+  <scm>
+  	<connection>scm:svn:https://jprime.googlecode.com/svn/</connection>
+  	<tag>HEAD</tag>
+  	<url>https://jprime.googlecode.com/svn/</url>
+  </scm>
   <organization>
   	<name>Computational biology &amp; bioinformatics at KTH &amp; SU, Stockholm, Sweden</name>
   	<url>http://www.sbc.su.se</url>
