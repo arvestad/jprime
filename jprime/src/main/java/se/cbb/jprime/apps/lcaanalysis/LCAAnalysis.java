@@ -2,8 +2,6 @@ package se.cbb.jprime.apps.lcaanalysis;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-
 import se.cbb.jprime.io.*;
 import se.cbb.jprime.topology.GSMap;
 
