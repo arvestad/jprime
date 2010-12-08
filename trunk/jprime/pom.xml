@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>JPrIME</name>
-  <description>Probabilistic phylogenetic inference tools employing primarily an MCMC framework.</description>
+  <description>Probabilistic phylogenetic inference tools.</description>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -56,7 +56,7 @@
     	<version>1.7.1</version>
     	<type>jar</type>
     	<scope>system</scope>
-    	<systemPath>${basedir}/lib/biojava-1.7.1-bin.jar</systemPath>
+    	<systemPath>${basedir}/lib/java/biojava-1.7.1-bin.jar</systemPath>
 	</dependency>
 	<dependency>
     	<groupId>org.biojava.utils.bytecode</groupId>
@@ -64,7 +64,7 @@
     	<version>1.7.1</version>
     	<type>jar</type>
     	<scope>system</scope>
-    	<systemPath>${basedir}/lib/biojava-1.7.1.bytecode.jar</systemPath>
+    	<systemPath>${basedir}/lib/java/biojava-1.7.1.bytecode.jar</systemPath>
 	</dependency>
   </dependencies>
 </project>
