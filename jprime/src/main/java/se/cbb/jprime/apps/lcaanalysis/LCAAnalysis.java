@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import se.cbb.jprime.io.*;
 import se.cbb.jprime.topology.GSMap;
+import se.cbb.jprime.topology.NamesMap;
 
 /**
  * TBD.
@@ -28,6 +29,10 @@ public class LCAAnalysis {
 		
 		// Read tree and G-S map.
 		PrIMENewickTree s = PrIMENewickTreeReader.readTree(sFile, true, true);
+		NamesMap names = s.getNamesMap();
+		for (String name : names.getNamesSorted()) {
+			System.out.println(name);
+		}
 		GSMap gs = GSMapReader.readGSMap(gsFile);
 		
 	}

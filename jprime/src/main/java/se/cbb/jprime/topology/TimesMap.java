@@ -1,7 +1,7 @@
 package se.cbb.jprime.topology;
 
 /**
- * Holds a times for each vertex/arc of an ultrametric tree or graph.
+ * Specialisation of a DoubleMap. Holds times for each vertex/arc of an ultrametric tree or graph.
  * Provides access to both absolute times of vertices and time span of arcs.
  * 
  * @author Joel Sjöstrand.

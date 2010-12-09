@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import se.cbb.jprime.topology.DoubleMap;
-import se.cbb.jprime.topology.StringMap;
+import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
@@ -336,7 +336,8 @@ public class PrIMENewickTree {
 	
 	/**
 	 * Returns the vertex names. If lacking values altogether, returns
-	 * null. Single uninitialised items are set to null.
+	 * null. Single uninitialised items are set to null. See also
+	 * getNamesMap().
 	 * @return the vertex names.
 	 */
 	public String[] getVertexNames() {
@@ -347,6 +348,7 @@ public class PrIMENewickTree {
 	 * Returns the branch lengths. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
+	 * See also getBranchLengthsMap().
 	 * @return the branch lengths.
 	 */
 	public double[] getBranchLengths() {
@@ -357,6 +359,7 @@ public class PrIMENewickTree {
 	 * Returns the vertex weights. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
+	 * See also getWeightsMap().
 	 * @return the weights.
 	 */
 	public double[] getVertexWeights() {
@@ -367,6 +370,7 @@ public class PrIMENewickTree {
 	 * Returns the vertex times. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
+	 * See also getTimesMap().
 	 * @return the vertex times.
 	 */
 	public double[] getVertexTimes() {
@@ -377,6 +381,7 @@ public class PrIMENewickTree {
 	 * Returns the arc times. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
+	 * See also getTimesMap().
 	 * @return the arc times.
 	 */
 	public double[] getArcTimes() {
@@ -387,8 +392,8 @@ public class PrIMENewickTree {
 	 * Returns a map of the names indexed by vertex numbers.
 	 * @return the map.
 	 */
-	public StringMap getVertexNamesMap() {
-		return new StringMap("VertexNames", this.getVertexNames());
+	public NamesMap getNamesMap() {
+		return new NamesMap("VertexNames", this.getVertexNames());
 	}
 	
 	/**
@@ -403,7 +408,7 @@ public class PrIMENewickTree {
 	 * Returns a map of the branch lengths indexed by vertex numbers.
 	 * @return the map.
 	 */
-	public DoubleMap getVertexWeightsMap() {
+	public DoubleMap getWeightsMap() {
 		return new DoubleMap("VertexWeights", this.getVertexWeights());
 	}
 	
