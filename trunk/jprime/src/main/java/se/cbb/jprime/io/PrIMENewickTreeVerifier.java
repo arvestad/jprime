@@ -48,7 +48,7 @@ public class PrIMENewickTreeVerifier {
 	 */
 	public PrIMENewickTreeVerifier(PrIMENewickTree tree) {
 		this.tree = tree;
-		this.vertices = tree.getNewickTree().getVerticesAsList();
+		this.vertices = tree.getVerticesAsList();
 	}
 	
 	/**
@@ -135,7 +135,7 @@ public class PrIMENewickTreeVerifier {
 	 */
 	private void validateDoubleArray(double[] vals, String propName, boolean ignoreRoot) throws NewickIOException {
 		if (vals != null) {
-			int ignore = (ignoreRoot ? this.tree.getNewickTree().getRootNumber() : -1);
+			int ignore = (ignoreRoot ? this.tree.getRootNumber() : -1);
 			for (int i = 0; i < vals.length; ++i) {
 				if (Double.isNaN(vals[i]) && i != ignore) {
 					throw new NewickIOException("Missing " + propName + " on Newick vertex " + i + ".");
@@ -161,7 +161,7 @@ public class PrIMENewickTreeVerifier {
 		
 		// Verify 0 vertex times at leaves.
 		if (reqZeroAtleaves && vt != null) {
-			List<NewickVertex> leaves = this.tree.getNewickTree().getLeavesAsList();
+			List<NewickVertex> leaves = this.tree.getLeavesAsList();
 			for (NewickVertex l : leaves) {
 				if (vt[l.getNumber()] != 0.0) {
 					throw new NewickIOException("Leaf time at vertex " + l.getNumber() + " is not 0.");

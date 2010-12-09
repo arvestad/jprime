@@ -9,7 +9,7 @@ import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
- * Wrapper which parses the PrIME-specific meta info of a NewickTree and
+ * Extension of a NewickTree which parses the PrIME-specific meta info and
  * provides simplified access to such data (alongside the original topology).
  * It is required that vertices are numbered from 0 to |V(T)|-1, and that
  * meta info tags have the form "[&&PRIME ...]".
@@ -42,7 +42,7 @@ import se.cbb.jprime.topology.TimesMap;
  * 
  * @author Joel Sjöstrand.
  */
-public class PrIMENewickTree {
+public class PrIMENewickTree extends NewickTree {
 	
 	/**
 	 * Tree properties.
@@ -80,9 +80,6 @@ public class PrIMENewickTree {
 		}
 	}
 	
-	/** The underlying tree. */
-	private NewickTree newickTree;
-	
 	/** Size of the underlying tree. */
 	private int noOfVertices;
 	
@@ -115,7 +112,7 @@ public class PrIMENewickTree {
 	 * @throws NewickIOException.
 	 */
 	public PrIMENewickTree(NewickTree tree, boolean strict) throws NewickIOException {
-		this.newickTree = tree;
+		super(tree);
 		List<NewickVertex> vertices = tree.getVerticesAsList();
 		this.noOfVertices = vertices.size();
 		parseTreeData();
@@ -168,14 +165,13 @@ public class PrIMENewickTree {
 	 * Parses PrIME meta info corresponding to the tree.
 	 */
 	private void parseTreeData() {
-		String meta = this.newickTree.getMeta();
 		String val;
 		
-		val = MetaProperty.TREE_NAME.getValue(meta);
+		val = MetaProperty.TREE_NAME.getValue(this.meta);
 		if (val != null) {
 			this.treeName = val;
 		}
-		val = MetaProperty.TREE_TOP_TIME.getValue(meta);
+		val = MetaProperty.TREE_TOP_TIME.getValue(this.meta);
 		if (val != null) {
 			this.treeTopTime = Double.parseDouble(val);
 		}
@@ -306,15 +302,6 @@ public class PrIMENewickTree {
 			}
 		}
 		this.arcTimes[x] = time;
-	}
-	
-	/**
-	 * Returns the underlying plain Newick tree. Note: this has been
-	 * updated to comply with duplicate fields found in PrIME meta info.
-	 * @return the tree.
-	 */
-	public NewickTree getNewickTree() {
-		return this.newickTree;
 	}
 	
 	/**
