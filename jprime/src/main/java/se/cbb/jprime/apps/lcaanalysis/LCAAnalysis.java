@@ -27,14 +27,28 @@ public class LCAAnalysis {
 		File sFile = new File(args[0]);
 		File gsFile = new File(args[1]);
 		
-		// Read tree and G-S map.
-		PrIMENewickTree s = PrIMENewickTreeReader.readTree(sFile, true, true);
-		NamesMap names = s.getNamesMap();
-		for (String name : names.getNamesSorted()) {
-			System.out.println(name);
-		}
-		GSMap gs = GSMapReader.readGSMap(gsFile);
-		
+//		// Read tree and G-S map.
+//		PrIMENewickTree host = PrIMENewickTreeReader.readTree(sFile, true, true);
+//		RT
+//		NamesMap names = host.getNamesMap();
+//		
+//		
+//		for (String name : names.getNamesSorted()) {
+//			System.out.println(name);
+//		}
+//		GSMap gs = GSMapReader.readGSMap(gsFile);
+//		for (String sn : gs.getHostLeafNames()) {
+//			System.out.println(sn);
+//			for (String gn : gs.getGuestLeafNames(sn)) {
+//				System.out.println("  " + gn);
+//			}
+//		}
+//		
+//		// Acquire LCA of host tree leaves found in GS file.
+//		int lca = names.getVertex(xn);
+//		for (String xn : gs.getHostLeafNames()) {
+//			int x = names.getVertex(xn);
+//		}
 	}
 	
 	/**

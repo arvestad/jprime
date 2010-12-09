@@ -21,10 +21,10 @@ import se.cbb.jprime.topology.StringMap;
 public class NewickTree {
 
 	/** The root. */
-	private NewickVertex root;
+	protected NewickVertex root;
 	
 	/** Meta info between brackets. Null if empty. */
-	private String meta = null;
+	protected String meta = null;
 	
 	/**
 	 * Creates a Newick tree from a topology rooted at a NewickVertex.
@@ -46,6 +46,15 @@ public class NewickTree {
 		if (doRenumber) {
 			renumber();
 		}
+	}
+	
+	/**
+	 * Protected constructor for superclasses.
+	 * @param tree the tree to copy.
+	 */
+	protected NewickTree(NewickTree tree) {
+		this.root = tree.root;
+		this.meta = tree.meta;
 	}
 
 	/**

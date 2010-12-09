@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Holds a list of guest tree leaf identifiers and a list of
- * host tree leaf identifiers, and mappings between them.
+ * Holds a list of guest tree leaf names and a list of
+ * host tree leaf names, and mappings between them.
  * Does not implement "sigma" functionality for mappings between
  * reconciled trees.
  * 
@@ -31,8 +31,8 @@ public class GSMap {
 	/**
 	 * Adds a host-guest leaf pair. The Host leaf may already exist
 	 * in other pair constellations.
-	 * @param hostLeaf the host leaf ID.
-	 * @param guestLeaf the guest leaf ID.
+	 * @param hostLeaf the host leaf name.
+	 * @param guestLeaf the guest leaf name.
 	 */
 	public void add(String hostLeaf, String guestLeaf) {
 		this.guestToHostLeafMap.put(guestLeaf, hostLeaf);
@@ -45,36 +45,36 @@ public class GSMap {
 	}
 	
 	/**
-	 * Returns the guest leaf IDs.
-	 * @return the IDs.
+	 * Returns the guest leaf names.
+	 * @return the names.
 	 */
-	public Set<String> getGuestLeafIDs() {
+	public Set<String> getGuestLeafNames() {
 		return this.guestToHostLeafMap.keySet();
 	}
 	
 	/**
-	 * Returns the host leaf IDs.
-	 * @return the IDs.
+	 * Returns the host leaf names.
+	 * @return the names.
 	 */
-	public Set<String> getHostLeafIDs() {
+	public Set<String> getHostLeafNames() {
 		return this.hostToGuestLeafMap.keySet();
 	}
 	
 	/**
-	 * Returns the host leaf ID of a guest leaf.
-	 * @param guestLeafID the guest leaf.
+	 * Returns the host leaf names of a guest leaf.
+	 * @param guestLeaf the guest leaf.
 	 * @return the host leaf.
 	 */
-	public String getHostLeafID(String guestLeafID) {
-		return this.guestToHostLeafMap.get(guestLeafID);
+	public String getHostLeafName(String guestLeaf) {
+		return this.guestToHostLeafMap.get(guestLeaf);
 	}
 	
 	/**
-	 * Returns the guest leaf IDs of a host leaf.
-	 * @param guestLeafID the guest leaf.
+	 * Returns the guest leaf names of a host leaf.
+	 * @param guestLeaf the guest leaf.
 	 * @return the host leaf.
 	 */
-	public Set<String> getGuestLeafIDs(String hostLeafID) {
-		return this.hostToGuestLeafMap.get(hostLeafID);
+	public Set<String> getGuestLeafNames(String hostLeaf) {
+		return this.hostToGuestLeafMap.get(hostLeaf);
 	}
 }
