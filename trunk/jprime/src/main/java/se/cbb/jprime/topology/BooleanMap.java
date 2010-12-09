@@ -8,13 +8,13 @@ package se.cbb.jprime.topology;
 public class BooleanMap implements AcyclicDigraphMap {
 	
 	/** The name of this map, if any. */
-	private String name;
+	protected String name;
 	
 	/** The map values. */
-	private boolean[] values;
+	protected boolean[] values;
 	
 	/**
-	 * Constructor. Initialises all map values to null.
+	 * Constructor. Initialises all map values to false.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 */

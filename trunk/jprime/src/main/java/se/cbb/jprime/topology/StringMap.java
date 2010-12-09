@@ -8,10 +8,10 @@ package se.cbb.jprime.topology;
 public class StringMap implements AcyclicDigraphMap {
 	
 	/** The name of this map, if any. */
-	private String name;
+	protected String name;
 	
 	/** The map values. */
-	private String[] values;
+	protected String[] values;
 	
 	/**
 	 * Constructor. Initialises all map values to null.
