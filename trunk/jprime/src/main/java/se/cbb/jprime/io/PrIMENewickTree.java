@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import se.cbb.jprime.topology.DoubleMap;
-import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
@@ -18,7 +17,7 @@ import se.cbb.jprime.topology.TimesMap;
  * as arrays from this class (indexed by vertex number).
  * <p/>
  * Whenever there is duplication of information (e.g. for vertex numbers,
- * branch lengths), meta tags will have precedence and the NewickTree be updated
+ * branch lengths), meta tags will have precedence and the tree be updated
  * accordingly.
  * <p/>
  * Vertex times and arc times may coexist, and similarly a "tree top time" may coexist alongside
@@ -27,15 +26,15 @@ import se.cbb.jprime.topology.TimesMap;
  * <p/>
  * The following properties are handled:
  * <pre>
- * Property         "Pure Newick":  PrIME meta:   Access:
- * ------------------------------------------------------------
- * Topology         Y                             NewickTree.
- * Tree name                        Y             This class.
- * Tree top time                    Y             This class.
- * Vertex numbers   Y               Y             NewickTree.
- * Vertex names     Y               Y             Both.
+ * Property         "Pure Newick":  PrIME meta:   Note:
+ * ---------------------------------------------------------------------
+ * Topology         Y                             
+ * Tree name                        Y             
+ * Tree top time                    Y             
+ * Vertex numbers   Y               Y             Meta overrides pure.
+ * Vertex names     Y               Y             Meta overrides pure.
  * Vertex weights                   Y             This class.
- * Branch lengths   Y               Y             Both.
+ * Branch lengths   Y               Y             Meta overrides pure.
  * Vertex times                     Y             This class.
  * Arc times                        Y             This class.
  * </pre>
@@ -89,11 +88,11 @@ public class PrIMENewickTree extends NewickTree {
 	/** Tree "top time". */
 	private double treeTopTime = Double.NaN;
 	
-	/** Vertex names. */
-	private String[] vertexNames = null;
+	/** Vertex names flag. */
+	private boolean hasVertexNames = false;
 	
-	/** Branch lengths. */
-	private double[] branchLengths = null;
+	/** Branch lengths flag. */
+	private boolean hasBranchLengths = false;
 	
 	/** Vertex weights. */
 	private double[] vertexWeights = null;
@@ -148,9 +147,9 @@ public class PrIMENewickTree extends NewickTree {
 		case VERTEX_NUMBERS:
 			return true;
 		case VERTEX_NAMES:
-			return (this.vertexNames != null);
+			return this.hasVertexNames;
 		case BRANCH_LENGTHS:
-			return (this.branchLengths != null);
+			return this.hasBranchLengths;
 		case VERTEX_WEIGHTS:
 			return (this.vertexWeights != null);
 		case VERTEX_TIMES:
@@ -191,28 +190,25 @@ public class PrIMENewickTree extends NewickTree {
 		val = MetaProperty.VERTEX_NUMBERS.getValue(meta);
 		if (val != null) {
 			x = Integer.parseInt(val);
-			n.setNumber(x);
+			n.setNumber(x);   // Override node value.
 		}
 		
-		// Read "pure Newick" properties.
-		if (n.hasName()) {
-			setVertexName(x, n.getName());
-		}
-		if (n.hasBranchLength()) {
-			setBranchLength(x, n.getBranchLength());
-		}
-		
-		// Read meta properties.
+		// Read properties where "pure" and "meta" overlap. Let the latter override.
+		if (n.hasName()) { this.hasVertexNames = true; }
 		val = MetaProperty.VERTEX_NAMES.getValue(meta);
 		if (val != null) {
-			setVertexName(x, val);
+			n.setName(val);  // Override.
+			this.hasVertexNames = true;
 		}
+		if (n.hasBranchLength()) { this.hasBranchLengths = true; }
 		val = MetaProperty.BRANCH_LENGTHS.getValue(meta);
 		if  (val != null) {
 			double bl = Double.parseDouble(val);
-			setBranchLength(x, bl);
-			n.setBranchLength(bl);
+			n.setBranchLength(bl);  // Override.
+			this.hasBranchLengths = true;
 		}
+		
+		// Read "exclusive" meta properties.
 		val = MetaProperty.VERTEX_WEIGHTS.getValue(meta);
 		if  (val != null) {
 			setVertexWeight(x, Double.parseDouble(val));
@@ -225,34 +221,6 @@ public class PrIMENewickTree extends NewickTree {
 		if  (val != null) {
 			setArcTime(x, Double.parseDouble(val));
 		}
-	}
-	
-	/**
-	 * Sets a vertex name. All empty names are null.
-	 * @param x the vertex.
-	 * @param name the name.
-	 */
-	private void setVertexName(int x, String name) {
-		if (this.vertexNames == null) {
-			this.vertexNames = new String[this.noOfVertices];
-		}
-		this.vertexNames[x] = name;
-	}
-	
-	/**
-	 * Sets a branch length. All empty branch lengths are NaN
-	 * (for which one checks by Double.isNaN(val)).
-	 * @param x the vertex.
-	 * @param branchLength the branch length.
-	 */
-	private void setBranchLength(int x, double branchLength) {
-		if (this.branchLengths == null) {
-			this.branchLengths = new double[this.noOfVertices];
-			for (int i = 0; i < this.branchLengths.length; ++i) {
-				this.branchLengths[i] = Double.NaN;
-			}
-		}
-		this.branchLengths[x] = branchLength;
 	}
 	
 	/**
@@ -291,7 +259,7 @@ public class PrIMENewickTree extends NewickTree {
 	/**
 	 * Sets an arc time. All empty values are NaN
 	 * (for which one checks by Double.isNaN(val)).
-	 * Ultrametricity or compatibility with vertex times is not verified.
+	 * Ultrametricity or compatibility with vertex times are not verified.
 	 * @param x the vertex.
 	 * @param time the time.
 	 */
@@ -320,27 +288,6 @@ public class PrIMENewickTree extends NewickTree {
 	 */
 	public double getTreeTopTime() {
 		return this.treeTopTime;
-	}
-	
-	/**
-	 * Returns the vertex names. If lacking values altogether, returns
-	 * null. Single uninitialised items are set to null. See also
-	 * getNamesMap().
-	 * @return the vertex names.
-	 */
-	public String[] getVertexNames() {
-		return this.vertexNames;
-	}
-	
-	/**
-	 * Returns the branch lengths. If lacking values altogether, returns
-	 * null. Single uninitialised items are set to NaN
-	 * (for which one checks by Double.isNaN(val)).
-	 * See also getBranchLengthsMap().
-	 * @return the branch lengths.
-	 */
-	public double[] getBranchLengths() {
-		return this.branchLengths;
 	}
 	
 	/**
@@ -377,35 +324,24 @@ public class PrIMENewickTree extends NewickTree {
 	}
 	
 	/**
-	 * Returns a map of the names indexed by vertex numbers.
+	 * Returns a map of the vertex weights indexed by vertex numbers.
+	 * If weights are lacking altogether, null is returned.
 	 * @return the map.
 	 */
-	public NamesMap getNamesMap() {
-		return new NamesMap("VertexNames", this.getVertexNames());
-	}
-	
-	/**
-	 * Returns a map of the branch lengths indexed by vertex numbers.
-	 * @return the map.
-	 */
-	public DoubleMap getBranchLengthsMap() {
-		return new DoubleMap("BranchLengths", this.getBranchLengths());
-	}
-	
-	/**
-	 * Returns a map of the branch lengths indexed by vertex numbers.
-	 * @return the map.
-	 */
-	public DoubleMap getWeightsMap() {
-		return new DoubleMap("VertexWeights", this.getVertexWeights());
+	public DoubleMap getVertexWeightsMap() {
+		return (this.vertexWeights != null ? new DoubleMap("VertexWeights", this.vertexWeights) : null);
 	}
 	
 	/**
 	 * Returns a map of the times (representing both vertex times and arc times)
 	 * indexed by vertex numbers.
+	 * If times are lacking altogether, null is returned.
 	 * @return the map.
 	 */
 	public TimesMap getTimesMap() {
+		if (this.vertexTimes == null && this.arcTimes == null) {
+			return null;
+		}
 		return new TimesMap("Times", this.vertexTimes, this.arcTimes);
 	}
 	

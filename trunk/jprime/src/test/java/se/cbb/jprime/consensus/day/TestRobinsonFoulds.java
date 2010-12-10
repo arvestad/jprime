@@ -9,7 +9,7 @@ import se.cbb.jprime.consensus.day.RobinsonFoulds;
 import se.cbb.jprime.consensus.day.TemplatedPSWTree;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickTreeReader;
-import se.cbb.jprime.topology.StringMap;
+import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeFactory;
 
@@ -29,9 +29,9 @@ public class TestRobinsonFoulds {
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
 		RBTree t1 = RBTreeFactory.createTree(n1, "t1");
-		StringMap names1 = n1.getVertexNamesMap();
+		NamesMap names1 = n1.getVertexNamesMap(true);
 		RBTree t2 = RBTreeFactory.createTree(n2, "t2");
-		StringMap names2 = n2.getVertexNamesMap();
+		NamesMap names2 = n2.getVertexNamesMap(true);
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, true);
 		TemplatedPSWTree d2 = new TemplatedPSWTree(t2, names2, d1);
 		

@@ -24,16 +24,20 @@ public class TestPrIMENewickTreeReader {
 		PrIMENewickTree tree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		assertEquals(14, tree.getNoOfLeaves());
 		assertTrue(tree.hasProperty(MetaProperty.BRANCH_LENGTHS));
-		assertEquals("AYWBP", tree.getVertexNames()[0]);
-		assertEquals("URPAR", tree.getVertexNames()[21]);
-		NamesMap names = tree.getNamesMap();
-		assertEquals("AYWBP", names.get(0));
-		assertEquals(0, names.getVertex("AYWBP"));
-		assertEquals(21, names.getVertex("URPAR"));
-		TreeSet<String> namesSorted = names.getNamesSorted(true);
+		String[] names = tree.getVertexNames(true);
+		assertEquals("AYWBP", names[0]);
+		assertEquals("URPAR", names[21]);
+		NamesMap namesMap = tree.getVertexNamesMap(true);
+		assertEquals("AYWBP", namesMap.get(0));
+		assertEquals(0, namesMap.getVertex("AYWBP"));
+		assertEquals(21, namesMap.getVertex("URPAR"));
+		TreeSet<String> namesSorted = namesMap.getNamesSorted(true);
 		assertEquals("AYWBP", namesSorted.first());
 		assertEquals("URPAR", namesSorted.last());
 		assertEquals(14, namesSorted.size());
+		namesMap = tree.getVertexNamesMap(false);
+		assertNotSame(14, namesMap.getNamesSorted(false).size());
+		assertEquals(14, namesMap.getNamesSorted(true).size());
 	}
 	
 }
