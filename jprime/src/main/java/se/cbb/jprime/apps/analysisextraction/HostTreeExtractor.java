@@ -20,8 +20,8 @@ public class HostTreeExtractor {
 	private static final Pattern ET_SUPER_REGEX = Pattern.compile("&&PRIME[^\\]]*" + ET_SUB_REGEX.pattern());
 	private static final Pattern NT_SUB_REGEX = Pattern.compile("NT=[0-9e\\.\\+\\-]+");
 	private static final Pattern NT_SUPER_REGEX = Pattern.compile("&&PRIME[^\\]]*" + NT_SUB_REGEX.pattern());
-	private static final Pattern TT_SUB_REGEX = Pattern.compile("TT=[0-9e\\.\\+\\-]+");
-	private static final Pattern TT_SUPER_REGEX = Pattern.compile("&&PRIME[^\\]]*" + TT_SUB_REGEX.pattern());
+	//private static final Pattern TT_SUB_REGEX = Pattern.compile("TT=[0-9e\\.\\+\\-]+");
+	//private static final Pattern TT_SUPER_REGEX = Pattern.compile("&&PRIME[^\\]]*" + TT_SUB_REGEX.pattern());
 	
 	/**
 	 * Retrieves the host tree and related info from a host tree file.

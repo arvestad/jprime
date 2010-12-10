@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.cbb.jprime.topology.DoubleMap;
-import se.cbb.jprime.topology.StringMap;
+import se.cbb.jprime.topology.NamesMap;
 
 /**
  * Holds a "pure" Newick tree. Essentially, this only consists of a tree
@@ -187,33 +187,67 @@ public class NewickTree {
 	}
 	
 	/**
-	 * Returns a map of the names indexed by vertex numbers.
-	 * @return the map.
+	 * Returns the vertex names.
+	 * Single uninitialised items are set to null.
+	 * See also getVertexNamesMap().
+	 * @param leafNamesOnly true to set array's interior vertex names to null.
+	 * @return the names.
 	 */
-	public StringMap getVertexNamesMap() {
+	public String[] getVertexNames(boolean leafNamesOnly) {
 		List<NewickVertex> vertices = this.getVerticesAsList();
-		StringMap names = new StringMap("VertexNames", vertices.size());
+		String[] names = new String[vertices.size()];
 		for (NewickVertex v : vertices) {
-			String n = v.getName();
-			names.set(v.getNumber(), n);
-			if (n == null && v.isLeaf()) {
-				throw new NullPointerException("Missing leaf name in vertex " + v.getNumber() + '.');
+			if (!leafNamesOnly || v.isLeaf()) {
+				String n = v.getName();
+				names[v.getNumber()] = n;
+				if (n == null && v.isLeaf()) {
+					throw new NullPointerException("Missing leaf name in vertex " + v.getNumber() + '.');
+				}
 			}
 		}
 		return names;
 	}
 	
 	/**
+	 * Returns the branch lengths. If these are lacking altogether, null is returned.
+	 * Single uninitialised items are set to NaN
+	 * (for which one checks by Double.isNaN(val)).
+	 * See also getBranchLengthsMap().
+	 * @return the branch lengths.
+	 */
+	public double[] getBranchLengths() {
+		List<NewickVertex> vertices = this.getVerticesAsList();
+		double[] bls = new double[vertices.size()];
+		for (int i = 0; i < bls.length; ++i) {
+			bls[i] = Double.NaN;
+		}
+		boolean hasBLs = false;
+		for (NewickVertex v : vertices) {
+			Double bl = v.getBranchLength();
+			if (bl != null) {
+				bls[v.getNumber()] = bl.doubleValue();
+				hasBLs = true;
+			}
+		}
+		return (hasBLs ? bls : null);
+	}
+	
+	/**
+	 * Returns a map of the names indexed by vertex numbers.
+	 * @param leafNamesOnly true to set map's interior vertex names to null.
+	 * @return the map.
+	 */
+	public NamesMap getVertexNamesMap(boolean leafNamesOnly) {
+		return new NamesMap("VertexNames", this.getVertexNames(leafNamesOnly));
+	}
+	
+	/**
 	 * Returns a map of the branch lengths indexed by vertex numbers.
+	 * If branch lengths are lacking altogether, null is returned.
 	 * @return the map.
 	 */
 	public DoubleMap getBranchLengthsMap() {
-		List<NewickVertex> vertices = this.getVerticesAsList();
-		DoubleMap bls = new DoubleMap("BranchLengths", vertices.size());
-		for (NewickVertex v : vertices) {
-			Double bl = v.getBranchLength();
-			bls.set(v.getNumber(), bl);
-		}
-		return bls;
+		double[] bls = this.getBranchLengths();
+		return (bls != null ? new DoubleMap("BranchLengths", bls) : null);
 	}
 }

@@ -105,7 +105,7 @@ public class NamesMap extends StringMap {
 		Set<String> names = this.vertices.keySet();
 		for (Iterator<String> iter = names.iterator(); iter.hasNext(); ) {
 			String s = iter.next();
-			if (s.matches("^\\d+$")) {
+			if (excludeBootstrapNames && s.matches("^\\d+$")) {
 				iter.remove();
 			}
 		}

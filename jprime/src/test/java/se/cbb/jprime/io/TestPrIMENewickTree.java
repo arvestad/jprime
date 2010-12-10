@@ -6,6 +6,7 @@ import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
+import se.cbb.jprime.topology.DoubleMap;
 import static org.junit.Assert.*;
 
 /**
@@ -26,11 +27,12 @@ public class TestPrIMENewickTree {
 		assertTrue(t.hasProperty(MetaProperty.BRANCH_LENGTHS));
 		assertFalse(t.hasProperty(MetaProperty.ARC_TIMES));
 		assertTrue(t.hasProperty(MetaProperty.VERTEX_TIMES));
-		assertTrue(t.getBranchLengths()[0] == 12);
+		DoubleMap bls = t.getBranchLengthsMap();
+		assertTrue(bls.get(0) == 12);
 		assertTrue(t.getVertexTimes()[7] == 22);
 		
 		// Verify overridden number and branch length.
-		assertTrue(t.getBranchLengths()[3] == 450);
+		assertTrue(bls.get(3) == 450);
 		assertTrue(t.getTreeTopTime() > 0);
 	}
 	

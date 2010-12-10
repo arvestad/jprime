@@ -3,7 +3,6 @@ package se.cbb.jprime.apps.lcaanalysis;
 import java.io.File;
 import java.io.IOException;
 import se.cbb.jprime.io.*;
-import se.cbb.jprime.topology.GSMap;
 import se.cbb.jprime.topology.NamesMap;
 
 /**
@@ -29,21 +28,11 @@ public class LCAAnalysis {
 		
 		// Read tree and G-S map.
 		PrIMENewickTree host = PrIMENewickTreeReader.readTree(sFile, true, true);
-		NamesMap names = host.getNamesMap();
+		NamesMap names = host.getVertexNamesMap(true);
 		
 		
-//		for (String name : names.getNamesSorted()) {
-//			System.out.println(name);
-//		}
-//		GSMap gs = GSMapReader.readGSMap(gsFile);
-//		for (String sn : gs.getHostLeafNames()) {
-//			System.out.println(sn);
-//			for (String gn : gs.getGuestLeafNames(sn)) {
-//				System.out.println("  " + gn);
-//			}
-//		}
+		// Acquire LCA of host tree leaves found in GS file.
 		
-//		// Acquire LCA of host tree leaves found in GS file.
 //		int lca = names.getVertex(xn);
 //		for (String xn : gs.getHostLeafNames()) {
 //			int x = names.getVertex(xn);
