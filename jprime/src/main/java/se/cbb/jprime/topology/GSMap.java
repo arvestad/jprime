@@ -31,10 +31,10 @@ public class GSMap {
 	/**
 	 * Adds a host-guest leaf pair. The Host leaf may already exist
 	 * in other pair constellations.
-	 * @param hostLeaf the host leaf name.
 	 * @param guestLeaf the guest leaf name.
+	 * @param hostLeaf the host leaf name.
 	 */
-	public void add(String hostLeaf, String guestLeaf) {
+	public void add(String guestLeaf, String hostLeaf) {
 		this.guestToHostLeafMap.put(guestLeaf, hostLeaf);
 		Set<String> s = this.hostToGuestLeafMap.get(hostLeaf);
 		if (s == null) {
@@ -45,18 +45,18 @@ public class GSMap {
 	}
 	
 	/**
-	 * Returns the guest leaf names.
+	 * Returns all guest leaf names.
 	 * @return the names.
 	 */
-	public Set<String> getGuestLeafNames() {
+	public Set<String> getAllGuestLeafNames() {
 		return this.guestToHostLeafMap.keySet();
 	}
 	
 	/**
-	 * Returns the host leaf names.
+	 * Returns all host leaf names.
 	 * @return the names.
 	 */
-	public Set<String> getHostLeafNames() {
+	public Set<String> getAllHostLeafNames() {
 		return this.hostToGuestLeafMap.keySet();
 	}
 	

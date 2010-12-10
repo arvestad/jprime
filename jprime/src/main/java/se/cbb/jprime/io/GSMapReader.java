@@ -35,6 +35,7 @@ public class GSMapReader {
 			String[] parts = ln.split("[ \t]+");
 			gs.add(parts[0], parts[1]);
 		}
+		sc.close();
 		return gs;
 	}
 	
