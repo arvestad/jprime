@@ -128,6 +128,7 @@ public class PrIMENewickTree extends NewickTree {
 	 * Returns the size of the tree.
 	 * @return the number of vertices.
 	 */
+	@Override
 	public int getNoOfVertices() {
 		return this.noOfVertices;
 	}

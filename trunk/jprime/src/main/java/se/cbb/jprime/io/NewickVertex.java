@@ -276,6 +276,19 @@ public class NewickVertex {
 	}
 	
 	/**
+	 * Returns the number of leaves of the subtree rooted at this vertex.
+	 * @return the number of leaves.
+	 */
+	public int getNoOfLeaves() {
+		if (this.isLeaf()) { return 1; }
+		int k = 0;
+		for (NewickVertex n : this.children) {
+			k += n.getNoOfLeaves();
+		}
+		return k;
+	}
+	
+	/**
 	 * Relabels the vertex numbers of the subtree rooted at this vertex post-order,
 	 * starting from number no at the first leaf.
 	 * @param num the number to start labelling from.
@@ -323,4 +336,5 @@ public class NewickVertex {
 		String firstChildName = (named.isEmpty() ? null : named.firstKey());
 		return (this.hasName() ? this.name : firstChildName);
 	}
+
 }

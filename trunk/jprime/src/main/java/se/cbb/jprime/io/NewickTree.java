@@ -118,6 +118,14 @@ public class NewickTree {
 	}
 	
 	/**
+	 * Returns the number of leaves of the tree.
+	 * @return the number of leaves.
+	 */
+	public int getNoOfLeaves() {
+		return this.root.getNoOfLeaves();
+	}
+	
+	/**
 	 * Returns true if the tree is strictly bifurcating, i.e.
 	 * every vertex has 2 or 0 children.
 	 * @return true if the tree is bifurcating.
