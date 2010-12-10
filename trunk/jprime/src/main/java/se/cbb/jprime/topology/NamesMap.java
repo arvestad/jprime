@@ -1,12 +1,16 @@
 package se.cbb.jprime.topology;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Specialisation of a StringMap, where each non-null element is required to be unique, implying that
- * vertex/arc indices may be retrieved from names (and vice versa).
+ * Extension of a StringMap, where vertex/arc indices may be retrieved from names (and vice versa).
+ * <p/>
+ * However, note that retrieving an index will only work for unique identifiers; for instance, a
+ * bootstrap value vertex name will in general have many peers with the same name (in which case one
+ * of them will be returned).
  * 
  * @author Joel Sjöstrand.
  */
@@ -22,22 +26,30 @@ public class NamesMap extends StringMap {
 	 * @param vals the initial values of this map, indexed by vertex number.
 	 */
 	public NamesMap(String name, String[] vals) {
-		super(name, vals.length);
+		super(name, vals);
 		vertices = new HashMap<String, Integer>(2 * vals.length);
 		for (int i = 0; i < vals.length; ++i) {
 			if (vals[i] != null) {
-				if (this.vertices.put(vals[i], new Integer(i)) != null) {
-					throw new IllegalArgumentException("Cannot insert duplicate name in NamesMap.");
-				}
+				this.vertices.put(vals[i], new Integer(i));
 			}
 		}
 	}
-
+	
+	/**
+	 * Returns the name of this map. Don't confuse this with names
+	 * of individual elements (returned by get(x)).
+	 * @return the name of the map.
+	 */
 	@Override
 	public String getName() {
 		return this.name;
 	}
 
+	/**
+	 * Sets the name of this map. Don't confuse this with names
+	 * of individual elements.
+	 * @param name the name of the map.
+	 */
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -54,7 +66,7 @@ public class NamesMap extends StringMap {
 	}
 
 	/**
-	 * Returns the element of a vertex/arc.
+	 * Returns the name of a vertex/arc.
 	 * @param x the vertex/head of arc.
 	 * @return the name.
 	 */
@@ -63,7 +75,7 @@ public class NamesMap extends StringMap {
 	}
 	
 	/**
-	 * Sets the element of a vertex/arc.
+	 * Sets the name of a vertex/arc. No check i made for uniqueness.
 	 * @param x the vertex/head of arc.
 	 * @param val the name.
 	 */
@@ -85,19 +97,28 @@ public class NamesMap extends StringMap {
 	}
 	
 	/**
-	 * Returns all non-null names.
+	 * Returns all non-null names of vertices/arcs.
+	 * @param excludeBootstrapNames excludes all integer names.
 	 * @return the names.
 	 */
-	public Set<String> getNames() {
-		return this.vertices.keySet();
+	public Set<String> getNames(boolean excludeBootstrapNames) {
+		Set<String> names = this.vertices.keySet();
+		for (Iterator<String> iter = names.iterator(); iter.hasNext(); ) {
+			String s = iter.next();
+			if (s.matches("^\\d+$")) {
+				iter.remove();
+			}
+		}
+		return names;
 	}
 	
 	/**
-	 * Returns all non-null names in a sorted representation.
+	 * Returns all non-null names of vertices/arcs in a sorted representation.
+	 * @param excludeBootstrapNames excludes all integer names.
 	 * @return the names.
 	 */
-	public TreeSet<String> getNamesSorted() {
-		return new TreeSet<String>(this.vertices.keySet());
+	public TreeSet<String> getNamesSorted(boolean excludeBootstrapNames) {
+		return new TreeSet<String>(getNames(excludeBootstrapNames));
 	}
 	
 }
