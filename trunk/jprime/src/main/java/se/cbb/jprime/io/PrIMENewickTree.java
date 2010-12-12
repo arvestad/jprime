@@ -79,6 +79,17 @@ public class PrIMENewickTree extends NewickTree {
 		}
 	}
 	
+	/**
+	 * Controls which properties are considered when creating
+	 * a times map, in order of precedence. 'VT' is for vertex times,
+	 * 'AT' is for arc times, and 'BL' is for branch lengths.
+	 */
+	public enum TimesPropertySelector {
+		VT_AT_BL,		// VT, then AT, then BL, then fail.
+		VT_AT,   		// VT, then AT, then fail. 
+		BL    			// BL, then fail.
+	}
+	
 	/** Size of the underlying tree. */
 	private int noOfVertices;
 	
@@ -86,7 +97,7 @@ public class PrIMENewickTree extends NewickTree {
 	private String treeName = null;
 	
 	/** Tree "top time". */
-	private double treeTopTime = Double.NaN;
+	private Double treeTopTime = null;
 	
 	/** Vertex names flag. */
 	private boolean hasVertexNames = false;
@@ -143,7 +154,7 @@ public class PrIMENewickTree extends NewickTree {
 		case TREE_NAME:
 			return (this.treeName != null);
 		case TREE_TOP_TIME:
-			return (!Double.isNaN(this.treeTopTime));
+			return (this.treeTopTime != null);
 		case VERTEX_NUMBERS:
 			return true;
 		case VERTEX_NAMES:
@@ -283,10 +294,10 @@ public class PrIMENewickTree extends NewickTree {
 	
 	/**
 	 * Return the "top time", i.e. typically an explicitly stored
-	 * branch length or arc time preceding the root. Is NaN if empty.
+	 * branch length or arc time preceding the root. Is null if empty.
 	 * @return the top time.
 	 */
-	public double getTreeTopTime() {
+	public Double getTreeTopTime() {
 		return this.treeTopTime;
 	}
 	
@@ -334,15 +345,50 @@ public class PrIMENewickTree extends NewickTree {
 	
 	/**
 	 * Returns a map of the times (representing both vertex times and arc times)
-	 * indexed by vertex numbers.
-	 * If times are lacking altogether, null is returned.
+	 * indexed by vertex numbers. If the top time property is set, this overrides 
+	 * the root value. Considers both vertex times, arc times and branch lengths
+	 * (in that order).
 	 * @return the map.
+	 * @throws NewickIOException if missing times.
 	 */
-	public TimesMap getTimesMap() {
-		if (this.vertexTimes == null && this.arcTimes == null) {
-			return null;
+	public TimesMap getTimesMap() throws NewickIOException {
+		return getTimesMap(TimesPropertySelector.VT_AT_BL);
+	}
+	
+	/**
+	 * Returns a map of the times (representing both vertex times and arc times)
+	 * indexed by vertex numbers. If the top time property is set, this overrides 
+	 * the root value.
+	 * @param sel controls which properties are considered for creating the map.
+	 * @return the map.
+	 * @throws NewickIOException if missing times.
+	 */
+	public TimesMap getTimesMap(TimesPropertySelector sel) throws NewickIOException {
+		boolean consVT = false;
+		boolean consAT = false;
+		boolean consBL = false;
+		switch (sel) {
+		case VT_AT_BL:
+			consVT = true;
+			consAT = true;
+			consBL = true;
+			break;
+		case VT_AT:
+			consVT = true;
+			consAT = true;
+		case BL:
+			consBL = true;
 		}
-		return new TimesMap("Times", this.vertexTimes, this.arcTimes);
+		if (consVT && this.vertexTimes != null) {
+				return new TimesMap("Times", this.vertexTimes, true, this.treeTopTime);
+		}
+		if (consAT && this.arcTimes != null) {
+			return new TimesMap("Times", this.arcTimes, false, this.treeTopTime);
+		}
+		if (consBL && this.hasBranchLengths) {
+			return new TimesMap("Times", this.getBranchLengths(), false, this.treeTopTime);
+		}
+		throw new NewickIOException("Cannot create time map; times missing in tree.");
 	}
 	
 }

@@ -308,7 +308,7 @@ public class NewickVertex {
 	 * Recursively sorts the children of this vertex according to vertex names.
 	 * If lacking name, a vertex is instead represented by the "smallest" name corresponding
 	 * to the subtrees of its children. Unnamed children are stored last.
-	 * Assumes that vertex names are unique.
+	 * Assumes that vertex names are unique (i.e., beware of bootstrap names!).
 	 * @return the name representing the subtree rooted at this vertex.
 	 * @throws NewickIOException if there was a collision due to duplicate names while sorting.
 	 */

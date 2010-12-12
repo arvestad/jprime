@@ -2,8 +2,15 @@ package se.cbb.jprime.apps.lcaanalysis;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
+
 import se.cbb.jprime.io.*;
+import se.cbb.jprime.topology.GSMap;
 import se.cbb.jprime.topology.NamesMap;
+import se.cbb.jprime.topology.RTree;
+import se.cbb.jprime.topology.RTreeFactory;
+import se.cbb.jprime.topology.TopologyException;
 
 /**
  * TBD.
@@ -15,10 +22,11 @@ public class LCAAnalysis {
 	/**
 	 * Starter.
 	 * @param args
+	 * @throws TopologyException 
 	 * @throws IOException .
 	 * @throws NewickIOException.
 	 */
-	public static void main(String[] args) throws NewickIOException, IOException {
+	public static void main(String[] args) throws NewickIOException, IOException, TopologyException {
 		if (args.length != 2) {
 			System.err.println("Expecting 2 arguments.");
 			usage();
@@ -27,16 +35,19 @@ public class LCAAnalysis {
 		File gsFile = new File(args[1]);
 		
 		// Read tree and G-S map.
-		PrIMENewickTree host = PrIMENewickTreeReader.readTree(sFile, true, true);
-		NamesMap names = host.getVertexNamesMap(true);
-		
+		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(sFile, false, true);
+		RTree s = RTreeFactory.createTree(sRaw, "HostTree");
+		NamesMap names = sRaw.getVertexNamesMap(true);
+		GSMap gs = GSMapReader.readGSMap(gsFile);
+		Set<String> covNames = gs.getAllHostLeafNames();
 		
 		// Acquire LCA of host tree leaves found in GS file.
-		
-//		int lca = names.getVertex(xn);
-//		for (String xn : gs.getHostLeafNames()) {
-//			int x = names.getVertex(xn);
-//		}
+		Iterator<String> it = covNames.iterator();
+		int lca = names.getVertex(it.next());
+		while (it.hasNext()) {
+			lca = s.getLCA(names.getVertex(it.next()), lca);
+		}
+		System.out.println("LCA ID: " + lca);
 	}
 	
 	/**

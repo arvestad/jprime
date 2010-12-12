@@ -45,7 +45,8 @@ public class NewickTreeReader {
 	 * Empty input is allowed and renders an empty list.
 	 * Vertices of each tree are numbered post-order starting with 0 at first leaf.
 	 * @param str the input.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @return the trees in a list.
 	 */
 	public static List<NewickTree> readTrees(String str, boolean doSort) throws NewickIOException {
@@ -65,7 +66,8 @@ public class NewickTreeReader {
 	 * Vertices of each tree are numbered post-order starting with 0 at first leaf.
 	 * Not optimised for large files.
 	 * @param f the input file.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @return the trees in a list.
 	 * @throws IOException.
 	 */
@@ -88,7 +90,8 @@ public class NewickTreeReader {
 	 * If input is just comprised of the tree, a semi-colon at the end is not compulsory.
 	 * Vertices are numbered post-order starting with 0 at first leaf.
 	 * @param str the input.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @return the tree.
 	 */
 	public static NewickTree readTree(String str, boolean doSort) throws NewickIOException {
@@ -110,7 +113,8 @@ public class NewickTreeReader {
 	 * Vertices are numbered post-order starting with 0 at first leaf.
 	 * Not optimised for large files.
 	 * @param f the input file.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @return the tree.
 	 * @throws IOException.
 	 */

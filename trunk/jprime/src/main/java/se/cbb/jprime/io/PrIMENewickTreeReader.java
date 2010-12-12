@@ -20,7 +20,8 @@ public class PrIMENewickTreeReader {
 	 * Reads consecutive Newick trees (augmented with PrIME meta info) from input.
 	 * Empty input is allowed and renders an empty list.
 	 * @param str the input.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @param strict set to true to raise an exception if some standard tests fail;
 	 * alternatively one may conduct specific validation using class PrIMENewickTreeVerifier.
 	 * @return the trees in a list.
@@ -39,7 +40,8 @@ public class PrIMENewickTreeReader {
 	 * Reads consecutive Newick trees (augmented with PrIME meta info) from an input file.
 	 * Empty input is allowed and renders an empty list. Not optimised for large files.
 	 * @param f the input file.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @param strict set to true to raise an exception if some standard tests fail;
 	 * alternatively one may conduct specific validation using class PrIMENewickTreeVerifier.
 	 * @return the trees in a list.
@@ -64,7 +66,8 @@ public class PrIMENewickTreeReader {
 	 * Additional trees following the first tree will be ignored and not cause parse errors.
 	 * If input is just comprised of the tree, a semi-colon at the end is not compulsory.
 	 * @param str the input.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @param strict set to true to raise an exception if some standard tests fail;
 	 * alternatively one may conduct specific validation using class PrIMENewickTreeVerifier.
 	 * @return the tree.
@@ -80,7 +83,8 @@ public class PrIMENewickTreeReader {
 	 * If input is just comprised of the tree, a semi-colon at the end is not compulsory.
 	 * Not optimised for large files.
 	 * @param f the input file.
-	 * @param doSort true to sort the tree according to vertex names.
+	 * @param doSort true to sort the tree according to vertex names. Do not use when there are
+	 *        bootstrap vertex names.
 	 * @param strict set to true to raise an exception if some standard tests fail;
 	 * alternatively one may conduct specific validation using class PrIMENewickTreeVerifier.
 	 * @return the tree.

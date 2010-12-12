@@ -7,16 +7,20 @@ package se.cbb.jprime.topology;
  * @author Joel Sjöstrand.
  */
 public class TimesMap extends DoubleMap {
-
+	
 	/**
-	 * Constructor.
-	 * TODO: Implement.
-	 * @param name
-	 * @param vals
+	 * Constructor. One may input either vertex times (absolute times) or
+	 * arc times. It is assumed that the times are in fact ultrametric.
+	 * @param name the name of the map.
+	 * @param times the times.
+	 * @param areAbsolute true if the times refer to vertex times, false if they refer
+	 *        to arc times.
+	 * @param topTime a time predating the root. If not null, this will override
+	 *        any such value already in the array.
 	 */
-	public TimesMap(String name, double[] vertexTimes, double[] arcTimes) {
-		super(name, vertexTimes);
-		// TODO Auto-generated constructor stub
+	public TimesMap(String name, double[] times, boolean areAbsolute, Double topTime) {
+		super(name, times.length);
+		//TODO: Implement.
 	}
 
 }
