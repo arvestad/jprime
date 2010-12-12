@@ -32,7 +32,8 @@ public class NewickTree {
 	 * @param root the root of the topology, must not be null.
 	 * @param meta the meta info (provided between brackets).
 	 * @param doRenumber true to relabel the NewickNodes post-order (Newick-style).
-	 * @param doSort true to sort the tree using method sort().
+	 * @param doSort true to sort the tree using method sort(). Do not use when there are
+	 *        bootstrap vertex names.
 	 * @throws NewickIOException.
 	 */
 	public NewickTree(NewickVertex root, String meta, boolean doRenumber, boolean doSort) throws NewickIOException {
