@@ -10,6 +10,7 @@ import se.cbb.jprime.topology.GSMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.RTreeFactory;
+import se.cbb.jprime.topology.TimesMap;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
@@ -38,6 +39,7 @@ public class LCAAnalysis {
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(sFile, false, true);
 		RTree s = RTreeFactory.createTree(sRaw, "HostTree");
 		NamesMap names = sRaw.getVertexNamesMap(true);
+		TimesMap times = sRaw.getTimesMap();
 		GSMap gs = GSMapReader.readGSMap(gsFile);
 		Set<String> covNames = gs.getAllHostLeafNames();
 		
@@ -48,6 +50,9 @@ public class LCAAnalysis {
 			lca = s.getLCA(names.getVertex(it.next()), lca);
 		}
 		System.out.println("LCA ID: " + lca);
+		System.out.println("LCA time: " + times.get(lca));
+		System.out.println("LCA height: " + s.getHeight(lca));
+		System.out.println("LCA arcs to root: " + s.getNoOfAncestors(lca, true));
 	}
 	
 	/**

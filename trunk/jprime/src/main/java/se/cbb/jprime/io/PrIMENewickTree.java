@@ -358,7 +358,8 @@ public class PrIMENewickTree extends NewickTree {
 	/**
 	 * Returns a map of the times (representing both vertex times and arc times)
 	 * indexed by vertex numbers. If the top time property is set, this overrides 
-	 * the root value.
+	 * the root value. The first encountered time property will act as a template,
+	 * ignoring duplicate information (e.g. when there are both vertex and arc times).
 	 * @param sel controls which properties are considered for creating the map.
 	 * @return the map.
 	 * @throws NewickIOException if missing times.
@@ -376,19 +377,32 @@ public class PrIMENewickTree extends NewickTree {
 		case VT_AT:
 			consVT = true;
 			consAT = true;
+			break;
 		case BL:
 			consBL = true;
+			break;
 		}
+		
+		// Compute both absolute and relative times.
+		double[] vt = null;
+		double[] at = null;
 		if (consVT && this.vertexTimes != null) {
-				return new TimesMap("Times", this.vertexTimes, true, this.treeTopTime);
+			vt = this.vertexTimes;
+			at = PrIMENewickTreeVerifier.absoluteToRelative(this.getVerticesAsList(), vt);
+			if (this.arcTimes != null) { at[this.root.getNumber()] = this.arcTimes[this.root.getNumber()]; }
+		} else if (consAT && this.arcTimes != null) {
+			at = this.arcTimes;
+			vt = PrIMENewickTreeVerifier.relativeToAbsolute(this.getVerticesAsList(), at);
+		} else if (consBL && this.hasBranchLengths) {
+			at = this.getBranchLengths();
+			vt = PrIMENewickTreeVerifier.relativeToAbsolute(this.getVerticesAsList(), at);
+		} else {
+			throw new NewickIOException("Cannot create time map; times missing in tree.");
 		}
-		if (consAT && this.arcTimes != null) {
-			return new TimesMap("Times", this.arcTimes, false, this.treeTopTime);
-		}
-		if (consBL && this.hasBranchLengths) {
-			return new TimesMap("Times", this.getBranchLengths(), false, this.treeTopTime);
-		}
-		throw new NewickIOException("Cannot create time map; times missing in tree.");
+		
+		// Explicit top time has precedence.
+		if (this.treeTopTime != null) { at[this.root.getNumber()] = this.treeTopTime.doubleValue(); }
+		return new TimesMap("Times", vt, at);
 	}
 	
 }

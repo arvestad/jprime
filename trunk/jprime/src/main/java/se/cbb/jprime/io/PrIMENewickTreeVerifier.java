@@ -145,7 +145,7 @@ public class PrIMENewickTreeVerifier {
 	}
 	
 	/**
-	 * Verifies that a vertex times are either empty or ultrametric, and similarly
+	 * Verifies that vertex times are either empty or ultrametric, and similarly
 	 * that arc times are either empty or ultrametric. Numeric precision discrepancies are
 	 * allowed up to the value of constant MAX_TIME_DIFF.
 	 * @param reqZeroAtleaves true to require that all leaf times equal 0.
@@ -157,7 +157,7 @@ public class PrIMENewickTreeVerifier {
 	throws NewickIOException {
 		double[] vt = this.tree.getVertexTimes();
 		double[] at = this.tree.getArcTimes();
-		double tt = this.tree.getTreeTopTime();
+		Double tt = this.tree.getTreeTopTime();
 		
 		// Verify 0 vertex times at leaves.
 		if (reqZeroAtleaves && vt != null) {
@@ -180,34 +180,7 @@ public class PrIMENewickTreeVerifier {
 		
 		// Verify arc times.
 		if (at != null) {
-			// Create array of "computed" vertex times, with leaf time set to 0.
-			// Use NaN as marker of uninitialised elements.
-			double[] times = new double[at.length];
-			for (int i = 0; i < times.length; ++i) {
-				times[i] = Double.NaN;
-			}
-			// Traverse backwards since vertex list is sorted post-order style.
-			// Skip first element, since that is the root.
-			for (int i = this.vertices.size() - 1; i > 0; --i) {
-				NewickVertex v = this.vertices.get(i);
-				int vidx = v.getNumber();
-				if (v.isLeaf()) {
-					times[vidx] = 0.0;
-				} else {
-					// Compute ancestor's vertex time.
-					double t = times[vidx] + at[vidx];
-					int anc = v.getParent().getNumber();
-					if (Double.isNaN(times[anc])) {
-						times[anc] = t;
-					} else if (Math.abs(times[anc] - t) > MAX_TIME_DIFF) {
-						throw new NewickIOException("Incompatible arc times in children of vertex " + anc +'.');
-					}
-				}
-			}
-			// Special case for a single-vertex tree.
-			if (times.length == 1) {
-				times[0] = 0.0;
-			}
+			double[] times = relativeToAbsolute(this.vertices, at);
 			
 			// Verify compatibility.
 			if (reqCompatibility) {
@@ -223,10 +196,73 @@ public class PrIMENewickTreeVerifier {
 				}
 				// Top time.
 				double atRoot = at[this.vertices.get(0).getNumber()];
-				if (!Double.isNaN(tt) && !Double.isNaN(atRoot) && Math.abs(tt - atRoot) > MAX_TIME_DIFF) {
+				if (tt != null && !Double.isNaN(atRoot) && Math.abs(tt - atRoot) > MAX_TIME_DIFF) {
 					throw new NewickIOException("Incompatible tree top time and root arc time.");
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Computes absolute times (vertex times) from a set of relative times (arc times).
+	 * @param vertices the vertices, topologically ordered.
+	 * @param at the relative times.
+	 * @return the corresponding absolute times.
+	 * @throws NewickIOException if times are not ultrametric.
+	 */
+	public static double[] relativeToAbsolute(List<NewickVertex> vertices, double[] at) throws NewickIOException {
+		// Create array of "computed" vertex times, with leaf time set to 0.
+		// Use NaN as marker of uninitialised elements.
+		double[] times = new double[at.length];
+		for (int i = 0; i < times.length; ++i) {
+			times[i] = Double.NaN;
+		}
+		// Traverse backwards since vertex list is sorted post-order style.
+		// Skip first element, since that is the root.
+		for (int i = vertices.size() - 1; i > 0; --i) {
+			NewickVertex v = vertices.get(i);
+			int vidx = v.getNumber();
+			if (v.isLeaf()) {
+				times[vidx] = 0.0;
+			} 
+			if (!Double.isNaN(times[vidx])) {
+				// Compute ancestor's vertex time.
+				double t = times[vidx] + at[vidx];
+				int anc = v.getParent().getNumber();
+				if (Double.isNaN(times[anc])) {
+					times[anc] = t;
+				} else if (Math.abs(times[anc] - t) > MAX_TIME_DIFF) {
+					throw new NewickIOException("Incompatible arc times in children of vertex " + anc +'.');
+				}
+			}
+		}
+		// Special case for a single-vertex tree.
+		if (times.length == 1) {
+			times[0] = 0.0;
+		}
+		return times;
+	}
+	
+	/**
+	 * Computes relative times (arc times) from a set of absolute times (vertex times).
+	 * @param vertices the vertices, topologically ordered.
+	 * @param vt the absolute times.
+	 * @return the corresponding relative times.
+	 * @throws NewickIOException if times are not increasing from leaves to root.
+	 */
+	public static double[] absoluteToRelative(List<NewickVertex> vertices, double[] vt) throws NewickIOException {
+		double[] times = new double[vt.length];
+		times[0] = 0.0;			// Root gets 0 arc time by default.
+		for (int i = 1; i < vertices.size(); ++i) {
+			NewickVertex v = vertices.get(i);
+			int vidx = v.getNumber();
+			NewickVertex pv = v.getParent();
+			int pvidx = pv.getNumber();
+			times[vidx] = vt[pvidx] - vt[vidx];
+			if (times[vidx] <= 0.0) {
+				throw new NewickIOException("Vertex time for vertex " + v.getNumber() + " is not smaller than that of parent vertex.");
+			}
+		}
+		return times;
 	}
 }
