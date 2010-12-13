@@ -42,12 +42,18 @@ public class TestLCAAnalysis {
 		args[0] = sURL.getFile();
 		args[1] = gsURL.getFile();
 		LCAAnalysis.main(args);
-		assertEquals("26\n", out.toString());
+		assertEquals("LCA ID: 26\n" +
+				"LCA time: 1.0\n" +
+				"LCA height: 6\n" +
+				"LCA arcs to root: 0\n", out.toString());
 		out.reset();
 		gsURL = this.getClass().getResource("/molli.fam2.gs");
 		args[1] = gsURL.getFile();
 		LCAAnalysis.main(args);
-		assertEquals("7\n", out.toString());
+		assertEquals("LCA ID: 7\n" +
+				"LCA time: 0.27\n" +
+				"LCA height: 2\n" +
+				"LCA arcs to root: 2\n", out.toString());
 		out.reset();
 	}
 	

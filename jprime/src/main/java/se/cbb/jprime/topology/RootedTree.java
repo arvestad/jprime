@@ -128,6 +128,8 @@ public interface RootedTree extends AcyclicDigraph {
 	/**
 	 * Returns the length of the longest path in the tree,
 	 * i.e. 0 for a single vertex tree, 1 for a "cherry", etc.
+	 * The hypothetical "arc" predating the root is not counted.
+	 * See also getNoOfAncestors(...).
 	 * @return the number of arcs of the longest path.
 	 */
 	public int getHeight();
@@ -136,6 +138,8 @@ public interface RootedTree extends AcyclicDigraph {
 	 * Returns the length of the longest path from a
 	 * vertex to its leaves, i.e. 0 if the vertex is
 	 * itself a leaf, 1 if it is a "cherry", etc.
+	 * The hypothetical "arc" predating the root is not counted.
+	 * See also getNoOfAncestors(...).
 	 * @param x the vertex.
 	 * @return the number of arcs of the longest leaf-path.
 	 */
