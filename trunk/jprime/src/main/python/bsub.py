@@ -81,6 +81,17 @@ import re
 import sys
 from xml.dom import minidom, Node
 
+
+###########################################################################
+# Helper. Returns string s with occurrences of t replaced with u,
+# unless any of s,t,u are None.
+###########################################################################
+def replaceSafe(s, t, u):
+    if not s is None and not t is None and not u is None:
+        return s.replace(t, u)
+    return s
+
+
 ################################################################################
 # Collects the various settings in a class.
 ################################################################################
@@ -212,13 +223,13 @@ class Settings:
     # Helper. Replaces the invariant %%-prefixed arguments in s.
     ###########################################################################    
     def replaceFixed(self, s):
-        s = s.replace("%%HOMEDIR", self.HOME_DIR)
-        s = s.replace("%%INDIR", self.IN_DIR)
-        s = s.replace("%%OUTDIR", self.OUT_DIR)
-        s = s.replace("%%SETTINGSFILE", self.settingsFile)
-        s = s.replace("%%BATCHFILE", self.batchFile)
-        s = s.replace("%%BATCHID", self.batchID)
-        s = s.replace("%%DATE", self.utfdate)
+        s = replaceSafe(s, "%%HOMEDIR", self.HOME_DIR)
+        s = replaceSafe(s, "%%INDIR", self.IN_DIR)
+        s = replaceSafe(s, "%%OUTDIR", self.OUT_DIR)
+        s = replaceSafe(s, "%%SETTINGSFILE", self.settingsFile)
+        s = replaceSafe(s, "%%BATCHFILE", self.batchFile)
+        s = replaceSafe(s, "%%BATCHID", self.batchID)
+        s = replaceSafe(s, "%%DATE", self.utfdate)
         return s
     
     
@@ -336,7 +347,7 @@ def genAndExecShellscripts(batchFile, sets, doExec):
             global ReplList
             ReplList = ln.split(sets.BATCH_FILE_DELIM)
             s = re.sub("%%[0-9]+", subst, sets.CMD)
-            s = s.replace("%%SHELLSCRIPT", shellfile)
+            s = replaceSafe(s, "%%SHELLSCRIPT", shellfile)
             f.write("(" + s + ") & \n")
             i += 1
         f.write("\nwait\n\n")
