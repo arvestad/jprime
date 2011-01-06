@@ -18,7 +18,7 @@ public class TestGSMapReader {
 
 	@Test
 	public void readGSMap() throws IOException, NewickIOException {
-		URL url = this.getClass().getResource("/molli.fam.gs");
+		URL url = this.getClass().getResource("/phylogenetics/molli.fam.gs");
 		GSMap gs = GSMapReader.readGSMap(new File(url.getFile()));
 		assertEquals(15, gs.getGuestLeafNames("ONYEL").size());
 		assertEquals(30, gs.getAllGuestLeafNames().size());

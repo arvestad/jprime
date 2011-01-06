@@ -20,7 +20,7 @@ public class TestPrIMENewickTreeReader {
 
 	@Test
 	public void readSingleTreeFromFile() throws IOException, NewickIOException {
-		URL url = this.getClass().getResource("/molli.host.nw");
+		URL url = this.getClass().getResource("/phylogenetics/molli.host.nw");
 		PrIMENewickTree tree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		assertEquals(14, tree.getNoOfLeaves());
 		assertTrue(tree.hasProperty(MetaProperty.BRANCH_LENGTHS));

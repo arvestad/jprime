@@ -36,8 +36,8 @@ public class TestLCAAnalysis {
 	
 	@Test
 	public void testLCAAnalysis() throws NewickIOException, IOException, TopologyException {
-		URL sURL = this.getClass().getResource("/molli.host.nw");
-		URL gsURL = this.getClass().getResource("/molli.fam.gs");
+		URL sURL = this.getClass().getResource("/phylogenetics/molli.host.nw");
+		URL gsURL = this.getClass().getResource("/phylogenetics/molli.fam.gs");
 		String[] args = new String[2];
 		args[0] = sURL.getFile();
 		args[1] = gsURL.getFile();
@@ -47,7 +47,7 @@ public class TestLCAAnalysis {
 				"LCA height: 6\n" +
 				"LCA arcs to root: 0\n", out.toString());
 		out.reset();
-		gsURL = this.getClass().getResource("/molli.fam2.gs");
+		gsURL = this.getClass().getResource("/phylogenetics/molli.fam2.gs");
 		args[1] = gsURL.getFile();
 		LCAAnalysis.main(args);
 		assertEquals("LCA ID: 7\n" +
