@@ -5,7 +5,7 @@ package se.cbb.jprime.prm;
  * 
  * @author Joel Sjöstrand.
  */
-public class IntAttribute implements PRMAttribute {
+public class IntAttribute implements AttributeEntity {
 
 	/** Attribute value. */
 	public int value;

@@ -5,7 +5,7 @@ package se.cbb.jprime.prm;
  * 
  * @author Joel Sjöstrand.
  */
-public class CharAttribute implements PRMAttribute {
+public class CharAttribute implements AttributeEntity {
 
 	/** Attribute value. */
 	public char value;

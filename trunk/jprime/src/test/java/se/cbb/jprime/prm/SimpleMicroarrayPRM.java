@@ -31,9 +31,10 @@ public class SimpleMicroarrayPRM {
 	private PRMClass expressions;
 	
 	public SimpleMicroarrayPRM() {
-		genes = new PRMClass("Genes", new String[]{"A1", "A2", "A3", "GeneCluster"});
-		arrays = new PRMClass("Arrays", new String[]{"ArrayCluster"});
-		expressions = new PRMClass("Expressions", new String[]{"Level"}, new PRMClass[]{genes, arrays});
+		genes = new PRMClass("Genes", new String[]{"ID"}, new String[]{"A1", "A2", "A3", "Cluster"});
+		arrays = new PRMClass("Arrays", new String[]{"ID"}, new String[]{"Cluster"});
+		expressions = new PRMClass("Expressions", new String[]{"ID"}, new String[]{"Level"},
+				new PRMClass[]{genes, arrays});
 	}
 	
 	/**
@@ -47,13 +48,13 @@ public class SimpleMicroarrayPRM {
 			String ln = sc.nextLine().trim();
 			if (ln.equals("")) { continue; }
 			String[] parts = ln.split(",");
-			PRMAttribute[] atts = new PRMAttribute[]{
+			AttributeEntity[] atts = new AttributeEntity[]{
 					new BooleanAttribute(parts[1].contains("A1")),
 					new BooleanAttribute(parts[1].contains("A2")),
 					new BooleanAttribute(parts[1].contains("A3")),
 					new IntAttribute(0)
 			};
-			genes.putEntity(parts[0], atts);
+			genes.putEntity(new String[]{parts[0]}, atts);
 		}
 		sc.close();
 	}
@@ -69,8 +70,8 @@ public class SimpleMicroarrayPRM {
 			String ln = sc.nextLine().trim();
 			if (ln.equals("")) { continue; }
 			String[] parts = ln.split("[\t ]+");
-			PRMAttribute[] atts = new PRMAttribute[]{ new IntAttribute(Integer.parseInt(parts[1]))};
-			arrays.putEntity(parts[0], atts);
+			AttributeEntity[] atts = new AttributeEntity[]{ new IntAttribute(Integer.parseInt(parts[1]))};
+			arrays.putEntity(new String[]{parts[0]}, atts);
 		}
 		sc.close();
 	}
@@ -91,7 +92,7 @@ public class SimpleMicroarrayPRM {
 			for (int j = 0; j < 1000; ++j) {
 				String ID = "G" + j + "A" + i;
 				IntAttribute lvl = new IntAttribute(Integer.parseInt(lvls[j]));
-				expressions.putEntity(ID, new PRMAttribute[]{lvl}, new String[]{"G"+j, "A"+i});
+				expressions.putEntity(new String[]{ID}, new AttributeEntity[]{lvl}, new String[]{"G"+j, "A"+i});
 			}
 			sc.close();
 		}

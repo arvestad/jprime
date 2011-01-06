@@ -5,7 +5,7 @@ package se.cbb.jprime.prm;
  * 
  * @author Joel Sjöstrand.
  */
-public class DoubleAttribute implements PRMAttribute {
+public class DoubleAttribute implements AttributeEntity {
 
 	/** Attribute value. */
 	public double value;
