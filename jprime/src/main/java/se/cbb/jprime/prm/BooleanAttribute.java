@@ -5,7 +5,7 @@ package se.cbb.jprime.prm;
  * 
  * @author Joel Sjöstrand.
  */
-public class BooleanAttribute implements PRMAttribute {
+public class BooleanAttribute implements AttributeEntity {
 
 	/** Attribute value. */
 	public boolean value;

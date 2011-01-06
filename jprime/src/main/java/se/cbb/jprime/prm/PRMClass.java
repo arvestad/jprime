@@ -3,18 +3,20 @@ package se.cbb.jprime.prm;
 import java.util.HashMap;
 
 /**
- * Represents a 'PRM class', i.e., more or less the equivalent of a
- * database table. Each 'entity' of the class (table record) has
+ * Represents a 'PRM class', i.e., more or less the equivalent of a relational
+ * database table. Each class defines a schema by specifying these components:
  * <ol>
- * <li>a unique String ID (analogous to primary key).</li>
- * <li>an ordered list of attributes (strings, integers, ...) as defined by the class.</li> 
- * <li>an ordered list of references to other class entities (analogous to foreign keys) as
- *     defined by the class.</li>
+ * <li>an ordered list of fixed string attributes, where element 0 represents a unique String ID
+ *     (analogous to a primary key).</li>
+ * <li>an ordered list of probabilistic attributes (strings, integers, ...).</li> 
+ * <li>an ordered list of references to other classes (analogous to foreign keys). At the moment
+ *     we require one-to-one relations where it is assumed that the ID specified in the reference refers
+ *     to element 0 in the fixed attributes of the foreign class.</li>
  * </ol>
- * Apart from defining this table schema, the PRM class provides access to all class entities.
- * If the PRM class has references to other classes, one must first make sure that it points
- * to these PRM classes, after which one can see to that individual entities point to the
- * corresponding referenced entities.
+ * Moreover, the class will provide access to all 'entities' of the class (i.e. table records).
+ * <p/>
+ * One may choose to setup references for the class itself (and the entities) either
+ * immediately or in two steps; the latter when not all objects are available yet.
  * 
  * @author Joel Sjöstrand.
  */
@@ -22,84 +24,80 @@ public class PRMClass {
 
 	/**
 	 * Inner class for representing entities, i.e., typically records for the table.
-	 * Indexing of elements refer to the one defined in the parent PRMClass.
+	 * There is a direct correspondence between its values and the scheme of its class.
 	 * At the moment there is no back-reference to the latter.
-	 * References are kept de-referenced, that is, an entity directly points to
-	 * its foreign entity objects, it does not store the foreign entity ID.
+	 * <p/>
+	 * Since one-to-one reference relations are assumed, references point directly to their foreign
+	 * entity objects, (i.e., foreign keys are "dereferenced").
 	 * 
 	 * @author Joel Sjöstrand.
 	 */
-	class Entity {
+	class ClassEntity {
 		
-		/** Unique ID (equivalent primary key). */
-		String ID;
+		/** Fixed attribute values. First element is used as ID and must be present. */
+		String[] fixedAttributes;
 		
-		/** Attribute values. */
-		PRMAttribute[] attributes;
+		/** Probabilistic attribute values. */
+		AttributeEntity[] probAttributes;
 		
-		/** References to other class entities (de-referenced foreign keys). */
-		Entity[] references;
+		/** References to other class entities (dereferenced foreign keys). */
+		ClassEntity[] references;
 		
 		/**
-		 * Constructor. References are set by parent PRMClass.
+		 * Constructor. "Dereferencing" is done by PRMClass.
 		 * @param ID the entity ID.
 		 * @param attributes the entity attributes.
 		 */
-		public Entity(String ID, PRMAttribute[] attributes, int noOfReferences) {
-			this.ID = ID;
-			this.attributes = attributes;
-			this.references = (noOfReferences <= 0 ? null : new Entity[noOfReferences]);
+		public ClassEntity(String[] fixedAttributes, AttributeEntity[] probAttributes, int noOfReferences) {
+			this.fixedAttributes = fixedAttributes;
+			this.probAttributes = probAttributes;
+			this.references = (noOfReferences <= 0 ? null : new ClassEntity[noOfReferences]);
 		}
 	}
 	
 	/** PRM class name. */
 	private String name;
 	
-	/** Attribute names, ID excluded. */
-	private String[] attributeNames;
+	/** Unique names of fixed attributes. Element 0 should contain ID. */
+	private String[] fixedAttributeNames;
 	
-	/** Maps an attribute names to its index. */
-	private HashMap<String, Integer> attributeNameToIndex;
+	/** Unique names of probabilistic attributes. */
+	private String[] probAttributeNames;
 	
-	/** References to other PRM classes. Non-null if empty. */
+	/**
+	 * References to other PRM classes. Non-null if empty. Reference relations are assumed to
+	 * be one-to-one and refer to element 0 of fixed attributes of foreign class.
+	 */
 	private PRMClass[] references;
 	
-	/** Maps a reference to its index. */
-	private HashMap<PRMClass, Integer> referenceToIndex;
-	
-	/** All entities, indexed by ID. */
-	private HashMap<String, Entity> entities;
+	/** All class entities, indexed by element 0 of fixed attributes. */
+	private HashMap<String, ClassEntity> entities;
 	
 	/**
 	 * Constructor when no references to foreign classes exist, or are currently unavailable.
 	 * References may be set later using setReferences(...).
 	 * @param name name of PRM class.
-	 * @param attributeNames name of attributes.
-	 * @param references referenced classes.
+	 * @param fixedAttributeNames names of fixed attributes.
+	 * @param probAttributeNames names of probabilistic attributes.
 	 */
-	public PRMClass(String name, String[] attributeNames) {
-		this(name, attributeNames, new PRMClass[0]);
+	public PRMClass(String name, String[] fixedAttributeNames, String[] probAttributeNames) {
+		this(name, fixedAttributeNames, probAttributeNames, new PRMClass[0]);
 	}
 	
 	/**
-	 * Constructor when there are references to foreign classes, and these already exist.
+	 * Constructor when there are references to foreign classes, and the objects corresponding to
+	 * these already exist.
 	 * @param name name of PRM class.
-	 * @param attributeNames name of attributes.
-	 * @param references referenced classes. Must not be null.
+	 * @param fixedAttributeNames names of fixed attributes.
+	 * @param probAttributeNames names of probabilistic attributes.
+	 * @param references referenced classes. Must not be null. The same class may appear multiple times.
 	 */
-	public PRMClass(String name, String[] attributeNames, PRMClass[] references) {
+	public PRMClass(String name, String[] fixedAttributeNames, String[] probAttributeNames, PRMClass[] references) {
 		this.name = name;
-		this.attributeNames = attributeNames;
-		this.attributeNameToIndex = new HashMap<String, Integer>(this.attributeNames.length);
-		for (int i = 0; i < this.attributeNames.length; ++i) {
-			this.attributeNameToIndex.put(this.attributeNames[i], i);
-		}
+		this.fixedAttributeNames = fixedAttributeNames;
+		this.probAttributeNames = probAttributeNames;
 		this.references = references;
-		this.referenceToIndex = new HashMap<PRMClass, Integer>(this.references.length);
-		for (int i = 0; i < this.references.length; ++i) {
-			this.referenceToIndex.put(this.references[i], i);
-		}
-		this.entities = new HashMap<String, PRMClass.Entity>();
+		this.entities = new HashMap<String, PRMClass.ClassEntity>();
 	}
 	
 	/**
@@ -111,29 +109,37 @@ public class PRMClass {
 	}
 	
 	/**
-	 * Returns the name of an attribute at a specified index.
+	 * Returns the name of a fixed attribute at a specified index.
 	 * @param idx the attribute index.
 	 * @param the attribute name.
 	 */
-	public String getAttributeName(int idx) {
-		return this.attributeNames[idx];
+	public String getFixedAttributeName(int idx) {
+		return this.fixedAttributeNames[idx];
 	}
 	
 	/**
-	 * Returns the index of an attribute.
-	 * @param name the attribute name.
-	 * @param the attribute's index.
-	 */
-	public int getAttributeIndex(String name) {
-		return this.attributeNameToIndex.get(name);
-	}
-	
-	/**
-	 * Returns the number of attributes, ID excluded.
+	 * Returns the number of fixed attributes.
 	 * @return the number of attributes.
 	 */
-	public int getNoOfAttributes() {
-		return this.attributeNames.length;
+	public int getNoOfFixedAttributes() {
+		return this.fixedAttributeNames.length;
+	}
+	
+	/**
+	 * Returns the name of a probabilistic attribute at a specified index.
+	 * @param idx the attribute index.
+	 * @param the attribute name.
+	 */
+	public String getProbAttributeName(int idx) {
+		return this.probAttributeNames[idx];
+	}
+	
+	/**
+	 * Returns the number of probabilistic attributes.
+	 * @return the number of attributes.
+	 */
+	public int getNoOfProbAttributes() {
+		return this.probAttributeNames.length;
 	}
 	
 	/**
@@ -143,15 +149,6 @@ public class PRMClass {
 	 */
 	public PRMClass getReference(int idx) {
 		return this.references[idx];
-	}
-	
-	/**
-	 * Returns the reference index of a specific referenced class.
-	 * @param PRMClass the referenced class.
-	 * @return the reference's index.
-	 */
-	public int getReferenceIndex(PRMClass reference) {
-		return this.referenceToIndex.get(reference);
 	}
 	
 	/**
@@ -177,10 +174,6 @@ public class PRMClass {
 	 */
 	public void setReferences(PRMClass[] references) {
 		this.references = references;
-		this.referenceToIndex = new HashMap<PRMClass, Integer>(this.references.length);
-		for (int i = 0; i < this.references.length; ++i) {
-			this.referenceToIndex.put(this.references[i], i);
-		}
 	}
 	
 	/**
@@ -188,36 +181,36 @@ public class PRMClass {
 	 * @param ID the entities ID.
 	 * @return the entity.
 	 */
-	private Entity getEntity(String ID) {
-		Entity e = this.entities.get(ID);
+	private ClassEntity getEntity(String ID) {
+		ClassEntity e = this.entities.get(ID);
 		if (e == null) { throw new IllegalArgumentException("No element with that key exists."); }
 		return e;
 	}
 	
 	/**
-	 * Adds an entity when references can be set immediately. This requires that
-	 * all referenced entities already exist as objects. See also overloaded method.
-	 * @param ID the unique ID of this entity. Any old value will be replaced.
-	 * @param attributes the attributes.
+	 * Adds an entity when references can be set immediately. This requires that class references are in place
+	 * and that all referenced entities already exist as objects. See also overloaded method.
+	 * @param fixedAttributes the fixed attribute values.
+	 * @param probAttributes the probabilistic attribute values.
 	 * @param referenceIDs the IDs of all references. Referenced entities must already exist.
 	 */
-	public void putEntity(String ID, PRMAttribute[] attributes, String[] referenceIDs) {
-		Entity e = new Entity(ID, attributes, this.getNoOfReferences());
-		this.entities.put(ID, e);
+	public void putEntity(String[] fixedAttributes, AttributeEntity[] probAttributes, String[] referenceIDs) {
+		ClassEntity e = new ClassEntity(fixedAttributes, probAttributes, this.getNoOfReferences());
+		this.entities.put(fixedAttributes[0], e);
 		this.setEntityReferences(e, referenceIDs);
 	}
 	
 	/**
 	 * Adds an entity when there are no references, or when references cannot be set
-	 * immediately (due to the fact that their
-	 * corresponding objects do not already exist). One may at a later stage set references
-	 * by invoking setEntityReferences(...). See also overloaded method.
-	 * @param ID the unique ID of this entity. Any old value will be replaced.
-	 * @param attributes the attributes.
+	 * immediately (due to the fact that their corresponding objects do not yet exist).
+	 * One may at a later stage set references by invoking setEntityReferences(...).
+	 * See also overloaded method.
+	 * @param fixedAttributes the fixed attribute values.
+	 * @param probAttributes the probabilistic attribute values.
 	 */
-	public void putEntity(String ID, PRMAttribute[] attributes) {
-		Entity e = new Entity(ID, attributes, this.getNoOfReferences());
-		this.entities.put(ID, e);
+	public void putEntity(String[] fixedAttributes, AttributeEntity[] probAttributes) {
+		ClassEntity e = new ClassEntity(fixedAttributes, probAttributes, this.getNoOfReferences());
+		this.entities.put(fixedAttributes[0], e);
 	}
 	
 	/**
@@ -244,7 +237,7 @@ public class PRMClass {
 	 * @param e the entity to update.
 	 * @param referenceIDs the IDs of the references.
 	 */
-	private void setEntityReferences(Entity e, String[] referenceIDs) {
+	private void setEntityReferences(ClassEntity e, String[] referenceIDs) {
 		for (int i = 0; i < this.references.length; ++i) {
 			PRMClass c = this.references[i];
 			e.references[i] = c.getEntity(referenceIDs[i]);
@@ -257,19 +250,8 @@ public class PRMClass {
 	 * @param attributeIndex the attribute's index.
 	 * @param attribute the attribute to be set.
 	 */
-	public void setAttribute(String ID, int attributeIndex, PRMAttribute attribute) {
-		Entity e = this.entities.get(ID);
-		e.attributes[attributeIndex] = attribute;
-	}
-	
-	/**
-	 * Sets the attribute of an entity.
-	 * @param ID the entity's ID.
-	 * @param attributeName the attribute's name.
-	 * @param attribute the attribute to be set.
-	 */
-	public void setAttribute(String ID, String attributeName, PRMAttribute attribute) {
-		Entity e = this.entities.get(ID);
-		e.attributes[this.attributeNameToIndex.get(attributeName)] = attribute;
+	public void setAttribute(String ID, int attributeIndex, AttributeEntity attribute) {
+		ClassEntity e = this.entities.get(ID);
+		e.probAttributes[attributeIndex] = attribute;
 	}
 }

@@ -1,11 +1,11 @@
 package se.cbb.jprime.prm;
 
 /**
- * Interface for PRM attributes, i.e., simple object holders.
+ * Interface for probabilistic PRM attributes, i.e., simple object holders.
  * 
  * @author Joel Sjöstrand.
  */
-public interface PRMAttribute {
+public interface AttributeEntity {
 
 	/**
 	 * Returns the attribute as an Object.

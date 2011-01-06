@@ -5,7 +5,7 @@ package se.cbb.jprime.prm;
  * 
  * @author Joel Sjöstrand.
  */
-public class StringAttribute implements PRMAttribute {
+public class StringAttribute implements AttributeEntity {
 
 	/** Attribute value. */
 	public String value;
