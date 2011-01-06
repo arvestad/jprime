@@ -20,7 +20,7 @@ public class TestRTree {
 	
 	@Test
 	public void testLCA() throws NewickIOException, IOException, TopologyException {
-		URL url = this.getClass().getResource("/molli.host.nw");
+		URL url = this.getClass().getResource("/phylogenetics/molli.host.nw");
 		PrIMENewickTree rawTree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		RTree tree = RTreeFactory.createTree(rawTree, "molli");
 		NamesMap names = rawTree.getVertexNamesMap(true);
