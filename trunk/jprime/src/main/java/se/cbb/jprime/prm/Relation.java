@@ -1,24 +1,14 @@
 package se.cbb.jprime.prm;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 /**
  * Represents a relation between two PRM classes A and B (analogous to two relational
- * database tables). The relation is specified by
- * <ol>
- * <li>the class instances A and B.</li>
- * <li>the indices of the fixed attribute in A and B that links the two (typically 
- *     corresponding to a foreign key in A and the primary key of B. <b>At the moment,
- *     B's index cannot be specified; it is and assumed to be its ID field.</b></li>
- * </ol>
- * Furthermore, the relation can be used to cache all 'relation entities', that is, all 
- * references between class entities of the two classes.
+ * database tables). The relation is specified by the two fixed attributes representing
+ * the link.
  * <p/>
- * Note: the order of A and B matter, since we allow only one-to-one
- * relations and many-to-one relations (and also w.r.t. to the B index assumption above).
- * Many-to-many relations must be resolved using
- * an intermediary PRM class.
+ * The order of A and B matters, since we allow only one-to-one
+ * relations and many-to-one relations from A to B respectively.
+ * Thus, the values of the attribute in B must be
+ * unique. Many-to-many relations should be resolved using an intermediary PRM class.
  * 
  * @author Joel Sjöstrand.
  */
@@ -30,66 +20,54 @@ public class Relation {
 		MANY_TO_ONE
 	}
 	
-	/** First class. */
-	private PRMClass a;
+	/** Allowed probabilistic dependency structures for a relation. */
+	public enum DependencyConstraints {
+		/** Any direction allowed.  */                                  NONE,
+		/** Ancestor-descendant slot chain may go through relation. */  ANCESTOR_DESCENDANT,
+		/** Descendant-ancestor slot chain may go through relation. */  DESCENDANT_ANCESTOR,
+		/** No slot chain may go through relation. */                   NOT_ALLOWED
+	}
 	
-	/** Index of fixed attribute in A. */
-	private int aIndex;
+	/** Fixed attribute of class A. */
+	private FixedAttribute a;
 	
-	/** Second class. */
-	private PRMClass b;
-	
-	/** Index of fixed attribute in B. Assumed to be the ID field! */
-	//private int bIndex;
+	/** Fixed attribute of class B. */
+	private FixedAttribute b;
 	
 	/** Relation type. */
 	private Type type;
 	
-	/** Relation entities, where instances of A acts as keys. */
-	private HashMap<ClassEntity, ClassEntity> entities;
+	/** Governs which dependency structures are allowed to flow through this relation. */
+	private DependencyConstraints dependencyConstraints;
 	
 	/**
 	 * Constructor.
-	 * @param a PRM class A.
-	 * @param aIndex index of fixed attribute in A containing link.
-	 * @param b PRM class B.
+	 * @param the fixed attribute of class A.
+	 * @param the fixed attribute of class B.
 	 * @param type relation type from A to B.
+	 * @param dependencyConstraints governs which slot chains this relation may be part of.
 	 */
-	public Relation(PRMClass a, int aIndex, PRMClass b, Type type) {
+	public Relation(FixedAttribute a, FixedAttribute b, Type type,
+			DependencyConstraints dependencyConstraints) {
 		this.a = a;
 		this.b = b;
-		this.aIndex = aIndex;
-		//this.bIndex = bIndex;
 		this.type = type;
-		this.entities = new HashMap<ClassEntity, ClassEntity>(this.a.getNoOfEntities());
-	}
-	
-	/**
-	 * Stores all relation entities for quick access.
-	 */
-	public void cacheEntities() {
-		Collection<ClassEntity> aEntities = this.a.getEntities();
-		for (ClassEntity ae : aEntities) {
-			// We assume that B's ID field is used!
-			ClassEntity be = this.b.getEntitySafe(ae.getFixedAttribute(this.aIndex));
-			this.entities.put(ae, be);
+		this.dependencyConstraints = dependencyConstraints;
+		
+		// Make sure we can do quick access from A to B.
+		if (!this.b.hasIndex()) {
+			this.b.createIndex();
 		}
 	}
 	
 	/**
-	 * Clears all relation entities.
-	 */
-	public void clearEntities() {
-		this.entities.clear();
-	}
-	
-	/**
 	 * Returns a concatenated string thus:
-	 * <A's name><A's index>-<B's name><B's index>.
+	 * Alfa.Foo-Beta.Bar for class Alfa, attribute Foo and class Beta, attribute Bar.
 	 * @return a name representation of the relation.
 	 */
 	public String getName() {
-		return (this.a.getName() + this.aIndex + "-" + this.b.getName() + "0");
+		return (this.a.getPRMClass().getName() + "." + a.getName() + "-" +
+				this.b.getPRMClass().getName() + "." + b.getName());
 	}
 	
 	/**
@@ -98,5 +76,24 @@ public class Relation {
 	 */
 	public Type getType() {
 		return this.type;
+	}
+	
+	/**
+	 * Returns the type of dependencies that are allowed to through
+	 * this relation, i.e., whether it can be used in a slot chain.
+	 * @return the dependency constraints.
+	 */
+	public DependencyConstraints getDependencyConstraints() {
+		return this.dependencyConstraints;
+	}
+	
+	/**
+	 * Given a record of PRM class A, following the relation, returns the index
+	 * of the record in B.
+	 * @param aIdx the entity index in A.
+	 * @return the corresponding entity index in B.
+	 */
+	public int getIndex(int aIdx) {
+		return this.b.getIndex(this.a.getEntity(aIdx));
 	}
 }
