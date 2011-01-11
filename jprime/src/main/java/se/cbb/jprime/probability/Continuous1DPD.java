@@ -1,5 +1,7 @@
 package se.cbb.jprime.probability;
 
+import se.cbb.jprime.math.RealInterval;
+
 /**
  * Interface for 1-D continuous probability distributions, i.e. acting on real numbers. 
  * Examples include the gamma and exponential distributions.
@@ -79,5 +81,5 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	 * Returns the domain interval.
 	 * @return the domain interval.
 	 */
-	public Interval getDomainInterval();
+	public RealInterval getDomainInterval();
 }

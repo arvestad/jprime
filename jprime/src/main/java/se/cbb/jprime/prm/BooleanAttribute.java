@@ -6,7 +6,8 @@ import java.util.Random;
 import se.cbb.jprime.math.IntegerInterval;
 
 /**
- * Boolean attribute. Treated similarly to {0,1}-valued integer
+ * Defines a probabilistic boolean attribute.
+ * Treated similarly to {0,1}-valued integer
  * attribute.
  * 
  * @author Joel Sjöstrand.
@@ -30,12 +31,12 @@ public class BooleanAttribute implements DiscreteAttribute {
 	
 	/**
 	 * Constructor.
-	 * @param prmClass PRM class this attribute belongs to.
 	 * @param name attribute's name. Should be unique within PRM class.
+	 * @param prmClass PRM class this attribute belongs to.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
 	 */
-	public BooleanAttribute(PRMClass prmClass, String name, int initialCapacity,
+	public BooleanAttribute(String name, PRMClass prmClass, int initialCapacity,
 			DependencyConstraints dependencyConstraints) {
 		this.prmClass = prmClass;
 		this.name = name;
@@ -113,5 +114,10 @@ public class BooleanAttribute implements DiscreteAttribute {
 	 */
 	public void addEntity(boolean value) {
 		this.entities.add(new Boolean(value));
+	}
+	
+	@Override
+	public int getNoOfEntities() {
+		return this.entities.size();
 	}
 }

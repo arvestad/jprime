@@ -6,7 +6,7 @@ import java.util.Random;
 import se.cbb.jprime.math.IntegerInterval;
 
 /**
- * Defines an integer attribute, either bounded or unbounded.
+ * Defines a probabilistic integer attribute, either bounded or unbounded.
  * 
  * @author Joel Sjöstrand.
  */
@@ -29,13 +29,13 @@ public class IntAttribute implements DiscreteAttribute {
 	
 	/**
 	 * Constructor for bounded or unbounded integer range.
-	 * @param prmClass PRM class this attribute belongs to.
 	 * @param name attribute's name. Should be unique within PRM class.
+	 * @param prmClass PRM class this attribute belongs to.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
 	 * @param interval the valid range of values.
 	 */
-	public IntAttribute(PRMClass prmClass, String name, int initialCapacity,
+	public IntAttribute(String name, PRMClass prmClass, int initialCapacity,
 			DependencyConstraints dependencyConstraints, IntegerInterval interval) {
 		this.prmClass = prmClass;
 		this.name = name;
@@ -82,12 +82,20 @@ public class IntAttribute implements DiscreteAttribute {
 
 	@Override
 	public void setEntityAsObject(int idx, Object entity) {
-		this.entities.set(idx, (Integer) entity);
+		Integer i = (Integer) entity;
+		if (!this.interval.isWithin(i.intValue())) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
+		this.entities.set(idx, i);
 	}
 
 	@Override
 	public void addEntityAsObject(Object entity) {
-		this.entities.add((Integer) entity);
+		Integer i = (Integer) entity;
+		if (!this.interval.isWithin(i.intValue())) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
+		this.entities.add(i);
 	}
 	
 	/**
@@ -105,6 +113,9 @@ public class IntAttribute implements DiscreteAttribute {
 	 * @param value the value.
 	 */
 	public void setEntity(int idx, int value) {
+		if (!this.interval.isWithin(value)) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
 		this.entities.set(idx, new Integer(value));
 	}
 	
@@ -113,6 +124,14 @@ public class IntAttribute implements DiscreteAttribute {
 	 * @param value the value.
 	 */
 	public void addEntity(int value) {
+		if (!this.interval.isWithin(value)) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
 		this.entities.add(new Integer(value));
+	}
+	
+	@Override
+	public int getNoOfEntities() {
+		return this.entities.size();
 	}
 }
