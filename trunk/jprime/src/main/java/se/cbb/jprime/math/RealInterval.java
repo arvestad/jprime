@@ -151,6 +151,16 @@ public class RealInterval {
 	}
 	
 	/**
+	 * Returns true if a specified value is within the interval.
+	 * @param value the value.
+	 * @return true if within; false if outside.
+	 */
+	public boolean isWithin(double value) {
+		// TODO: Implement.
+		throw new IllegalArgumentException("Not yet implemented!");
+	}
+	
+	/**
 	 * Returns a random double uniformly drawn from this interval.
 	 * Not extensively tested, and with several theoretic idiosyncrasies:
 	 * <ul>
