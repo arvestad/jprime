@@ -98,6 +98,15 @@ public class IntegerInterval {
 	}
 	
 	/**
+	 * Returns true if a specified value is within the interval.
+	 * @param value the value.
+	 * @return true if within; false if outside.
+	 */
+	public boolean isWithin(int value) {
+		return (value >= this.a && value <= this.b);
+	}
+	
+	/**
 	 * Returns a random int uniformly drawn from this interval.
 	 * @param rng a (possibly pseudo) random number generator.
 	 * @return a random int drawn using rng.
