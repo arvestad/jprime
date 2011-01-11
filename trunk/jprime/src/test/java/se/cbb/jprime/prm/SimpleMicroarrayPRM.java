@@ -5,6 +5,11 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import org.junit.* ;
+import org.uncommons.maths.random.MersenneTwisterRNG;
+
+import se.cbb.jprime.math.IntegerInterval;
+import se.cbb.jprime.prm.ProbabilisticAttribute.DependencyConstraints;
+import se.cbb.jprime.prm.Relation.Type;
 
 import static org.junit.Assert.*;
 
@@ -18,9 +23,9 @@ public class SimpleMicroarrayPRM {
 	@Test
 	public void main() throws FileNotFoundException {
 		SimpleMicroarrayPRM prm = new SimpleMicroarrayPRM();
-		assertEquals(1000, prm.skeleton.getClass("Gene").getNoOfEntities());
-		assertEquals(80, prm.skeleton.getClass("Array").getNoOfEntities());
-		assertEquals(1000*80, prm.skeleton.getClass("Expression").getNoOfEntities());
+		assertEquals(1000, prm.skeleton.getPRMClass("Gene").getNoOfEntities());
+		assertEquals(80, prm.skeleton.getPRMClass("Array").getNoOfEntities());
+		assertEquals(1000*80, prm.skeleton.getPRMClass("Measurement").getNoOfEntities());
 	}
 
 	public Skeleton skeleton;
@@ -28,46 +33,42 @@ public class SimpleMicroarrayPRM {
 	public SimpleMicroarrayPRM() throws FileNotFoundException {
 		this.skeleton = new Skeleton();
 		
-		// Create classes.
-		PRMClass genes = new PRMClass("Gene", new String[]{"ID"}, new String[]{"A1", "A2", "A3", "Cluster"});
-		PRMClass arrays = new PRMClass("Array", new String[]{"ID"}, new String[]{"Cluster"});
-		PRMClass expressions = new PRMClass("Expression", new String[]{"ID", "GeneID", "ArrayID"}, new String[]{"Level"});
-		
-		// Read class entities.
-		this.readGeneFile(genes);
-		this.readArrayFiles(arrays);
-		this.readExpressionFiles(expressions);
-		this.skeleton.putClass(genes.getName(), genes);
-		this.skeleton.putClass(arrays.getName(), arrays);
-		this.skeleton.putClass(expressions.getName(), expressions);
-		
-		// Create relations and relation entities.
-		Relation e2g = new Relation(expressions, 1, genes, Relation.Type.MANY_TO_ONE);
-		Relation e2a = new Relation(expressions, 2, arrays, Relation.Type.MANY_TO_ONE);
-		this.skeleton.putRelation(e2g.getName(), e2g);
-		this.skeleton.putRelation(e2a.getName(), e2a);
-		e2g.cacheEntities();
-		e2a.cacheEntities();
+		// Fill skeleton.
+		this.readGeneFile();
+		this.readArrayFiles();
+		this.readMeasurementFiles();
 	}
 	
 	/**
 	 * Reads the gene file. Sets the hidden variable to 0 by default.
 	 * @throws FileNotFoundException.
 	 */
-	public void readGeneFile(PRMClass genes) throws FileNotFoundException {
+	public void readGeneFile() throws FileNotFoundException {
+		// Skeleton part.
+		PRMClass genes = new PRMClass("Gene");
+		FixedAttribute id = new FixedAttribute("ID", genes, 1024);
+		BooleanAttribute a1 = new BooleanAttribute("A1", genes, 1024, DependencyConstraints.NONE);
+		BooleanAttribute a2 = new BooleanAttribute("A2", genes, 1024, DependencyConstraints.NONE);
+		BooleanAttribute a3 = new BooleanAttribute("A3", genes, 1024, DependencyConstraints.NONE);
+		IntegerInterval clusterRange = new IntegerInterval(1,12);
+		IntAttribute cluster = new IntAttribute("Cluster", genes, 1024, DependencyConstraints.NONE,
+				clusterRange);
+		this.skeleton.addPRMClass(genes);
+		
+		// Read values. Assign random values to latent variable.
+		MersenneTwisterRNG rng = new MersenneTwisterRNG();
+		System.out.println(this.getClass().getResource("."));
 		File f = new File(this.getClass().getResource("/microarray/synthetic/genesAttributes.out").getFile());
 		Scanner sc = new Scanner(f);
 		while (sc.hasNextLine()) {
 			String ln = sc.nextLine().trim();
 			if (ln.equals("")) { continue; }
 			String[] parts = ln.split(",");
-			AttributeEntity[] atts = new AttributeEntity[]{
-					new BooleanAttribute(parts[1].contains("A1")),
-					new BooleanAttribute(parts[1].contains("A2")),
-					new BooleanAttribute(parts[1].contains("A3")),
-					new IntAttribute(0)
-			};
-			genes.putEntity(new String[]{parts[0]}, atts);
+			id.addEntity(parts[0]);
+			a1.addEntity(parts[1].contains("A1"));
+			a2.addEntity(parts[1].contains("A2"));
+			a3.addEntity(parts[1].contains("A3"));
+			cluster.addEntity(clusterRange.getRandom(rng));
 		}
 		sc.close();
 	}
@@ -76,15 +77,23 @@ public class SimpleMicroarrayPRM {
 	 * Reads the microarray file.
 	 * @throws FileNotFoundException.
 	 */
-	private void readArrayFiles(PRMClass arrays) throws FileNotFoundException {
+	private void readArrayFiles() throws FileNotFoundException {
+		// Skeleton part
+		PRMClass arrays = new PRMClass("Array");
+		FixedAttribute id = new FixedAttribute("ID", arrays, 128);
+		IntAttribute cluster = new IntAttribute("Cluster", arrays, 128, DependencyConstraints.NONE,
+				new IntegerInterval(1, 4));
+		this.skeleton.addPRMClass(arrays);
+		
+		// Read values.
 		File f = new File(this.getClass().getResource("/microarray/synthetic/ArrayCluster.out").getFile());
 		Scanner sc = new Scanner(f);
 		while (sc.hasNextLine()) {
 			String ln = sc.nextLine().trim();
 			if (ln.equals("")) { continue; }
 			String[] parts = ln.split("[\t ]+");
-			AttributeEntity[] atts = new AttributeEntity[]{ new IntAttribute(Integer.parseInt(parts[1]))};
-			arrays.putEntity(new String[]{parts[0]}, atts);
+			id.addEntity(parts[0]);
+			cluster.addEntity(Integer.parseInt(parts[1]));
 		}
 		sc.close();
 	}
@@ -93,7 +102,24 @@ public class SimpleMicroarrayPRM {
 	 * Reads the expression level files.
 	 * @throws FileNotFoundException.
 	 */
-	private void readExpressionFiles(PRMClass expressions) throws FileNotFoundException {
+	private void readMeasurementFiles() throws FileNotFoundException {
+		// Skeleton part.
+		//, new String[]{"ID", "GeneID", "ArrayID"}, new String[]{"Level"});
+		PRMClass measurements = new PRMClass("Measurement");
+		FixedAttribute id = new FixedAttribute("ID", measurements, 8192);
+		FixedAttribute gID = new FixedAttribute("GeneID", measurements, 8192);
+		FixedAttribute aID = new FixedAttribute("ArrayID", measurements, 8192);
+		IntAttribute level = new IntAttribute("Level", measurements, 8192, DependencyConstraints.NONE,
+				new IntegerInterval(-1, 1));
+		this.skeleton.addPRMClass(measurements);
+		Relation m2g = new Relation(gID, this.skeleton.getPRMClass("Gene").getFixedAttribute("ID"),
+				Type.MANY_TO_ONE, true);
+		Relation m2a = new Relation(aID, this.skeleton.getPRMClass("Array").getFixedAttribute("ID"),
+				Type.MANY_TO_ONE, true);
+		this.skeleton.addRelation(m2g);
+		this.skeleton.addRelation(m2a);
+		
+		// Read values.
 		File f;
 		Scanner sc;
 		// One file per array (80 in total).
@@ -103,11 +129,10 @@ public class SimpleMicroarrayPRM {
 			String[] lvls = sc.nextLine().trim().split(",");
 			// One expression level per gene (1000 in total).
 			for (int j = 0; j < 1000; ++j) {
-				String gID = "G" + j;
-				String aID = "A" + i;
-				String ID = gID + "-" + aID;
-				IntAttribute lvl = new IntAttribute(Integer.parseInt(lvls[j]));
-				expressions.putEntity(new String[]{ID, gID, aID}, new AttributeEntity[]{lvl});
+				id.addEntity("G" + j + "-" + "A" + i);
+				gID.addEntity("G" + j);
+				aID.addEntity("A" + i);
+				level.addEntity(Integer.parseInt(lvls[j]));
 			}
 			sc.close();
 		}
