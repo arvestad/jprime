@@ -3,8 +3,9 @@ package se.cbb.jprime.prm;
 import java.util.HashMap;
 
 /**
- * Holds a PRM skeleton, i.e. a set of PRM classes (including their entities)
- * and relations between them.
+ * Holds a PRM skeleton, providing access to PRM classes and the
+ * relations between them. Class and relation names must be unique.
+ * (Also holds a state, since entities are included within classes.)
  * 
  * @author Joel Sjöstrand.
  */
@@ -26,37 +27,35 @@ public class Skeleton {
 	
 	/**
 	 * Adds a PRM class.
-	 * @param ID a unique ID of the class.
 	 * @param c the class.
 	 */
-	public void putClass(String ID, PRMClass c) {
-		this.classes.put(ID, c);
+	public void addPRMClass(PRMClass c) {
+		this.classes.put(c.getName(), c);
 	}
 	
 	/**
 	 * Returns a PRM class.
-	 * @param ID the ID of the class.
+	 * @param name the name of the class.
 	 * @return the class.
 	 */
-	public PRMClass getClass(String ID) {
-		return this.classes.get(ID);
+	public PRMClass getPRMClass(String name) {
+		return this.classes.get(name);
 	}
 	
 	/**
 	 * Adds a PRM relation.
-	 * @param ID a unique ID of the relation.
 	 * @param r the relation.
 	 */
-	public void putRelation(String ID, Relation r) {
-		this.relations.put(ID, r);
+	public void addRelation(Relation r) {
+		this.relations.put(r.getName(), r);
 	}
 	
 	/**
 	 * Returns a PRM relation.
-	 * @param ID the ID of the relation.
+	 * @param name the name of the relation.
 	 * @return the relation.
 	 */
-	public Relation getRelation(String ID) {
-		return this.relations.get(ID);
+	public Relation getRelation(String name) {
+		return this.relations.get(name);
 	}
 }

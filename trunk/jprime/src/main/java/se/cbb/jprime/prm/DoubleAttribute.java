@@ -6,7 +6,7 @@ import java.util.Random;
 import se.cbb.jprime.math.RealInterval;
 
 /**
- * Defines an integer attribute, either bounded or unbounded.
+ * Defines a probabilistic integer attribute, either bounded or unbounded.
  * 
  * @author Joel Sjöstrand.
  */
@@ -29,13 +29,13 @@ public class DoubleAttribute implements ContinuousAttribute {
 	
 	/**
 	 * Constructor for bounded or unbounded double range.
-	 * @param prmClass PRM class this attribute belongs to.
 	 * @param name attribute's name. Should be unique within PRM class.
+	 * @param prmClass PRM class this attribute belongs to.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
 	 * @param interval the valid range of values.
 	 */
-	public DoubleAttribute(PRMClass prmClass, String name, int initialCapacity,
+	public DoubleAttribute(String name, PRMClass prmClass, int initialCapacity,
 			DependencyConstraints dependencyConstraints, RealInterval interval) {
 		this.prmClass = prmClass;
 		this.name = name;
@@ -82,12 +82,20 @@ public class DoubleAttribute implements ContinuousAttribute {
 
 	@Override
 	public void setEntityAsObject(int idx, Object entity) {
-		this.entities.set(idx, (Double) entity);
+		Double d = (Double) entity;
+		if (!this.interval.isWithin(d.doubleValue())) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
+		this.entities.set(idx, d);
 	}
 
 	@Override
 	public void addEntityAsObject(Object entity) {
-		this.entities.add((Double) entity);
+		Double d = (Double) entity;
+		if (!this.interval.isWithin(d.doubleValue())) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
+		this.entities.add(d);
 	}
 	
 	/**
@@ -105,6 +113,9 @@ public class DoubleAttribute implements ContinuousAttribute {
 	 * @param value the value.
 	 */
 	public void setEntity(int idx, double value) {
+		if (!this.interval.isWithin(value)) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
 		this.entities.set(idx, new Double(value));
 	}
 	
@@ -113,6 +124,14 @@ public class DoubleAttribute implements ContinuousAttribute {
 	 * @param value the value.
 	 */
 	public void addEntity(double value) {
+		if (!this.interval.isWithin(value)) {
+			throw new IllegalArgumentException("Value out-of-range.");
+		}
 		this.entities.add(new Double(value));
+	}
+	
+	@Override
+	public int getNoOfEntities() {
+		return this.entities.size();
 	}
 }

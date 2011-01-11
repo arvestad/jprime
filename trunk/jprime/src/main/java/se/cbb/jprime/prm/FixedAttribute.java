@@ -35,11 +35,11 @@ public class FixedAttribute {
 	
 	/**
 	 * Constructor.
-	 * @param prmClass PRM class this attribute belongs to.
 	 * @param name attribute's name. Should be unique within PRM class.
+	 * @param prmClass PRM class this attribute belongs to.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 */
-	public FixedAttribute(PRMClass prmClass, String name, int initialCapacity) {
+	public FixedAttribute(String name, PRMClass prmClass, int initialCapacity) {
 		this.name = name;
 		this.entities = new ArrayList<String>(initialCapacity);
 		this.prmClass = prmClass;
@@ -94,6 +94,14 @@ public class FixedAttribute {
 	 */
 	public void addEntity(String value) {
 		this.entities.add(value);
+	}
+	
+	/**
+	 * Returns the number of entities.
+	 * @return the number of entities.
+	 */
+	public int getNoOfEntities() {
+		return this.entities.size();
 	}
 	
 	/**

@@ -1,31 +1,27 @@
 package se.cbb.jprime.prm;
 
 /**
- * Represents a relation between two PRM classes A and B (analogous to two relational
- * database tables). The relation is specified by the two fixed attributes representing
- * the link.
+ * Represents a relation between two PRM classes (analogous to two relational
+ * database tables). The relation is specified by the two fixed attributes A and B
+ * representing the link.
  * <p/>
- * The order of A and B matters, since we allow only one-to-one
- * relations and many-to-one relations from A to B respectively.
- * Thus, the values of the attribute in B must be
- * unique. Many-to-many relations should be resolved using an intermediary PRM class.
+ * The order of A and B matters, since the directionality in a dependency slot chain from a child
+ * attribute to a parent is assumed to flow from A to B.
+ * <p/>
+ * At the moment
+ * we allow only one-to-one relations and many-to-one relations between A and B respectively,
+ * (implying that A and B represent foreign and primary keys respectively). Moreover,
+ * it is assumed that the values of B are unique. Many-to-many relations should be resolved
+ * using an intermediary PRM class.
  * 
  * @author Joel Sjöstrand.
  */
 public class Relation {
 
-	/** Relation type from class A to class B. */
+	/** Relation type from A to B. */
 	public enum Type {
 		ONE_TO_ONE,
 		MANY_TO_ONE
-	}
-	
-	/** Allowed probabilistic dependency structures for a relation. */
-	public enum DependencyConstraints {
-		/** Any direction allowed.  */                                  NONE,
-		/** Ancestor-descendant slot chain may go through relation. */  ANCESTOR_DESCENDANT,
-		/** Descendant-ancestor slot chain may go through relation. */  DESCENDANT_ANCESTOR,
-		/** No slot chain may go through relation. */                   NOT_ALLOWED
 	}
 	
 	/** Fixed attribute of class A. */
@@ -37,24 +33,24 @@ public class Relation {
 	/** Relation type. */
 	private Type type;
 	
-	/** Governs which dependency structures are allowed to flow through this relation. */
-	private DependencyConstraints dependencyConstraints;
+	/** Governs if this relation can participate in slot chain. */
+	private boolean canBeSlot;
 	
 	/**
 	 * Constructor.
 	 * @param the fixed attribute of class A.
 	 * @param the fixed attribute of class B.
 	 * @param type relation type from A to B.
-	 * @param dependencyConstraints governs which slot chains this relation may be part of.
+	 * @param canBeSlot flag governing whether this relation can be part of slot chain.
 	 */
-	public Relation(FixedAttribute a, FixedAttribute b, Type type,
-			DependencyConstraints dependencyConstraints) {
+	public Relation(FixedAttribute a, FixedAttribute b, Type type, boolean canBeSlot) {
 		this.a = a;
 		this.b = b;
 		this.type = type;
-		this.dependencyConstraints = dependencyConstraints;
+		this.canBeSlot = canBeSlot;
 		
 		// Make sure we can do quick access from A to B.
+		// Makes assumption B's values are unique.
 		if (!this.b.hasIndex()) {
 			this.b.createIndex();
 		}
@@ -79,17 +75,17 @@ public class Relation {
 	}
 	
 	/**
-	 * Returns the type of dependencies that are allowed to through
-	 * this relation, i.e., whether it can be used in a slot chain.
-	 * @return the dependency constraints.
+	 * Returns whether this relation can act as a 'slot' in a 'slot chain'
+	 * in a parent-child dependency.
+	 * @return true if it can be part of a slot chain; otherwise false.
 	 */
-	public DependencyConstraints getDependencyConstraints() {
-		return this.dependencyConstraints;
+	public boolean canBeSlot() {
+		return this.canBeSlot;
 	}
 	
 	/**
-	 * Given a record of PRM class A, following the relation, returns the index
-	 * of the record in B.
+	 * Given a record of PRM class A, follows a relation and returns the index
+	 * of the record in B, making the assumption that there is only one such record.
 	 * @param aIdx the entity index in A.
 	 * @return the corresponding entity index in B.
 	 */

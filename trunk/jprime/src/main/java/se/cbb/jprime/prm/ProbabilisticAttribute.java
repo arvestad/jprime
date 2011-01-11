@@ -77,6 +77,12 @@ public interface ProbabilisticAttribute {
 	public void addEntityAsObject(Object entity);
 	
 	/**
+	 * Returns the number of entities.
+	 * @return the number of entities.
+	 */
+	public int getNoOfEntities();
+	
+	/**
 	 * Returns a (presumably uniformly drawn) random attribute entity in accordance
 	 * with the attribute definition.
 	 * @param random an RNG (possibly PRNG).

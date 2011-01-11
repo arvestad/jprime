@@ -98,4 +98,19 @@ public class PRMClass {
 	public int getNoOfProbAttributes() {
 		return this.probAttributes.size();
 	}
+	
+	/**
+	 * Returns the number of entities. It is assumed that
+	 * all intrinsic attributes has this number.
+	 * @return
+	 */
+	public int getNoOfEntities() {
+		if (this.fixedAttributes.size() > 0) {
+			return this.fixedAttributes.values().iterator().next().getNoOfEntities();
+		}
+		if (this.probAttributes.size() > 0) {
+			return this.probAttributes.values().iterator().next().getNoOfEntities();
+		}
+		return 0;
+	}
 }
