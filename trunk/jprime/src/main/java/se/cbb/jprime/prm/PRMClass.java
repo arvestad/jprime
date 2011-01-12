@@ -1,16 +1,17 @@
 package se.cbb.jprime.prm;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
  * Represents a 'PRM class', i.e., more or less the equivalent of a relational
  * database table. Each class defines a schema by specifying these components:
  * <ol>
- * <li>an ordered list of fixed string attributes, typically corresponding to primary and foreign keys.</li>
- * <li>an ordered list of probabilistic attributes (strings, integers, ...) typically corresponding
+ * <li>a list of fixed string attributes, typically corresponding to primary and foreign keys.</li>
+ * <li>a list of probabilistic attributes (strings, integers, ...) typically corresponding
  *     to various characteristics.</li>
  * </ol>
- * All attributes must have unique names.
+ * All attributes must have unique names (within their type).
  * <p/>
  * The table records are maintained column-wise in the attributes themselves, but we
  * require that all values corresponding to a certain table record are aligned by having
@@ -67,6 +68,14 @@ public class PRMClass {
 	}
 	
 	/**
+	 * Returns all fixed attributes.
+	 * @return all attributes.
+	 */
+	public Collection<FixedAttribute> getFixedAttributes() {
+		return this.fixedAttributes.values();
+	}
+	
+	/**
 	 * Returns the number of fixed attributes.
 	 * @return the number of attributes.
 	 */
@@ -89,6 +98,14 @@ public class PRMClass {
 	 */
 	public ProbabilisticAttribute getProbAttribute(String name) {
 		return this.probAttributes.get(name);
+	}
+	
+	/**
+	 * Returns all probabilistic attributes.
+	 * @return all attributes.
+	 */
+	public Collection<ProbabilisticAttribute> getProbAttributes() {
+		return this.probAttributes.values();
 	}
 	
 	/**

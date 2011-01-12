@@ -1,28 +1,30 @@
 package se.cbb.jprime.prm;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
  * Holds a PRM skeleton, providing access to PRM classes and the
- * relations between them. Class and relation names must be unique.
- * (Also holds a state, since entities are included within classes.)
+ * relations between them. Class and relation names must be unique
+ * (within their categories).
+ * Ultimately also holds a state, since entities are kept within PRM classes.
  * 
  * @author Joel Sjöstrand.
  */
 public class Skeleton {
 
-	/** PRM classes. */
+	/** PRM classes hashed by name. */
 	private HashMap<String, PRMClass> classes;
 	
-	/** PRM relations. */
+	/** PRM relations hashed by name. */
 	private HashMap<String, Relation> relations;
 	
 	/**
 	 * Constructor.
 	 */
 	public Skeleton() {
-		this.classes = new HashMap<String, PRMClass>();
-		this.relations = new HashMap<String, Relation>();
+		this.classes = new HashMap<String, PRMClass>(8);
+		this.relations = new HashMap<String, Relation>(8);
 	}
 	
 	/**
@@ -43,6 +45,22 @@ public class Skeleton {
 	}
 	
 	/**
+	 * Returns all PRM classes of this skeleton.
+	 * @return all PRM classes.
+	 */
+	public Collection<PRMClass> getPRMClasses() {
+		return this.classes.values();
+	}
+	
+	/**
+	 * Returns the number of PRM classes of this skeleton.
+	 * @return the number of PRM classes.
+	 */
+	public int getNoOfPRMClasses() {
+		return this.classes.size();
+	}
+	
+	/**
 	 * Adds a PRM relation.
 	 * @param r the relation.
 	 */
@@ -57,5 +75,21 @@ public class Skeleton {
 	 */
 	public Relation getRelation(String name) {
 		return this.relations.get(name);
+	}
+	
+	/**
+	 * Returns all relations of this skeleton.
+	 * @return all relations.
+	 */
+	public Collection<Relation> getRelations() {
+		return this.relations.values();
+	}
+	
+	/**
+	 * Returns the number of relations of this skeleton.
+	 * @return the number of relations.
+	 */
+	public int getNoOfRelations() {
+		return this.relations.size();
 	}
 }

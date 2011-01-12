@@ -6,7 +6,7 @@ import java.util.Random;
 import se.cbb.jprime.math.RealInterval;
 
 /**
- * Defines a probabilistic integer attribute, either bounded or unbounded.
+ * Defines a probabilistic double PRM attribute, either bounded or unbounded.
  * 
  * @author Joel Sjöstrand.
  */
@@ -48,6 +48,11 @@ public class DoubleAttribute implements ContinuousAttribute {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getFullName() {
+		return this.prmClass.getName() + '.' + this.name;
 	}
 
 	@Override

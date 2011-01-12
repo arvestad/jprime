@@ -6,7 +6,7 @@ import java.util.Random;
 import se.cbb.jprime.math.IntegerInterval;
 
 /**
- * Defines a probabilistic boolean attribute.
+ * Defines a probabilistic boolean PRM attribute.
  * Treated similarly to {0,1}-valued integer
  * attribute.
  * 
@@ -48,6 +48,11 @@ public class BooleanAttribute implements DiscreteAttribute {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getFullName() {
+		return this.prmClass.getName() + '.' + this.name;
 	}
 
 	@Override

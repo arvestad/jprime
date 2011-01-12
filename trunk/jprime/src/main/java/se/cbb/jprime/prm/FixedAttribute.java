@@ -10,11 +10,11 @@ import java.util.List;
  * typically corresponding to primary or foreign keys.
  * <p/>
  * The attribute is tied to a PRM class, and also holds all attribute
- * entities (column values) in an ordered list which must be aligned
+ * entities (column values) in an indexed list which must be aligned
  * with all other attributes of the PRM class.
  * <p/>
  * Moreover, if the values are unique, the attribute may be "indexed" so
- * that one can may a quick retrieval of a record's integer index from
+ * that one may do a quick lookup of a record's integer index from
  * its string value.
  * 
  * @author Joel Sjöstrand.
@@ -60,6 +60,15 @@ public class FixedAttribute {
 	 */
 	public String getName() {
 		return this.name;
+	}
+	
+	/**
+	 * Returns the full name of the attribute thus:
+	 * ClassName.AttributeName.
+	 * @return the full name.
+	 */
+	public String getFullName() {
+		return this.prmClass.getName() + '.' + this.name;
 	}
 	
 	/**

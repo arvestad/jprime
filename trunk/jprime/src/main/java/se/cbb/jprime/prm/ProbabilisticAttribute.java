@@ -8,7 +8,7 @@ import java.util.Random;
  * typically corresponding various characteristics.
  * <p/>
  * The attribute is tied to a PRM class, and also holds all attribute
- * entities (column values) in an ordered list which must be aligned
+ * entities (column values) in an indexed list which must be aligned
  * with all other attributes of the PRM class.
  * 
  * @author Joel Sjöstrand.
@@ -43,6 +43,13 @@ public interface ProbabilisticAttribute {
 	 * @return the attribute's name.
 	 */
 	public String getName();
+	
+	/**
+	 * Returns the full name of the attribute thus:
+	 * ClassName.AttributeName.
+	 * @return the full name.
+	 */
+	public String getFullName();
 	
 	/**
 	 * Returns the general data type of this attribute.

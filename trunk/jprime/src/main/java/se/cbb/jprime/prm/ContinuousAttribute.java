@@ -3,7 +3,7 @@ package se.cbb.jprime.prm;
 import se.cbb.jprime.math.RealInterval;
 
 /**
- * Interface for real-valued attributes.
+ * Interface for real-valued PRM attributes.
  * 
  * @author Joel Sjöstrand.
  */

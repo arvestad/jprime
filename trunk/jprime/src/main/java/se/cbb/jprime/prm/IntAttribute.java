@@ -6,7 +6,7 @@ import java.util.Random;
 import se.cbb.jprime.math.IntegerInterval;
 
 /**
- * Defines a probabilistic integer attribute, either bounded or unbounded.
+ * Defines a probabilistic integer PRM attribute, either bounded or unbounded.
  * 
  * @author Joel Sjöstrand.
  */
@@ -50,6 +50,11 @@ public class IntAttribute implements DiscreteAttribute {
 		return name;
 	}
 
+	@Override
+	public String getFullName() {
+		return this.prmClass.getName() + '.' + this.name;
+	}
+	
 	@Override
 	public DataType getDataType() {
 		return ProbabilisticAttribute.DataType.DISCRETE;
