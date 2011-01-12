@@ -7,25 +7,29 @@ import se.cbb.jprime.math.RealInterval;
 
 /**
  * Defines a probabilistic double PRM attribute, either bounded or unbounded.
+ * The attribute automatically adds itself to its PRM class.
  * 
  * @author Joel Sjöstrand.
  */
 public class DoubleAttribute implements ContinuousAttribute {
 	
 	/** PRM class. */
-	private PRMClass prmClass;
+	private final PRMClass prmClass;
 	
 	/** Attribute name. */
-	private String name;
-	
-	/** Entities. */
-	private ArrayList<Double> entities;
-	
-	/** Dependency constraints */
-	private DependencyConstraints dependencyConstraints;
+	private final String name;
 	
 	/** Interval defining valid range. */
-	RealInterval interval;
+	private final RealInterval interval;
+	
+	/** Entities. */
+	private final ArrayList<Double> entities;
+	
+	/** Full name kept for quick access. */
+	private final String fullName;
+	
+	/** Dependency constraints. */
+	private DependencyConstraints dependencyConstraints;
 	
 	/**
 	 * Constructor for bounded or unbounded double range.
@@ -37,11 +41,12 @@ public class DoubleAttribute implements ContinuousAttribute {
 	 */
 	public DoubleAttribute(String name, PRMClass prmClass, int initialCapacity,
 			DependencyConstraints dependencyConstraints, RealInterval interval) {
-		this.prmClass = prmClass;
 		this.name = name;
-		this.entities = new ArrayList<Double>(initialCapacity);
-		this.dependencyConstraints = dependencyConstraints;
+		this.prmClass = prmClass;
 		this.interval = interval;
+		this.entities = new ArrayList<Double>(initialCapacity);
+		this.fullName = this.prmClass.getName() + '.' + this.name;
+		this.dependencyConstraints = dependencyConstraints;
 		this.prmClass.addProbAttribute(this);
 	}
 	
@@ -52,7 +57,7 @@ public class DoubleAttribute implements ContinuousAttribute {
 	
 	@Override
 	public String getFullName() {
-		return this.prmClass.getName() + '.' + this.name;
+		return this.fullName;
 	}
 
 	@Override

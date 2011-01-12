@@ -17,20 +17,24 @@ import java.util.HashMap;
  * require that all values corresponding to a certain table record are aligned by having
  * the same index in each attribute.
  * <p/>
- * Relations to other PRM classes are handled elsewhere (see <code>Relation</code>).
+ * In addition, a PRM class provides access to all 'relations' emanating from the class,
+ * see <code>Relation</code>.
  * 
  * @author Joel Sjöstrand.
  */
 public class PRMClass {
 	
 	/** PRM class name. */
-	private String name;
+	private final String name;
+	
+	/** Registered relations emanating from this class, hashed by name. */
+	private final HashMap<String, Relation> relations;
 	
 	/** Fixed attributes hashed by name. */
-	private HashMap<String, FixedAttribute> fixedAttributes;
+	private final HashMap<String, FixedAttribute> fixedAttributes;
 	
 	/** Probabilistic attributes, hashed by name. */
-	private HashMap<String, ProbabilisticAttribute> probAttributes;
+	private final HashMap<String, ProbabilisticAttribute> probAttributes;
 	
 	/**
 	 * Constructor.
@@ -38,6 +42,7 @@ public class PRMClass {
 	 */
 	public PRMClass(String name) {
 		this.name = name;
+		this.relations = new HashMap<String, Relation>(4);
 		this.fixedAttributes = new HashMap<String, FixedAttribute>(4);
 		this.probAttributes = new HashMap<String, ProbabilisticAttribute>(8);
 	}
@@ -51,7 +56,33 @@ public class PRMClass {
 	}
 	
 	/**
-	 * Adds a fixed attribute.
+	 * Adds a relation emanating from this class.
+	 * No verification is made for its validity.
+	 * @param rel the relation.
+	 */
+	public void addRelation(Relation rel) {
+		this.relations.put(rel.getName(), rel);
+	}
+	
+	/**
+	 * Returns a relation emanating from this class.
+	 * @param name the name of the relation.
+	 * @return the relation.
+	 */
+	public Relation getRelation(String name) {
+		return this.relations.get(name);
+	}
+	
+	/**
+	 * Returns all relations emanating from this PRM class.
+	 * @return the relations.
+	 */
+	public Collection<Relation> getRelations() {
+		return this.relations.values();
+	}
+	
+	/**
+	 * Adds a fixed attribute. No verification is made for its validity.
 	 * @param attribute the attribute.
 	 */
 	public void addFixedAttribute(FixedAttribute attribute) {
@@ -84,7 +115,7 @@ public class PRMClass {
 	}
 	
 	/**
-	 * Adds a probabilistic attribute.
+	 * Adds a probabilistic attribute. No verification is made for its validity.
 	 * @param attribute the attribute.
 	 */
 	public void addProbAttribute(ProbabilisticAttribute attribute) {

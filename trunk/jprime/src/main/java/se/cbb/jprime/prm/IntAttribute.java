@@ -7,25 +7,29 @@ import se.cbb.jprime.math.IntegerInterval;
 
 /**
  * Defines a probabilistic integer PRM attribute, either bounded or unbounded.
+ * The attribute automatically adds itself to its PRM class.
  * 
  * @author Joel Sjöstrand.
  */
 public class IntAttribute implements DiscreteAttribute {
 	
 	/** PRM class. */
-	private PRMClass prmClass;
+	private final PRMClass prmClass;
 	
 	/** Attribute name. */
-	private String name;
+	private final String name;
+	
+	/** Interval defining valid range. */
+	private final IntegerInterval interval;
 	
 	/** Entities. */
-	private ArrayList<Integer> entities;
+	private final ArrayList<Integer> entities;
+	
+	/** Full name kept for quick access. */
+	private final String fullName;
 	
 	/** Dependency constraints */
 	private DependencyConstraints dependencyConstraints;
-	
-	/** Interval defining valid range. */
-	IntegerInterval interval;
 	
 	/**
 	 * Constructor for bounded or unbounded integer range.
@@ -37,11 +41,12 @@ public class IntAttribute implements DiscreteAttribute {
 	 */
 	public IntAttribute(String name, PRMClass prmClass, int initialCapacity,
 			DependencyConstraints dependencyConstraints, IntegerInterval interval) {
-		this.prmClass = prmClass;
 		this.name = name;
-		this.entities = new ArrayList<Integer>(initialCapacity);
-		this.dependencyConstraints = dependencyConstraints;
+		this.prmClass = prmClass;
 		this.interval = interval;
+		this.entities = new ArrayList<Integer>(initialCapacity);
+		this.fullName = this.prmClass.getName() + '.' + this.name;
+		this.dependencyConstraints = dependencyConstraints;
 		this.prmClass.addProbAttribute(this);
 	}
 	
@@ -52,7 +57,7 @@ public class IntAttribute implements DiscreteAttribute {
 
 	@Override
 	public String getFullName() {
-		return this.prmClass.getName() + '.' + this.name;
+		return this.fullName;
 	}
 	
 	@Override

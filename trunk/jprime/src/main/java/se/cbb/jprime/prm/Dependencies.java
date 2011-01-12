@@ -1,6 +1,5 @@
 package se.cbb.jprime.prm;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -24,6 +23,17 @@ public class Dependencies {
 	public Dependencies(ProbabilisticAttribute child) {
 		this.child = child;
 		this.dependencies = new HashMap<String, Dependency>(8);
+	}
+	
+	/**
+	 * Copy-constructor. The created instance will refer to the same
+	 * child and Dependency objects, although the latter should be
+	 * immutable.
+	 * @param deps the object to copy.
+	 */
+	public Dependencies(Dependencies deps) {
+		this.child = deps.child;
+		this.dependencies = new HashMap<String, Dependency>(deps.dependencies);
 	}
 	
 	/**

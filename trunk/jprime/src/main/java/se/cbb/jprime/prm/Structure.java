@@ -1,46 +1,62 @@
 package se.cbb.jprime.prm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 /**
  * Holds a PRM structure, that is, a set of parent-child dependencies.
+ * <p/>
+ * Note: Invoking <code>equal()</code> on identical structures based of different instances should
+ * (hopefully) yield true.
  * 
  * @author Joel Sjöstrand.
  */
 public class Structure {
 
-	/** All probabilistic attributes of the skeleton. */
-	private ArrayList<ProbabilisticAttribute> probAttributes;
+	/** The skeleton to which this structure refers. */
+	private final Skeleton skeleton;
 	
-	/** Full names of all probabilistic attributes of the skeleton. */
-	private HashSet<String> probAttributeNames;
+	/**
+	 * Dependencies of this structure, indexed by child attribute.
+	 * There will be a Dependencies object for every attribute, albeit
+	 * empty if it does not have parents.
+	 */
+	private final HashMap<ProbabilisticAttribute, Dependencies> dependencies;
 	
-	/** Dependencies of this structure, indexed by child attribute. */
-	private HashMap<ProbabilisticAttribute, Dependencies> dependencies;
-	
-	/** Names of all dependencies of this structure. */
-	private HashSet<String> dependencyNames;
+	/** For quick equivalence comparisons: dependency names. */
+	private final HashSet<String> dependencyNames;
 	
 	/**
 	 * Constructor.
 	 * @param skeleton the skeleton this structure refers to.
 	 */
 	public Structure(Skeleton skeleton) {
+		this.skeleton = skeleton;
 		int initCap = skeleton.getNoOfPRMClasses() * 8;
-		this.probAttributes = new ArrayList<ProbabilisticAttribute>(initCap);
-		this.probAttributeNames = new HashSet<String>(initCap);
 		this.dependencies = new HashMap<ProbabilisticAttribute, Dependencies>(initCap);
 		this.dependencyNames = new HashSet<String>(initCap * 4);
 		
-		// Read all probabilistic attributes.
+		// Create an initially empty Dependencies for each attribute.
 		for (PRMClass c : skeleton.getPRMClasses()) {
 			for (ProbabilisticAttribute a : c.getProbAttributes()) {
-				this.probAttributes.add(a);
-				this.probAttributeNames.add(a.getFullName());
+				this.dependencies.put(a, new Dependencies(a));
 			}
 		}
+	}
+	
+	/**
+	 * Copy-constructor. The generated object will refer to the same
+	 * skeleton, but have identical copied instances of Dependencies (which, in turn,
+	 * will refer to the same immutable Dependency objects).
+	 * @param struct the object to copy.
+	 */
+	public Structure(Structure struct) {
+		this.skeleton = struct.skeleton;
+		this.dependencies = new HashMap<ProbabilisticAttribute, Dependencies>(struct.dependencies.size());
+		for (Dependencies deps : struct.dependencies.values()) {
+			this.dependencies.put(deps.getChild(), new Dependencies(deps));
+		}
+		this.dependencyNames = new HashSet<String>(struct.dependencyNames);
 	}
 	
 	/**
@@ -49,24 +65,19 @@ public class Structure {
 	 * @param dep the dependency.
 	 */
 	public void addDependency(Dependency dep) {
-		ProbabilisticAttribute ch = dep.getChild();
-		Dependencies deps = this.dependencies.get(ch);
-		if (deps == null) {
-			deps = new Dependencies(ch);
-			this.dependencies.put(ch, deps);
-		}
+		Dependencies deps = this.dependencies.get(dep.getChild());
 		deps.putDependency(dep);
 		this.dependencyNames.add(dep.getName());
 	}
 
 	@Override
 	public int hashCode() {
-		return (this.probAttributeNames.hashCode() * 31 + this.dependencyNames.hashCode());
+		return (this.skeleton.hashCode() * 31 + this.dependencyNames.hashCode());
 	}
 
 	/**
 	 * Compares two structures. Will return true for different instances
-	 * exhibiting identical attribute names and dependency names.
+	 * referring to the same skeleton and having identical dependency names.
 	 * @param the structure to compare with.
 	 * @return true if equivalent.
 	 */
@@ -77,7 +88,7 @@ public class Structure {
 		if (getClass() != obj.getClass()) { return false; }
 		
 		Structure s = (Structure) obj;
-		return (this.probAttributeNames.equals(s.probAttributeNames) &&
+		return (this.skeleton == s.skeleton &&
 			this.dependencyNames.equals(s.dependencyNames));
 	}
 	
