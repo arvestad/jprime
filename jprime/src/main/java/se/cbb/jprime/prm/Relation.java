@@ -1,7 +1,7 @@
 package se.cbb.jprime.prm;
 
 /**
- * Represents a relation between two PRM classes (analogous to two relational
+ * Represents a relation between two PRM classes (analogous to a link between two relational
  * database tables). The relation is specified by the two fixed attributes A and B
  * representing the link.
  * <p/>
@@ -41,7 +41,7 @@ public class Relation {
 	 * @param the fixed attribute of class A.
 	 * @param the fixed attribute of class B.
 	 * @param type relation type from A to B.
-	 * @param canBeSlot flag governing whether this relation can be part of slot chain.
+	 * @param canBeSlot flag governing whether this relation can be part of a slot chain.
 	 */
 	public Relation(FixedAttribute a, FixedAttribute b, Type type, boolean canBeSlot) {
 		this.a = a;
@@ -58,12 +58,14 @@ public class Relation {
 	
 	/**
 	 * Returns a concatenated string thus:
-	 * Alfa.Foo-Beta.Bar for class Alfa, attribute Foo and class Beta, attribute Bar.
-	 * @return a name representation of the relation.
+	 * Alpha.Foo-Beta.Bar for class Alpha, attribute Foo and class Beta, attribute Bar,
+	 * (corresponding to A and B respectively).
+	 * <p/>
+	 * This string may also be used for finding identical Relation instances.
+	 * @return a unique name representation of the relation.
 	 */
 	public String getName() {
-		return (this.a.getPRMClass().getName() + "." + a.getName() + "-" +
-				this.b.getPRMClass().getName() + "." + b.getName());
+		return (this.a.getFullName() + "-" + this.b.getFullName());
 	}
 	
 	/**
@@ -91,5 +93,21 @@ public class Relation {
 	 */
 	public int getIndex(int aIdx) {
 		return this.b.getIndex(this.a.getEntity(aIdx));
+	}
+	
+	/**
+	 * Returns the first attribute, i.e., A.
+	 * @return fixed attribute A.
+	 */
+	public FixedAttribute getFirst() {
+		return this.a;
+	}
+	
+	/**
+	 * Returns the second attribute, i.e., B.
+	 * @return fixed attribute B.
+	 */
+	public FixedAttribute getSecond() {
+		return this.b;
 	}
 }

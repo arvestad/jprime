@@ -3,7 +3,7 @@ package se.cbb.jprime.prm;
 import se.cbb.jprime.math.IntegerInterval;
 
 /**
- * Interface for discrete valued attributes.
+ * Interface for discrete valued PRM attributes.
  * 
  * @author Joel Sjöstrand.
  */
