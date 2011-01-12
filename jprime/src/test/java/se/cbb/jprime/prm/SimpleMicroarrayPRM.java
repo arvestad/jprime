@@ -104,20 +104,18 @@ public class SimpleMicroarrayPRM {
 	 */
 	private void readMeasurementFiles() throws FileNotFoundException {
 		// Skeleton part.
-		//, new String[]{"ID", "GeneID", "ArrayID"}, new String[]{"Level"});
 		PRMClass measurements = new PRMClass("Measurement");
 		FixedAttribute id = new FixedAttribute("ID", measurements, 8192);
 		FixedAttribute gID = new FixedAttribute("GeneID", measurements, 8192);
 		FixedAttribute aID = new FixedAttribute("ArrayID", measurements, 8192);
 		IntAttribute level = new IntAttribute("Level", measurements, 8192, DependencyConstraints.NONE,
 				new IntegerInterval(-1, 1));
+		PRMClass genes = this.skeleton.getPRMClass("Gene");
+		PRMClass arrays = this.skeleton.getPRMClass("Array");
+		// Relations add themselves to their classes...
+		new Relation(gID, genes.getFixedAttribute("ID"), Type.MANY_TO_ONE, true);
+		new Relation(aID, arrays.getFixedAttribute("ID"), Type.MANY_TO_ONE, true);
 		this.skeleton.addPRMClass(measurements);
-		Relation m2g = new Relation(gID, this.skeleton.getPRMClass("Gene").getFixedAttribute("ID"),
-				Type.MANY_TO_ONE, true);
-		Relation m2a = new Relation(aID, this.skeleton.getPRMClass("Array").getFixedAttribute("ID"),
-				Type.MANY_TO_ONE, true);
-		this.skeleton.addRelation(m2g);
-		this.skeleton.addRelation(m2a);
 		
 		// Read values.
 		File f;
