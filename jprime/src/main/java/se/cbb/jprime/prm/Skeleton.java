@@ -1,30 +1,31 @@
 package se.cbb.jprime.prm;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 /**
- * Holds a PRM skeleton, providing access to PRM classes and the
- * relations between them. Class and relation names must be unique
- * (within their categories).
- * Ultimately also holds a state, since entities are kept within PRM classes.
+ * Holds a PRM skeleton, providing access to PRM classes, and thereby indirectly
+ * provides access to relations, attributes and the entities thereof.
+ * Class names must be unique.
  * 
  * @author Joel Sjöstrand.
  */
 public class Skeleton {
 
 	/** PRM classes hashed by name. */
-	private HashMap<String, PRMClass> classes;
+	private final HashMap<String, PRMClass> classesByName;
 	
-	/** PRM relations hashed by name. */
-	private HashMap<String, Relation> relations;
+	/** PRM classes in ordered added. */
+	private final ArrayList<PRMClass> classesByIndex;
 	
 	/**
 	 * Constructor.
 	 */
 	public Skeleton() {
-		this.classes = new HashMap<String, PRMClass>(8);
-		this.relations = new HashMap<String, Relation>(8);
+		this.classesByName = new HashMap<String, PRMClass>(8);
+		this.classesByIndex = new ArrayList<PRMClass>(8);
 	}
 	
 	/**
@@ -32,7 +33,8 @@ public class Skeleton {
 	 * @param c the class.
 	 */
 	public void addPRMClass(PRMClass c) {
-		this.classes.put(c.getName(), c);
+		this.classesByName.put(c.getName(), c);
+		this.classesByIndex.add(c);
 	}
 	
 	/**
@@ -41,15 +43,15 @@ public class Skeleton {
 	 * @return the class.
 	 */
 	public PRMClass getPRMClass(String name) {
-		return this.classes.get(name);
+		return this.classesByName.get(name);
 	}
 	
 	/**
 	 * Returns all PRM classes of this skeleton.
 	 * @return all PRM classes.
 	 */
-	public Collection<PRMClass> getPRMClasses() {
-		return this.classes.values();
+	public List<PRMClass> getPRMClasses() {
+		return this.classesByIndex;
 	}
 	
 	/**
@@ -57,39 +59,16 @@ public class Skeleton {
 	 * @return the number of PRM classes.
 	 */
 	public int getNoOfPRMClasses() {
-		return this.classes.size();
+		return this.classesByIndex.size();
 	}
 	
 	/**
-	 * Adds a PRM relation.
-	 * @param r the relation.
+	 * Returns a uniformly selected PRM class.
+	 * @param rng random number generator.
+	 * @return a uniformly selected PRM class.
 	 */
-	public void addRelation(Relation r) {
-		this.relations.put(r.getName(), r);
+	public PRMClass getRandomPRMClass(Random rng) {
+		return this.classesByIndex.get(rng.nextInt(this.classesByIndex.size()));
 	}
 	
-	/**
-	 * Returns a PRM relation.
-	 * @param name the name of the relation.
-	 * @return the relation.
-	 */
-	public Relation getRelation(String name) {
-		return this.relations.get(name);
-	}
-	
-	/**
-	 * Returns all relations of this skeleton.
-	 * @return all relations.
-	 */
-	public Collection<Relation> getRelations() {
-		return this.relations.values();
-	}
-	
-	/**
-	 * Returns the number of relations of this skeleton.
-	 * @return the number of relations.
-	 */
-	public int getNoOfRelations() {
-		return this.relations.size();
-	}
 }

@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Represents a parent-child PRM dependency relationship between
  * two probabilistic PRM attributes, possibly linked via a 'slot chain'
- * (an ordered list of relations).
+ * (an ordered list of relations). Instances are supposed to be immutable.
  * <p/>
  * These scenarios can occur:
  * for parent attribute P and child attribute C:
@@ -19,16 +19,19 @@ import java.util.List;
  * 
  * @author Joel Sjöstrand.
  */
-public class Dependency {
+public final class Dependency {
 
 	/** Child. */
-	private ProbabilisticAttribute child;
+	private final ProbabilisticAttribute child;
 	
 	/** Slot chain from child to parent, possibly empty. */
-	private Relation[] slotChain;
+	private final Relation[] slotChain;
 	
 	/** Parent. */
-	private ProbabilisticAttribute parent;
+	private final ProbabilisticAttribute parent;
+	
+	/** String representation, stored for quick access. */
+	private final String name;
 	
 	/**
 	 * Creates a dependency. Does not perform verification of slot chain validity,
@@ -42,6 +45,17 @@ public class Dependency {
 		this.child = child;
 		this.slotChain = slotChain.toArray(this.slotChain);
 		this.parent = parent;
+		
+		// Create name.
+		StringBuilder sb = new StringBuilder(20 + 20 * this.slotChain.length);
+		sb.append(this.child.getName()).append('.');
+		for (Relation r : this.slotChain) {
+			sb.append(r.getFirst().getFullName()).append("<-")
+				.append(r.getSecond().getName()).append('.');
+		}
+		sb.append(this.parent.getPRMClass().getName()).append('.')
+			.append(this.parent.getName());
+		this.name = sb.toString();
 	}
 	
 	/**
@@ -80,15 +94,7 @@ public class Dependency {
 	 * @return a unique string representation.
 	 */
 	public String getName() {
-		StringBuilder sb = new StringBuilder(20 + 20 * this.slotChain.length);
-		sb.append(this.child.getName()).append('.');
-		for (Relation r : this.slotChain) {
-			sb.append(r.getFirst().getFullName()).append("<-")
-				.append(r.getSecond().getName()).append('.');
-		}
-		sb.append(this.parent.getPRMClass().getName()).append('.')
-			.append(this.parent.getName());
-		return sb.toString();
+		return this.name;
 	}
 
 	/**

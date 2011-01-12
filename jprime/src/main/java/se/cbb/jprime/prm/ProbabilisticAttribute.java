@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Represents a fixed attribute of a PRM class, analogous to
  * a column in a relational database table. These hold variant data,
- * typically corresponding various characteristics.
+ * typically corresponding to various characteristics.
  * <p/>
  * The attribute is tied to a PRM class, and also holds all attribute
  * entities (column values) in an indexed list which must be aligned

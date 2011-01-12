@@ -6,7 +6,8 @@ package se.cbb.jprime.prm;
  * representing the link.
  * <p/>
  * The order of A and B matters, since the directionality in a dependency slot chain from a child
- * attribute to a parent is assumed to flow from A to B.
+ * attribute to a parent is assumed to flow from A to B. The relation automatically adds itself
+ * to the class of A.
  * <p/>
  * At the moment
  * we allow only one-to-one relations and many-to-one relations between A and B respectively,
@@ -25,13 +26,16 @@ public class Relation {
 	}
 	
 	/** Fixed attribute of class A. */
-	private FixedAttribute a;
+	private final FixedAttribute a;
 	
 	/** Fixed attribute of class B. */
-	private FixedAttribute b;
+	private final FixedAttribute b;
 	
 	/** Relation type. */
-	private Type type;
+	private final Type type;
+	
+	/** Name kept for quick access. */
+	private final String name;
 	
 	/** Governs if this relation can participate in slot chain. */
 	private boolean canBeSlot;
@@ -47,7 +51,9 @@ public class Relation {
 		this.a = a;
 		this.b = b;
 		this.type = type;
+		this.name = this.a.getFullName() + "-" + this.b.getFullName();
 		this.canBeSlot = canBeSlot;
+		this.a.getPRMClass().addRelation(this);
 		
 		// Make sure we can do quick access from A to B.
 		// Makes assumption B's values are unique.
@@ -65,7 +71,7 @@ public class Relation {
 	 * @return a unique name representation of the relation.
 	 */
 	public String getName() {
-		return (this.a.getFullName() + "-" + this.b.getFullName());
+		return this.name;
 	}
 	
 	/**

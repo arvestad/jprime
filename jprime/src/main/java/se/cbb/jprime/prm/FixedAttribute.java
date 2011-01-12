@@ -11,7 +11,8 @@ import java.util.List;
  * <p/>
  * The attribute is tied to a PRM class, and also holds all attribute
  * entities (column values) in an indexed list which must be aligned
- * with all other attributes of the PRM class.
+ * with all other attributes of the PRM class. The attribute automatically adds itself
+ * to its PRM class.
  * <p/>
  * Moreover, if the values are unique, the attribute may be "indexed" so
  * that one may do a quick lookup of a record's integer index from
@@ -20,15 +21,18 @@ import java.util.List;
  * @author Joel Sjöstrand.
  */
 public class FixedAttribute {
-
-	/** PRM class. */
-	private PRMClass prmClass;
 	
 	/** Attribute name. */
-	private String name;
+	private final String name;
+	
+	/** PRM class. */
+	private final PRMClass prmClass;
 	
 	/** Entities. */
-	private ArrayList<String> entities;
+	private final ArrayList<String> entities;
+	
+	/** Full name kept for quick access. */
+	private final String fullName;
 	
 	/** Index from value to integer index. Not always used. */
 	private HashMap<String, Integer> index = null;
@@ -41,8 +45,9 @@ public class FixedAttribute {
 	 */
 	public FixedAttribute(String name, PRMClass prmClass, int initialCapacity) {
 		this.name = name;
-		this.entities = new ArrayList<String>(initialCapacity);
 		this.prmClass = prmClass;
+		this.entities = new ArrayList<String>(initialCapacity);
+		this.fullName = this.prmClass.getName() + '.' + this.name;
 		this.prmClass.addFixedAttribute(this);
 	}
 	
@@ -68,7 +73,7 @@ public class FixedAttribute {
 	 * @return the full name.
 	 */
 	public String getFullName() {
-		return this.prmClass.getName() + '.' + this.name;
+		return this.fullName;
 	}
 	
 	/**

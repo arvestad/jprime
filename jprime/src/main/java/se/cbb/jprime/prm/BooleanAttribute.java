@@ -8,7 +8,8 @@ import se.cbb.jprime.math.IntegerInterval;
 /**
  * Defines a probabilistic boolean PRM attribute.
  * Treated similarly to {0,1}-valued integer
- * attribute.
+ * attribute.  The attribute automatically adds itself
+ * to its PRM class.
  * 
  * @author Joel Sjöstrand.
  */
@@ -18,13 +19,16 @@ public class BooleanAttribute implements DiscreteAttribute {
 	public static final IntegerInterval INTERVAL = new IntegerInterval(0, 1);
 	
 	/** PRM class. */
-	private PRMClass prmClass;
+	private final PRMClass prmClass;
 	
 	/** Attribute name. */
-	private String name;
+	private final String name;
 	
 	/** Entities. */
-	private ArrayList<Boolean> entities;
+	private final ArrayList<Boolean> entities;
+	
+	/** Full name kept for quick access. */
+	private final String fullName;
 	
 	/** Dependency constraints */
 	private DependencyConstraints dependencyConstraints;
@@ -41,6 +45,7 @@ public class BooleanAttribute implements DiscreteAttribute {
 		this.prmClass = prmClass;
 		this.name = name;
 		this.entities = new ArrayList<Boolean>(initialCapacity);
+		this.fullName = this.prmClass.getName() + '.' + this.name;
 		this.dependencyConstraints = dependencyConstraints;
 		this.prmClass.addProbAttribute(this);
 	}
@@ -52,7 +57,7 @@ public class BooleanAttribute implements DiscreteAttribute {
 	
 	@Override
 	public String getFullName() {
-		return this.prmClass.getName() + '.' + this.name;
+		return this.fullName;
 	}
 
 	@Override
