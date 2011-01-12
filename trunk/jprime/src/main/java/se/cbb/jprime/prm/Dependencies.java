@@ -1,5 +1,6 @@
 package se.cbb.jprime.prm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -30,7 +31,7 @@ public class Dependencies {
 	 * A duplicate will only overwrite its identical value.
 	 * @param dep the dependency.
 	 */
-	public void put(Dependency dep) {
+	public void putDependency(Dependency dep) {
 		if (this.child != dep.getChild()) {
 			throw new IllegalArgumentException("Cannot add dependency to collection" +
 					" due to incorrect child attribute.");
@@ -46,4 +47,19 @@ public class Dependencies {
 		return this.dependencies.values();
 	}
 	
+	/**
+	 * Returns the number of dependencies.
+	 * @return the number of dependencies.
+	 */
+	public int getNoOfDependencies() {
+		return this.dependencies.size();
+	}
+	
+	/**
+	 * Returns the child of the dependencies.
+	 * @return
+	 */
+	public ProbabilisticAttribute getChild() {
+		return this.child;
+	}
 }

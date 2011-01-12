@@ -55,7 +55,31 @@ public class Structure {
 			deps = new Dependencies(ch);
 			this.dependencies.put(ch, deps);
 		}
-		deps.put(dep);
+		deps.putDependency(dep);
 		this.dependencyNames.add(dep.getName());
 	}
+
+	@Override
+	public int hashCode() {
+		return (this.probAttributeNames.hashCode() * 31 + this.dependencyNames.hashCode());
+	}
+
+	/**
+	 * Compares two structures. Will return true for different instances
+	 * exhibiting identical attribute names and dependency names.
+	 * @param the structure to compare with.
+	 * @return true if equivalent.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+		
+		Structure s = (Structure) obj;
+		return (this.probAttributeNames.equals(s.probAttributeNames) &&
+			this.dependencyNames.equals(s.dependencyNames));
+	}
+	
+	
 }
