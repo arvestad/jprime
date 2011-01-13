@@ -21,7 +21,7 @@ public class Structure {
 	 * There will be a Dependencies object for every attribute, albeit
 	 * empty if it does not have parents.
 	 */
-	private final HashMap<ProbabilisticAttribute, Dependencies> dependencies;
+	private final HashMap<ProbAttribute, Dependencies> dependencies;
 	
 	/** For quick equivalence comparisons: dependency names. */
 	private final HashSet<String> dependencyNames;
@@ -33,12 +33,12 @@ public class Structure {
 	public Structure(Skeleton skeleton) {
 		this.skeleton = skeleton;
 		int initCap = skeleton.getNoOfPRMClasses() * 8;
-		this.dependencies = new HashMap<ProbabilisticAttribute, Dependencies>(initCap);
+		this.dependencies = new HashMap<ProbAttribute, Dependencies>(initCap);
 		this.dependencyNames = new HashSet<String>(initCap * 4);
 		
 		// Create an initially empty Dependencies for each attribute.
 		for (PRMClass c : skeleton.getPRMClasses()) {
-			for (ProbabilisticAttribute a : c.getProbAttributes()) {
+			for (ProbAttribute a : c.getProbAttributes()) {
 				this.dependencies.put(a, new Dependencies(a));
 			}
 		}
@@ -52,7 +52,7 @@ public class Structure {
 	 */
 	public Structure(Structure struct) {
 		this.skeleton = struct.skeleton;
-		this.dependencies = new HashMap<ProbabilisticAttribute, Dependencies>(struct.dependencies.size());
+		this.dependencies = new HashMap<ProbAttribute, Dependencies>(struct.dependencies.size());
 		for (Dependencies deps : struct.dependencies.values()) {
 			this.dependencies.put(deps.getChild(), new Dependencies(deps));
 		}
@@ -70,6 +70,15 @@ public class Structure {
 		this.dependencyNames.add(dep.getName());
 	}
 
+	/**
+	 * Returns the number of dependencies, i.e. parent-child arcs in
+	 * the template Bayesian network.
+	 * @return the number of dependencies.
+	 */
+	public int getNoOfDependencies() {
+		return this.dependencyNames.size();
+	}
+	
 	@Override
 	public int hashCode() {
 		return (this.skeleton.hashCode() * 31 + this.dependencyNames.hashCode());
@@ -90,6 +99,17 @@ public class Structure {
 		Structure s = (Structure) obj;
 		return (this.skeleton == s.skeleton &&
 			this.dependencyNames.equals(s.dependencyNames));
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(1024);
+		sb.append("PRM structure on skeleton ").append(this.skeleton.getName());
+		sb.append(" with dependencies:\n");
+		for (String s : this.dependencyNames) {
+			sb.append('\t').append(s).append('\n');
+		}
+		return sb.toString();
 	}
 	
 	

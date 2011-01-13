@@ -13,7 +13,7 @@ import java.util.Random;
  * 
  * @author Joel Sjöstrand.
  */
-public interface ProbabilisticAttribute {
+public interface ProbAttribute {
 
 	/** General type of data contained within. */
 	public enum DataType {

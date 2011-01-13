@@ -25,10 +25,10 @@ public class Relation {
 		MANY_TO_ONE
 	}
 	
-	/** Fixed attribute of class A. */
+	/** Fixed "emanating" attribute A. */
 	private final FixedAttribute a;
 	
-	/** Fixed attribute of class B. */
+	/** Fixed "receiving" attribute B. */
 	private final FixedAttribute b;
 	
 	/** Relation type. */
@@ -102,7 +102,7 @@ public class Relation {
 	}
 	
 	/**
-	 * Returns the first attribute, i.e., A.
+	 * Returns the attribute from which this relation emanates, i.e., A.
 	 * @return fixed attribute A.
 	 */
 	public FixedAttribute getFirst() {
@@ -110,7 +110,7 @@ public class Relation {
 	}
 	
 	/**
-	 * Returns the second attribute, i.e., B.
+	 * Returns the receiving attribute in this relation, i.e., B.
 	 * @return fixed attribute B.
 	 */
 	public FixedAttribute getSecond() {
