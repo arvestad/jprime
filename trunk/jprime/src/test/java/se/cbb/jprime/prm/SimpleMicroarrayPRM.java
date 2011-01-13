@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
-
 import se.cbb.jprime.math.IntegerInterval;
 import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
 import se.cbb.jprime.prm.Relation.Type;
@@ -39,6 +38,7 @@ public class SimpleMicroarrayPRM {
 	
 	public SimpleMicroarrayPRM() throws FileNotFoundException {
 		this.rng = new MersenneTwisterRNG();
+		System.out.println(this.rng.getSeed().length);
 		this.skeleton = new Skeleton("SimpleMicroarraySkeleton");
 		this.structures = new ArrayList<Structure>(20);
 		
@@ -145,7 +145,7 @@ public class SimpleMicroarrayPRM {
 	}
 	
 	public void generateStructures() {
-		Structure s = RandomStructureGenerator.createRandomStructure(this.rng, this.skeleton, 5, 100, 3);
+		Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 10, 3, 2, 200);
 		this.structures.add(s);
 		System.out.println(s);
 	}
