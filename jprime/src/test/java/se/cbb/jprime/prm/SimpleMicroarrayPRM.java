@@ -2,13 +2,14 @@ package se.cbb.jprime.prm;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
 
 import se.cbb.jprime.math.IntegerInterval;
-import se.cbb.jprime.prm.ProbabilisticAttribute.DependencyConstraints;
+import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
 import se.cbb.jprime.prm.Relation.Type;
 
 import static org.junit.Assert.*;
@@ -22,16 +23,24 @@ public class SimpleMicroarrayPRM {
 
 	@Test
 	public void main() throws FileNotFoundException {
-		SimpleMicroarrayPRM prm = new SimpleMicroarrayPRM();
-		assertEquals(1000, prm.skeleton.getPRMClass("Gene").getNoOfEntities());
-		assertEquals(80, prm.skeleton.getPRMClass("Array").getNoOfEntities());
-		assertEquals(1000*80, prm.skeleton.getPRMClass("Measurement").getNoOfEntities());
+		// Test skeleton.
+		assertEquals(1000, this.skeleton.getPRMClass("Gene").getNoOfEntities());
+		assertEquals(80, this.skeleton.getPRMClass("Array").getNoOfEntities());
+		assertEquals(1000 * 80, this.skeleton.getPRMClass("Measurement").getNoOfEntities());
+		
+		this.generateStructures();
 	}
 
-	public Skeleton skeleton;
+	private MersenneTwisterRNG rng;
+	
+	private Skeleton skeleton;
+	
+	private ArrayList<Structure> structures;
 	
 	public SimpleMicroarrayPRM() throws FileNotFoundException {
-		this.skeleton = new Skeleton();
+		this.rng = new MersenneTwisterRNG();
+		this.skeleton = new Skeleton("SimpleMicroarraySkeleton");
+		this.structures = new ArrayList<Structure>(20);
 		
 		// Fill skeleton.
 		this.readGeneFile();
@@ -56,7 +65,6 @@ public class SimpleMicroarrayPRM {
 		this.skeleton.addPRMClass(genes);
 		
 		// Read values. Assign random values to latent variable.
-		MersenneTwisterRNG rng = new MersenneTwisterRNG();
 		System.out.println(this.getClass().getResource("."));
 		File f = new File(this.getClass().getResource("/microarray/synthetic/genesAttributes.out").getFile());
 		Scanner sc = new Scanner(f);
@@ -68,7 +76,7 @@ public class SimpleMicroarrayPRM {
 			a1.addEntity(parts[1].contains("A1"));
 			a2.addEntity(parts[1].contains("A2"));
 			a3.addEntity(parts[1].contains("A3"));
-			cluster.addEntity(clusterRange.getRandom(rng));
+			cluster.addEntity(clusterRange.getRandom(this.rng));
 		}
 		sc.close();
 	}
@@ -134,6 +142,12 @@ public class SimpleMicroarrayPRM {
 			}
 			sc.close();
 		}
+	}
+	
+	public void generateStructures() {
+		Structure s = RandomStructureGenerator.createRandomStructure(this.rng, this.skeleton, 5, 100, 3);
+		this.structures.add(s);
+		System.out.println(s);
 	}
 	
 }
