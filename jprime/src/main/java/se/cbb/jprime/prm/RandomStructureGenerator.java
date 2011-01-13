@@ -13,28 +13,25 @@ import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
  * @author Joel Sjöstrand.
  */
 public class RandomStructureGenerator {
-
-	/** Thrown when dependencies cannot be generated. */
-	static class DependencyGenerationException extends Exception {
-
-		private static final long serialVersionUID = 1L;
-		
-		public DependencyGenerationException(String errMsg) {
-			super(errMsg);
-		}
-	}
 	
 	/**
-	 * 
-	 * @param rng
-	 * @param skeleton
-	 * @param n
-	 * @param maxTries
-	 * @param maxSlots
-	 * @return
+	 * Generates a random structure where the structure itself is acyclic
+	 * (see <code>AcyclicityVerifier</code>). Creation of a dependency is made by uniformly
+	 * selecting a PRM class, uniformly selecting a valid child attribute, then
+	 * uniformly selecting a parent directly from the class or following a recursively following
+	 * a relation upon which the last step is repeated.
+	 * @param rng random number generator.
+	 * @param skeleton skeleton for the structure.
+	 * @param n desired number of unique dependencies. Not guaranteed.
+	 * @param maxParents maximum allowed parent for each child.
+	 * @param maxSlots maximum length of a slot chain.
+	 * @param maxTries maximum number of attempts to generate a dependency.
+	 * @return the structure.
 	 */
-	public static Structure createRandomStructure(Random rng, Skeleton skeleton, int n, int maxTries, int maxSlots) {
+	public static Structure createStrictRandomStructure(Random rng, Skeleton skeleton,
+			int n, int maxParents, int maxSlots, int maxTries) {
 		Structure struct = new Structure(skeleton);
+		NaiveAcyclicityVerifier verifier = new NaiveAcyclicityVerifier();
 		int tries = 0;
 		do {
 			try {
@@ -44,7 +41,7 @@ public class RandomStructureGenerator {
 				// Select a child for the current dependency.
 				List<ProbAttribute> atts = getValidChildAttributes(c.getProbAttributes());
 				if (atts.size() == 0) {
-					throw new DependencyGenerationException("No valid child attributes in " +
+					throw new DependencyException("No valid child attributes in " +
 							"PRM class " + c.getName() + ".");
 				}
 				ProbAttribute child = atts.get(rng.nextInt(atts.size()));
@@ -53,15 +50,19 @@ public class RandomStructureGenerator {
 				ArrayList<Relation> slotChain = new ArrayList<Relation>(4);
 				ProbAttribute parent = getRandomParentAttribute(rng, c, slotChain, maxSlots);
 				if (parent == child && slotChain.size() == 0) {
-					throw new DependencyGenerationException("Cannot add dependency between attribute " +
+					throw new DependencyException("Cannot add dependency between attribute " +
 							parent.getFullName() + " and itself without any slots in between.");
 				}
 				
 				// Add dependency. If it's already present, it should only overwrite the old one.
 				Dependency dep = new Dependency(child, slotChain, parent);
-				struct.addDependency(dep);
+				verifier.isStructureAcyclic(dep, struct);
+				if (struct.getNoOfDependencies(dep.getChild()) >= maxParents) {
+					throw new DependencyException("Cannot add dependency due to too many parents already.");
+				}
+				struct.putDependency(dep);
 				
-			} catch (DependencyGenerationException ex) {
+			} catch (DependencyException ex) {
 				System.out.println(ex.getMessage());
 			}
 			++tries;
@@ -79,16 +80,17 @@ public class RandomStructureGenerator {
 	 * @param maxSlots max allowed length of slot chain.
 	 * @return the chosen parent attribute.
 	 * @throws DependencyGenerationException if failed to find a parent.
+	 * @throws DependencyException 
 	 */
 	private static ProbAttribute getRandomParentAttribute(Random rng, PRMClass c, List<Relation> slotChain,
-			int maxSlots) throws DependencyGenerationException {
+			int maxSlots) throws DependencyException {
 		List<ProbAttribute> atts = getValidParentAttributes(c.getProbAttributes());
 		List<Relation> rels = getValidSlotRelations(c.getRelations());
 		int noOfAtts = atts.size();
 		int noOfRels = rels.size();
 		int tot = noOfAtts + noOfRels;
 		if (tot == 0) {
-			throw new DependencyGenerationException("No valid parent attributes or relations" +
+			throw new DependencyException("No valid parent attributes or relations" +
 					" in PRM class " + c.getName() + ".");
 		}
 		
@@ -101,7 +103,7 @@ public class RandomStructureGenerator {
 		
 		// Relation was chosen.
 		if (slotChain.size() >= maxSlots) {
-			throw new DependencyGenerationException("Exceeded max slot chain length.");
+			throw new DependencyException("Exceeded max allowed slot chain length.");
 		}
 		Relation r = rels.get(idx - noOfAtts);
 		slotChain.add(r);

@@ -41,7 +41,7 @@ public class Dependencies {
 	 * A duplicate will only overwrite its identical value.
 	 * @param dep the dependency.
 	 */
-	public void putDependency(Dependency dep) {
+	public void put(Dependency dep) {
 		if (this.child != dep.getChild()) {
 			throw new IllegalArgumentException("Cannot add dependency to collection" +
 					" due to incorrect child attribute.");
@@ -53,7 +53,7 @@ public class Dependencies {
 	 * Returns all dependencies.
 	 * @return the dependencies in no particular order.
 	 */
-	public Collection<Dependency> getDependencies() {
+	public Collection<Dependency> getAll() {
 		return this.dependencies.values();
 	}
 	
@@ -61,13 +61,13 @@ public class Dependencies {
 	 * Returns the number of dependencies.
 	 * @return the number of dependencies.
 	 */
-	public int getNoOfDependencies() {
+	public int getSize() {
 		return this.dependencies.size();
 	}
 	
 	/**
 	 * Returns the child of the dependencies.
-	 * @return
+	 * @return the child of all dependencies.
 	 */
 	public ProbAttribute getChild() {
 		return this.child;

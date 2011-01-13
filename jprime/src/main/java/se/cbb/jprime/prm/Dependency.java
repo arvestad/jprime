@@ -7,7 +7,7 @@ import java.util.List;
  * two probabilistic PRM attributes, possibly linked via a 'slot chain'
  * (an ordered list of relations). Instances are supposed to be immutable.
  * <p/>
- * A dependency represents a parent-child arc in the "template Bayesian network".
+ * A dependency represents a parent-child arc in the "template graph".
  * These scenarios can occur for a parent attribute P and a child attribute C:
  * <ol>
  * <li>P and C belong to the same PRM class with an empty slot chain, i.e.,
@@ -48,10 +48,10 @@ public final class Dependency {
 		this.parent = parent;
 		
 		// Create name.
-		StringBuilder sb = new StringBuilder(20 + 20 * this.slotChain.length);
+		StringBuilder sb = new StringBuilder(30 + 30 * this.slotChain.length);
 		sb.append(this.child.getName()).append('.');
 		for (Relation r : this.slotChain) {
-			sb.append(r.getFirst().getFullName()).append("<-")
+			sb.append(r.getFirst().getFullName()).append("-")
 				.append(r.getSecond().getName()).append('.');
 		}
 		sb.append(this.parent.getPRMClass().getName()).append('.')
