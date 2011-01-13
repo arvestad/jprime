@@ -34,7 +34,7 @@ public class PRMClass {
 	private final HashMap<String, FixedAttribute> fixedAttributes;
 	
 	/** Probabilistic attributes, hashed by name. */
-	private final HashMap<String, ProbabilisticAttribute> probAttributes;
+	private final HashMap<String, ProbAttribute> probAttributes;
 	
 	/**
 	 * Constructor.
@@ -44,7 +44,7 @@ public class PRMClass {
 		this.name = name;
 		this.relations = new HashMap<String, Relation>(4);
 		this.fixedAttributes = new HashMap<String, FixedAttribute>(4);
-		this.probAttributes = new HashMap<String, ProbabilisticAttribute>(8);
+		this.probAttributes = new HashMap<String, ProbAttribute>(8);
 	}
 	
 	/**
@@ -118,7 +118,7 @@ public class PRMClass {
 	 * Adds a probabilistic attribute. No verification is made for its validity.
 	 * @param attribute the attribute.
 	 */
-	public void addProbAttribute(ProbabilisticAttribute attribute) {
+	public void addProbAttribute(ProbAttribute attribute) {
 		this.probAttributes.put(attribute.getName(), attribute);
 	}
 	
@@ -127,7 +127,7 @@ public class PRMClass {
 	 * @param name the attribute name.
 	 * @return the attribute.
 	 */
-	public ProbabilisticAttribute getProbAttribute(String name) {
+	public ProbAttribute getProbAttribute(String name) {
 		return this.probAttributes.get(name);
 	}
 	
@@ -135,7 +135,7 @@ public class PRMClass {
 	 * Returns all probabilistic attributes.
 	 * @return all attributes.
 	 */
-	public Collection<ProbabilisticAttribute> getProbAttributes() {
+	public Collection<ProbAttribute> getProbAttributes() {
 		return this.probAttributes.values();
 	}
 	

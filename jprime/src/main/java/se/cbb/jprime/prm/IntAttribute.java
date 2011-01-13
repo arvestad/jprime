@@ -62,7 +62,7 @@ public class IntAttribute implements DiscreteAttribute {
 	
 	@Override
 	public DataType getDataType() {
-		return ProbabilisticAttribute.DataType.DISCRETE;
+		return ProbAttribute.DataType.DISCRETE;
 	}
 
 	@Override

@@ -7,8 +7,8 @@ import java.util.List;
  * two probabilistic PRM attributes, possibly linked via a 'slot chain'
  * (an ordered list of relations). Instances are supposed to be immutable.
  * <p/>
- * These scenarios can occur:
- * for parent attribute P and child attribute C:
+ * A dependency represents a parent-child arc in the "template Bayesian network".
+ * These scenarios can occur for a parent attribute P and a child attribute C:
  * <ol>
  * <li>P and C belong to the same PRM class with an empty slot chain, i.e.,
  *     the same entity.</li>
@@ -22,13 +22,13 @@ import java.util.List;
 public final class Dependency {
 
 	/** Child. */
-	private final ProbabilisticAttribute child;
+	private final ProbAttribute child;
 	
 	/** Slot chain from child to parent, possibly empty. */
 	private final Relation[] slotChain;
 	
 	/** Parent. */
-	private final ProbabilisticAttribute parent;
+	private final ProbAttribute parent;
 	
 	/** String representation, stored for quick access. */
 	private final String name;
@@ -40,10 +40,11 @@ public final class Dependency {
 	 * @param slotChain slot chain from child to attribute. May be empty, but not null.
 	 * @param parent parent attribute.
 	 */
-	public Dependency(ProbabilisticAttribute child, List<Relation> slotChain,
-			ProbabilisticAttribute parent) {
+	public Dependency(ProbAttribute child, List<Relation> slotChain,
+			ProbAttribute parent) {
 		this.child = child;
-		this.slotChain = slotChain.toArray(this.slotChain);
+		this.slotChain = new Relation[slotChain.size()];
+		slotChain.toArray(this.slotChain);
 		this.parent = parent;
 		
 		// Create name.
@@ -101,7 +102,7 @@ public final class Dependency {
 	 * Returns the child attribute.
 	 * @return the child.
 	 */
-	public ProbabilisticAttribute getChild() {
+	public ProbAttribute getChild() {
 		return this.child;
 	}
 	
@@ -109,7 +110,7 @@ public final class Dependency {
 	 * Returns the parent attribute.
 	 * @return the parent.
 	 */
-	public ProbabilisticAttribute getParent() {
+	public ProbAttribute getParent() {
 		return this.parent;
 	}
 	

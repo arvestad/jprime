@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class Dependencies {
 
 	/** Probabilistic child attribute in all dependencies. */
-	private ProbabilisticAttribute child;
+	private ProbAttribute child;
 	
 	/** Dependencies hashed by name. Should ensure no duplicates exist. */
 	private HashMap<String, Dependency> dependencies;
@@ -20,7 +20,7 @@ public class Dependencies {
 	 * Constructor.
 	 * @param child the child common to all dependencies in this collection.
 	 */
-	public Dependencies(ProbabilisticAttribute child) {
+	public Dependencies(ProbAttribute child) {
 		this.child = child;
 		this.dependencies = new HashMap<String, Dependency>(8);
 	}
@@ -69,7 +69,7 @@ public class Dependencies {
 	 * Returns the child of the dependencies.
 	 * @return
 	 */
-	public ProbabilisticAttribute getChild() {
+	public ProbAttribute getChild() {
 		return this.child;
 	}
 }

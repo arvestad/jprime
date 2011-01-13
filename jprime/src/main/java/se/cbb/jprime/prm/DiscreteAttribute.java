@@ -7,7 +7,7 @@ import se.cbb.jprime.math.IntegerInterval;
  * 
  * @author Joel Sjöstrand.
  */
-public interface DiscreteAttribute extends ProbabilisticAttribute {
+public interface DiscreteAttribute extends ProbAttribute {
 
 	/**
 	 * Returns the interval of this attribute.

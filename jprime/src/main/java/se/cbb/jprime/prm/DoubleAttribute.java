@@ -62,7 +62,7 @@ public class DoubleAttribute implements ContinuousAttribute {
 
 	@Override
 	public DataType getDataType() {
-		return ProbabilisticAttribute.DataType.CONTINUOUS;
+		return ProbAttribute.DataType.CONTINUOUS;
 	}
 
 	@Override

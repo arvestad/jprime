@@ -7,7 +7,7 @@ import se.cbb.jprime.math.RealInterval;
  * 
  * @author Joel Sjöstrand.
  */
-public interface ContinuousAttribute extends ProbabilisticAttribute {
+public interface ContinuousAttribute extends ProbAttribute {
 
 	/**
 	 * Returns the interval of this attribute.

@@ -14,6 +14,9 @@ import java.util.Random;
  */
 public class Skeleton {
 
+	/** Name of the skeleton. */
+	private final String name;
+	
 	/** PRM classes hashed by name. */
 	private final HashMap<String, PRMClass> classesByName;
 	
@@ -23,9 +26,18 @@ public class Skeleton {
 	/**
 	 * Constructor.
 	 */
-	public Skeleton() {
+	public Skeleton(String name) {
+		this.name = name;
 		this.classesByName = new HashMap<String, PRMClass>(8);
 		this.classesByIndex = new ArrayList<PRMClass>(8);
+	}
+	
+	/**
+	 * Returns this skeleton's name.
+	 * @return the name.
+	 */
+	public String getName() {
+		return this.name;
 	}
 	
 	/**
