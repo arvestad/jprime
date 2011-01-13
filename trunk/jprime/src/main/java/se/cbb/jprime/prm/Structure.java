@@ -64,19 +64,48 @@ public class Structure {
 	 * only overwrite its previous value.
 	 * @param dep the dependency.
 	 */
-	public void addDependency(Dependency dep) {
+	public void putDependency(Dependency dep) {
 		Dependencies deps = this.dependencies.get(dep.getChild());
-		deps.putDependency(dep);
+		deps.put(dep);
 		this.dependencyNames.add(dep.getName());
 	}
 
 	/**
 	 * Returns the number of dependencies, i.e. parent-child arcs in
-	 * the template Bayesian network.
+	 * the "template graph".
 	 * @return the number of dependencies.
 	 */
 	public int getNoOfDependencies() {
 		return this.dependencyNames.size();
+	}
+	
+	/**
+	 * Returns the number of dependencies for a certain child.
+	 * @param child the child.
+	 * @return the number of dependencies.
+	 */
+	public int getNoOfDependencies(ProbAttribute child) {
+		return this.dependencies.get(child).getSize();
+	}
+	
+	/**
+	 * Returns all dependencies ending with a certain child.
+	 * @param child the child attribute.
+	 * @return the parent-child dependencies for the child.
+	 */
+	public Dependencies getDependencies(ProbAttribute child) {
+		return this.dependencies.get(child);
+	}
+	
+	/**
+	 * Verifies if a dependency is contained within the structure.
+	 * The input parameter need not refer to the same instance;
+	 * any equivalent dependency found will yield true.
+	 * @param dep the dependency.
+	 * @return true if this structure contains an equivalent dependency.
+	 */
+	public boolean hasDependency(Dependency dep) {
+		return this.dependencyNames.contains(dep.getName());
 	}
 	
 	@Override
@@ -105,7 +134,7 @@ public class Structure {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(1024);
 		sb.append("PRM structure on skeleton ").append(this.skeleton.getName());
-		sb.append(" with dependencies:\n");
+		sb.append(" with dependencies (Child)...(Parent):\n");
 		for (String s : this.dependencyNames) {
 			sb.append('\t').append(s).append('\n');
 		}
