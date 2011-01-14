@@ -7,7 +7,7 @@ import java.util.HashSet;
  * Holds a PRM structure, that is, a set of parent-child dependencies.
  * <p/>
  * Note: Invoking <code>equal()</code> on identical structures based of different instances should
- * (hopefully) yield true.
+ * hopefully yield true.
  * 
  * @author Joel Sjöstrand.
  */

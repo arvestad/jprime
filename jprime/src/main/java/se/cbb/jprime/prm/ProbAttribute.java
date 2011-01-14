@@ -10,6 +10,9 @@ import java.util.Random;
  * The attribute is tied to a PRM class, and also holds all attribute
  * entities (column values) in an indexed list which must be aligned
  * with all other attributes of the PRM class.
+ * <p/>
+ * An attribute may be marked as latent (hidden or unknown), although
+ * some sort of hard-assignment to entity values is most often employed.
  * 
  * @author Joel Sjöstrand.
  */
@@ -62,6 +65,13 @@ public interface ProbAttribute {
 	 * @return the dependency constraints.
 	 */
 	public DependencyConstraints getDependencyConstraints();
+	
+	/**
+	 * Returns true if this attribute corresponds to latent (hidden, unknown)
+	 * characteristic.
+	 * @return true if latent.
+	 */
+	public boolean isLatent();
 	
 	/**
 	 * Returns an attribute value at a specific index.

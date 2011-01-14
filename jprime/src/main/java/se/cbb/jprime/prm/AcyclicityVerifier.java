@@ -12,6 +12,8 @@ package se.cbb.jprime.prm;
  *     by the PRM entities are acyclic. This is weaker (and significantly tougher to verify),
  *     but may be desirable when modelling more complex PRMs. </li>
  * </ol>
+ * For more details, see section 4.1, <i>Learning Probabilistic Relational
+ * Models, Friedman et al., 1999</i>.
  * 
  * @author Joel Sjöstrand.
  */

@@ -24,6 +24,9 @@ public class BooleanAttribute implements DiscreteAttribute {
 	/** Attribute name. */
 	private final String name;
 	
+	/** True if hidden or unknown. */
+	private final boolean isLatent;
+	
 	/** Entities. */
 	private final ArrayList<Boolean> entities;
 	
@@ -37,13 +40,15 @@ public class BooleanAttribute implements DiscreteAttribute {
 	 * Constructor.
 	 * @param name attribute's name. Should be unique within PRM class.
 	 * @param prmClass PRM class this attribute belongs to.
+	 * @param isLatent true if hidden or unknown.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
 	 */
-	public BooleanAttribute(String name, PRMClass prmClass, int initialCapacity,
+	public BooleanAttribute(String name, PRMClass prmClass, boolean isLatent, int initialCapacity,
 			DependencyConstraints dependencyConstraints) {
 		this.prmClass = prmClass;
 		this.name = name;
+		this.isLatent = isLatent;
 		this.entities = new ArrayList<Boolean>(initialCapacity);
 		this.fullName = this.prmClass.getName() + '.' + this.name;
 		this.dependencyConstraints = dependencyConstraints;
@@ -129,5 +134,10 @@ public class BooleanAttribute implements DiscreteAttribute {
 	@Override
 	public int getNoOfEntities() {
 		return this.entities.size();
+	}
+
+	@Override
+	public boolean isLatent() {
+		return this.isLatent;
 	}
 }
