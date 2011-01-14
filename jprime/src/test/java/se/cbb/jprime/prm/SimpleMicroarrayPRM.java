@@ -56,11 +56,11 @@ public class SimpleMicroarrayPRM {
 		// Skeleton part.
 		PRMClass genes = new PRMClass("Gene");
 		FixedAttribute id = new FixedAttribute("ID", genes, 1024);
-		BooleanAttribute a1 = new BooleanAttribute("A1", genes, 1024, DependencyConstraints.NONE);
-		BooleanAttribute a2 = new BooleanAttribute("A2", genes, 1024, DependencyConstraints.NONE);
-		BooleanAttribute a3 = new BooleanAttribute("A3", genes, 1024, DependencyConstraints.NONE);
+		BooleanAttribute a1 = new BooleanAttribute("A1", genes, false, 1024, DependencyConstraints.NONE);
+		BooleanAttribute a2 = new BooleanAttribute("A2", genes, false, 1024, DependencyConstraints.NONE);
+		BooleanAttribute a3 = new BooleanAttribute("A3", genes, false, 1024, DependencyConstraints.NONE);
 		IntegerInterval clusterRange = new IntegerInterval(1,12);
-		IntAttribute cluster = new IntAttribute("Cluster", genes, 1024, DependencyConstraints.NONE,
+		IntAttribute cluster = new IntAttribute("Cluster", genes, true, 1024, DependencyConstraints.PARENT_ONLY,
 				clusterRange);
 		this.skeleton.addPRMClass(genes);
 		
@@ -89,7 +89,7 @@ public class SimpleMicroarrayPRM {
 		// Skeleton part
 		PRMClass arrays = new PRMClass("Array");
 		FixedAttribute id = new FixedAttribute("ID", arrays, 128);
-		IntAttribute cluster = new IntAttribute("Cluster", arrays, 128, DependencyConstraints.NONE,
+		IntAttribute cluster = new IntAttribute("Cluster", arrays, false, 128, DependencyConstraints.PARENT_ONLY,
 				new IntegerInterval(1, 4));
 		this.skeleton.addPRMClass(arrays);
 		
@@ -116,7 +116,7 @@ public class SimpleMicroarrayPRM {
 		FixedAttribute id = new FixedAttribute("ID", measurements, 8192);
 		FixedAttribute gID = new FixedAttribute("GeneID", measurements, 8192);
 		FixedAttribute aID = new FixedAttribute("ArrayID", measurements, 8192);
-		IntAttribute level = new IntAttribute("Level", measurements, 8192, DependencyConstraints.NONE,
+		IntAttribute level = new IntAttribute("Level", measurements, false, 8192, DependencyConstraints.NONE,
 				new IntegerInterval(-1, 1));
 		PRMClass genes = this.skeleton.getPRMClass("Gene");
 		PRMClass arrays = this.skeleton.getPRMClass("Array");
@@ -145,7 +145,7 @@ public class SimpleMicroarrayPRM {
 	}
 	
 	public void generateStructures() {
-		Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 10, 3, 2, 200);
+		Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 3, 2, 200);
 		this.structures.add(s);
 		System.out.println(s);
 	}
