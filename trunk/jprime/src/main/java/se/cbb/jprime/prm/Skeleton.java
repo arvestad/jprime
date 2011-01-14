@@ -7,7 +7,8 @@ import java.util.Random;
 
 /**
  * Holds a PRM skeleton, providing access to PRM classes, and thereby indirectly
- * provides access to relations, attributes and the entities thereof.
+ * to relations, attributes and the entities thereof. (It thus
+ * corresponds to what may be referred to as a "completed skeleton").
  * Class names must be unique.
  * 
  * @author Joel Sjöstrand.

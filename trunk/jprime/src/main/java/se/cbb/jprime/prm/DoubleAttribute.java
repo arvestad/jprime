@@ -19,8 +19,11 @@ public class DoubleAttribute implements ContinuousAttribute {
 	/** Attribute name. */
 	private final String name;
 	
+	/** True if hidden or unknown. */
+	private final boolean isLatent;
+	
 	/** Interval defining valid range. */
-	private final RealInterval interval;
+	private RealInterval interval;
 	
 	/** Entities. */
 	private final ArrayList<Double> entities;
@@ -35,14 +38,16 @@ public class DoubleAttribute implements ContinuousAttribute {
 	 * Constructor for bounded or unbounded double range.
 	 * @param name attribute's name. Should be unique within PRM class.
 	 * @param prmClass PRM class this attribute belongs to.
+	 * @param isLatent true if hidden or unknown.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
 	 * @param interval the valid range of values.
 	 */
-	public DoubleAttribute(String name, PRMClass prmClass, int initialCapacity,
+	public DoubleAttribute(String name, PRMClass prmClass, boolean isLatent, int initialCapacity,
 			DependencyConstraints dependencyConstraints, RealInterval interval) {
 		this.name = name;
 		this.prmClass = prmClass;
+		this.isLatent = isLatent;
 		this.interval = interval;
 		this.entities = new ArrayList<Double>(initialCapacity);
 		this.fullName = this.prmClass.getName() + '.' + this.name;
@@ -143,5 +148,10 @@ public class DoubleAttribute implements ContinuousAttribute {
 	@Override
 	public int getNoOfEntities() {
 		return this.entities.size();
+	}
+
+	@Override
+	public boolean isLatent() {
+		return this.isLatent;
 	}
 }

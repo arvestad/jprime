@@ -19,8 +19,11 @@ public class IntAttribute implements DiscreteAttribute {
 	/** Attribute name. */
 	private final String name;
 	
+	/** True if hidden or unknown. */
+	private final boolean isLatent;
+	
 	/** Interval defining valid range. */
-	private final IntegerInterval interval;
+	private IntegerInterval interval;
 	
 	/** Entities. */
 	private final ArrayList<Integer> entities;
@@ -35,14 +38,16 @@ public class IntAttribute implements DiscreteAttribute {
 	 * Constructor for bounded or unbounded integer range.
 	 * @param name attribute's name. Should be unique within PRM class.
 	 * @param prmClass PRM class this attribute belongs to.
+	 * @param isLatent true if hidden or unknown.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
 	 * @param interval the valid range of values.
 	 */
-	public IntAttribute(String name, PRMClass prmClass, int initialCapacity,
+	public IntAttribute(String name, PRMClass prmClass, boolean isLatent, int initialCapacity,
 			DependencyConstraints dependencyConstraints, IntegerInterval interval) {
 		this.name = name;
 		this.prmClass = prmClass;
+		this.isLatent = isLatent;
 		this.interval = interval;
 		this.entities = new ArrayList<Integer>(initialCapacity);
 		this.fullName = this.prmClass.getName() + '.' + this.name;
@@ -143,5 +148,10 @@ public class IntAttribute implements DiscreteAttribute {
 	@Override
 	public int getNoOfEntities() {
 		return this.entities.size();
+	}
+
+	@Override
+	public boolean isLatent() {
+		return this.isLatent;
 	}
 }
