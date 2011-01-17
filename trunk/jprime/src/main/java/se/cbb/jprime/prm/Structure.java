@@ -1,5 +1,6 @@
 package se.cbb.jprime.prm;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,8 +22,11 @@ public class Structure implements Comparable<Structure> {
 	 */
 	private final HashMap<ProbAttribute, Dependencies> dependencies;
 	
-	/** For quick (well...) equivalence comparisons: dependency names. */
-	private final TreeSet<String> dependencyNames;
+	/** Number of explicit dependencies. */
+	private int noOfDependencies;
+	
+	/** For quicker equivalence comparisons: name as concatenated dependency names. */
+	private String name;
 	
 	/**
 	 * For quick access: all attributes which lack parents. No handling of
@@ -38,7 +42,7 @@ public class Structure implements Comparable<Structure> {
 		this.skeleton = skeleton;
 		int initCap = skeleton.getNoOfPRMClasses() * 8;
 		this.dependencies = new HashMap<ProbAttribute, Dependencies>(initCap);
-		this.dependencyNames = new TreeSet<String>();
+		this.noOfDependencies = 0;
 		this.sources = new TreeSet<ProbAttribute>();
 		
 		// Create an initially empty Dependencies for each attribute.
@@ -49,6 +53,7 @@ public class Structure implements Comparable<Structure> {
 				this.sources.add(a);
 			}
 		}
+		this.updateName();
 	}
 	
 	/**
@@ -63,7 +68,7 @@ public class Structure implements Comparable<Structure> {
 		for (Dependencies deps : struct.dependencies.values()) {
 			this.dependencies.put(deps.getChild(), new Dependencies(deps));
 		}
-		this.dependencyNames = new TreeSet<String>(struct.dependencyNames);
+		this.name = struct.name;
 		this.sources = new TreeSet<ProbAttribute>(struct.sources);
 	}
 	
@@ -75,8 +80,25 @@ public class Structure implements Comparable<Structure> {
 	public void putDependency(Dependency dep) {
 		Dependencies deps = this.dependencies.get(dep.getChild());
 		deps.put(dep);
-		this.dependencyNames.add(dep.getName());
+		++this.noOfDependencies;
 		this.sources.remove(dep.getChild());
+		this.updateName();
+	}
+	
+	/**
+	 * Updates the name of this structure, which is more or less a
+	 * concatenation of internal dependency names.
+	 */
+	private void updateName() {
+		StringBuilder sb = new StringBuilder(1024);
+		sb.append("PRM structure on skeleton ").append(this.skeleton.getName());
+		sb.append(" with dependencies (Child)...(Parent):\n");
+		for (Dependencies deps : this.dependencies.values()) {
+			for (Dependency dep : deps.getAll()) {
+				sb.append('\t').append(dep).append('\n');
+			}
+		}
+		this.name = sb.toString();
 	}
 
 	/**
@@ -85,7 +107,7 @@ public class Structure implements Comparable<Structure> {
 	 * @return the number of dependencies.
 	 */
 	public int getNoOfDependencies() {
-		return this.dependencyNames.size();
+		return this.noOfDependencies;
 	}
 	
 	/**
@@ -107,6 +129,14 @@ public class Structure implements Comparable<Structure> {
 	}
 	
 	/**
+	 * Returns all dependencies, collected by common child.
+	 * @return all dependencies of this structure.
+	 */
+	public Collection<Dependencies> getDependencies() {
+		return this.dependencies.values();
+	}
+	
+	/**
 	 * Returns all attributes which are not children in any dependency.
 	 * Handling of self-referencing attributes is not implemented currently. 
 	 * @return all attributes which are not children.
@@ -116,34 +146,22 @@ public class Structure implements Comparable<Structure> {
 	}
 	
 	/**
-	 * Verifies if a dependency is contained within the structure.
-	 * The input parameter need not refer to the same instance;
-	 * any equivalent dependency found will yield true.
+	 * Verifies if an equivalent dependency is contained within the structure.
 	 * @param dep the dependency.
 	 * @return true if this structure contains an equivalent dependency.
 	 */
 	public boolean hasDependency(Dependency dep) {
-		return this.dependencyNames.contains(dep.getName());
+		return this.dependencies.get(dep.getChild()).contains(dep);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(1024);
-		sb.append("PRM structure on skeleton ").append(this.skeleton.getName());
-		sb.append(" with dependencies (Child)...(Parent):\n");
-		for (String s : this.dependencyNames) {
-			sb.append('\t').append(s).append('\n');
-		}
-		return sb.toString();
+		return this.name;
 	}
 
 	@Override
 	public int compareTo(Structure o) {
-		int i = this.skeleton.getName().compareTo(o.skeleton.getName());
-		if (i != 0) {
-			return i;
-		}
-		return this.dependencyNames.toString().compareTo(o.dependencyNames.toString());
+		return this.name.compareTo(o.name);
 	}
 	
 	

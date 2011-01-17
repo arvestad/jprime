@@ -142,5 +142,14 @@ public class Dependencies implements Comparable<Dependencies> {
 		if (getClass() != obj.getClass()) { return false; }
 		return this.getName().equals(((Dependencies) obj).getName());
 	}
+
+	/**
+	 * Returns true if this collection contains an equivalent dependency.
+	 * @param dep the dependency.
+	 * @return true if it contains an equivalent dependency.
+	 */
+	public boolean contains(Dependency dep) {
+		return this.dependencies.contains(dep);
+	}
 	
 }
