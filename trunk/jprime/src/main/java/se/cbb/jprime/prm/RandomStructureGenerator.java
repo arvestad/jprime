@@ -63,7 +63,7 @@ public class RandomStructureGenerator {
 				struct.putDependency(dep);
 				
 			} catch (DependencyException ex) {
-				System.out.println(ex.getMessage());
+				//System.out.println(ex.getMessage());
 			}
 			++tries;
 		} while (struct.getNoOfDependencies() < n && tries < maxTries);

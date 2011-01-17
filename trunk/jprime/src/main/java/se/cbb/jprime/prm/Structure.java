@@ -7,6 +7,8 @@ import java.util.TreeSet;
 
 /**
  * Holds a PRM structure, that is, a set of parent-child dependencies.
+ * Two instances of this class are considered equal if they contain
+ * equivalent dependencies.
  * 
  * @author Joel Sjöstrand.
  */
@@ -162,6 +164,19 @@ public class Structure implements Comparable<Structure> {
 	@Override
 	public int compareTo(Structure o) {
 		return this.name.compareTo(o.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return this.name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+		return this.name.equals(((Structure) obj).name);
 	}
 	
 	
