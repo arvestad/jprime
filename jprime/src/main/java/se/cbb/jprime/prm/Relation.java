@@ -17,7 +17,7 @@ package se.cbb.jprime.prm;
  * 
  * @author Joel Sjöstrand.
  */
-public class Relation {
+public class Relation implements Comparable<Relation> {
 
 	/** Relation type from A to B. */
 	public enum Type {
@@ -115,5 +115,15 @@ public class Relation {
 	 */
 	public FixedAttribute getSecond() {
 		return this.b;
+	}
+
+	@Override
+	public int compareTo(Relation o) {
+		return this.name.compareTo(o.name);
+	}
+
+	@Override
+	public String toString() {
+		return this.name;
 	}
 }
