@@ -179,6 +179,15 @@ public final class Dependency implements Comparable<Dependency> {
 		return (this.index != null);
 	}
 
+	/**
+	 * Returns true if the child attribute or the parent attribute
+	 * is latent.
+	 * @return true if any of the attributes latent.
+	 */
+	public boolean isLatent() {
+		return (this.child.isLatent() || this.parent.isLatent());
+	}
+	
 	@Override
 	public int compareTo(Dependency o) {
 		return this.name.compareTo(o.name);
