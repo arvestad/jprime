@@ -144,6 +144,7 @@ public class SimpleMicroarrayPRM {
 		}
 	}
 	
+	/** TBD. */
 	public void generateStructures() {
 		Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 3, 2, 200);
 		this.structures.add(s);
