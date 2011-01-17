@@ -122,6 +122,11 @@ public class IntAttribute implements DiscreteAttribute {
 		return this.entities.get(idx).intValue();
 	}
 	
+	@Override
+	public int getEntityAsInt(int idx) {
+		return this.entities.get(idx).intValue();
+	}
+	
 	/**
 	 * Sets an attribute value.
 	 * @param idx the index.
@@ -153,5 +158,10 @@ public class IntAttribute implements DiscreteAttribute {
 	@Override
 	public boolean isLatent() {
 		return this.isLatent;
+	}
+
+	@Override
+	public Class<?> getComponentType() {
+		return Integer.class;
 	}
 }

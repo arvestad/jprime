@@ -2,6 +2,7 @@ package se.cbb.jprime.prm;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Holds a PRM structure, that is, a set of parent-child dependencies.
@@ -27,6 +28,12 @@ public class Structure {
 	private final HashSet<String> dependencyNames;
 	
 	/**
+	 * For quick access: all attributes which lack parents. No handling of
+	 * self-referencing PRM classes yet.
+	 */
+	private final HashSet<ProbAttribute> sources;
+	
+	/**
 	 * Constructor.
 	 * @param skeleton the skeleton this structure refers to.
 	 */
@@ -35,11 +42,14 @@ public class Structure {
 		int initCap = skeleton.getNoOfPRMClasses() * 8;
 		this.dependencies = new HashMap<ProbAttribute, Dependencies>(initCap);
 		this.dependencyNames = new HashSet<String>(initCap * 4);
+		this.sources = new HashSet<ProbAttribute>(initCap);
 		
 		// Create an initially empty Dependencies for each attribute.
+		// Also add all as potential "sources".
 		for (PRMClass c : skeleton.getPRMClasses()) {
 			for (ProbAttribute a : c.getProbAttributes()) {
 				this.dependencies.put(a, new Dependencies(a));
+				this.sources.add(a);
 			}
 		}
 	}
@@ -57,6 +67,7 @@ public class Structure {
 			this.dependencies.put(deps.getChild(), new Dependencies(deps));
 		}
 		this.dependencyNames = new HashSet<String>(struct.dependencyNames);
+		this.sources = new HashSet<ProbAttribute>(struct.sources);
 	}
 	
 	/**
@@ -68,6 +79,7 @@ public class Structure {
 		Dependencies deps = this.dependencies.get(dep.getChild());
 		deps.put(dep);
 		this.dependencyNames.add(dep.getName());
+		this.sources.remove(dep.getChild());
 	}
 
 	/**
@@ -95,6 +107,15 @@ public class Structure {
 	 */
 	public Dependencies getDependencies(ProbAttribute child) {
 		return this.dependencies.get(child);
+	}
+	
+	/**
+	 * Returns all attributes which are not children in any dependency.
+	 * Handling of self-referencing attributes is not implemented currently. 
+	 * @return all attributes which are not children.
+	 */
+	public Set<ProbAttribute> getSources() {
+		return this.sources;
 	}
 	
 	/**

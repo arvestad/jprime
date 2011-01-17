@@ -36,6 +36,13 @@ public interface ProbAttribute {
 	}
 	
 	/**
+	 * Returns the Class object representing the component type of elements
+	 * contained in the array within.
+	 * @return the component type.
+	 */
+	public java.lang.Class<?> getComponentType();
+	
+	/**
 	 * Returns the PRM class this attribute belongs to.
 	 * @return the PRM class.
 	 */

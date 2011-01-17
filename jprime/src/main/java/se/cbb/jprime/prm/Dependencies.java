@@ -1,7 +1,11 @@
 package se.cbb.jprime.prm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+
+import se.cbb.jprime.prm.ProbAttribute.DataType;
 
 /**
  * Container to collect all PRM dependencies for a single child attribute.
@@ -11,10 +15,10 @@ import java.util.HashMap;
 public class Dependencies {
 
 	/** Probabilistic child attribute in all dependencies. */
-	private ProbAttribute child;
+	private final ProbAttribute child;
 	
 	/** Dependencies hashed by name. Should ensure no duplicates exist. */
-	private HashMap<String, Dependency> dependencies;
+	private final HashMap<String, Dependency> dependencies;
 	
 	/**
 	 * Constructor.
@@ -71,5 +75,32 @@ public class Dependencies {
 	 */
 	public ProbAttribute getChild() {
 		return this.child;
+	}
+	
+	/**
+	 * Returns the parents of the contained dependencies.
+	 * Hopefully the order will be the same irrespective of in which
+	 * order the dependencies were added.
+	 * @return the parents.
+	 */
+	public List<ProbAttribute> getParents() {
+		ArrayList<ProbAttribute> parents = new ArrayList<ProbAttribute>(this.dependencies.size());
+		for (Dependency dep : this.dependencies.values()) {
+			parents.add(dep.getParent());
+		}
+		return parents;
+	}
+	
+	/**
+	 * Returns true if all contained dependencies are discrete.
+	 * @return true if all parents of the child are discrete.
+	 */
+	public boolean isDiscrete() {
+		for (Dependency dep : this.dependencies.values()) {
+			if (dep.getParent().getDataType() != DataType.DISCRETE) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

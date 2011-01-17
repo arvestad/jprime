@@ -154,4 +154,9 @@ public class DoubleAttribute implements ContinuousAttribute {
 	public boolean isLatent() {
 		return this.isLatent;
 	}
+
+	@Override
+	public Class<?> getComponentType() {
+		return Double.class;
+	}
 }
