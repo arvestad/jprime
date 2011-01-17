@@ -13,10 +13,13 @@ import java.util.Random;
  * <p/>
  * An attribute may be marked as latent (hidden or unknown), although
  * some sort of hard-assignment to entity values is most often employed.
+ * <p/>
+ * Two instances of implementors of this interface are considered "comparable"
+ * if they share the same full name. This situation should occur seldom in practice.
  * 
  * @author Joel Sjöstrand.
  */
-public interface ProbAttribute {
+public interface ProbAttribute extends Comparable<ProbAttribute> {
 
 	/** General type of data contained within. */
 	public enum DataType {

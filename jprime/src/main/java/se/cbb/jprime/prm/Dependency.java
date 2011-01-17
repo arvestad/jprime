@@ -20,6 +20,9 @@ import se.cbb.jprime.prm.Relation.Type;
  * </ol>
  * For many-to-one and one-to-one relations, we allow caching (creating an "index")
  * of entity indices from C to P, enabling quicker lookups.
+ * <p/>
+ * Two instances of this class are considered equal if they refer to the same
+ * child-parents and have identical slot chains.
  * 
  * @author Joel Sjöstrand.
  */
@@ -184,6 +187,20 @@ public final class Dependency implements Comparable<Dependency> {
 	@Override
 	public String toString() {
 		return this.name;
+	}
+
+	
+	@Override
+	public int hashCode() {
+		return this.name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+		return this.name.equals(((Dependency) obj).getName());
 	}
 	
 }

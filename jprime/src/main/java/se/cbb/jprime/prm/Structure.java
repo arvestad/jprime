@@ -21,7 +21,7 @@ public class Structure implements Comparable<Structure> {
 	 */
 	private final HashMap<ProbAttribute, Dependencies> dependencies;
 	
-	/** For quick equivalence comparisons: dependency names. */
+	/** For quick (well...) equivalence comparisons: dependency names. */
 	private final TreeSet<String> dependencyNames;
 	
 	/**
@@ -98,7 +98,7 @@ public class Structure implements Comparable<Structure> {
 	}
 	
 	/**
-	 * Returns all dependencies ending with a certain child.
+	 * Returns all dependencies for a certain child.
 	 * @param child the child attribute.
 	 * @return the parent-child dependencies for the child.
 	 */

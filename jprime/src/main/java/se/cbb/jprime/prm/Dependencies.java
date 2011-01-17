@@ -9,6 +9,8 @@ import se.cbb.jprime.prm.ProbAttribute.DataType;
 
 /**
  * Container to collect all PRM dependencies for a single child attribute.
+ * Two instances of this class containing equal (or rather identical) dependencies
+ * are considered equal.
  * 
  * @author Joel Sjöstrand.
  */
@@ -111,8 +113,9 @@ public class Dependencies implements Comparable<Dependencies> {
 	 */
 	public String getName() {
 		StringBuilder sb = new StringBuilder(this.dependencies.size() * 30);
+		sb.append(this.child.getFullName()).append("-dependencies:\n");
 		for (Dependency dep : this.dependencies) {
-			sb.append(dep.getName()).append('\n');
+			sb.append('\t').append(dep.getName()).append('\n');
 		}
 		return sb.toString();
 	}
@@ -125,6 +128,19 @@ public class Dependencies implements Comparable<Dependencies> {
 	@Override
 	public String toString() {
 		return this.getName();
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.getName().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+		return this.getName().equals(((Dependencies) obj).getName());
 	}
 	
 }
