@@ -1,9 +1,9 @@
 package se.cbb.jprime.prm;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import se.cbb.jprime.prm.ProbAttribute.DataType;
 
@@ -12,13 +12,13 @@ import se.cbb.jprime.prm.ProbAttribute.DataType;
  * 
  * @author Joel Sjöstrand.
  */
-public class Dependencies {
+public class Dependencies implements Comparable<Dependencies> {
 
 	/** Probabilistic child attribute in all dependencies. */
 	private final ProbAttribute child;
 	
-	/** Dependencies hashed by name. Should ensure no duplicates exist. */
-	private final HashMap<String, Dependency> dependencies;
+	/** Dependencies. */
+	private final TreeSet<Dependency> dependencies;
 	
 	/**
 	 * Constructor.
@@ -26,7 +26,7 @@ public class Dependencies {
 	 */
 	public Dependencies(ProbAttribute child) {
 		this.child = child;
-		this.dependencies = new HashMap<String, Dependency>(8);
+		this.dependencies = new TreeSet<Dependency>();
 	}
 	
 	/**
@@ -37,7 +37,7 @@ public class Dependencies {
 	 */
 	public Dependencies(Dependencies deps) {
 		this.child = deps.child;
-		this.dependencies = new HashMap<String, Dependency>(deps.dependencies);
+		this.dependencies = new TreeSet<Dependency>(deps.dependencies);
 	}
 	
 	/**
@@ -50,15 +50,15 @@ public class Dependencies {
 			throw new IllegalArgumentException("Cannot add dependency to collection" +
 					" due to incorrect child attribute.");
 		}
-		this.dependencies.put(dep.getName(), dep);
+		this.dependencies.add(dep);
 	}
 	
 	/**
 	 * Returns all dependencies.
 	 * @return the dependencies in no particular order.
 	 */
-	public Collection<Dependency> getAll() {
-		return this.dependencies.values();
+	public Set<Dependency> getAll() {
+		return this.dependencies;
 	}
 	
 	/**
@@ -78,14 +78,15 @@ public class Dependencies {
 	}
 	
 	/**
-	 * Returns the parents of the contained dependencies.
+	 * Returns the parents of the contained dependencies (meaning a parent
+	 * may occurr multiple times).
 	 * Hopefully the order will be the same irrespective of in which
 	 * order the dependencies were added.
 	 * @return the parents.
 	 */
 	public List<ProbAttribute> getParents() {
 		ArrayList<ProbAttribute> parents = new ArrayList<ProbAttribute>(this.dependencies.size());
-		for (Dependency dep : this.dependencies.values()) {
+		for (Dependency dep : this.dependencies) {
 			parents.add(dep.getParent());
 		}
 		return parents;
@@ -96,11 +97,34 @@ public class Dependencies {
 	 * @return true if all parents of the child are discrete.
 	 */
 	public boolean isDiscrete() {
-		for (Dependency dep : this.dependencies.values()) {
+		for (Dependency dep : this.dependencies) {
 			if (dep.getParent().getDataType() != DataType.DISCRETE) {
 				return false;
 			}
 		}
 		return true;
 	}
+
+	/**
+	 * Returns the names of all contained attributes, separated by line breaks.
+	 * @return the names of all contained dependencies.
+	 */
+	public String getName() {
+		StringBuilder sb = new StringBuilder(this.dependencies.size() * 30);
+		for (Dependency dep : this.dependencies) {
+			sb.append(dep.getName()).append('\n');
+		}
+		return sb.toString();
+	}
+	
+	@Override
+	public int compareTo(Dependencies o) {
+		return this.getName().compareTo(o.getName());
+	}
+
+	@Override
+	public String toString() {
+		return this.getName();
+	}
+	
 }

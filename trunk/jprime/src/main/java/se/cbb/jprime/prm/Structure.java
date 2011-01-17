@@ -1,18 +1,15 @@
 package se.cbb.jprime.prm;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Holds a PRM structure, that is, a set of parent-child dependencies.
- * <p/>
- * Note: Invoking <code>equal()</code> on identical structures based of different instances should
- * hopefully yield true.
  * 
  * @author Joel Sjöstrand.
  */
-public class Structure {
+public class Structure implements Comparable<Structure> {
 
 	/** The skeleton to which this structure refers. */
 	private final Skeleton skeleton;
@@ -25,13 +22,13 @@ public class Structure {
 	private final HashMap<ProbAttribute, Dependencies> dependencies;
 	
 	/** For quick equivalence comparisons: dependency names. */
-	private final HashSet<String> dependencyNames;
+	private final TreeSet<String> dependencyNames;
 	
 	/**
 	 * For quick access: all attributes which lack parents. No handling of
 	 * self-referencing PRM classes yet.
 	 */
-	private final HashSet<ProbAttribute> sources;
+	private final TreeSet<ProbAttribute> sources;
 	
 	/**
 	 * Constructor.
@@ -41,8 +38,8 @@ public class Structure {
 		this.skeleton = skeleton;
 		int initCap = skeleton.getNoOfPRMClasses() * 8;
 		this.dependencies = new HashMap<ProbAttribute, Dependencies>(initCap);
-		this.dependencyNames = new HashSet<String>(initCap * 4);
-		this.sources = new HashSet<ProbAttribute>(initCap);
+		this.dependencyNames = new TreeSet<String>();
+		this.sources = new TreeSet<ProbAttribute>();
 		
 		// Create an initially empty Dependencies for each attribute.
 		// Also add all as potential "sources".
@@ -66,14 +63,14 @@ public class Structure {
 		for (Dependencies deps : struct.dependencies.values()) {
 			this.dependencies.put(deps.getChild(), new Dependencies(deps));
 		}
-		this.dependencyNames = new HashSet<String>(struct.dependencyNames);
-		this.sources = new HashSet<ProbAttribute>(struct.sources);
+		this.dependencyNames = new TreeSet<String>(struct.dependencyNames);
+		this.sources = new TreeSet<ProbAttribute>(struct.sources);
 	}
 	
 	/**
 	 * Adds a dependency to this structure. Duplicates will
 	 * only overwrite its previous value.
-	 * @param dep the dependency.
+	 * @param dep a (non-empty) dependency.
 	 */
 	public void putDependency(Dependency dep) {
 		Dependencies deps = this.dependencies.get(dep.getChild());
@@ -128,28 +125,6 @@ public class Structure {
 	public boolean hasDependency(Dependency dep) {
 		return this.dependencyNames.contains(dep.getName());
 	}
-	
-	@Override
-	public int hashCode() {
-		return (this.skeleton.hashCode() * 31 + this.dependencyNames.hashCode());
-	}
-
-	/**
-	 * Compares two structures. Will return true for different instances
-	 * referring to the same skeleton and having identical dependency names.
-	 * @param the structure to compare with.
-	 * @return true if equivalent.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) { return true; }
-		if (obj == null) { return false; }
-		if (getClass() != obj.getClass()) { return false; }
-		
-		Structure s = (Structure) obj;
-		return (this.skeleton == s.skeleton &&
-			this.dependencyNames.equals(s.dependencyNames));
-	}
 
 	@Override
 	public String toString() {
@@ -160,6 +135,15 @@ public class Structure {
 			sb.append('\t').append(s).append('\n');
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public int compareTo(Structure o) {
+		int i = this.skeleton.getName().compareTo(o.skeleton.getName());
+		if (i != 0) {
+			return i;
+		}
+		return this.dependencyNames.toString().compareTo(o.dependencyNames.toString());
 	}
 	
 	

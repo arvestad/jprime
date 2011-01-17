@@ -23,7 +23,7 @@ import se.cbb.jprime.prm.Relation.Type;
  * 
  * @author Joel Sjöstrand.
  */
-public final class Dependency {
+public final class Dependency implements Comparable<Dependency> {
 
 	/** Child. */
 	private final ProbAttribute child;
@@ -175,4 +175,15 @@ public final class Dependency {
 	public boolean hasIndex() {
 		return (this.index != null);
 	}
+
+	@Override
+	public int compareTo(Dependency o) {
+		return this.name.compareTo(o.name);
+	}
+
+	@Override
+	public String toString() {
+		return this.name;
+	}
+	
 }
