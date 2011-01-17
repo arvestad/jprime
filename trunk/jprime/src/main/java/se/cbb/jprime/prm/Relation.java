@@ -14,6 +14,9 @@ package se.cbb.jprime.prm;
  * (implying that A and B represent foreign and primary keys respectively). Moreover,
  * it is assumed that the values of B are unique. Many-to-many relations should be resolved
  * using an intermediary PRM class.
+ * <p/>
+ * Two instances of this class are considered equal if they refer to the same attributes.
+ * All other properties are ignored.
  * 
  * @author Joel Sjöstrand.
  */
@@ -125,5 +128,18 @@ public class Relation implements Comparable<Relation> {
 	@Override
 	public String toString() {
 		return this.name;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+		return this.name.equals(((Relation) obj).name);
 	}
 }

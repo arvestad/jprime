@@ -164,4 +164,9 @@ public class IntAttribute implements DiscreteAttribute {
 	public Class<?> getComponentType() {
 		return Integer.class;
 	}
+
+	@Override
+	public int compareTo(ProbAttribute o) {
+		return this.fullName.compareTo(o.getFullName());
+	}
 }

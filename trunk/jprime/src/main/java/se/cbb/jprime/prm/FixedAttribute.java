@@ -17,10 +17,13 @@ import java.util.List;
  * Moreover, if the values are unique, the attribute may be "indexed" so
  * that one may do a quick lookup of a record's integer index from
  * its string value.
+ * <p/>
+ * Two instances of this class are considered "comparable" if they share the same
+ * full name. This situation should occur seldom in practice.
  * 
  * @author Joel Sjöstrand.
  */
-public class FixedAttribute {
+public class FixedAttribute implements Comparable<FixedAttribute> {
 	
 	/** Attribute name. */
 	private final String name;
@@ -147,5 +150,10 @@ public class FixedAttribute {
 	 */
 	public int getIndex(String value) {
 		return this.index.get(value).intValue();
+	}
+
+	@Override
+	public int compareTo(FixedAttribute o) {
+		return this.fullName.compareTo(o.fullName);
 	}
 }

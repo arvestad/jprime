@@ -150,4 +150,9 @@ public class BooleanAttribute implements DiscreteAttribute {
 	public Class<?> getComponentType() {
 		return Boolean.class;
 	}
+	
+	@Override
+	public int compareTo(ProbAttribute o) {
+		return this.fullName.compareTo(o.getFullName());
+	}
 }
