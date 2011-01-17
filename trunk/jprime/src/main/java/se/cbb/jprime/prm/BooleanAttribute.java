@@ -15,7 +15,7 @@ import se.cbb.jprime.math.IntegerInterval;
  */
 public class BooleanAttribute implements DiscreteAttribute {
 
-	/** Treated analogous so {0,1}-valued integer. */
+	/** Treated analogous to {0,1}-valued integer. */
 	public static final IntegerInterval INTERVAL = new IntegerInterval(0, 1);
 	
 	/** PRM class. */
@@ -114,6 +114,11 @@ public class BooleanAttribute implements DiscreteAttribute {
 		return this.entities.get(idx).booleanValue();
 	}
 	
+	@Override
+	public int getEntityAsInt(int idx) {
+		return (this.entities.get(idx).booleanValue() ? 1 : 0);
+	}
+	
 	/**
 	 * Sets an attribute value.
 	 * @param idx the index.
@@ -139,5 +144,10 @@ public class BooleanAttribute implements DiscreteAttribute {
 	@Override
 	public boolean isLatent() {
 		return this.isLatent;
+	}
+
+	@Override
+	public Class<?> getComponentType() {
+		return Boolean.class;
 	}
 }
