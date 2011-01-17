@@ -108,6 +108,21 @@ public class Dependencies implements Comparable<Dependencies> {
 	}
 
 	/**
+	 * Returns true if either the child or one of its parents are
+	 * latent. This can be used e.g. for optimisations when one knows
+	 * that no attribute entities are bound to change.
+	 * @return true if one or more of the attributes are latent.
+	 */
+	public boolean isLatent() {
+		for (Dependency dep : this.dependencies) {
+			if (dep.isLatent()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the names of all contained attributes, separated by line breaks.
 	 * @return the names of all contained dependencies.
 	 */
