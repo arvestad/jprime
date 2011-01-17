@@ -2,8 +2,9 @@ package se.cbb.jprime.prm;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.TreeSet;
 
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
@@ -34,13 +35,13 @@ public class SimpleMicroarrayPRM {
 	
 	private Skeleton skeleton;
 	
-	private ArrayList<Structure> structures;
+	private TreeSet<Structure> structures;
 	
 	public SimpleMicroarrayPRM() throws FileNotFoundException {
 		this.rng = new MersenneTwisterRNG();
 		System.out.println(this.rng.getSeed().length);
 		this.skeleton = new Skeleton("SimpleMicroarraySkeleton");
-		this.structures = new ArrayList<Structure>(20);
+		this.structures = new TreeSet<Structure>();
 		
 		// Fill skeleton.
 		this.readGeneFile();
@@ -146,9 +147,17 @@ public class SimpleMicroarrayPRM {
 	
 	/** TBD. */
 	public void generateStructures() {
-		Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 3, 2, 200);
-		this.structures.add(s);
-		System.out.println(s);
+		for (int i = 0; i < 5000; ++i) {
+			Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 5, 2, 200);
+			if (!this.structures.contains(s)) {
+				this.structures.add(s);
+				//System.out.println(s);
+			}
+		}
+		for (Structure s : this.structures) {
+			System.out.println(s);
+		}
+		System.out.println(this.structures.size());
 	}
 	
 }
