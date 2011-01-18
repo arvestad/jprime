@@ -9,8 +9,8 @@ import se.cbb.jprime.prm.ProbAttribute.DataType;
 
 /**
  * Container to collect all PRM dependencies for a single child attribute.
- * Two instances of this class containing equal (or rather identical) dependencies
- * are considered equal.
+ * Two instances of this class containing equal (or rather identical) internal dependencies
+ * are considered equal. The number of internal dependencies may be 0.
  * 
  * @author Joel Sjöstrand.
  */
@@ -43,16 +43,17 @@ public class Dependencies implements Comparable<Dependencies> {
 	}
 	
 	/**
-	 * Adds a dependency. The dependency's child must correct.
+	 * Adds a dependency. The dependency's child must be correct.
 	 * A duplicate will only overwrite its identical value.
 	 * @param dep the dependency.
+	 * @return true if added, false if already containing an equivalent dependency.
 	 */
-	public void put(Dependency dep) {
+	public boolean put(Dependency dep) {
 		if (this.child != dep.getChild()) {
 			throw new IllegalArgumentException("Cannot add dependency to collection" +
 					" due to incorrect child attribute.");
 		}
-		this.dependencies.add(dep);
+		return this.dependencies.add(dep);
 	}
 	
 	/**
@@ -81,7 +82,7 @@ public class Dependencies implements Comparable<Dependencies> {
 	
 	/**
 	 * Returns the parents of the contained dependencies (meaning a parent
-	 * may occurr multiple times).
+	 * may occur multiple times).
 	 * Hopefully the order will be the same irrespective of in which
 	 * order the dependencies were added.
 	 * @return the parents.
@@ -104,7 +105,7 @@ public class Dependencies implements Comparable<Dependencies> {
 				return false;
 			}
 		}
-		return true;
+		return (this.child.getDataType() == DataType.DISCRETE);
 	}
 
 	/**
@@ -119,7 +120,7 @@ public class Dependencies implements Comparable<Dependencies> {
 				return true;
 			}
 		}
-		return false;
+		return this.child.isLatent();
 	}
 	
 	/**

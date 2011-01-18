@@ -49,7 +49,7 @@ public class IntegerInterval {
 	 * Returns the lower bound.
 	 * @return the bound.
 	 */
-	public double getLowerBound() {
+	public int getLowerBound() {
 		return a;
 	}
 
@@ -65,7 +65,7 @@ public class IntegerInterval {
 	 * Returns the upper bound.
 	 * @return the bound.
 	 */
-	public double getUpperBound() {
+	public int getUpperBound() {
 		return b;
 	}
 

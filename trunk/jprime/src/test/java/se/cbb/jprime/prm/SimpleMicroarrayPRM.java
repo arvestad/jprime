@@ -2,7 +2,8 @@ package se.cbb.jprime.prm;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.TreeSet;
 
@@ -28,20 +29,17 @@ public class SimpleMicroarrayPRM {
 		assertEquals(80, this.skeleton.getPRMClass("Array").getNoOfEntities());
 		assertEquals(1000 * 80, this.skeleton.getPRMClass("Measurement").getNoOfEntities());
 		
-		this.generateStructures();
+		this.run();
 	}
 
 	private MersenneTwisterRNG rng;
 	
 	private Skeleton skeleton;
 	
-	private TreeSet<Structure> structures;
-	
 	public SimpleMicroarrayPRM() throws FileNotFoundException {
 		this.rng = new MersenneTwisterRNG();
 		System.out.println(this.rng.getSeed().length);
 		this.skeleton = new Skeleton("SimpleMicroarraySkeleton");
-		this.structures = new TreeSet<Structure>();
 		
 		// Fill skeleton.
 		this.readGeneFile();
@@ -146,18 +144,48 @@ public class SimpleMicroarrayPRM {
 	}
 	
 	/** TBD. */
-	public void generateStructures() {
-		for (int i = 0; i < 5000; ++i) {
-			Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 5, 2, 200);
-			if (!this.structures.contains(s)) {
-				this.structures.add(s);
-				//System.out.println(s);
-			}
-		}
-		for (Structure s : this.structures) {
-			System.out.println(s);
-		}
-		System.out.println(this.structures.size());
+	public Structure getTrueStructure() {
+		// True structure.
+		Structure s = new Structure(this.skeleton);
+		ProbAttribute gc = this.skeleton.getPRMClass("Gene").getProbAttribute("Cluster");
+		ProbAttribute a1 = this.skeleton.getPRMClass("Gene").getProbAttribute("A1");
+		ProbAttribute a2 = this.skeleton.getPRMClass("Gene").getProbAttribute("A2");
+		ProbAttribute a3 = this.skeleton.getPRMClass("Gene").getProbAttribute("A3");
+		ProbAttribute ac = this.skeleton.getPRMClass("Array").getProbAttribute("Cluster");
+		ProbAttribute lvl = this.skeleton.getPRMClass("Measurement").getProbAttribute("Level");
+		Relation m2g = this.skeleton.getPRMClass("Measurement").getRelation("Measurement.GeneID-Gene.ID");
+		Relation m2a = this.skeleton.getPRMClass("Measurement").getRelation("Measurement.ArrayID-Array.ID");
+		ArrayList<Relation> sc = new ArrayList<Relation>(1);
+		sc.add(m2g);
+		s.putDependency(new Dependency(lvl, sc, gc));
+		s.putDependency(new Dependency(lvl, sc, a1));
+		s.putDependency(new Dependency(lvl, sc, a2));
+		s.putDependency(new Dependency(lvl, sc, a3));
+		sc = new ArrayList<Relation>(1);
+		sc.add(m2a);
+		s.putDependency(new Dependency(lvl, sc, ac));
+		return s;
+	}
+		
+	
+	private void run() {
+//		for (int i = 0; i < 5000; ++i) {
+//			Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 5, 2, 200);
+//			if (!this.structures.contains(s)) {
+//				this.structures.add(s);
+//				//System.out.println(s);
+//			}
+//		}
+//		for (Structure s : this.structures) {
+//			System.out.println(s);
+//		}
+//		System.out.println(this.structures.size());
+		
+		Structure struct = this.getTrueStructure();
+		ExtensiveCountsCache cache = new ExtensiveCountsCache(true);
+		HashMap<Dependencies, Counts> counts = cache.getCounts(struct);
+		
+		
 	}
 	
 }
