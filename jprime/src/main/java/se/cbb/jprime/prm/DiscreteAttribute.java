@@ -23,4 +23,13 @@ public interface DiscreteAttribute extends ProbAttribute {
 	 */
 	public int getEntityAsInt(int idx);
 	
+	/**
+	 * Returns an attribute value as an integer transformed to be >=0.
+	 * I.e., for an k originally defined in the range [a,b], returns k'=k-a (thus
+	 * in the range [0,b-a]).
+	 * @param idx the index.
+	 * @return the value, guaranteed to be non-negative.
+	 */
+	public int getEntityAsIntNormalised(int idx);
+	
 }

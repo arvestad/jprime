@@ -19,12 +19,11 @@ public class Structure implements Comparable<Structure> {
 	
 	/**
 	 * Dependencies of this structure, indexed by child attribute.
-	 * There will be a Dependencies object for every attribute, albeit
-	 * empty if it does not have parents.
+	 * There is a container also for those elements which lack dependencies.
 	 */
 	private final HashMap<ProbAttribute, Dependencies> dependencies;
 	
-	/** Number of explicit dependencies. */
+	/** Number of individual dependencies. */
 	private int noOfDependencies;
 	
 	/** For quicker equivalence comparisons: name as concatenated dependency names. */
@@ -47,8 +46,8 @@ public class Structure implements Comparable<Structure> {
 		this.noOfDependencies = 0;
 		this.sources = new TreeSet<ProbAttribute>();
 		
-		// Create an initially empty Dependencies for each attribute.
-		// Also add all as potential "sources".
+		// Create containers for all children.
+		// Initially, every attribute is a "source".
 		for (PRMClass c : skeleton.getPRMClasses()) {
 			for (ProbAttribute a : c.getProbAttributes()) {
 				this.dependencies.put(a, new Dependencies(a));
@@ -60,8 +59,8 @@ public class Structure implements Comparable<Structure> {
 	
 	/**
 	 * Copy-constructor. The generated object will refer to the same
-	 * skeleton, but have identical copied instances of Dependencies (which, in turn,
-	 * will refer to the same immutable Dependency objects).
+	 * skeleton, but have copied instances of Dependencies (which, in turn,
+	 * will refer to the same immutable Dependency instances).
 	 * @param struct the object to copy.
 	 */
 	public Structure(Structure struct) {
@@ -70,6 +69,7 @@ public class Structure implements Comparable<Structure> {
 		for (Dependencies deps : struct.dependencies.values()) {
 			this.dependencies.put(deps.getChild(), new Dependencies(deps));
 		}
+		this.noOfDependencies = struct.noOfDependencies;
 		this.name = struct.name;
 		this.sources = new TreeSet<ProbAttribute>(struct.sources);
 	}
@@ -80,11 +80,12 @@ public class Structure implements Comparable<Structure> {
 	 * @param dep a (non-empty) dependency.
 	 */
 	public void putDependency(Dependency dep) {
-		Dependencies deps = this.dependencies.get(dep.getChild());
-		deps.put(dep);
-		++this.noOfDependencies;
-		this.sources.remove(dep.getChild());
-		this.updateName();
+		ProbAttribute child = dep.getChild();
+		if (this.dependencies.get(child).put(dep)) {
+			++this.noOfDependencies;
+			this.sources.remove(child);
+			this.updateName();
+		}
 	}
 	
 	/**
@@ -123,6 +124,7 @@ public class Structure implements Comparable<Structure> {
 	
 	/**
 	 * Returns all dependencies for a certain child.
+	 * Even if it has none, an empty collection is returned.
 	 * @param child the child attribute.
 	 * @return the parent-child dependencies for the child.
 	 */
@@ -132,7 +134,10 @@ public class Structure implements Comparable<Structure> {
 	
 	/**
 	 * Returns all dependencies, collected by common child.
-	 * @return all dependencies of this structure.
+	 * There will be a collection also for attributes which
+	 * are not children in any dependencies.
+	 * @return for every probabilistic attribute, the dependencies
+	 *         in which the attribute is a child (possibly 0).
 	 */
 	public Collection<Dependencies> getDependencies() {
 		return this.dependencies.values();

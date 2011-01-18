@@ -51,14 +51,18 @@ public final class Dependency implements Comparable<Dependency> {
 	 * Creates a dependency. Does not perform verification of slot chain validity,
 	 * dependency constraints, etc.
 	 * @param child child attribute.
-	 * @param slotChain slot chain from child to attribute. May be empty, but not null.
+	 * @param slotChain slot chain from child to attribute. Null is interpreted as empty.
 	 * @param parent parent attribute.
 	 */
 	public Dependency(ProbAttribute child, List<Relation> slotChain,
 			ProbAttribute parent) {
 		this.child = child;
-		this.slotChain = new Relation[slotChain.size()];
-		slotChain.toArray(this.slotChain);
+		if (slotChain == null) {
+			this.slotChain = new Relation[0];
+		} else {
+			this.slotChain = new Relation[slotChain.size()];
+			slotChain.toArray(this.slotChain);
+		}
 		this.parent = parent;
 		
 		// Create name.

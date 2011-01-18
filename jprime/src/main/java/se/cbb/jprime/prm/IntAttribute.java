@@ -169,4 +169,9 @@ public class IntAttribute implements DiscreteAttribute {
 	public int compareTo(ProbAttribute o) {
 		return this.fullName.compareTo(o.getFullName());
 	}
+
+	@Override
+	public int getEntityAsIntNormalised(int idx) {
+		return (this.entities.get(idx).intValue() - this.interval.getLowerBound());
+	}
 }

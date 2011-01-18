@@ -66,5 +66,12 @@
     	<scope>system</scope>
     	<systemPath>${basedir}/lib/java/biojava-1.7.1.bytecode.jar</systemPath>
 	</dependency>
+	<dependency>
+		<groupId>org.apache.mahout.uncommons.math</groupId>
+		<artifactId>uncommons-math</artifactId>
+		<version>1.0.2</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
   </dependencies>
 </project>
