@@ -1,4 +1,4 @@
-package se.cbb.jprime.probability;
+package se.cbb.jprime.math;
 
 /**
  * Class for holding floats typically in the range [0,1] enabling

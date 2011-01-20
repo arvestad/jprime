@@ -1,6 +1,5 @@
-package se.cbb.jprime.probability;
+package se.cbb.jprime.math;
 
-import se.cbb.jprime.math.RealInterval;
 
 /**
  * Interface for 1-D continuous probability distributions, i.e. acting on real numbers. 
