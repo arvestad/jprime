@@ -97,12 +97,14 @@ public class Counts implements MultiArray {
 		// Make array for swifter access.
 		Dependency[] deps = new Dependency[this.dependencies.getSize()];
 		deps = this.dependencies.getAll().toArray(deps);
+		boolean hasIndex[] = new boolean[deps.length];
+		for (int i = 0; i < hasIndex.length; ++i) { hasIndex[i] = deps[i].hasIndex(); }
 		
 		for (int i = 0; i < n; ++i) {
 			vals[0] = ch.getEntityAsInt(i);
 			for (int j = 0; j < deps.length; ++j) {
 				DiscreteAttribute par = (DiscreteAttribute) deps[j].getParent();
-				vals[j + 1] = (deps[j].hasIndex() ?
+				vals[j + 1] = (hasIndex[j] ?
 						par.getEntityAsInt(deps[j].getSingleParentEntityIndexed(i)) :
 						par.getEntityAsInt(deps[j].getSingleParentEntity(i)));
 			}
