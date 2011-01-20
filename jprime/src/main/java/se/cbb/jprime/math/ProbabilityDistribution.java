@@ -1,4 +1,4 @@
-package se.cbb.jprime.probability;
+package se.cbb.jprime.math;
 
 /**
  * Base interface for all probability distributions

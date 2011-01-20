@@ -1,4 +1,4 @@
-package se.cbb.jprime.probability;
+package se.cbb.jprime.math;
 
 /**
  * General purpose exception class for probability-related issues such
