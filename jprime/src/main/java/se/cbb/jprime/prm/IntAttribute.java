@@ -174,4 +174,9 @@ public class IntAttribute implements DiscreteAttribute {
 	public int getEntityAsIntNormalised(int idx) {
 		return (this.entities.get(idx).intValue() - this.interval.getLowerBound());
 	}
+
+	@Override
+	public int getIntervalSize() {
+		return this.interval.getSize();
+	}
 }

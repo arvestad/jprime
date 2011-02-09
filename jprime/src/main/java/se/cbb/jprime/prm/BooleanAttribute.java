@@ -160,4 +160,9 @@ public class BooleanAttribute implements DiscreteAttribute {
 	public int getEntityAsIntNormalised(int idx) {
 		return (this.entities.get(idx).booleanValue() ? 1 : 0);
 	}
+
+	@Override
+	public int getIntervalSize() {
+		return 2;
+	}
 }
