@@ -2,13 +2,18 @@ package se.cbb.jprime.prm;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-import se.cbb.jprime.misc.IntPair;
-
 /**
- * 
+ * For a discrete child PRM attribute and a set of discrete parent attributes, computes and stores counts
+ * of all entity
+ * configurations (vp1,...,vpk,vc) for parent values vpi and child value vc.
+ * Furthermore, assuming parameter independence, holds a Dirichlet hyperparameter representing
+ * the prior belief bestowed upon (any) configuration (i.e. the hyperparameter is invariant).
+ * It is possible to let the number of parents be 0, in which case only child entities are counted.
+ * <p/>
+ * The counts are maintained on a hash-basis internally, meaning that configurations of which
+ * there are 0 are unmapped.
  * 
  * @author Joel Sjöstrand.
  */
@@ -42,9 +47,10 @@ public class DirichletCounts {
 	private final HashMap<int[], Count> summedCounts;
 	
 	/**
-	 * 
-	 * @param dependencies
-	 * @param dirichletParam
+	 * Constructor.
+	 * @param dependencies the dependencies.
+	 * @param dirichletParam the Dirichlet hyperparameter, invariant for all possible
+	 * configurations.
 	 */
 	public DirichletCounts(Dependencies dependencies, double dirichletParam) {
 		if (!dependencies.isDiscrete()) {
@@ -124,11 +130,13 @@ public class DirichletCounts {
 	/**
 	 * Returns E[P(vc | vp1,...,vpk) | I] where vc is the child value,
 	 * vpi the parent values, and I the complete current entity assignment.
-	 * <p/>
 	 * If there are no parents, returns the prior (uniform) probability
 	 * of the child c, i.e. 1.0/|v(c)|.
+	 * <p/>
+	 * No bounds checking.
 	 * @param pcVals the attribute values converted to integers in this
-	 *        order: (vp1,...,vpk,vc).
+	 *        order: (vp1,...,vpk,vc). Conversion must comply with
+	 *        the attributes' method <code>getEntityAsInt()</code>.
 	 * @return the expected conditional probability of the.
 	 */
 	public double getExpectedConditionalProb(int[] pcVals) {
@@ -146,5 +154,48 @@ public class DirichletCounts {
 		count = this.counts.get(pVals);
 		int c = (count == null ? 0 : count.val);
 		return ((c + this.dirichletParam) / (s + this.dirichletParam * this.childCardinality));
+	}
+	
+	/**
+	 * Returns the number of valid child values.
+	 * @return the number of valid child values.
+	 */
+	public int getChildCardinality() {
+		return this.childCardinality;
+	}
+	
+	/**
+	 * Returns the number of valid parent value configurations (vp1,...,vpk).
+	 * @return the number of valid parent value configurations.
+	 */
+	public int getParentCardinality() {
+		return this.parentCardinality;
+	}
+	
+	/**
+	 * Returns the count of a certain configuration (vp1,...,vpk,vc).
+	 * No bounds checking.
+	 * @param pcVals the configuration in the order outlined above.
+	 *        The conversion to integers must comply the attributes' method
+	 *        <code>getEntityAsInt()</code>.
+	 * @return the count, possibly 0.
+	 */
+	public int getCount(int[] pcVals) {
+		Count count = this.counts.get(pcVals);
+		return (count == null ? 0 : count.val);
+	}
+	
+	/**
+	 * Returns the count of a certain parent configuration (vp1,...,vpk) summed
+	 * over all child values.
+	 * No bounds checking.
+	 * @param pVals the configuration in the order outlined above.
+	 *        The conversion to integers must comply the attributes' method
+	 *        <code>getEntityAsInt()</code>.
+	 * @return the count, possibly 0.
+	 */
+	public int getSummedCount(int[] pVals) {
+		Count count = this.summedCounts.get(pVals);
+		return (count == null ? 0 : count.val);
 	}
 }
