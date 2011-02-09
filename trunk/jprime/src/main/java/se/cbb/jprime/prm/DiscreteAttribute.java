@@ -17,6 +17,12 @@ public interface DiscreteAttribute extends ProbAttribute {
 	public IntegerInterval getInterval();
 	
 	/**
+	 * Returns the number of valid values of this attribute.
+	 * @return the number of values.
+	 */
+	public int getIntervalSize();
+	
+	/**
 	 * Returns an attribute value as an integer.
 	 * @param idx the index.
 	 * @return the value.

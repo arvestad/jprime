@@ -10,7 +10,8 @@ import se.cbb.jprime.prm.ProbAttribute.DataType;
 /**
  * Container to collect all PRM dependencies for a single child attribute.
  * Two instances of this class containing equal (or rather identical) internal dependencies
- * are considered equal. The number of internal dependencies may be 0.
+ * are considered equal. The number of internal dependencies may be 0, i.e. parent-less
+ * instances are allowed.
  * 
  * @author Joel Sjöstrand.
  */
@@ -93,6 +94,14 @@ public class Dependencies implements Comparable<Dependencies> {
 			parents.add(dep.getParent());
 		}
 		return parents;
+	}
+	
+	/**
+	 * Returns true if the number of parents is greater than 0.
+	 * @return true if there are parents.
+	 */
+	public boolean hasParents() {
+		return (this.dependencies.size() > 0);
 	}
 	
 	/**
