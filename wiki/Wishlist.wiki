@@ -7,7 +7,7 @@ Below is a list of features that should / has already been added with noteworthy
 
 || *Feature* ||  *Comment* || *Priority* ||
 || MPI parallelization  || Use of some Java port, which one? || Medium ||
-|| XML input and output || JAXB for standard stuff. External library required for condensed XML? || Medium ||
+|| XML input and output || JAXB for standard stuff. External library required for condensed XML? || In place (at least partly) ||
 || Multicore parallelization ||  || Low ||
 || Program manuals auto-generated from Javadoc ||  || Low ||
 || Unit testing framework || Now using JUnit. || In place ||
