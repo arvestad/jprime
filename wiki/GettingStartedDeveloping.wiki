@@ -54,3 +54,6 @@ Logging is not handled with the built-in logger, but with Logback, which is a su
 
 == Application parameter parsing ==
 Parameter parsing can be achieved in (almost) GNU style using the dependency JCommander.
+
+== XML ==
+At the moment, ordinary XML tasks should be carried out with JAXB if possible.
