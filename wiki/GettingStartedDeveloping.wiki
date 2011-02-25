@@ -35,6 +35,7 @@ The source file structure adheres to the Maven standard directory layout (as a s
   * src/test/java - where unit tests and test suites go.
   * target - where local builds are kept (not under version control).
   * lib - where non-Mavenized dependencies are kept, see below.
+Furthermore, non-Java resources kan be maintained in the same manner, e.g. src/main/python and so forth.
 
 == Dependencies ==
 Maven handles all external dependencies (most commonly JAR files). Typically, for a user, true Mavenized dependencies (and sub-dependencies!) are retrieved and stored under the ~/.m2 folder.
