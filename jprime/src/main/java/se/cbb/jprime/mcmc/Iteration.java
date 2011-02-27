@@ -4,14 +4,14 @@ import java.util.LinkedList;
 
 /**
  * Holds the current and total number of iterations k for e.g. an MCMC chain.
- * Iterations typically range between 0 and k-1.
+ * Iterations typically range between 0 and k, where 0 refers to a non-counted starting iteration.
  * Other objects may subscribe as listeners to increments of this object.
  * 
  * @author Joel Sjöstrand.
  */
 public class Iteration {
 
-	/** The total number of iterations. */
+	/** The total number of iterations, start iteration 0 excluded. */
 	private int totalNoOfIterations;
 	
 	/** The current iteration. */
@@ -25,7 +25,7 @@ public class Iteration {
 	
 	/**
 	 * Constructor. Sets the current iteration to 0 by default.
-	 * @param totalNoOfIterations the total number of iterations.
+	 * @param totalNoOfIterations the total number of iterations, start iteration 0 excluded.
 	 */
 	public Iteration(int totalNoOfIterations) {
 		this(totalNoOfIterations, 0);
@@ -33,11 +33,11 @@ public class Iteration {
 	
 	/**
 	 * Constructor.
-	 * @param noOfIterations the total number of iterations.
-	 * @param currentIteration the initial iteration. Must be >=0.
+	 * @param totalNoOfIterations the total number of iterations, start iteration 0 excluded.
+	 * @param currentIteration the initial iteration. Must be >= 0.
 	 */
 	public Iteration(int totalNoOfIterations, int initialIteration) {
-		if (initialIteration < 0 || initialIteration >= totalNoOfIterations) {
+		if (initialIteration < 0 || initialIteration > totalNoOfIterations) {
 			throw new IllegalArgumentException("Initial iteration out of range.");
 		}
 		this.totalNoOfIterations = totalNoOfIterations;
@@ -74,7 +74,7 @@ public class Iteration {
 	}
 	
 	/**
-	 * Returns the total number of iterations.
+	 * Returns the total number of iterations, start iteration 0 excluded.
 	 * @return the number of iterations.
 	 */
 	public int getTotalNoOfIterations() {
@@ -85,19 +85,18 @@ public class Iteration {
 	 * Returns the current iteration.
 	 * @return the iteration.
 	 */
-	public int getCurrentIteration() {
+	public int getIteration() {
 		return this.currentIteration;
 	}
 	
 	/**
-	 * Increments the current iteration. If this would reach or exceed
-	 * the total number of iterations, no increment is performed and
-	 * false is returned. Listeners are notified synchronously before
-	 * a call is returned.
-	 * @return true if incremented and listeners potentially notified; false if max number reached.
+	 * Increments the current iteration. If this exceeds
+	 * the total number of iterations, nothing happens and false is returned.
+	 * Listeners are notified synchronously before a call is returned.
+	 * @return true if max number exceeded; false if max number reached before incrementing.
 	 */
 	public boolean increment() {
-		if (this.currentIteration >= this.totalNoOfIterations - 1) {
+		if (this.currentIteration >= this.totalNoOfIterations) {
 			return false;
 		}
 		this.currentIteration++;
@@ -109,5 +108,12 @@ public class Iteration {
 		return true;
 	}	
 	
+	/**
+	 * Returns true if the iterator has not yet reached its end.
+	 * @return true if it can be incremented, otherwise false.
+	 */
+	public boolean canIncrement() {
+		return (this.currentIteration < this.totalNoOfIterations);
+	}
 }
 
