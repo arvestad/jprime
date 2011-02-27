@@ -54,7 +54,7 @@ public class LinearProposerWeight implements ProposerWeight, IterationListener {
 	@Override
 	public void wasIncremented(Iteration iter) {
 		this.weight = this.startWeight + (this.endWeight - this.startWeight) *
-			(iter.getCurrentIteration() / ((double) iter.getTotalNoOfIterations() - 1));
+			(iter.getIteration() / ((double) iter.getTotalNoOfIterations()));
 	}
 
 }
