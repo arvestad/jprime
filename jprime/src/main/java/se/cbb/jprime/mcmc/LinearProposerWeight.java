@@ -1,12 +1,12 @@
 package se.cbb.jprime.mcmc;
 
 /**
- * Represents a perturber weight which increases or decreases linearly
+ * Represents a <code>ProposerWeight</code> which increases or decreases linearly
  * with the iteration number.
  * 
  * @author Joel Sjöstrand.
  */
-public class LinearPerturberWeight implements PerturberWeight, IterationListener {
+public class LinearProposerWeight implements ProposerWeight, IterationListener {
 
 	/** The weight at iteration 0. */
 	private double startWeight;
@@ -23,12 +23,12 @@ public class LinearPerturberWeight implements PerturberWeight, IterationListener
 	 * @param startWeight weight at iteration 0. Must be >= 0.
 	 * @param endWeight weight at the last iteration. Must be >= 0.
 	 */
-	public LinearPerturberWeight(Iteration iter, double startWeight, double endWeight) {
+	public LinearProposerWeight(Iteration iter, double startWeight, double endWeight) {
 		if (iter == null) {
-			throw new IllegalArgumentException("Iteration object for linear weight must not be null.");
+			throw new IllegalArgumentException("Iteration object for linear proposer weight must not be null.");
 		}
 		if (startWeight < 0.0 || endWeight < 0.0) {
-			throw new IllegalArgumentException("Start or end weight for perturber out of range.");
+			throw new IllegalArgumentException("Start or end weight for proposer out-of-range.");
 		}
 		iter.addIterationListener(this);
 		this.startWeight = startWeight;

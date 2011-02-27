@@ -7,7 +7,7 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Parameter {
+public interface StateParameter {
 
 	/**
 	 * Returns the name of the parameter.

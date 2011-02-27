@@ -1,7 +1,7 @@
 package se.cbb.jprime.mcmc;
 
 /**
- * Represents a weight associated with a <code>Perturber</code> object.
+ * Represents a weight associated with a <code>Proposer</code> object.
  * Implementing objects may e.g. listen for changes to an <code>Iteration</code>
  * object and adjust their weights accordingly.
  * At the moment, one may associate multiple parameters with the same weight instance.
@@ -11,11 +11,11 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface PerturberWeight {
+public interface ProposerWeight {
 
 	/**
 	 * Returns the current weight of this object.
-	 * It is assumed that this value is already in the range [getMinWeight(),getMaxWeight()].
+	 * It is assumed that this value is in the range [getMinWeight(),getMaxWeight()].
 	 * @return the weight.
 	 */
 	public double getWeight();
@@ -29,7 +29,7 @@ public interface PerturberWeight {
 	
 	/**
 	 * Returns the maximum weight that <code>getWeight()</code>
-	 * will return. May return Double.POSITIVE_INFINITY.
+	 * will return.
 	 * @return the maximum weight.
 	 */
 	public double getMaxWeight();
