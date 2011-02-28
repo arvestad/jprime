@@ -17,7 +17,7 @@ public interface StateParameter {
 	
 	/**
 	 * Returns the number of sub-parameters, e.g. the number of 
-	 * elements if the parameters is a vector. For scalars,
+	 * elements if the parameter is a vector. For scalars,
 	 * 1 should be returned.
 	 * @return the number of sub-parameters; 1 for scalar parameters.
 	 */
