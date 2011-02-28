@@ -1,0 +1,8 @@
+To do (not only w.r.t. mcmc package):
+
+- Finish implementing Probability.
+- Write unit tests for Probability.
+- If necessary, create wrapper around MersenneTwister for supporting
+  seed tracking and XML serialisation.
+- Implement single-object selecting ProposerSelector.
+- Implement MCMCManager.
