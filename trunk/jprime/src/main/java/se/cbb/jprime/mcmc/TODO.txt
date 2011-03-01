@@ -6,3 +6,9 @@ To do (not only w.r.t. mcmc package):
   seed tracking and XML serialisation.
 - Implement single-object selecting ProposerSelector.
 - Implement MCMCManager.
+
+
+To remember:
+
+- When selecting multiple proposers, one must make sure the same state parameter is
+ not affected multiple times, or else the Q(x;x')/Q(x';x) ratio will be incorrect.
