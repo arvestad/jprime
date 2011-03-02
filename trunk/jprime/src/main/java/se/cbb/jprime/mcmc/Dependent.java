@@ -10,6 +10,22 @@ import java.util.List;
  * <p/>
  * The purpose of this interface is mainly to be able to do optimised updates
  * when state parameters have been perturbed or restored.
+ * <p/>
+ * Let D1,...,Dk be the objects on which this object relies.
+ * Typically, methods will be invoked in this order:
+ * <ol>
+ * <li>D1,...,Dk is about to change: <code>cache()</code>.</li>
+ * <li>D1,...,Dk has changed: <code>update()</code>.</li>
+ * <li>
+ *   <ul>
+ *     <li>Changes to D1,...,Dk has been accepted: <code>clearCache()</code>.</li>
+ *     <li>Changes to D1,...,Dk has been rejected: <code>restoreCache()</code>.</li>
+ *   </ul>
+ * </li>
+ * </ol>
+ * Additionally, in all calls in a cycle like above, a flag specifying if the
+ * pending state will be sampled or not is included, which may be used for special
+ * processing if necessary.
  * 
  * @author Joel Sjöstrand.
  */
@@ -38,14 +54,32 @@ public interface Dependent {
 	
 	/**
 	 * Stores the current state e.g. prior to a perturbation.
+	 * @param willSample true if the pending state will be sampled; false if not sampled.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
-	public void cache();
+	public void cache(boolean willSample);
+	
+	/**
+	 * Updates this object, e.g. after a perturbation an object it relies on.
+	 * @param willSample true if the pending state will be sampled; false if not sampled.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
+	 */
+	public void update(boolean willSample);
+	
+	/**
+	 * Clears the stored state, e.g. when a proposed state has been accepted.
+	 * @param willSample true if the pending state will be sampled; false if not sampled.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
+	 */
+	public void clearCache(boolean willSample);
 	
 	/**
 	 * Restores the cached state, e.g. when a proposed state
 	 * has been rejected.
+	 * @param willSample true if the pending state will be sampled; false if not sampled.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
-	public void restore();
+	public void restoreCache(boolean willSample);
 	
 	/**
 	 * If available, provides information on the current changes of

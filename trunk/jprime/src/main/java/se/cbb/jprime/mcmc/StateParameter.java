@@ -8,7 +8,7 @@ package se.cbb.jprime.mcmc;
  * A parameter is also a <code>Dependent</code>, although it is generally assumed that it is
  * a source in the corresponding dependency DAG. Even though there may be interconnections between
  * parameters (e.g. the times t of a tree S), it is often assumed that these are independent
- * (although a Proposer which changes S usually also affects t). 
+ * (although a Proposer which changes S usually also perturbs t). 
  *  
  * @author Joel Sjöstrand.
  */
