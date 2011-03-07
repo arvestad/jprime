@@ -18,6 +18,9 @@ import se.cbb.jprime.prm.Relation.Type;
  *     i.e., they may be in different entities.</li>
  * <li>P and C belong to different PRM classes linked via a slot chain.</li>
  * </ol>
+ * Note that this implies that we may have more than one arc for the same P and C,
+ * albeit with different slot chains.
+ * <p/>
  * For many-to-one and one-to-one relations, we allow caching (creating an "index")
  * of entity indices from C to P, enabling quicker lookups.
  * <p/>

@@ -19,17 +19,17 @@ public class DoubleAttribute implements ContinuousAttribute {
 	/** Attribute name. */
 	private final String name;
 	
+	/** Full name kept for quick access. */
+	private final String fullName;
+	
 	/** True if hidden or unknown. */
-	private final boolean isLatent;
+	private boolean isLatent;
 	
 	/** Interval defining valid range. */
 	private RealInterval interval;
 	
 	/** Entities. */
-	private final ArrayList<Double> entities;
-	
-	/** Full name kept for quick access. */
-	private final String fullName;
+	private ArrayList<Double> entities;
 	
 	/** Dependency constraints. */
 	private DependencyConstraints dependencyConstraints;

@@ -24,14 +24,17 @@ public class BooleanAttribute implements DiscreteAttribute {
 	/** Attribute name. */
 	private final String name;
 	
-	/** True if hidden or unknown. */
-	private final boolean isLatent;
-	
-	/** Entities. */
-	private final ArrayList<Boolean> entities;
-	
 	/** Full name kept for quick access. */
 	private final String fullName;
+	
+	/** True if hidden or unknown. */
+	private boolean isLatent;
+	
+	/** Entities. */
+	private ArrayList<Boolean> entities;
+	
+	/** If latent, the probability distribution of each entity, otherwise null. */
+	private ArrayList<double[]> entityProbDists;
 	
 	/** Dependency constraints */
 	private DependencyConstraints dependencyConstraints;
@@ -50,6 +53,7 @@ public class BooleanAttribute implements DiscreteAttribute {
 		this.name = name;
 		this.isLatent = isLatent;
 		this.entities = new ArrayList<Boolean>(initialCapacity);
+		this.entityProbDists = (isLatent ? new ArrayList<double[]>(initialCapacity) : null);
 		this.fullName = this.prmClass.getName() + '.' + this.name;
 		this.dependencyConstraints = dependencyConstraints;
 		this.prmClass.addProbAttribute(this);
@@ -97,12 +101,12 @@ public class BooleanAttribute implements DiscreteAttribute {
 
 	@Override
 	public void setEntityAsObject(int idx, Object entity) {
-		this.entities.set(idx, (Boolean) entity);
+		this.setEntity(idx, (Boolean) entity);
 	}
 
 	@Override
 	public void addEntityAsObject(Object entity) {
-		this.entities.add((Boolean) entity);
+		this.addEntity((Boolean) entity);
 	}
 
 	/**
@@ -112,11 +116,6 @@ public class BooleanAttribute implements DiscreteAttribute {
 	 */
 	public boolean getEntity(int idx) {
 		return this.entities.get(idx).booleanValue();
-	}
-	
-	@Override
-	public int getEntityAsInt(int idx) {
-		return (this.entities.get(idx).booleanValue() ? 1 : 0);
 	}
 	
 	/**
@@ -134,6 +133,10 @@ public class BooleanAttribute implements DiscreteAttribute {
 	 */
 	public void addEntity(boolean value) {
 		this.entities.add(new Boolean(value));
+		if (this.isLatent) {
+			double[] pd = new double[] {(value ? 0.0 : 1.0), (value ? 1.0 : 0.0)};
+			this.entityProbDists.add(pd);
+		}
 	}
 	
 	@Override
@@ -157,12 +160,32 @@ public class BooleanAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public int getEntityAsIntNormalised(int idx) {
+	public int getEntityAsNormalisedInt(int idx) {
 		return (this.entities.get(idx).booleanValue() ? 1 : 0);
 	}
 
 	@Override
 	public int getIntervalSize() {
 		return 2;
+	}
+
+	@Override
+	public void setEntityAsNormalisedInt(int idx, int value) {
+		this.entities.set(idx, new Boolean(value == 0 ? false : true));
+	}
+
+	@Override
+	public double[] getEntityProbDistribution(int idx) {
+		return this.entityProbDists.get(idx);
+	}
+
+	@Override
+	public void setEntityProbDistribution(int idx, double[] probDist) {
+		this.entityProbDists.set(idx, probDist);
+	}
+
+	@Override
+	public void addEntityAsNormalisedInt(int value) {
+		this.addEntity(value == 0 ? false : true);
 	}
 }

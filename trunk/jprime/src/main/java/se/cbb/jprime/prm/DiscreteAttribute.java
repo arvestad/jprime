@@ -23,19 +23,44 @@ public interface DiscreteAttribute extends ProbAttribute {
 	public int getIntervalSize();
 	
 	/**
-	 * Returns an attribute value as an integer.
+	 * For k valid values, returns an attribute value as an integer transformed to
+	 * be in the range [0,k-1],
+	 * irrespective of the internal representation.
 	 * @param idx the index.
-	 * @return the value.
+	 * @return the value as a non-negative integer.
 	 */
-	public int getEntityAsInt(int idx);
+	public int getEntityAsNormalisedInt(int idx);
 	
 	/**
-	 * Returns an attribute value as an integer transformed to be >=0.
-	 * I.e., for an k originally defined in the range [a,b], returns k'=k-a (thus
-	 * in the range [0,b-a]).
+	 * Setter mirroring <code>getEntityAsNormalisedInt()</code>.
 	 * @param idx the index.
-	 * @return the value, guaranteed to be non-negative.
+	 * @param value, the value as a non-negative integer.
 	 */
-	public int getEntityAsIntNormalised(int idx);
+	public void setEntityAsNormalisedInt(int idx, int value);
 	
+	/**
+	 * Adds an entity as a normalised integer. See <code>getEntityAsNormalisedInt()</code>
+	 * for more info.
+	 * @param value the value to add.
+	 */
+	public void addEntityAsNormalisedInt(int value);
+	
+	/**
+	 * For latent attributes, returns the current estimation of
+	 * an entity's probability distribution, i.e., its soft completion.
+	 * Indexing complies
+	 * with the <code>getEntityAsNormalisedInt()</code> method.
+	 * @param idx the index.
+	 * @return the estimated probability distribution.
+	 */
+	public double[] getEntityProbDistribution(int idx);
+	
+	/**
+	 * For latent attributes, sets the current estimation of
+	 * an entity's probability distribution, i.e., its soft completion.
+	 * Indexing complies with the <code>getEntityAsNormalisedInt()</code> method.
+	 * @param idx the index.
+	 * @param probDist the soft completion.
+	 */
+	public void setEntityProbDistribution(int idx, double[] probDist);
 }
