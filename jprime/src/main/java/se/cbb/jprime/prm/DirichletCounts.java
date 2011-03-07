@@ -6,14 +6,14 @@ import java.util.Set;
 
 /**
  * For a discrete child PRM attribute and a set of discrete parent attributes, computes and stores counts
- * of all entity
+ * of all entity value
  * configurations (vp1,...,vpk,vc) for parent values vpi and child value vc.
  * Furthermore, assuming parameter independence, holds a Dirichlet hyperparameter representing
  * the prior belief bestowed upon (any) configuration (i.e. the hyperparameter is invariant).
  * It is possible to let the number of parents be 0, in which case only child entities are counted.
  * <p/>
- * The counts are maintained on a hash-basis internally, meaning that configurations of which
- * there are 0 are unmapped.
+ * The counts are maintained on a hash-basis internally, meaning that memory complexity is
+ * O(k) where k is the number of actual configurations, not possible configurations.
  * 
  * @author Joel Sjöstrand.
  */
@@ -29,22 +29,22 @@ public class DirichletCounts {
 	private final DiscreteAttribute child;
 	
 	/** Dependencies for child and its parents (perhaps none). */
-	private final Dependency[] dependencies;
+	private Dependency[] dependencies;
 	
 	/** Size of value range |v(p1)|*...*|v(pk)| for parents pi. */
-	private final int parentCardinality;
+	private int parentCardinality;
 	
 	/** Size of value range |v(c)| for child c. */
-	private final int childCardinality;
+	private int childCardinality;
 	
 	/** Invariant Dirichlet parameter used in all parent-child value configurations. */
-	private final double dirichletParam;
+	private double dirichletParam;
 	
 	/** Counts hashed by (vp1,...,vpk,vc) for parent values vpi and child value vc. */
-	private final HashMap<int[], Count> counts;
+	private HashMap<int[], Count> counts;
 	
 	/** Counts summed over child values, hashed by (vp1,...,vpk) for parent values vpi. */
-	private final HashMap<int[], Count> summedCounts;
+	private HashMap<int[], Count> summedCounts;
 	
 	/**
 	 * Constructor.
@@ -88,7 +88,7 @@ public class DirichletCounts {
 			// Count child entities only.
 			for (int i = 0; i < n; ++i) {
 				int[] cVal = new int[1];
-				cVal[0] = this.child.getEntityAsInt(i);
+				cVal[0] = this.child.getEntityAsNormalisedInt(i);
 				Count count = this.counts.get(cVal);
 				if (count == null) {
 					this.counts.put(cVal, new Count(1));
@@ -105,10 +105,10 @@ public class DirichletCounts {
 				for (int j = 0; j < k; ++j) {
 					DiscreteAttribute par = (DiscreteAttribute) this.dependencies[j].getParent();
 					pcVals[j] = (this.dependencies[j].hasIndex() ?
-							par.getEntityAsInt(this.dependencies[j].getSingleParentEntityIndexed(i)) :
-							par.getEntityAsInt(this.dependencies[j].getSingleParentEntity(i)));
+							par.getEntityAsNormalisedInt(this.dependencies[j].getSingleParentEntityIndexed(i)) :
+							par.getEntityAsNormalisedInt(this.dependencies[j].getSingleParentEntity(i)));
 				}
-				pcVals[k] = this.child.getEntityAsInt(i);
+				pcVals[k] = this.child.getEntityAsNormalisedInt(i);
 				System.arraycopy(pcVals, 0, pVals, 0, k);
 				Count count = this.counts.get(pcVals);
 				if (count == null) {
@@ -136,7 +136,7 @@ public class DirichletCounts {
 	 * No bounds checking.
 	 * @param pcVals the attribute values converted to integers in this
 	 *        order: (vp1,...,vpk,vc). Conversion must comply with
-	 *        the attributes' method <code>getEntityAsInt()</code>.
+	 *        the attributes' method <code>getEntityAsNormalisedInt()</code>.
 	 * @return the expected conditional probability of the.
 	 */
 	public double getExpectedConditionalProb(int[] pcVals) {
@@ -177,7 +177,7 @@ public class DirichletCounts {
 	 * No bounds checking.
 	 * @param pcVals the configuration in the order outlined above.
 	 *        The conversion to integers must comply the attributes' method
-	 *        <code>getEntityAsInt()</code>.
+	 *        <code>getEntityAsNormalisedInt()</code>.
 	 * @return the count, possibly 0.
 	 */
 	public int getCount(int[] pcVals) {
@@ -191,7 +191,7 @@ public class DirichletCounts {
 	 * No bounds checking.
 	 * @param pVals the configuration in the order outlined above.
 	 *        The conversion to integers must comply the attributes' method
-	 *        <code>getEntityAsInt()</code>.
+	 *        <code>getEntityAsNormalisedInt()</code>.
 	 * @return the count, possibly 0.
 	 */
 	public int getSummedCount(int[] pVals) {

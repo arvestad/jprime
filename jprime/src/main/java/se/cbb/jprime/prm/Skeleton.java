@@ -19,10 +19,10 @@ public class Skeleton {
 	private final String name;
 	
 	/** PRM classes hashed by name. */
-	private final HashMap<String, PRMClass> classesByName;
+	private HashMap<String, PRMClass> classesByName;
 	
 	/** PRM classes in ordered added. */
-	private final ArrayList<PRMClass> classesByIndex;
+	private ArrayList<PRMClass> classesByIndex;
 	
 	/**
 	 * Constructor.

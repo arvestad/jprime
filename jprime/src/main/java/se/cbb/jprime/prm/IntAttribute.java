@@ -19,8 +19,11 @@ public class IntAttribute implements DiscreteAttribute {
 	/** Attribute name. */
 	private final String name;
 	
+	/** Full name kept for quick access. */
+	private final String fullName;
+	
 	/** True if hidden or unknown. */
-	private final boolean isLatent;
+	private boolean isLatent;
 	
 	/** Interval defining valid range. */
 	private IntegerInterval interval;
@@ -28,8 +31,8 @@ public class IntAttribute implements DiscreteAttribute {
 	/** Entities. */
 	private final ArrayList<Integer> entities;
 	
-	/** Full name kept for quick access. */
-	private final String fullName;
+	/** If latent, the probability distribution of each entity, otherwise null. */
+	private ArrayList<double[]> entityProbDists;
 	
 	/** Dependency constraints */
 	private DependencyConstraints dependencyConstraints;
@@ -50,6 +53,7 @@ public class IntAttribute implements DiscreteAttribute {
 		this.isLatent = isLatent;
 		this.interval = interval;
 		this.entities = new ArrayList<Integer>(initialCapacity);
+		this.entityProbDists = (isLatent ? new ArrayList<double[]>(initialCapacity) : null);
 		this.fullName = this.prmClass.getName() + '.' + this.name;
 		this.dependencyConstraints = dependencyConstraints;
 		this.prmClass.addProbAttribute(this);
@@ -97,20 +101,12 @@ public class IntAttribute implements DiscreteAttribute {
 
 	@Override
 	public void setEntityAsObject(int idx, Object entity) {
-		Integer i = (Integer) entity;
-		if (!this.interval.isWithin(i.intValue())) {
-			throw new IllegalArgumentException("Value out-of-range.");
-		}
-		this.entities.set(idx, i);
+		this.setEntity(idx, (Integer) entity); 
 	}
 
 	@Override
 	public void addEntityAsObject(Object entity) {
-		Integer i = (Integer) entity;
-		if (!this.interval.isWithin(i.intValue())) {
-			throw new IllegalArgumentException("Value out-of-range.");
-		}
-		this.entities.add(i);
+		this.addEntity((Integer) entity);
 	}
 	
 	/**
@@ -119,11 +115,6 @@ public class IntAttribute implements DiscreteAttribute {
 	 * @return the value.
 	 */
 	public int getEntity(int idx) {
-		return this.entities.get(idx).intValue();
-	}
-	
-	@Override
-	public int getEntityAsInt(int idx) {
 		return this.entities.get(idx).intValue();
 	}
 	
@@ -148,6 +139,12 @@ public class IntAttribute implements DiscreteAttribute {
 			throw new IllegalArgumentException("Value out-of-range.");
 		}
 		this.entities.add(new Integer(value));
+		if (this.isLatent) {
+			double[] pd = new double[this.interval.getSize()];
+			int idx = value - this.interval.getLowerBound();
+			pd[idx] = 1.0;
+			this.entityProbDists.add(pd);
+		}
 	}
 	
 	@Override
@@ -171,12 +168,34 @@ public class IntAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public int getEntityAsIntNormalised(int idx) {
+	public int getEntityAsNormalisedInt(int idx) {
 		return (this.entities.get(idx).intValue() - this.interval.getLowerBound());
 	}
 
 	@Override
 	public int getIntervalSize() {
 		return this.interval.getSize();
+	}
+
+	@Override
+	public void setEntityAsNormalisedInt(int idx, int value) {
+		value += this.interval.getLowerBound();
+		this.setEntity(idx, value);
+	}
+
+	@Override
+	public void addEntityAsNormalisedInt(int value) {
+		value += this.interval.getLowerBound();
+		this.addEntity(value);
+	}
+
+	@Override
+	public double[] getEntityProbDistribution(int idx) {
+		return this.entityProbDists.get(idx);
+	}
+
+	@Override
+	public void setEntityProbDistribution(int idx, double[] probDist) {
+		this.entityProbDists.set(idx, probDist);
 	}
 }

@@ -25,25 +25,22 @@ public class Counts implements MultiArray {
 	public static final int MAX_CARDINALITY = 1000000;
 	
 	/** The dependency entities which to count. */
-	private final Dependencies dependencies;
+	private Dependencies dependencies;
 	
 	/** Shorthand for this.dependencies.size(). */
-	private final int noOfParents;
+	private int noOfParents;
 	
 	/** Lengths of array, child last, i.e., |v(p1)|,...,|v(pk)|,|v(c)|. */
-	private final int[] lengths;
+	private int[] lengths;
 	
 	/** Length factors for computing array index. Contents: 1,lengths[0],lengths[0]*lengths[1],... */
-	private final int[] lengthFactors;
-	
-	/** Offsets for normalising value ranges from [a,b] to [0,b-a]. */
-	private final int[] offsets;
+	private int[] lengthFactors;
 	
 	/** Counts. */
-	private final int[] counts;
+	private int[] counts;
 	
 	/** Counts summed over child values. Not applicable when the number of parents is 0. */ 
-	private final int[] summedCounts;
+	private int[] summedCounts;
 	
 	/**
 	 * Constructor.
@@ -60,7 +57,6 @@ public class Counts implements MultiArray {
 		this.noOfParents = deps.size();
 		this.lengths = new int[this.noOfParents + 1];
 		this.lengthFactors = new int[this.noOfParents + 1];
-		this.offsets = new int[this.noOfParents + 1];
 		
 		// Add parents in order of appearance.
 		Iterator<Dependency> it = deps.iterator();
@@ -70,7 +66,6 @@ public class Counts implements MultiArray {
 			IntegerInterval range = ((DiscreteAttribute) it.next().getParent()).getInterval();
 			this.lengths[i] = range.getSize();
 			this.lengthFactors[i] = prevLength * prevLengthFactor;
-			this.offsets[i] = -range.getLowerBound();
 			prevLength = this.lengths[i];
 			prevLengthFactor = this.lengthFactors[i];
 		}
@@ -79,7 +74,6 @@ public class Counts implements MultiArray {
 		IntegerInterval range = ((DiscreteAttribute) dependencies.getChild()).getInterval();
 		this.lengths[this.noOfParents] = range.getSize();
 		this.lengthFactors[this.noOfParents] = prevLength * prevLengthFactor;
-		this.offsets[this.noOfParents] = -range.getLowerBound();
 		
 		// Create space for counts.
 		int n = this.lengths[this.noOfParents] * this.lengthFactors[this.noOfParents];
@@ -124,32 +118,34 @@ public class Counts implements MultiArray {
 			for (int j = 0; j < this.noOfParents; ++j) {
 				DiscreteAttribute par = (DiscreteAttribute) deps[j].getParent();
 				vals[j] = (hasIndex[j] ?
-						par.getEntityAsInt(deps[j].getSingleParentEntityIndexed(i)) :
-						par.getEntityAsInt(deps[j].getSingleParentEntity(i)));
+						par.getEntityAsNormalisedInt(deps[j].getSingleParentEntityIndexed(i)) :
+						par.getEntityAsNormalisedInt(deps[j].getSingleParentEntity(i)));
 			}
-			vals[this.noOfParents] = ch.getEntityAsInt(i);
+			vals[this.noOfParents] = ch.getEntityAsNormalisedInt(i);
 			this.increment(vals);
 		}
 	}
 	
 	/**
 	 * Increments the counter at a certain configuration of child value and parent values.
+	 * The conversion to integers must comply the attributes' method <code>getEntityAsNormalisedInt()</code>.
 	 * @param values the parent values in the order returned by Dependencies (possibly none), then
 	 *        the child value.
 	 */
 	private void increment(int[] values) {
 		int idx = 0;
 		for (int i = 0; i < this.noOfParents; ++i) {
-			idx += (values[i] + this.offsets[i]) * this.lengthFactors[i];
+			idx += values[i] * this.lengthFactors[i];
 		}
 		++(this.summedCounts[idx]);
-		idx += (values[this.noOfParents] + this.offsets[this.noOfParents]) * this.lengthFactors[this.noOfParents];
+		idx += values[this.noOfParents] * this.lengthFactors[this.noOfParents];
 		++(this.counts[idx]);
 	}
 	
 	/**
 	 * Returns the count for a certain configuration of child value and parent values.
 	 * No bounds checking.
+	 * The conversion to integers must comply the attributes' method <code>getEntityAsNormalisedInt()</code>.
 	 * @param parentVal the parent values in the order returned by Dependencies, possibly empty,
 	 *        but not null.
 	 * @param childVal the child value.
@@ -158,15 +154,16 @@ public class Counts implements MultiArray {
 	public int get(int[] parentVal, int childVal) {
 		int idx = 0;
 		for (int i = 0; i < this.noOfParents; ++i) {
-			idx += (parentVal[i] + this.offsets[i]) * this.lengthFactors[i];
+			idx += parentVal[i] * this.lengthFactors[i];
 		}
-		idx += (childVal + this.offsets[this.noOfParents]) * this.lengthFactors[this.noOfParents];
+		idx += childVal * this.lengthFactors[this.noOfParents];
 		return this.counts[idx];
 	}
 	
 	/**
 	 * Returns the count for a certain configuration of parent values and child value.
 	 * No bounds checking.
+	 * The conversion to integers must comply the attributes' method <code>getEntityAsNormalisedInt()</code>.
 	 * @param values the the parent values in the order returned by Dependencies (possibly none), then
 	 *        the child value. 
 	 * @return the count.
@@ -174,7 +171,7 @@ public class Counts implements MultiArray {
 	public int get(int[] values) {
 		int idx = 0;
 		for (int i = 0; i <= this.noOfParents; ++i) {
-			idx += (values[i] + this.offsets[i]) * this.lengthFactors[i];
+			idx += values[i] * this.lengthFactors[i];
 		}
 		return this.counts[idx];
 	}
@@ -182,6 +179,7 @@ public class Counts implements MultiArray {
 	/**
 	 * Returns the count for a certain configuration of parent values (summed over possible child values).
 	 * No bounds checking, implying that if no parents exist, an IndexOutOfBoundsException will be thrown.
+	 * The conversion to integers must comply the attributes' method <code>getEntityAsNormalisedInt()</code>.
 	 * @param values the parent values in the order returned by Dependencies. A child value may be appended at the
 	 *        end, but will be discarded.
 	 * @return the count.
@@ -189,7 +187,7 @@ public class Counts implements MultiArray {
 	public int getSum(int[] values) {
 		int idx = 0;
 		for (int i = 0; i < this.noOfParents; ++i) {
-			idx += (values[i] + this.offsets[i]) * this.lengthFactors[i];
+			idx += values[i] * this.lengthFactors[i];
 		}
 		return this.summedCounts[idx];
 	}

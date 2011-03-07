@@ -28,13 +28,13 @@ public class PRMClass {
 	private final String name;
 	
 	/** Registered relations emanating from this class, hashed by name. */
-	private final HashMap<String, Relation> relations;
+	private HashMap<String, Relation> relations;
 	
 	/** Fixed attributes hashed by name. */
-	private final HashMap<String, FixedAttribute> fixedAttributes;
+	private HashMap<String, FixedAttribute> fixedAttributes;
 	
 	/** Probabilistic attributes, hashed by name. */
-	private final HashMap<String, ProbAttribute> probAttributes;
+	private HashMap<String, ProbAttribute> probAttributes;
 	
 	/**
 	 * Constructor.

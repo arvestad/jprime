@@ -31,11 +31,11 @@ public class FixedAttribute implements Comparable<FixedAttribute> {
 	/** PRM class. */
 	private final PRMClass prmClass;
 	
-	/** Entities. */
-	private final ArrayList<String> entities;
-	
 	/** Full name kept for quick access. */
 	private final String fullName;
+	
+	/** Entities. */
+	private ArrayList<String> entities;
 	
 	/** Index from value to integer index. Not always used. */
 	private HashMap<String, Integer> index = null;

@@ -19,9 +19,9 @@ public class Structure implements Comparable<Structure> {
 	
 	/**
 	 * Dependencies of this structure, indexed by child attribute.
-	 * There is a container also for those elements which lack dependencies.
+	 * Attributes which lack dependencies also has a Dependencies object, albeit empty.
 	 */
-	private final HashMap<ProbAttribute, Dependencies> dependencies;
+	private HashMap<ProbAttribute, Dependencies> dependencies;
 	
 	/** Number of individual dependencies. */
 	private int noOfDependencies;
@@ -33,7 +33,13 @@ public class Structure implements Comparable<Structure> {
 	 * For quick access: all attributes which lack parents. No handling of
 	 * self-referencing PRM classes yet.
 	 */
-	private final TreeSet<ProbAttribute> sources;
+	private TreeSet<ProbAttribute> sources;
+	
+	/**
+	 * For quick access: all attributes which lack children. No handling of
+	 * self-referencing PRM classes yet.
+	 */
+	private TreeSet<ProbAttribute> sinks;
 	
 	/**
 	 * Constructor.
@@ -45,13 +51,15 @@ public class Structure implements Comparable<Structure> {
 		this.dependencies = new HashMap<ProbAttribute, Dependencies>(initCap);
 		this.noOfDependencies = 0;
 		this.sources = new TreeSet<ProbAttribute>();
+		this.sinks = new TreeSet<ProbAttribute>();
 		
 		// Create containers for all children.
-		// Initially, every attribute is a "source".
+		// Initially, every attribute is a "source" and "sink".
 		for (PRMClass c : skeleton.getPRMClasses()) {
 			for (ProbAttribute a : c.getProbAttributes()) {
 				this.dependencies.put(a, new Dependencies(a));
 				this.sources.add(a);
+				this.sinks.add(a);
 			}
 		}
 		this.updateName();
@@ -72,6 +80,7 @@ public class Structure implements Comparable<Structure> {
 		this.noOfDependencies = struct.noOfDependencies;
 		this.name = struct.name;
 		this.sources = new TreeSet<ProbAttribute>(struct.sources);
+		this.sinks = new TreeSet<ProbAttribute>(struct.sinks);
 	}
 	
 	/**
@@ -84,6 +93,7 @@ public class Structure implements Comparable<Structure> {
 		if (this.dependencies.get(child).put(dep)) {
 			++this.noOfDependencies;
 			this.sources.remove(child);
+			this.sinks.remove(dep.getParent());
 			this.updateName();
 		}
 	}
@@ -161,6 +171,20 @@ public class Structure implements Comparable<Structure> {
 		return this.dependencies.get(dep.getChild()).contains(dep);
 	}
 
+	/**
+	 * Returns true if the structure already contains the dependency,
+	 * or if it contains a dependency with the same parent and child.
+	 * @param dep the dependency.
+	 * @return true if an equal or parallel dependency already contained within; otherwise false.
+	 */
+	public boolean hasParallelDependency(Dependency dep) {
+		Dependencies deps = this.dependencies.get(dep.getChild());
+		for (Dependency d : deps.getAll()) {
+			if (d.getParent().equals(dep.getParent())) { return true; }
+		}
+		return false;
+	}
+	
 	@Override
 	public String toString() {
 		return this.name;

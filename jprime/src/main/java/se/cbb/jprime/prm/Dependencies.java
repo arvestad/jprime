@@ -1,6 +1,7 @@
 package se.cbb.jprime.prm;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,7 +22,10 @@ public class Dependencies implements Comparable<Dependencies> {
 	private final ProbAttribute child;
 	
 	/** Dependencies. */
-	private final TreeSet<Dependency> dependencies;
+	private TreeSet<Dependency> dependencies;
+	
+	/** The names of all contained attributes, separated by line breaks. Stored for quickness. */
+	private String name;
 	
 	/**
 	 * Constructor.
@@ -30,17 +34,18 @@ public class Dependencies implements Comparable<Dependencies> {
 	public Dependencies(ProbAttribute child) {
 		this.child = child;
 		this.dependencies = new TreeSet<Dependency>();
+		updateName();
 	}
 	
 	/**
 	 * Copy-constructor. The created instance will refer to the same
-	 * child and Dependency objects, although the latter should be
-	 * immutable.
+	 * child and Dependency objects.
 	 * @param deps the object to copy.
 	 */
 	public Dependencies(Dependencies deps) {
 		this.child = deps.child;
 		this.dependencies = new TreeSet<Dependency>(deps.dependencies);
+		this.name = deps.name;
 	}
 	
 	/**
@@ -54,7 +59,39 @@ public class Dependencies implements Comparable<Dependencies> {
 			throw new IllegalArgumentException("Cannot add dependency to collection" +
 					" due to incorrect child attribute.");
 		}
-		return this.dependencies.add(dep);
+		boolean newEl = this.dependencies.add(dep);
+		this.updateName();
+		return newEl;
+	}
+	
+	/**
+	 * Removes an element.
+	 * @param dep the element to remove.
+	 * @return true if the element was found; false otherwise.
+	 */
+	public boolean remove(Dependency dep) {
+		return this.dependencies.remove(dep);
+	}
+	
+	/**
+	 * Removes and returns the "first" element, or returns null if
+	 * no parents exist.
+	 * @param removeWithSameParent if true, polls the first element, but also
+	 *        removes all other dependencies sharing the polled elements parent.
+	 * @return the removed element.
+	 */
+	public Dependency pollFirst(boolean removeWithSameParent) {
+		Dependency dep = this.dependencies.pollFirst();
+		if (removeWithSameParent && dep != null) {
+			Iterator<Dependency> it = this.dependencies.iterator();
+			while (it.hasNext()) {
+				Dependency d = it.next();
+				if (d.getParent().equals(dep.getParent())) {
+					it.remove();
+				}
+			}
+		}
+		return dep;
 	}
 	
 	/**
@@ -133,31 +170,38 @@ public class Dependencies implements Comparable<Dependencies> {
 	}
 	
 	/**
-	 * Returns the names of all contained attributes, separated by line breaks.
-	 * @return the names of all contained dependencies.
+	 * Updates the name.
 	 */
-	public String getName() {
+	private void updateName() {
 		StringBuilder sb = new StringBuilder(this.dependencies.size() * 30);
 		sb.append(this.child.getFullName()).append("-dependencies:\n");
 		for (Dependency dep : this.dependencies) {
 			sb.append('\t').append(dep.getName()).append('\n');
 		}
-		return sb.toString();
+		this.name = sb.toString();
+	}
+	
+	/**
+	 * Returns the names of all contained attributes, separated by line breaks.
+	 * @return the names of all contained dependencies.
+	 */
+	public String getName() {
+		return this.name;
 	}
 	
 	@Override
 	public int compareTo(Dependencies o) {
-		return this.getName().compareTo(o.getName());
+		return this.name.compareTo(o.name);
 	}
 
 	@Override
 	public String toString() {
-		return this.getName();
+		return this.name;
 	}
 	
 	@Override
 	public int hashCode() {
-		return this.getName().hashCode();
+		return this.name.hashCode();
 	}
 
 	@Override
@@ -165,7 +209,7 @@ public class Dependencies implements Comparable<Dependencies> {
 		if (this == obj) { return true; }
 		if (obj == null) { return false; }
 		if (getClass() != obj.getClass()) { return false; }
-		return this.getName().equals(((Dependencies) obj).getName());
+		return this.name.equals(((Dependencies) obj).name);
 	}
 
 	/**

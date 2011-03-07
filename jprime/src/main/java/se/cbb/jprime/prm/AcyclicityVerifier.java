@@ -10,8 +10,12 @@ package se.cbb.jprime.prm;
  *     This is the stricter of the two.</li>
  * <li>The structure itself is not acyclic, but the complete Bayesian network induced
  *     by the PRM entities are acyclic. This is weaker (and significantly tougher to verify),
- *     but may be desirable when modelling more complex PRMs. </li>
+ *     but may be desirable when modelling more complex PRMs.</li>
  * </ol>
+ * An aspect to note similar to acyclicity is the existence of "parallel arcs",
+ * that is, dependencies with the same parent and child but with different slot chains.
+ * Such are perfectly allowed, unless otherwise stated.
+ * <p/>
  * For more details, see section 4.1, <i>Learning Probabilistic Relational
  * Models, Friedman et al., 1999</i>.
  * 
@@ -32,7 +36,7 @@ public interface AcyclicityVerifier {
 	 * preconditioned on the structure being acyclic before the addition.
 	 * This corresponds to the stronger condition, see <code>isStructureAcyclic()</code>.
 	 * @param dep the dependency to be added. 
-	 * @param struct the existing structure. Assumed to be correct.
+	 * @param struct the existing structure. Assumed to be valid.
 	 * @throws DependencyException if dependency cannot be added.
 	 */
 	public void isStructureAcyclic(Dependency dep, Structure struct) throws DependencyException;
