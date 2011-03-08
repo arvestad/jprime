@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.TreeSet;
-
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
 import se.cbb.jprime.math.IntegerInterval;
@@ -182,6 +180,9 @@ public class SimpleMicroarrayPRM {
 //		System.out.println(this.structures.size());
 		
 		Structure struct = this.getTrueStructure();
+		for (Dependencies deps : struct.getDependencies()) {
+			DirichletCounts dc = new DirichletCounts(deps, 1.5);
+		}
 		ExtensiveCountsCache cache = new ExtensiveCountsCache(true);
 		HashMap<Dependencies, Counts> counts = cache.getCounts(struct);
 		
