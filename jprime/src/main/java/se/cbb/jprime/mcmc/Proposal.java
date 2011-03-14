@@ -14,7 +14,7 @@ public interface Proposal {
 	/**
 	 * Returns the probability density Q(x';x) for
 	 * obtaining the new value x' given the old value x.
-	 * May return null if Metropolis-Hastings not supported.
+	 * May return null if Metropolis-Hastings not applicable.
 	 * @return the "forward" probability density.
 	 */
 	public Probability getForwardProposalDensity();
@@ -22,7 +22,7 @@ public interface Proposal {
 	/**
 	 * Returns the probability density Q(x;x') for
 	 * obtaining the old value x given the new value x'.
-	 * May return null if Metropolis-Hastings not supported.
+	 * May return null if Metropolis-Hastings not applicable.
 	 * @return the "backward" probability density.
 	 */
 	public Probability getBackwardProposalDensity();
@@ -31,7 +31,7 @@ public interface Proposal {
 	 * Returns the ratio Q(x;x')/Q(x';x) for the old state x and the new state
 	 * x', i.e. the ratio between the "backward" and "forward" proposal densities
 	 * respectively.
-	 * May return null if Metropolis-Hastings not supported.
+	 * May return null if Metropolis-Hastings not applicable.
 	 * @return the ratio between the "backward" and "forward" proposal densities.
 	 */
 	public Probability getProposalDensityRatio();
