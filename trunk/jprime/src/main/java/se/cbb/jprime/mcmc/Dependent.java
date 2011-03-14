@@ -75,7 +75,9 @@ public interface Dependent {
 	
 	/**
 	 * Restores the cached state, e.g. when a proposed state
-	 * has been rejected.
+	 * has been rejected. Note that if the <code>willSample</code> flag is true, it may
+	 * be necessary to do additional preprocessing on the restored state (since it was
+	 * probably originates from an earlier non-sample iteration).
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
 	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
