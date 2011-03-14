@@ -117,7 +117,8 @@ public class DoubleParameter implements StateParameter {
 
 	@Override
 	public String getSampleValue() {
-		return ("" + this.value);
+		return (this.scale == null ? "" + this.value :
+			"" + this.scale.getUnscaled(this.value, this.scaleDep));
 	}
 
 	@Override
@@ -127,7 +128,8 @@ public class DoubleParameter implements StateParameter {
 
 	@Override
 	public void appendSampleValue(StringBuilder sb) {
-		sb.append(this.value);
+		sb.append(this.scale == null ? "" + this.value :
+			"" + this.scale.getUnscaled(this.value, this.scaleDep));
 	}
 
 }
