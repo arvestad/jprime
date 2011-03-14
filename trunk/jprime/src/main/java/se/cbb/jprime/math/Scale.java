@@ -1,87 +1,99 @@
 package se.cbb.jprime.math;
 
 /**
- * Represents a scale factor k, e.g. for rescaling a phylogenetic tree's time span
- * from 450 MYA to 1 (in which case k = 1/450).
+ * Represents a scale factor k and offset m, e.g. for rescaling a phylogenetic tree's time span
+ * according to y = k*x+m.
+ * For example, it might be desirable to transform the original span 0-450 into 1-0, in which case 
+ * k = -1/450 and m = 1. 
+ * <p/>
+ * In addition, the class also provides convenience methods
+ * <code>scale()</code> and <code>unscale()</code> for parameters that rely on
+ * the scale instance in slightly different fashions. Thus, if computations are carried
+ * out in "scaled form", this class can help with "unscaling" them.
  * 
  * @author Joel Sjöstrand.
  */
 public class Scale {
 
 	/**
-	 * Defines the functional dependency of a non-rescaled parameter p' on its rescaled form p
-	 * and the scale factor k.
+	 * Defines common relationships between a scaled parameter y and its unscaled form
+	 * x when depending on scale factor k and offset m. LINEAR corresponds to the transformation
+	 * on which the Scale instance is defined.
 	 */
-	public enum ScaleDependency {
-		NONE,                   /** p' = p. */
-		LINEAR,                 /** p' = p * k. */
-		INVERSE_LINEAR,         /** p' = p * (1 / k). Most common case. */
-		SQUARED_LINEAR,         /** p' = p * k^2. */
-		INVERSE_SQUARED_LINEAR  /** p' = p * (1 / k)^2. E.g. for variance parameters v=sigma^2. */
+	public enum Dependency {
+		NONE,                /** y=x, i.e. x=y.*/
+		LINEAR,              /** y=k*x+m, i.e., x=(y-m)/k. */
+		COEFF,               /** y=k*x, i.e., x=y/k. */
+		ABS_COEFF,           /** y=abs(k)*x, i.e., x=y/abs(k). */
+		COEFF_SQUARED        /** y=k*k*x, i.e. x=y/k^2. */
 	}
 	
-	/** Original value. */
-	private double originalValue;
+	/** Scale factor. */
+	private double k;
 	
-	/** New value. */
-	private double newValue;
-	
-	/** New value divided by original value. */
-	private double scaleFactor;
+	/** Offset. */
+	private double m;
 	
 	/**
 	 * Constructor.
-	 * @param originalValue original value.
-	 * @param newValue new value.
+	 * @param k scale factor.
+	 * @param m offset.
 	 */
-	public Scale(double originalValue, double newValue) {
-		if (this.originalValue == 0.0) {
-			throw new IllegalArgumentException("Cannot rescale values based on original value equal to 0.");
+	public Scale(double k, double m) {
+		if (k == 0.0) {
+			throw new IllegalArgumentException("Cannot create scale factor with coefficient 0.");
 		}
-		this.originalValue = originalValue;
-		this.newValue = newValue;
-		this.scaleFactor = newValue / originalValue;
+		this.k = k;
+		this.m = m;
 	}
 	
 	/**
-	 * Returns the original value.
-	 * @return the value.
-	 */
-	public double getOriginalValue() {
-		return this.originalValue;
-	}
-
-	/**
-	 * Returns the new value.
-	 * @return the value.
-	 */
-	public double getNewValue() {
-		return this.newValue;
-	}
-
-	/**
-	 * Returns the new value divided by the original value.
+	 * Returns the scale factor k.
 	 * @return the scale factor.
 	 */
 	public double getScaleFactor() {
-		return this.scaleFactor;
+		return this.k;
+	}
+
+	/**
+	 * Returns the offset.
+	 * @return the offset.
+	 */
+	public double getOffset() {
+		return this.m;
 	}
 	
 	/**
-	 * Returns the unscaled form p' of a scaled parameter p based
-	 * on some common relationship to the scale factor.
-	 * @param p the rescaled parameter.
-	 * @param dep the known relationship between p and p'.
-	 * @return the unscaled parameter p'.
+	 * Transforms a parameter x into its scaled form y.
+	 * @param x the parameter.
+	 * @param dep the dependency of x on this scale instance.
+	 * @return the scaled value y.
 	 */
-	public double getUnscaled(double p, ScaleDependency dep) {
+	public double getScaled(double x, Dependency dep) {
 		switch (dep) {
-		case NONE: return p;
-		case LINEAR: return (p * this.scaleFactor);
-		case INVERSE_LINEAR: return (p / this.scaleFactor);
-		case SQUARED_LINEAR: return (p * this.scaleFactor * this.scaleFactor);
-		case INVERSE_SQUARED_LINEAR: return (p / (this.scaleFactor * this.scaleFactor));
-		default: throw new IllegalArgumentException("Cannot unscale parameter: unknown scale dependency type.");
+		case NONE: return x;
+		case LINEAR: return (this.k * x + m);
+		case COEFF: return (this.k * x);
+		case ABS_COEFF: return Math.abs(this.k) * x;
+		case COEFF_SQUARED: return (this.k * this.k * x);
+		default: throw new IllegalArgumentException("Cannot scale parameter: unknown scale dependency type.");
+		}
+	}
+	
+	/**
+	 * Un-transforms a parameter y into its original form x.
+	 * @param y the parameter.
+	 * @param dep the dependency of y on this scale instance.
+	 * @return the unscaled value x.
+	 */
+	public double getUnscaled(double y, Dependency dep) {
+		switch (dep) {
+		case NONE: return y;
+		case LINEAR: return ((y - m) / this.k);
+		case COEFF: return (y / this.k);
+		case ABS_COEFF: return (y / Math.abs(this.k));
+		case COEFF_SQUARED: return (y / (this.k * this.k));
+		default: throw new IllegalArgumentException("Cannot scale parameter: unknown scale dependency type.");
 		}
 	}
 
