@@ -31,8 +31,7 @@ public class DoubleMap implements AcyclicDigraphMap {
 	 * @param defaultVal default value for all elements.
 	 */
 	public DoubleMap(String name, int size, int defaultVal) {
-		this.name = name;
-		this.values = new double[size];
+		this(name, size);
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
 		}

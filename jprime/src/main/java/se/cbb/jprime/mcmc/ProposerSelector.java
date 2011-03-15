@@ -1,6 +1,7 @@
 package se.cbb.jprime.mcmc;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Interface for selecting one or more MCMC proposers for actual
@@ -16,8 +17,8 @@ public interface ProposerSelector {
 	 * decide whether they e.g. return only a single object or multiple
 	 * objects. Furthermore, the returned proposers must be guaranteed to
 	 * be acting on disjoint sets of state parameters.
-	 * @param proposers the list of proposers to choose among.
+	 * @param proposers the set of proposers to choose among.
 	 * @return a subset of proposers, no pairs acting on the same state parameter.
 	 */
-	public List<Proposer> selectProposersDisjointly(List<Proposer> proposers);
+	public Set<Proposer> selectProposersDisjointly(List<Proposer> proposers);
 }
