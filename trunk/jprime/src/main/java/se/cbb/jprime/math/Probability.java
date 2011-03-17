@@ -381,27 +381,6 @@ public final class Probability implements Comparable<Probability> {
 	}
 
 	/**
-	 * Returns the Probability as a string, most commonly in logged form. More
-	 * specifically, where p := log(abs(actual value)), the following is returned:
-	 * <ul>
-	 * <li>sign = 1: returns p.</li>
-	 * <li>sign = 0: returns -Double.MAX_VALUE.</li>
-	 * <li>sign = -1: returns "neg(p)".
-	 * </ul>
-	 * @see java.lang.Object#toString().
-	 * @return the Probability as a string.
-	 */
-	@Override
-	public String toString() {
-		switch (this.sign) {
-		case 1:  return ("" + this.p);
-		case 0:  return ("-" + Double.MAX_VALUE);
-		case -1: return ("neg(" + this.p + ")");
-		default: throw new ArithmeticException("Sign of Probability instance has illegal value.");
-		}
-	}
-	
-	/**
 	 * Helper. Adds a Probability to this object, sign issue assumed to be resolved already.
 	 * @param q Probability to add.
 	 */
@@ -417,7 +396,10 @@ public final class Probability implements Comparable<Probability> {
 		assert !Double.isInfinite(this.p);
 	}
 	
-	
+	/**
+	 * Helper. Subtracts a Probability from this object, sign issue assumed to be resolved already.
+	 * @param q Probability to subtract.
+	 */
 	public void subtract_(Probability q) {
 		// Joelgs: Don't know too much about this method with regards to performance
 		// or numeric considerations -- ported from PrIME.
@@ -433,6 +415,44 @@ public final class Probability implements Comparable<Probability> {
 		}
 		assert !Double.isNaN(this.p);
 		assert !Double.isInfinite(this.p);
+	}
+
+	/**
+	 * Returns the Probability as a string, most commonly in logged form. More
+	 * specifically, where p := log(abs(actual value)), the following is returned:
+	 * <ul>
+	 * <li>sign = 1: returns p.</li>
+	 * <li>sign = 0: returns -Double.MAX_VALUE.</li>
+	 * <li>sign = -1: returns "neg(p)".
+	 * </ul>
+	 * @see java.lang.Object#toString().
+	 * @return the Probability as a string.
+	 */
+	@Override
+	public String toString() {
+		switch (this.sign) {
+		case 1:  return Double.toString(this.p);
+		case 0:  return ('-' + Double.toString(Double.MAX_VALUE));
+		case -1: return ("neg(" + Double.toString(this.p) + ")");
+		default: throw new ArithmeticException("Sign of Probability instance has illegal value.");
+		}
+	}
+	
+	/**
+	 * Tries to parse a string, mirroring the behaviour of toString().
+	 * @param s the string.
+	 * @return the contained Probability.
+	 */
+	public static Probability parseProbability(String s) {
+		s = s.trim();
+		// TODO: Replace with regexps.
+		if (s.startsWith("neg(") && s.endsWith(")")) {
+			return new Probability(Double.parseDouble(s.substring(4, s.length() - 1)), -1);
+		}
+		if (s.startsWith("-") && Double.parseDouble(s.substring(1)) == Double.MAX_VALUE) {
+			return new Probability();
+		}
+		return new Probability(Double.parseDouble(s), 1);
 	}
 
 	
