@@ -9,7 +9,7 @@ import java.util.LinkedList;
  * 
  * @author Joel Sjöstrand.
  */
-public class Iteration {
+public class Iteration implements Sampleable {
 
 	/** The total number of iterations, start iteration 0 excluded. */
 	private int totalNoOfIterations;
@@ -114,6 +114,31 @@ public class Iteration {
 	 */
 	public boolean canIncrement() {
 		return (this.currentIteration < this.totalNoOfIterations);
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		return new SampleInteger();
+	}
+
+	@Override
+	public String getSampleHeader() {
+		return "Iteration";
+	}
+
+	@Override
+	public String getSampleValue() {
+		return SampleInteger.toString(this.currentIteration);
+	}
+
+	@Override
+	public void appendSampleHeader(StringBuilder sb) {
+		sb.append(SampleInteger.toString(this.currentIteration));
+	}
+
+	@Override
+	public void appendSampleValue(StringBuilder sb) {
+		sb.append(SampleInteger.toString(this.currentIteration));
 	}
 }
 

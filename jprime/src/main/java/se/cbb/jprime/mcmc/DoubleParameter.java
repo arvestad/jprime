@@ -63,12 +63,12 @@ public class DoubleParameter implements StateParameter {
 	}
 
 	@Override
-	public void addDependent(Dependent dep) {
+	public void addChildDependent(Dependent dep) {
 		this.dependents.add(dep);
 	}
 
 	@Override
-	public List<Dependent> getDependents() {
+	public List<Dependent> getChildDependents() {
 		return this.dependents;
 	}
 
@@ -117,8 +117,8 @@ public class DoubleParameter implements StateParameter {
 
 	@Override
 	public String getSampleValue() {
-		return (this.scale == null ? "" + this.value :
-			"" + this.scale.getUnscaled(this.value, this.scaleDep));
+		return (this.scale == null ? SampleDouble.toString(this.value) :
+			SampleDouble.toString(this.scale.getUnscaled(this.value, this.scaleDep)));
 	}
 
 	@Override
@@ -128,8 +128,23 @@ public class DoubleParameter implements StateParameter {
 
 	@Override
 	public void appendSampleValue(StringBuilder sb) {
-		sb.append(this.scale == null ? "" + this.value :
-			"" + this.scale.getUnscaled(this.value, this.scaleDep));
+		sb.append(this.scale == null ? SampleDouble.toString(this.value) :
+			SampleDouble.toString(this.scale.getUnscaled(this.value, this.scaleDep)));
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		return new SampleDouble();
+	}
+
+	@Override
+	public boolean isSource() {
+		return true;
+	}
+
+	@Override
+	public List<Dependent> getParentDependents() {
+		return null;
 	}
 
 }

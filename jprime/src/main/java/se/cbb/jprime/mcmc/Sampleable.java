@@ -9,7 +9,13 @@ package se.cbb.jprime.mcmc;
 public interface Sampleable {
 
 	/**
-	 * Returns this object's name or similarly.
+	 * Returns the sample type, e.g. 'LogDouble'.
+	 * @return the sample type.
+	 */
+	public SampleType getSampleType();
+	
+	/**
+	 * Returns this object's name or some similar ID.
 	 * @return the identifier.
 	 */
 	public String getSampleHeader();
