@@ -40,12 +40,12 @@ public class BooleanParameter implements StateParameter {
 	}
 
 	@Override
-	public void addDependent(Dependent dep) {
+	public void addChildDependent(Dependent dep) {
 		this.dependents.add(dep);
 	}
 
 	@Override
-	public List<Dependent> getDependents() {
+	public List<Dependent> getChildDependents() {
 		return this.dependents;
 	}
 
@@ -94,7 +94,7 @@ public class BooleanParameter implements StateParameter {
 
 	@Override
 	public String getSampleValue() {
-		return ("" + this.value);
+		return SampleBoolean.toString(this.value);
 	}
 
 	@Override
@@ -104,7 +104,22 @@ public class BooleanParameter implements StateParameter {
 
 	@Override
 	public void appendSampleValue(StringBuilder sb) {
-		sb.append(this.value);
+		sb.append(SampleBoolean.toString(this.value));
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		return new SampleBoolean();
+	}
+
+	@Override
+	public boolean isSource() {
+		return true;
+	}
+
+	@Override
+	public List<Dependent> getParentDependents() {
+		return null;
 	}
 
 }

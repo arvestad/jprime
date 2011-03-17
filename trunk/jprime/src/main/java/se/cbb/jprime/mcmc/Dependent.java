@@ -32,25 +32,41 @@ import java.util.List;
 public interface Dependent {
 
 	/**
+	 * Returns true if this instance is a source in the DAG, i.e.
+	 * is not dependent.
+	 * @return true if source; false if it depends on others.
+	 */
+	public boolean isSource();
+	
+	/**
 	 * Returns true if this instance is a sink in the DAG, i.e.
 	 * has no dependents.
-	 * @return true if source; false if it depends on others.
+	 * @return true if sink; false if others rely on it.
 	 */
 	public boolean isSink();
 	
 	/**
-	 * Adds a dependent that relies on this object, i.e. a children
+	 * Adds a dependent that relies on this object, i.e. a child
 	 * of this vertex in the corresponding DAG.
 	 * @param dep the dependent.
 	 */
-	public void addDependent(Dependent dep);
+	public void addChildDependent(Dependent dep);
 	
 	/**
 	 * Returns all dependents which rely on this object, i.e. the
 	 * children of this vertex in the corresponding DAG.
+	 * May yield null if sink.
 	 * @return all dependents.
 	 */
-	public List<Dependent> getDependents();
+	public List<Dependent> getChildDependents();
+	
+	/**
+	 * Returns all dependents which this object relies on, i.e. the
+	 * parents of this vertex in the corresponding DAG. May yield null
+	 * if source.
+	 * @return all dependents.
+	 */
+	public List<Dependent> getParentDependents();
 	
 	/**
 	 * Stores the current state e.g. prior to a perturbation.
