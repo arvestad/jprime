@@ -9,33 +9,24 @@ package se.cbb.jprime.mcmc;
 public interface Sampleable {
 
 	/**
-	 * Returns the sample type, e.g. 'LogDouble'.
+	 * Returns the sample type.
+	 * Must not return null.
 	 * @return the sample type.
 	 */
 	public SampleType getSampleType();
 	
 	/**
 	 * Returns this object's name or some similar ID.
+	 * Must not return null.
 	 * @return the identifier.
 	 */
 	public String getSampleHeader();
 	
 	/**
 	 * Returns this object's current value as a string.
+	 * Must not return null.
 	 * @return the value.
 	 */
 	public String getSampleValue();
-	
-	/**
-	 * Appends this object's name or similarly.
-	 * @param sb the buffer to append to.
-	 */
-	public void appendSampleHeader(StringBuilder sb);
-	
-	/**
-	 * Appends this object's current value as a string.
-	 * @param sb the buffer to append to.
-	 */
-	public void appendSampleValue(StringBuilder sb);
 	
 }

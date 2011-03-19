@@ -122,17 +122,6 @@ public class DoubleParameter implements StateParameter {
 	}
 
 	@Override
-	public void appendSampleHeader(StringBuilder sb) {
-		sb.append(this.name);
-	}
-
-	@Override
-	public void appendSampleValue(StringBuilder sb) {
-		sb.append(this.scale == null ? SampleDouble.toString(this.value) :
-			SampleDouble.toString(this.scale.getUnscaled(this.value, this.scaleDep)));
-	}
-
-	@Override
 	public SampleType getSampleType() {
 		return new SampleDouble();
 	}
