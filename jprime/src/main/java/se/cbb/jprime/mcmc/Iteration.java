@@ -130,15 +130,6 @@ public class Iteration implements Sampleable {
 	public String getSampleValue() {
 		return SampleInteger.toString(this.currentIteration);
 	}
-
-	@Override
-	public void appendSampleHeader(StringBuilder sb) {
-		sb.append(SampleInteger.toString(this.currentIteration));
-	}
-
-	@Override
-	public void appendSampleValue(StringBuilder sb) {
-		sb.append(SampleInteger.toString(this.currentIteration));
-	}
+	
 }
 

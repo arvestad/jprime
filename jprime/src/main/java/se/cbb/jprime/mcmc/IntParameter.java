@@ -98,16 +98,6 @@ public class IntParameter implements StateParameter {
 	}
 
 	@Override
-	public void appendSampleHeader(StringBuilder sb) {
-		sb.append(this.name);
-	}
-
-	@Override
-	public void appendSampleValue(StringBuilder sb) {
-		sb.append(SampleInteger.toString(this.value));
-	}
-
-	@Override
 	public SampleType getSampleType() {
 		return new SampleInteger();
 	}
