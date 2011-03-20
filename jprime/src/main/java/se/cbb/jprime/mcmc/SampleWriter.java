@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+
 /**
  * Ordinary MCMC sampler for sampling to a character output stream.
  * Can output to standard out or to a file. Buffers output, although the
@@ -14,26 +15,31 @@ import java.util.List;
  * <p/>
  * The user may change the default delimiter (tab) with <code>setDelim(...)</code>.
  * Also, it is possible, e.g. by invoking <code>setConcise("-")</code>, to let the parts of a
- * sample which has not changed from its previous state to be output as -:
+ * sample which has not changed from its previous state to be output as a dash:
  * <pre>
  * (a,(b,c))	4	0.345
  * -		3	0.213
  * -		4	0.743
  * ((a,b),c)	-	0.621
+ * ...
  * </pre>
- * This may reduce file size when there are highly concentrated discrete parameters.
+ * This may reduce file size when there are discrete parameters concentrated on
+ * a small number of values.
  * 
  * @author Joel Sjöstrand.
  */
 public class SampleWriter implements Sampler {
 
 	/** Default delimiter. */
-	public static String DEFAULT_DELIM = "\t";
+	public static final String DEFAULT_DELIM = "\t";
+	
+	/** Default output stream buffer size. */
+	public static final int DEFAULT_BUFFER_SIZE = 131072;
 	
 	/** The objects to sample from (processed in list order). */
 	private List<Sampleable> sampleables;
 	
-	/** Outstream. */
+	/** Output stream. */
 	private BufferedWriter out;
 	
 	/** If true, flushes buffer immediately after sample. */
@@ -70,13 +76,13 @@ public class SampleWriter implements Sampler {
 	}
 	
 	/**
-	 * Constructor. Uses the default buffer size and encoding.
+	 * Constructor. Uses the default encoding and a fairly high default buffer size.
 	 * @param sampleables the "sampleables".
 	 * @param f the file to write to.
 	 * @throws IOException if output stream cannot be connected to f.
 	 */
 	public SampleWriter(List<Sampleable> sampleables, File f) throws IOException {
-		this(sampleables, new BufferedWriter(new FileWriter(f)));
+		this(sampleables, new BufferedWriter(new FileWriter(f), DEFAULT_BUFFER_SIZE));
 	}
 	
 	/**
