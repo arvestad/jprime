@@ -13,9 +13,10 @@ package se.cbb.jprime.mcmc;
  * <li>an acyclic digraph (DAG) of dependencies D1,...,Dm of the state parameters. These typically constitute
  *     of the state parameters S1,...,Sk as sources, the sub-models M1,...,Mn as sinks, and possibly cached
  *     data structures in between.</li>
- * 
+ * <li>a list of "sampleable" objects to sample from, C1,...,Cv. These are usually comprised
+ * of the state parameters S1,...,Sk.
  * </ul>
- * Apart from this, this class has:
+ * Apart from this, the class has:
  * <ul>
  * <li>an iterator object I.</li>
  * <li>a thinner object T which dictates how often samples are drawn for output.</li>
@@ -27,9 +28,9 @@ package se.cbb.jprime.mcmc;
  * <li>I is incremented.</li>
  * <li>Listeners of I are implicitly updated.</li>
  * <li>L is used to select a (possibly singleton) set Pa1,...,Paq so that the state parameters
- *     Sb1,...,Sbr perturbed by these only appear in one proposer.</li>
+ *     Sb1,...,Sbr perturbed by these only appear in one Paj.</li>
  * <li>The dependencies Dc1,...,Dcs induced by (and including) Sb1,...,Sbr are asked to cache.</li>
- * <li>Sb1,...,Sbr are perturbed by Pa1,...,Paq.</li>
+ * <li>Sb1,...,Sbr are perturbed by Pa1,...,Paq, and the proposal densities from/to the new state are noted.</li>
  * <li>Dc1,...,Dcs are asked to update in topological order.</li>
  * <li>The likelihood of the proposed state is collected from M1,...,Mn.</li>
  * <li>A is used to decide whether to accept or reject the new state:</li>
