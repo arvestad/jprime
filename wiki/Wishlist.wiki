@@ -8,7 +8,7 @@ Below is a list of features that should / has already been added with noteworthy
 || *Feature* ||  *Comment* || *Priority* ||
 || MPI parallelization  || Use of some Java port, which one? Probably good to wait until Java 7 has been out for a while. || Medium ||
 || XML input and output || JAXB for standard stuff. External library required for condensed XML? || In place (at least partly) ||
-|| Multicore parallelization || Hopefully in Java 7. || Low ||
+|| Multicore parallelization || Hopefully in Java 7. || Medium ||
 || Program manuals auto-generated from Javadoc ||  || Low ||
 || Unit testing framework || Now using JUnit. || In place ||
 || GCC option parsing || Now using JCommander. Not quite pure GNU style though. || In place  ||
