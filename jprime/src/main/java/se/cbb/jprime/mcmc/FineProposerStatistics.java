@@ -1,9 +1,14 @@
 package se.cbb.jprime.mcmc;
 
+import java.util.ArrayList;
+
 /**
  * Extends the proposer statistics by being able to track acceptance
  * ratios in more detail over time. This is done by dividing the
  * iteration span in a set of (approximately) equidistant "windows".
+ * <p/>
+ * In addition, it tracks the distribution of accepted/rejected proposals
+ * broken down on the number of perturbed parameters.
  * 
  * @author Joel Sjöstrand.
  */
@@ -17,7 +22,13 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	
 	/** The current window (i.e. "bucket"). */
 	protected int currentWindow;
+	
+	/** Number of accepted proposals per number of parameters. */
+	protected ArrayList<Integer> noOfAcceptedByNoOfParams;
 
+	/** Number of accepted proposals per number of parameters. */
+	protected ArrayList<Integer> noOfRejectedByNoOfParams;
+	
 	/**
 	 * Constructor.
 	 * @param iter the iteration to which the fine-grained acceptance ratio refers.
@@ -31,6 +42,8 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 		this.noOfAcceptedPerWindow = new int[noOfWindows];
 		this.noOfRejectedPerWindow = new int[noOfWindows];
 		this.currentWindow = 0;
+		this.noOfAcceptedByNoOfParams = new ArrayList<Integer>(8);
+		this.noOfRejectedByNoOfParams = new ArrayList<Integer>(8);
 		iter.addIterationListener(this);
 	}
 	
@@ -41,13 +54,21 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	}
 	
 	@Override
-	public void increment(boolean wasAccepted) {
-		super.increment(wasAccepted);
+	public void increment(boolean wasAccepted, Proposal proposal) {
+		super.increment(wasAccepted, proposal);
+		ArrayList<Integer> al;
 		if (wasAccepted) {
 			this.noOfAcceptedPerWindow[this.currentWindow]++;
+			al = this.noOfAcceptedByNoOfParams;
 		} else {
 			this.noOfRejectedPerWindow[this.currentWindow]++;
+			al = this.noOfRejectedByNoOfParams;
 		}
+		int noOfParams = proposal.getNoOfParameters();
+		while (noOfParams >= al.size()) {
+			al.add(new Integer(0));
+		}
+		al.set(noOfParams, al.get(noOfParams));
 	}
 	
 	/**
@@ -67,5 +88,41 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	public double getAcceptanceRatio(int window) {
 		return (this.noOfAcceptedPerWindow[window] / (double) (this.noOfAcceptedPerWindow[window] +
 				this.noOfRejectedPerWindow[window]));
+	}
+	
+	/**
+	 * Returns the number of accepted proposals for a certain window.
+	 * @param window the window.
+	 * @return the number of accepted proposals.
+	 */
+	public int getNoOfAcceptedProposals(int window) {
+		return this.noOfAcceptedPerWindow[window];
+	}
+	
+	/**
+	 * Returns the number of rejected proposals for a certain window.
+	 * @param window the window.
+	 * @return the number of rejected proposals.
+	 */
+	public int getNoOfRejectedProposals(int window) {
+		return this.noOfRejectedPerWindow[window];
+	}
+	
+	/**
+	 * Returns a list of the number of accepted proposals indexed by the number
+	 * of perturbed parameters.
+	 * @return the number of proposals.
+	 */
+	public ArrayList<Integer> getNoOfAcceptedProposalsByNoOfParams() {
+		return this.noOfAcceptedByNoOfParams;
+	}
+	
+	/**
+	 * Returns a list of the number of rejected proposals indexed by the number
+	 * of perturbed parameters.
+	 * @return the number of proposals.
+	 */
+	public ArrayList<Integer> getNoOfRejectedProposalsByNoOfParams() {
+		return this.noOfRejectedByNoOfParams;
 	}
 }

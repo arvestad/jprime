@@ -1,6 +1,6 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Interface for objects perturbing the values of one or more
@@ -20,10 +20,12 @@ import java.util.List;
 public interface Proposer {
 
 	/**
-	 * Returns the parameters perturbed by this object.
+	 * Returns all parameters which can be perturbed by this object.
+	 * It is not required that all these are always perturbed
+	 * simultaneously, nor is it prohibited.
 	 * @return the parameters.
 	 */
-	public List<StateParameter> getParameters();
+	public Set<StateParameter> getParameters();
 	
 	/**
 	 * Returns the number of parameters.
