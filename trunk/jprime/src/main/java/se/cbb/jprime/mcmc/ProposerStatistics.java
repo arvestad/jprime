@@ -62,8 +62,9 @@ public class ProposerStatistics {
 	/**
 	 * Adds a proposal outcome.
 	 * @param wasAccepted true is new state was accepted; false if rejected.
+	 * @param proposal the state change.
 	 */
-	public void increment(boolean wasAccepted) {
+	public void increment(boolean wasAccepted, Proposal proposal) {
 		if (wasAccepted) {
 			this.noOfAccepted++;
 		} else {
