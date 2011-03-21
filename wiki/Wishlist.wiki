@@ -17,3 +17,4 @@ Below is a list of features that should / has already been added with noteworthy
 || Bug-tracking || Now using issue tracking within Google Code. || In place ||
 || Profiling tool ||  Not of major importance for now. || Low ||
 || Numeric methods package. || EJML seems like a good alternative. See also e.g. http://code.google.com/p/java-matrix-benchmark/, or http://ojalgo.org/matrix%5Fcompare.html, or http://stackoverflow.com/questions/529457/performance-of-java-matrix-math-libraries. || Medium ||
+|| Support for TeX in Javadoc || || Low ||
