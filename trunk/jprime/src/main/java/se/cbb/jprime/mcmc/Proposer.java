@@ -1,10 +1,12 @@
 package se.cbb.jprime.mcmc;
 
+import java.util.List;
 import java.util.Set;
 
 /**
  * Interface for objects perturbing the values of one or more
- * <code>StateParameter</code> objects, e.g. MCMC parameters.
+ * <code>StateParameter</code> objects, e.g. MCMC parameters. Some other softwares use
+ * the term <i>operator</i> instead.
  * Each <code>Proposer</code> is also associated with:
  * <ul>
  * <li>a <code>ProposerWeight</code> which dictates how often it will in
@@ -12,6 +14,8 @@ import java.util.Set;
  * <li>a <code>ProposerStatistics</code> which keeps track of how the often proposed states
  *     have been accepted or rejected (possibly including more detailed info like acceptance ratio
  *     changes over time).</li>
+ * <li>a set of <code>TuningParameter</code> objects, possibly empty, which typically governs the
+ *     "size" of state changes suggested. These parameters may also change over time.</li>
  * </ul>
  * Generally, state parameters are assumed to themselves take care of caching and similarly.
  * 
@@ -62,15 +66,16 @@ public interface Proposer {
 	public ProposerStatistics getStatistics();
 	
 	/**
+	 * Returns all tuning parameters for this object.
+	 * May return null.
+	 * @return the tuning parameters.
+	 */
+	public List<TuningParameter> getTuningParameters();
+	
+	/**
 	 * Executes an actual perturbation of the parameter / parameters.
 	 * @return an object detailing the proposal.
 	 */
 	public Proposal propose();
-	
-	/**
-	 * Notifies this object of whether the last proposal was accepted or rejected.
-	 * @param wasAccepted true if accepted; false if rejected.
-	 */
-	public void setOutcome(boolean wasAccepted);
 	
 }
