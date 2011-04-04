@@ -10,8 +10,8 @@ import java.util.List;
 
 /**
  * Ordinary MCMC sampler for sampling to a character output stream.
- * Can output to standard out or to a file. Buffers output, although the
- * buffer is flushed continuously in the standard out case.
+ * Can output to stdout or to a file. Buffers output, although the
+ * buffer is flushed continuously in the stdout case.
  * <p/>
  * The user may change the default delimiter (tab) with <code>setDelim(...)</code>.
  * Also, it is possible, e.g. by invoking <code>setConcise("-")</code>, to let the parts of a
@@ -36,9 +36,6 @@ public class SampleWriter implements Sampler {
 	/** Default output stream buffer size. */
 	public static final int DEFAULT_BUFFER_SIZE = 131072;
 	
-	/** The objects to sample from (processed in list order). */
-	private List<Sampleable> sampleables;
-	
 	/** Output stream. */
 	private BufferedWriter out;
 	
@@ -56,54 +53,38 @@ public class SampleWriter implements Sampler {
 	
 	/**
 	 * Constructor. Samples to standard out, flushing buffer after each line.
-	 * @param sampleables the "sampleables".
 	 */
-	public SampleWriter(List<Sampleable> sampleables) {
-		this.sampleables = sampleables;
+	public SampleWriter() {
 		this.out = new BufferedWriter(new OutputStreamWriter(System.out));
 		this.flushAfterSampling = true;
 	}
 	
 	/**
 	 * Constructor.
-	 * @param sampleables the "sampleables".
 	 * @param out stream to sample to.
 	 */
-	public SampleWriter(List<Sampleable> sampleables, BufferedWriter out) {
-		this.sampleables = sampleables;
+	public SampleWriter(BufferedWriter out) {
 		this.out = out;
 		this.flushAfterSampling = false;
 	}
 	
 	/**
 	 * Constructor. Uses the default encoding and a fairly high default buffer size.
-	 * @param sampleables the "sampleables".
 	 * @param f the file to write to.
 	 * @throws IOException if output stream cannot be connected to f.
 	 */
-	public SampleWriter(List<Sampleable> sampleables, File f) throws IOException {
-		this(sampleables, new BufferedWriter(new FileWriter(f), DEFAULT_BUFFER_SIZE));
+	public SampleWriter(File f) throws IOException {
+		this(new BufferedWriter(new FileWriter(f), DEFAULT_BUFFER_SIZE));
 	}
 	
 	/**
 	 * Constructor. Uses the desired buffer size.
-	 * @param sampleables the "sampleables".
 	 * @param f the file to write to.
 	 * @param bufferSz the buffer size.
 	 * @throws IOException if output stream cannot be connected to f.
 	 */
-	public SampleWriter(List<Sampleable> sampleables, File f, int bufferSz) throws IOException {
-		this(sampleables, new BufferedWriter(new FileWriter(f), bufferSz));
-	}
-	
-	@Override
-	public void setSampleables(List<Sampleable> sampleables) {
-		this.sampleables = sampleables;
-	}
-
-	@Override
-	public List<Sampleable> getSampleables() {
-		return this.sampleables;
+	public SampleWriter(File f, int bufferSz) throws IOException {
+		this(new BufferedWriter(new FileWriter(f), bufferSz));
 	}
 
 	/**
@@ -133,7 +114,7 @@ public class SampleWriter implements Sampler {
 	 */
 	public void setConcise(String symbol) {
 		this.conciseSymbol = symbol;
-		this.lastSample = (symbol == null ? null : new String[this.sampleables.size()]);
+		this.lastSample = null;
 	}
 	
 	/**
@@ -145,37 +126,42 @@ public class SampleWriter implements Sampler {
 	}
 	
 	@Override
-	public void writeSampleHeader() throws IOException {
-		int sz = this.sampleables.size();
+	public void writeSampleHeader(List<Sampleable> sampleables) throws IOException {
+		int sz = sampleables.size();
+		if (sz == 0) { return; }
 		for (int i = 0; i < sz - 1; ++i) {
-			this.out.write(this.sampleables.get(i).getSampleHeader());
+			this.out.write(sampleables.get(i).getSampleHeader());
 			this.out.write(this.delim);
 		}
-		this.out.write(this.sampleables.get(sz - 1).getSampleHeader());
+		this.out.write(sampleables.get(sz - 1).getSampleHeader());
 		this.out.newLine();
 	}
 	
 	@Override
-	public void writeSample() throws IOException {
-		if (this.sampleables.size() == 0) { return; }
+	public void writeSample(List<Sampleable> sampleables) throws IOException {
+		if (sampleables.size() == 0) { return; }
 		
 		// Retrieve all current parameters.
-		String[] sample = new String[this.sampleables.size()];
+		String[] sample = new String[sampleables.size()];
 		for (int i = 0; i < sample.length; ++i) {
-			sample[i] = this.sampleables.get(i).getSampleValue();
+			sample[i] = sampleables.get(i).getSampleValue();
 		}
 		
 		// If desired, exchange unchanged parameters for symbol.
 		if (this.conciseSymbol != null) {
-			for (int i = 0; i < sample.length; ++i) {
-				if (sample[i].equals(this.lastSample[i])) {
-					this.lastSample[i] = this.conciseSymbol;
-				} else {
-					this.lastSample[i] = sample[i];
-				}
-				String[] tmp = this.lastSample;
+			if (this.lastSample == null) {
 				this.lastSample = sample;
-				sample = tmp;
+			} else {
+				for (int i = 0; i < sample.length; ++i) {
+					if (sample[i].equals(this.lastSample[i])) {
+						this.lastSample[i] = this.conciseSymbol;
+					} else {
+						this.lastSample[i] = sample[i];
+					}
+					String[] tmp = this.lastSample;
+					this.lastSample = sample;    // lastSample now up-to-date and non-abbreviated.
+					sample = tmp;                // sample now abbreviated.
+				}
 			}
 		}
 		
@@ -190,6 +176,14 @@ public class SampleWriter implements Sampler {
 		if (this.flushAfterSampling) {
 			this.out.flush();
 		}
+	}
+	
+	/**
+	 * Closes the underlying output stream.
+	 * @throws IOException.
+	 */
+	public void close() throws IOException {
+		this.out.close();
 	}
 
 }

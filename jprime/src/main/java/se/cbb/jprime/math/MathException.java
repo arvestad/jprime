@@ -1,13 +1,13 @@
 package se.cbb.jprime.math;
 
 /**
- * General purpose exception class for probability-related issues such
+ * General purpose exception class for math-related issues such
  * as (unimplemented) computations lacking closed-form expressions, probabilities
  * having negative sign, etc.
  * 
  * @author Joel Sjöstrand.
  */
-public class ProbabilityException extends Exception {
+public class MathException extends Exception {
 
 	/** Auto-generated serial version UID. */
 	private static final long serialVersionUID = 1293552367073876537L;
@@ -16,7 +16,7 @@ public class ProbabilityException extends Exception {
 	 * Constructor.
 	 * @param msg error message. 
 	 */
-	public ProbabilityException(String msg) {
+	public MathException(String msg) {
 		super(msg);
 	}
 	
@@ -24,7 +24,7 @@ public class ProbabilityException extends Exception {
 	 * Constructor.
 	 * @param cause the underlying cause, e.g. another exception.
 	 */
-	public ProbabilityException(Throwable cause) {
+	public MathException(Throwable cause) {
 		super(cause);
 	}
 	
@@ -33,7 +33,7 @@ public class ProbabilityException extends Exception {
 	 * @param msg error message.
 	 * @param cause the underlying cause, e.g. another exception.
 	 */
-	public ProbabilityException(String msg, Throwable cause) {
+	public MathException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 }

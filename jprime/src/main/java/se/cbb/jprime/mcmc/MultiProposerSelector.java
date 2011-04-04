@@ -64,7 +64,7 @@ public class MultiProposerSelector implements ProposerSelector {
 	}
 	
 	@Override
-	public Set<Proposer> selectProposersDisjointly(List<Proposer> proposers) {
+	public Set<Proposer> getDisjointProposers(List<Proposer> proposers) {
 		if (proposers == null || proposers.isEmpty()) {
 			throw new IllegalArgumentException("Cannot select proposer from empty list.");
 		}

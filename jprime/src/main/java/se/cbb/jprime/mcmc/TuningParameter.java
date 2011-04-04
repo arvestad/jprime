@@ -9,12 +9,25 @@ package se.cbb.jprime.mcmc;
  * @author Joel Sjöstrand
  *
  */
-public interface TuningParameter {
+public interface TuningParameter extends MCMCSerializable {
 
 	/**
-	 * Returns this tuning parameter's name.
-	 * @return the name.
+	 * Returns the current value.
+	 * @return the value.
 	 */
-	public String getName();
+	public double getValue();
 	
+	/**
+	 * Returns the minimum value this tuning
+	 * parameter may return.
+	 * @return the minimum value.
+	 */
+	public double getMinValue();
+	
+	/**
+	 * Returns the maximum value this tuning
+	 * parameter may return.
+	 * @return the maximum value.
+	 */
+	public double getMaxValue();
 }

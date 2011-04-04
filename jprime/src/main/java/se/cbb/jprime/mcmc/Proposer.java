@@ -12,8 +12,7 @@ import java.util.Set;
  * <li>a <code>ProposerWeight</code> which dictates how often it will in
  *     fact be invoked to perform a perturbation (the weight may e.g. change over time).</li>
  * <li>a <code>ProposerStatistics</code> which keeps track of how the often proposed states
- *     have been accepted or rejected (possibly including more detailed info like acceptance ratio
- *     changes over time).</li>
+ *     have been accepted or rejected (possibly including more detailed info).</li>
  * <li>a set of <code>TuningParameter</code> objects, possibly empty, which typically governs the
  *     "size" of state changes suggested. These parameters may also change over time.</li>
  * </ul>
@@ -21,7 +20,7 @@ import java.util.Set;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Proposer {
+public interface Proposer extends MCMCSerializable {
 
 	/**
 	 * Returns all parameters which can be perturbed by this object.

@@ -12,7 +12,7 @@ package se.cbb.jprime.mcmc;
  *  
  * @author Joel Sjöstrand.
  */
-public interface StateParameter extends Dependent, Sampleable {
+public interface StateParameter extends Dependent, Sampleable, MCMCSerializable {
 
 	/**
 	 * Returns the name of the parameter.

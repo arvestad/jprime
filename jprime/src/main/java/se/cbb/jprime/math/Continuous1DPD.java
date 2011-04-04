@@ -33,7 +33,6 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	
 	/**
 	 * For specified values a<=b, returns the probability F(b)-F(a)=P(a<=X<=b).
-	 * Should a>b, F(a)-F(b) is returned instead.
 	 * @param a the smaller boundary.
 	 * @param b the larger boundary.
 	 * @return P(a<=X<=b).
@@ -43,38 +42,38 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	/**
 	 * Returns the mean, i.e. the expected value mu=E(X).
 	 * @return the mean.
-	 * @throws ProbabilityException if the value cannot be computed.
+	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getMean() throws ProbabilityException;
+	public double getMean() throws MathException;
 	
 	/**
 	 * Returns the median, i.e. the value m so that P(X<=m)=P(X>=m)=1/2.
 	 * @return the median.
-	 * @throws ProbabilityException if the value cannot be computed.
+	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getMedian() throws ProbabilityException;
+	public double getMedian() throws MathException;
 	
 	/**
 	 * Returns the standard deviation sigma=sqrt(E((X-E(X))^2)).
 	 * @return the standard deviation.
-	 * @throws ProbabilityException if the value cannot be computed.
+	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getStandardDeviation() throws ProbabilityException;
+	public double getStandardDeviation() throws MathException;
 	
 	/**
 	 * Returns the variance sigma^2=E((X-E(X))^2).
 	 * @return the variance.
-	 * @throws ProbabilityException if the value cannot be computed.
+	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getVariance() throws ProbabilityException;
+	public double getVariance() throws MathException;
 	
 	/**
 	 * Returns the coefficient of variation, i.e. c_v=sigma/mu, where sigma
 	 * is the standard deviation and mu the expected value.
 	 * @return the standard deviation.
-	 * @throws ProbabilityException if the value cannot be computed.
+	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getCV() throws ProbabilityException;
+	public double getCV() throws MathException;
 	
 	/**
 	 * Returns the domain interval.

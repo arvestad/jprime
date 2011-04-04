@@ -1,7 +1,8 @@
 package se.cbb.jprime.math;
 
 /**
- * Class for holding a floating point number in a logged form. As such, it enables higher precision than a regular
+ * Class for floating point numbers where the value is kept in log-form internally. 
+ * As such, it enables higher precision than a regular
  * double for e.g. very small probabilities 0 <= p << 1, although it can be used for negative numbers as well.
  * 
  * @author Bengt Sennblad.
@@ -89,7 +90,7 @@ public final class Probability implements Comparable<Probability> {
 	}
 	
 	/**
-	 * Returns the log-value, sign of actual value discarded. If the actual value == sign == 0,
+	 * Returns the log-value, sign of actual value discarded. If the actual value==sign==0,
 	 * the returned value may be anything.
 	 * @return the log-value.
 	 */
@@ -143,7 +144,7 @@ public final class Probability implements Comparable<Probability> {
 			this.sign = (this.sign == 0 ? q.sign : this.sign);
 			break;
 		case -1:
-			subtract_(q);
+			sub_(q);
 			break;
 		default:
 			throw new ArithmeticException("Sign of Probability instance has illegal value.");
@@ -159,20 +160,20 @@ public final class Probability implements Comparable<Probability> {
 	 * @param q the Probability to add.
 	 * @return a new Probability.
 	 */
-	public Probability addAsNew(Probability q) {
+	public Probability addToNew(Probability q) {
 		return (new Probability(this)).add(q);
 	}
 	
 	/**
 	 * Adds another Probability to this Probability. Does not yield a new instance; for that purpose,
-	 * see <code>subtractToNew()</code>.
+	 * see <code>subToNew()</code>.
 	 * @param q the Probability to subtract.
 	 * @return this Probability, not a new instance.
 	 */
-	public Probability subtract(Probability q) {
+	public Probability sub(Probability q) {
 		switch (this.sign * q.sign) {
 		case 1:
-			subtract_(q);
+			sub_(q);
 			break;
 		case 0:
 			this.p = (this.sign == 0 ? q.p : this.p);
@@ -192,21 +193,21 @@ public final class Probability implements Comparable<Probability> {
 	
 	/**
 	 * Produces a new Probability instance as this Probability minus another.
-	 * See also <code>subtract()</code>.
+	 * See also <code>sub()</code>.
 	 * @param q the Probability to subtract.
 	 * @return a new Probability.
 	 */
-	public Probability subtractAsNew(Probability q) {
-		return (new Probability(this)).subtract(q);
+	public Probability subToNew(Probability q) {
+		return (new Probability(this)).sub(q);
 	}
 	
 	/**
 	 * Multiplies this Probability with another Probability. Does not yield a new instance; for that purpose,
-	 * see the <code>multiplyToNew()</code> method.
+	 * see the <code>multToNew()</code> method.
 	 * @param q Probability to multiply with.
 	 * @return this Probability, not a new instance.
 	 */
-	public Probability multiply(Probability q) {
+	public Probability mult(Probability q) {
 		this.sign *= q.sign;
 		this.p = (this.sign == 0 ? 0.0 : this.p + q.p);
 		assert !Double.isNaN(this.p);
@@ -216,21 +217,21 @@ public final class Probability implements Comparable<Probability> {
 	
 	/**
 	 * Produces a new Probability instance as this Probability times another.
-	 * See also <code>multiply()</code>.
+	 * See also <code>mult()</code>.
 	 * @param q the Probability to multiply with.
 	 * @return a new Probability.
 	 */
-	public Probability multiplyAsNew(Probability q) {
-		return (new Probability(this)).multiply(q);
+	public Probability multToNew(Probability q) {
+		return (new Probability(this)).mult(q);
 	}
 
 	/**
 	 * Divides this Probability with another Probability. Does not yield a new instance; for that purpose,
-	 * see the <code>divideToNew()</code> method.
+	 * see the <code>divToNew()</code> method.
 	 * @param q Probability to divide with.
 	 * @return this Probability, not a new instance.
 	 */
-	public Probability divide(Probability q) {
+	public Probability div(Probability q) {
 		if (q.sign == 0) {
 			throw new ArithmeticException("Division by zero attempted in Probability.");
 		}
@@ -243,19 +244,19 @@ public final class Probability implements Comparable<Probability> {
 	
 	/**
 	 * Produces a new Probability instance as this Probability divided by another.
-	 * See also <code>divide()</code>.
+	 * See also <code>div()</code>.
 	 * @param q the Probability to divide by.
 	 * @return a new Probability.
 	 */
-	public Probability divideAsNew(Probability q) {
-		return (new Probability(this)).divide(q);
+	public Probability divToNew(Probability q) {
+		return (new Probability(this)).div(q);
 	}
 
 	/**
-	 * Changes the sign of this Probability.
+	 * Changes the sign of this Probability. See also <code>negToNew()</code>,
 	 * @return this Probability, not a new instance.
 	 */
-	public Probability negate() {
+	public Probability neg() {
 		this.sign = -this.sign;
 		assert !Double.isNaN(this.p);
 		assert !Double.isInfinite(this.p);
@@ -263,11 +264,130 @@ public final class Probability implements Comparable<Probability> {
 	}
 	
 	/**
-	 * Returns a new Probability equal to this but with opposite sign
+	 * Returns a new Probability equal to this but with opposite sign. See also
+	 * <code>neg()</code>.
 	 * @return a new Probability.
 	 */
-	public Probability negateAsNew() {
-		return (new Probability(this)).negate();
+	public Probability negToNew() {
+		return (new Probability(this)).neg();
+	}
+	
+	/**
+	 * Raises this Probability to a power. See also <code>powerToNew()</code>.
+	 * @param i the power.
+	 * @return this Probability, not a new instance.
+	 */
+	public Probability power(int i) {
+		if (this.sign == 1) {
+			this.p *= i;
+		} else if (this.sign == 0) {
+			if (i == 0) {
+				this.p = 0;
+				this.sign = 1;
+			}
+		} else if (i >= 0) {
+			this.p *= i;
+			this.sign = (i % 2 == 0 ? 1 : -1);
+		} else {
+			throw new ArithmeticException("Cannot raise negative Probability to negative integer power since " +
+					"complex number representation not supported.");
+		}
+		assert !Double.isNaN(this.p);
+		assert !Double.isInfinite(this.p);
+		return this;
+	}
+	
+	/**
+	 * Returns a new Probability equal to this raised to a power.
+	 * See also <code>pow()</code>.
+	 * @param i the power.
+	 * @return a new Probability.
+	 */
+	public Probability powToNew(int i) {
+		return (new Probability(this)).power(i);
+	}
+	
+	/**
+	 * Raises this Probability to a power. See also <code>powToNew()</code>.
+	 * @param d the power.
+	 * @return this Probability, not a new instance.
+	 */
+	public Probability pow(double d) {
+		if (this.sign == 1) {
+			this.p *= d;
+		} else if (this.sign == 0) {
+			if (d == 0.0) {
+				this.p = 0;
+				this.sign = 1;
+			}
+		} else {
+			throw new ArithmeticException("Cannot raise negative Probability to negative float power since" +
+					" complex number representation not supported (even if power is in fact an integer).");
+		}
+		assert !Double.isNaN(this.p);
+		assert !Double.isInfinite(this.p);
+		return this;
+	}
+	
+	/**
+	 * Returns a new Probability equal to this raised to a power.
+	 * See also <code>pow()</code>.
+	 * @param d the power.
+	 * @return a new Probability.
+	 */
+	public Probability powToNew(double d) {
+		return (new Probability(this)).pow(d);
+	}
+	
+	/**
+	 * Sets the value of this Probability to e^v where v is the old value.
+	 * See also <code>expToNew()</code>.
+	 * @return this Probability.
+	 */
+	public Probability exp() {
+		if (this.sign == 0) {
+			this.p = 0;
+			this.sign = 1;
+		} else {
+			this.p = this.getValue();
+			this.sign = 1;
+		}
+		assert !Double.isNaN(this.p);
+		assert !Double.isInfinite(this.p);
+		return this;
+	}
+	
+	/**
+	 * Returns a new probability with value e^v where v is the value of this Probability.
+	 * See also <code>exp()</code>.
+	 * @return a new Probability.
+	 */
+	public Probability expToNew() {
+		return (new Probability(this)).exp();
+	}
+	
+	/**
+	 * Sets the value of this Probability to ln(v) where v is the old value.
+	 * See also <code>logToNew()</code>.
+	 * @return this Probability.
+	 */
+	public Probability log() {
+		if (this.sign <= 0) {
+			throw new ArithmeticException("Cannot take the natural logarithm of a non-positive number.");
+		}
+		this.p = Math.log(this.p);
+		assert !Double.isNaN(this.p);
+		assert !Double.isInfinite(this.p);
+		return this;
+	}
+	
+	/**
+	 * Returns a new probability with value ln(v) where v is the value of this Probability.
+	 * See also <code>log()</code>.
+	 * @return a new Probability.
+	 */
+	public Probability logToNew() {
+		return (new Probability(this)).log();
 	}
 	
 	@Override
@@ -400,7 +520,7 @@ public final class Probability implements Comparable<Probability> {
 	 * Helper. Subtracts a Probability from this object, sign issue assumed to be resolved already.
 	 * @param q Probability to subtract.
 	 */
-	public void subtract_(Probability q) {
+	public void sub_(Probability q) {
 		// Joelgs: Don't know too much about this method with regards to performance
 		// or numeric considerations -- ported from PrIME.
 		// In particular, notice use of log1pl instead of log1p in original class...
@@ -454,227 +574,5 @@ public final class Probability implements Comparable<Probability> {
 		}
 		return new Probability(Double.parseDouble(s), 1);
 	}
-
-	
-//	class Probability;
-//	  // Forward declarations of friend functions
-//	     Probability pow(const Probability& p, const double& n); // Why refs?
-//	     Probability exp(const Probability& p);
-//	     Probability log(const Probability& p);
-//	     Probability probFact(unsigned u);
-//	     Probability probBinom(unsigned u1, unsigned u2);
-//
-//
-//
-//	  class Probability 
-//	  {
-//	  public:
-//
-//	    //---------------------------------------------------------------------
-//	    //
-//	    //Power and exp of a Probability and unary negation operator
-//	    //
-//	    //---------------------------------------------------------------------
-//	    //   friend Probability pow(const Probability& p, const unsigned& n);
-//	    //   friend Probability pow(const Probability& p, const int& n);
-//	    friend Probability pow(const Probability& p, const double& n); // Why refs?
-//	    friend Probability exp(const Probability& p);
-//	    friend Probability log(const Probability& p);
-//
-//	    //---------------------------------------------------------------------
-//	    //
-//	    //Factorial and binomial ("u1 choose u2") of sunsigneds  
-//	    //using logarithms - returniong Probabilities
-//	    //
-//	    //---------------------------------------------------------------------
-//	    friend Probability probFact(unsigned u);
-//	    friend Probability probBinom(unsigned u1, unsigned u2);
-//
-//	  public:
-//	    //---------------------------------------------------------------------
-//	    // mpi serialization functions
-//	    //---------------------------------------------------------------------
-//	    friend class boost::serialization::access; 
-//	  
-//	    template<class Archive> 
-//	    void serialize(Archive & ar, const unsigned int version)
-//	    {
-//	      ar & p;
-//	      ar & sign;
-//	    }
-//
-//	  private:
-//	    //----------------------------------------------------------------------
-//	    //
-//	    //Helper arithmetics finctions
-//	    //
-//	    //----------------------------------------------------------------------
-//	  
-//	    //Helper for addition and subtraction of two Probabilities
-//	    //---------------------------------------------------------------------
-//	    void add(const Probability& q);
-//	    void subtract(const Probability& q);
-//
-//
-
-	
-	
-	
-	////////////////////////////////////////////////////////////////
-	
-	
-//	  //---------------------------------------------------------------------
-//	  //
-//	  //Power and exp of a Probability and unary negation operator
-//	  //
-//	  //---------------------------------------------------------------------
-//	  // Probability 
-//	  // pow(const Probability& p, const unsigned& d)       
-//	  // { 
-//	  //   if(p.sign == 1)
-//	  //     {
-//	  //       Probability q(p);
-//	  //       q.p = d * p.p;
-//	  //       return q;
-//	  //     }
-//	  //   else if(p.sign == 0)
-//	  //     {
-//	  //       return p;
-//	  //     }
-//	  //   else
-//	  //     {				// What? Can (-0.4)^2.1 really be a complex number?
-//	  // 				// And what about (-0.4)^2 ?    /arve
-//	  //       throw AnError("Probability.pow(int d) with a negative Probability "
-//	  // 		    "may imply an imaginary number; this is not handled by "
-//	  // 		    "Probability (...yet)");
-//	  //     }
-//	  // };
-//	  // Probability 
-//	  // pow(const Probability& p, const int& d)       
-//	  // { 
-//	  //   if(p.sign == 1)
-//	  //     {
-//	  //       Probability q(p);
-//	  //       q.p = d * p.p;
-//	  //       return q;
-//	  //     }
-//	  //   else if(p.sign == 0)
-//	  //     {
-//	  //       return p;
-//	  //     }
-//	  //   else
-//	  //     {				// What? Can (-0.4)^2.1 really be a complex number?
-//	  // 				// And what about (-0.4)^2 ?    /arve
-//	  //       throw AnError("Probability.pow(int d) with a negative Probability "
-//	  // 		    "may imply an imaginary number; this is not handled by "
-//	  // 		    "Probability (...yet)");
-//	  //     }
-//	  // };
-//
-//	  Probability 
-//	  pow(const Probability& p, const double& d)       
-//	  { 
-//	    assert(isnan(d) == false);
-//	    assert(isnan(p.p) == false);
-//	    assert(isinf(d) == false);
-//	    assert(isinf(p.p) == false);
-//	    if(p.sign == 1)
-//	      {
-//		Probability q(p);
-//		q.p = d * p.p;
-//		return q;
-//	      }
-//	    else if(p.sign == 0)
-//	      {
-//		if(d == 0)
-//		  return 1.0;
-//		else
-//		  return p;
-//	      }
-//	    else
-//	      {
-//		throw AnError("Probability.pow(double d) with a negative Probability "
-//			      "may imply an imaginary number; this is not handled by "
-//			      "Probability (...yet)", 1);
-//	      }
-//	  };
-//
-//	  Probability 
-//	  exp(const Probability& p)         
-//	  { 
-//	    Probability q(1.0);
-//	    q.p = p.val();
-//	    assert(isnan(q.p) == false);
-//	    assert(isinf(q.p) == false);
-//	    return q;
-//	  };
-//
-//	  Probability 
-//	  log(const Probability& p)         
-//	  { 
-//	    if(p.sign <= 0)
-//	      {
-//		throw AnError("Can't log a negative number or zero\n", 1);
-//	      }
-//	    Probability q(p.p);
-//	    assert(isnan(q.p) == false);
-//	    assert(isinf(q.p) == false);
-//	    return q;
-//	  };
-//
-//	  //---------------------------------------------------------------------
-//	  //
-//	  //Factorial and binomial ("u1 choose u2") of sunsigneds  
-//	  //using logarithms - returning Probabilities
-//	  //
-//	  //---------------------------------------------------------------------
-//	  Probability
-//	  probFact(unsigned u)         
-//	  {
-//	    Probability q;
-//	    while(u > 0)
-//	      {	
-//		q.p = q.p + std::log((double)u);
-//		u--;
-//	      }
-//	    q.sign = 1;
-//	    assert(isnan(q.p) == false);
-//	    assert(isinf(q.p) == false);
-//	    return q;  
-//	  };
-//
-//	  Probability
-//	  probBinom(unsigned u1, unsigned u2)
-//	  {
-//	    if(u1 >= u2)
-//	      {
-//		Probability q = (probFact(u1) / (probFact(u2) * probFact(u1 - u2)));
-//		assert(isnan(q.p) == false);
-//		assert(isinf(q.p) == false);
-//		return q;
-//	      }
-//	    else
-//	      {
-//		std::cerr<< "******************** \n Incompatibel terms in binomial \n ******************+n";
-//		throw AnError("first term in binomial must not be less than second", 1);
-//	      }
-//	  }
-//
-//
-
-//
-//	//   //private:
-//	//   //---------------------------------------------------------------------
-//	//   // mpi serialization functions
-//	//   //---------------------------------------------------------------------
-//	//   template<class Archive> 
-//	//   void 
-//	//   Probability::serialize(Archive& ar, const unsigned int version) 
-//	//   {
-////	     ar & p;
-////	     ar & sign;
-//	//   }
-//
-//
 
 }

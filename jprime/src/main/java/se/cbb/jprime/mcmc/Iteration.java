@@ -4,12 +4,12 @@ import java.util.LinkedList;
 
 /**
  * Holds the current and total number of iterations k for e.g. an MCMC chain.
- * Iterations typically range between 0 and k, where 0 refers to a non-counted starting iteration.
+ * Iterations typically range between 0 and k, where 0 refers to a "non-counted" starting iteration.
  * Other objects may subscribe as listeners to increments of this object.
  * 
  * @author Joel Sjöstrand.
  */
-public class Iteration implements Sampleable {
+public class Iteration implements Sampleable, MCMCSerializable {
 
 	/** The total number of iterations, start iteration 0 excluded. */
 	private int totalNoOfIterations;
@@ -93,7 +93,8 @@ public class Iteration implements Sampleable {
 	 * Increments the current iteration. If this exceeds
 	 * the total number of iterations, nothing happens and false is returned.
 	 * Listeners are notified synchronously before a call is returned.
-	 * @return true if max number exceeded; false if max number reached before incrementing.
+	 * @return true if total number not reached before incrementing; false if total number reached
+	 *         before incrementing.
 	 */
 	public boolean increment() {
 		if (this.currentIteration >= this.totalNoOfIterations) {

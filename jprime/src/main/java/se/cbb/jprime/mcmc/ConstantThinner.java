@@ -18,6 +18,11 @@ public class ConstantThinner implements Thinner, IterationListener {
 	/** Flag for if sampling should occur or not. */
 	private boolean doSample;
 	
+	/**
+	 * Constructor.
+	 * @param iter the iteration on which sampling is based.
+	 * @param factor how often to sample, i.e. every factor-th iteration.
+	 */
 	public ConstantThinner(Iteration iter, int factor) {
 		if (factor <= 0) {
 			throw new IllegalArgumentException("Cannot sample using non-positive thinning factor.");

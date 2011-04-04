@@ -12,7 +12,7 @@ import se.cbb.jprime.math.Probability;
  * 
  * @author Joel Sjöstrand.
  */
-public interface ProposalAcceptor {
+public interface ProposalAcceptor extends MCMCSerializable {
 
 	/**
 	 * Returns true if a new state should be accepted.
