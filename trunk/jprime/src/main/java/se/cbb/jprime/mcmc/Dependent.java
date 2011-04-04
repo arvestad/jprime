@@ -84,6 +84,7 @@ public interface Dependent {
 	
 	/**
 	 * Clears the stored state, e.g. when a proposed state has been accepted.
+	 * Also clears the stored perturbation info, if any.
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
 	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
@@ -91,8 +92,10 @@ public interface Dependent {
 	
 	/**
 	 * Restores the cached state, e.g. when a proposed state
-	 * has been rejected. Note that if the <code>willSample</code> flag is true, it may
-	 * be necessary to do additional preprocessing on the restored state (since it was
+	 * has been rejected.
+	 * Also clears the stored perturbation info, if any.
+	 * Note that if the <code>willSample</code> flag is true, it may
+	 * be necessary to do additional pre-processing on the restored state (since it
 	 * probably originates from an earlier non-sample iteration).
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
 	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
@@ -102,15 +105,17 @@ public interface Dependent {
 	/**
 	 * If available, provides information on the current changes of
 	 * this object. This may be utilised by children to
-	 * perform optimised updates.
+	 * perform optimised updates. The info object is typically cleared on a call
+	 * to clearCache() or restoreCache().
 	 * @return info disclosing what has changed on this object.
 	 */
 	public PerturbationInfo getPerturbationInfo();
 	
 	/**
 	 * Sets perturbation info detailing what has changed in this object.
-	 * This may e.g. be utilised by a <code>Proposer</code> when it perturbs
-	 * a state parameter.
+	 * This may be set by a <code>Proposer</code> when it perturbs
+	 * a state parameter. The info object is typically cleared on a call
+	 * to clearCache() or restoreCache().
 	 * @param info the info detailing the change.
 	 */
 	public void setPerturbationInfo(PerturbationInfo info);

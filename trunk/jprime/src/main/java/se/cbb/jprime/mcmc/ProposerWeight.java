@@ -12,7 +12,7 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface ProposerWeight {
+public interface ProposerWeight extends MCMCSerializable {
 
 	/**
 	 * Returns the current weight of this object.

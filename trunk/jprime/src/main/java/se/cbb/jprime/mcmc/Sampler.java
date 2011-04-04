@@ -11,28 +11,18 @@ import java.util.List;
  * @author Joel Sjöstrand.
  */
 public interface Sampler {
-
-	/**
-	 * Sets the sampleables.
-	 * @param sampleables the "sampleable" objects.
-	 */
-	public void setSampleables(List<Sampleable> sampleables);
-	
-	/**
-	 * Returns the "sampleable" objects.
-	 * @return the "sampleables".
-	 */
-	public List<Sampleable> getSampleables();
 	
 	/**
 	 * Writes the sample header.
+	 * @param sampleables the objects to sample from (processed in list order).
 	 * @throws IOException.
 	 */
-	public void writeSampleHeader() throws IOException;
+	public void writeSampleHeader(List<Sampleable> sampleables) throws IOException;
 	
 	/**
 	 * Writes a sample of the current state.
+	 * @param sampleables the objects to sample from (processed in list order).
 	 * @throws IOException.
 	 */
-	public void writeSample() throws IOException;
+	public void writeSample(List<Sampleable> sampleables) throws IOException;
 }

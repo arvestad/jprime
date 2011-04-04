@@ -9,7 +9,7 @@ import java.util.Set;
  *  
  * @author Joel Sjöstrand.
  */
-public interface ProposerSelector {
+public interface ProposerSelector extends MCMCSerializable {
 
 	/**
 	 * Selects a subset of a list of proposers which can then be used
@@ -20,5 +20,5 @@ public interface ProposerSelector {
 	 * @param proposers the set of proposers to choose among.
 	 * @return a subset of proposers, no pairs acting on the same state parameter.
 	 */
-	public Set<Proposer> selectProposersDisjointly(List<Proposer> proposers);
+	public Set<Proposer> getDisjointProposers(List<Proposer> proposers);
 }
