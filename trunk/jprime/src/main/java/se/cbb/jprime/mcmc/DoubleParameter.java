@@ -10,7 +10,7 @@ import se.cbb.jprime.math.Scale;
  * 
  * @author Joel Sjöstrand.
  */
-public class DoubleParameter implements StateParameter {
+public class DoubleParameter implements RealParameter {
 
 	/** Name. */
 	private String name;
@@ -136,4 +136,31 @@ public class DoubleParameter implements StateParameter {
 		return null;
 	}
 
+	@Override
+	public double getValue(int idx) {
+		// No bounds checking for the sake of speed.
+		return this.value;
+	}
+
+	@Override
+	public void setValue(int idx, double value) {
+		// No bounds checking for the sake of speed.
+		this.value = value;
+	}
+	
+	/**
+	 * Returns this parameter's current value.
+	 * @return the value.
+	 */
+	public double getValue() {
+		return this.value;
+	}
+
+	/**
+	 * Sets this parameter's current value.
+	 * @param value the new value.
+	 */
+	public void setValue(double value) {
+		this.value = value;
+	}
 }

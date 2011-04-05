@@ -5,21 +5,26 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.math.NormalDistribution;
 import se.cbb.jprime.math.RealInterval;
 
 /**
  * Represents a normal proposal distribution, with the possibility of bounding the
- * domain to [A,B] and similarly. Thus, it perturbs a single real-valued state parameter by sampling from
- * a (possibly truncated) normal distribution with the mode at the current value v. The standard
- * deviation of the distribution is proportional to v*t where t is a user-defined
- * tuning parameter.
+ * domain to [A,B] and similarly. It perturbs real-valued state parameters; either singletons
+ * or arrays. In the latter case, the user can control how many sub-parameters should be affected.
+ * <p/>
+ * For each perturbed sub-parameter, the proposal distribution has its mode at the current value v,
+ * and a standard deviation proportional to v*t where t is a user-defined tuning parameter.
  * 
  * @author Joel Sjöstrand.
  */
 public class TruncatedNormalProposer implements Proposer {
 
+	/** N(1,1) distribution used for making all computations. */
+	private static final NormalDistribution N = new NormalDistribution(1.0, 1.0);
+	
 	/** Perturbed parameter. */
-	private StateParameter param;
+	private RealParameter param;
 	
 	/** Domain of parameter and proposal distribution. */
 	private RealInterval interval;
@@ -44,7 +49,7 @@ public class TruncatedNormalProposer implements Proposer {
 	 * @param weight proposer weight.
 	 * @param stats proposer statistics.
 	 */
-	public TruncatedNormalProposer(StateParameter param, RealInterval interval, TuningParameter tuner,
+	public TruncatedNormalProposer(RealParameter param, RealInterval interval, TuningParameter tuner,
 			ProposerWeight weight, ProposerStatistics stats) {
 		if (tuner.getMinValue() < 0) {
 			throw new IllegalArgumentException("Tuning parameter must not be negative.");
@@ -63,7 +68,7 @@ public class TruncatedNormalProposer implements Proposer {
 	 * @param weight proposer weight.
 	 * @param stats proposer statistics.
 	 */
-	public TruncatedNormalProposer(StateParameter param, TuningParameter tuner,
+	public TruncatedNormalProposer(RealParameter param, TuningParameter tuner,
 			ProposerWeight weight, ProposerStatistics stats) {
 		this(param, new RealInterval(), tuner, weight, stats);
 	}

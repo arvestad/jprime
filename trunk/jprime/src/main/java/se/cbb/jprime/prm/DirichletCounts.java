@@ -17,7 +17,7 @@ import java.util.Set;
  * The counts are maintained on a hash-basis internally, meaning that memory complexity is
  * O(k) where k is the number of actual value configurations, not possible configurations.
  * <p/>
- * Interestingly, the counts are held as floats, so that also soft completions for latent
+ * Interestingly, the counts are held as doubles, so that also soft completions for latent
  * attributes may be counted in a "weighted" manner.
  * 
  * @author Joel Sjöstrand.
@@ -58,7 +58,7 @@ public class DirichletCounts {
 		
 		/**
 		 * Copies an existing ConfigCount, but leaves its last configuration value out.
-		 * @param cc
+		 * @param cc object to copy, apart from last element.
 		 */
 		public ConfigCount(ConfigCount cc) {
 			this.config = new int[cc.config.length - 1];
