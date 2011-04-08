@@ -83,24 +83,16 @@ public final class Dependency implements Comparable<Dependency> {
 	/**
 	 * Follows an entity from child to parent, assuming that the
 	 * encountered relations will never yield more than one record in return.
-	 * @param idx the child attribute entity. See also <code>getSingleParentEntityIndexed()</code>.
 	 * @return the presumably single parent entity.
 	 */
 	public int getSingleParentEntity(int idx) {
+		if (this.hasIndex()) {
+			return this.index[idx];
+		}
 		for (Relation rel : this.slotChain) {
 			idx = rel.getIndex(idx);
 		}
 		return idx;
-	}
-	
-	/**
-	 * Follows an entity from child to parent assuming that an "index" (cache) has been
-	 * created. See <code>createIndex()</code>.
-	 * @param idx the child attribute entity.
-	 * @return the index of the presumably single parent entity.
-	 */
-	public int getSingleParentEntityIndexed(int idx) {
-		return (this.index[idx]);
 	}
 	
 	/**

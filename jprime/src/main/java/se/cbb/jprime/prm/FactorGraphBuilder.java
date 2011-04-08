@@ -1,12 +1,12 @@
 package se.cbb.jprime.prm;
 
 /**
- * Builds a Bayesian network from a "completed" PRM skeleton.
+ * Builds a factor graph from a "completed" PRM skeleton.
  * 
  * @author Joel Sjöstrand.
  */
-public class BNBuilder {
-
+public class FactorGraphBuilder {
+	
 	/* Algorithm:
 	 * 
 	 * V := empty set.

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * Given a PRM structure of only discrete probabilistic attributes, computes counts
+ * Given a PRM structure of only discrete probabilistic attributes, retrieves Dirichlet counts
  * for all dependencies. Maintains an extensive pool of all encountered dependencies,
  * so that non-latent ones may be retrieved rather than recounted.
  * <p/>
@@ -13,24 +13,31 @@ import java.util.HashSet;
  * 
  * @author Joel Sjöstrand.
  */
-public class ExtensiveCountsCache {
+public class ExtensiveDirichletCountsCache {
 
 	/** If true, performs indexing on all encountered dependencies. */
 	private boolean doIndexing;
+	
+	/** Dirichlet parameter used for all parameters. */
+	private double dirichletParam;
 	
 	/** Holds all encountered dependencies, etc. */
 	private HashSet<Dependency> dependencyPool;
 	
 	/** Holds counts for all encountered dependency sets. */
-	private HashMap<Dependencies, Counts> countsPool;
+	private HashMap<Dependencies, DirichletCounts> countsPool;
 	
 	/**
 	 * Constructor.
+	 * @param doIndexing create index for all cached dependencies.
+	 * @param dirichletParam Dirichlet "pseudo-count" parameter used on all
+	 *        dependencies.
 	 */
-	public ExtensiveCountsCache(boolean doIndexing) {
+	public ExtensiveDirichletCountsCache(boolean doIndexing, double dirichletParam) {
 		this.doIndexing = doIndexing;
+		this.dirichletParam = dirichletParam;
 		this.dependencyPool = new HashSet<Dependency>(128);
-		this.countsPool = new HashMap<Dependencies, Counts>(128);
+		this.countsPool = new HashMap<Dependencies, DirichletCounts>(128);
 	}
 	
 	/**
@@ -39,9 +46,9 @@ public class ExtensiveCountsCache {
 	 * @param struct the structure.
 	 * @return the counts for the structure.
 	 */
-	public HashMap<Dependencies, Counts> getCounts(Structure struct) {
+	public HashMap<Dependencies, DirichletCounts> getCounts(Structure struct) {
 		Collection<Dependencies> depsSets = struct.getDependencies();
-		HashMap<Dependencies, Counts> counts = new HashMap<Dependencies, Counts>(depsSets.size());
+		HashMap<Dependencies, DirichletCounts> counts = new HashMap<Dependencies, DirichletCounts>(depsSets.size());
 		for (Dependencies deps : depsSets) {
 			if (!deps.isDiscrete()) {
 				throw new IllegalArgumentException("Cannot cache dependency which is not discrete.");
@@ -60,10 +67,10 @@ public class ExtensiveCountsCache {
 				}
 			}
 			
-			Counts c;
+			DirichletCounts c;
 			if (!encountered || deps.isLatent()) {
 				// Count anew / again.
-				c = new Counts(deps);
+				c = new DirichletCounts(deps, this.dirichletParam);
 				this.countsPool.put(deps, c);
 			} else {
 				// Use existing counts.

@@ -119,7 +119,8 @@ public class BooleanAttribute implements DiscreteAttribute {
 	}
 	
 	/**
-	 * Sets an attribute value.
+	 * Sets an attribute value. If latent, does not affect the
+	 * corresponding soft assignment.
 	 * @param idx the index.
 	 * @param value the value.
 	 */
@@ -128,7 +129,8 @@ public class BooleanAttribute implements DiscreteAttribute {
 	}
 	
 	/**
-	 * Adds an attribute value.
+	 * Adds an attribute value. If latent, also adds a
+	 * corresponding soft completion.
 	 * @param value the value.
 	 */
 	public void addEntity(boolean value) {

@@ -142,6 +142,20 @@ public class Dependencies implements Comparable<Dependencies> {
 	}
 	
 	/**
+	 * Returns true if a specific attribute is a parent in one of the dependencies.
+	 * @param parent the potential parent.
+	 * @return true if indeed a parent; false if not a parent.
+	 */
+	public boolean isParent(ProbAttribute parent) {
+		for (Dependency dep : this.dependencies) {
+			if (dep.getParent() == parent) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns true if all contained dependencies are discrete.
 	 * @return true if all parents of the child are discrete.
 	 */

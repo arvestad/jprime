@@ -117,9 +117,7 @@ public class Counts implements MultiArray {
 		for (int i = 0; i < n; ++i) {
 			for (int j = 0; j < this.noOfParents; ++j) {
 				DiscreteAttribute par = (DiscreteAttribute) deps[j].getParent();
-				vals[j] = (hasIndex[j] ?
-						par.getEntityAsNormalisedInt(deps[j].getSingleParentEntityIndexed(i)) :
-						par.getEntityAsNormalisedInt(deps[j].getSingleParentEntity(i)));
+				vals[j] = par.getEntityAsNormalisedInt(deps[j].getSingleParentEntity(i));
 			}
 			vals[this.noOfParents] = ch.getEntityAsNormalisedInt(i);
 			this.increment(vals);

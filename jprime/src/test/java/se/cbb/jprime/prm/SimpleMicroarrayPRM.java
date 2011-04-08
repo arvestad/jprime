@@ -3,6 +3,7 @@ package se.cbb.jprime.prm;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 import org.junit.* ;
@@ -179,14 +180,61 @@ public class SimpleMicroarrayPRM {
 //		}
 //		System.out.println(this.structures.size());
 		
+		// Start with true structure.
 		Structure struct = this.getTrueStructure();
-		for (Dependencies deps : struct.getDependencies()) {
-			DirichletCounts dc = new DirichletCounts(deps, 1.5);
+		ExtensiveDirichletCountsCache countsCache = new ExtensiveDirichletCountsCache(true, 1.5);
+		HashMap<Dependencies, DirichletCounts> counts = countsCache.getCounts(struct);
+		this.inferGeneClusters(struct, counts);
+		
+	}
+	
+	/**
+	 * Makes a soft completion inference of gene cluster, assuming it is the only latent attribute and
+	 * that is is a source in the BN. Used instead of implementing a complete belief propagation or similarly.
+	 * @param struct the structure.
+	 * @param counts the counts (and thus conditional probabilities of the dependencies).
+	 */
+	private void inferGeneClusters(Structure struct, HashMap<Dependencies, DirichletCounts> counts) {
+		// Obtain all dependencies of which gene cluster is a parent.
+		DiscreteAttribute gc = (DiscreteAttribute) struct.getSkeleton().getPRMClass("Gene").getProbAttribute("Cluster");
+		IntegerInterval ivl = gc.getInterval();
+		Collection<Dependencies> gcDeps = struct.getInverseDependencies(gc);
+		ArrayList<DirichletCounts> gcCounts = new ArrayList<DirichletCounts>(gcDeps.size());
+		for (Dependencies deps : gcDeps) {
+			gcCounts.add(counts.get(deps));
 		}
-		ExtensiveCountsCache cache = new ExtensiveCountsCache(true);
-		HashMap<Dependencies, Counts> counts = cache.getCounts(struct);
 		
+		// For each gene cluster entity.
+		for (int i = 0; i < gc.getNoOfEntities(); ++i) {
 		
+			// Unnormalised array of soft completion "beliefs" for this entity.
+			double [] sc = new double[ivl.getSize()];
+			double scSum = 0.0;
+			
+			// For each entity value.
+			for (int j = 0; j < sc.length; ++j) {
+				
+				// Make a temporary hard assignment of each gene cluster value.
+				gc.setEntityAsNormalisedInt(i, j);
+				double p = 1.0;
+				
+				// For each child of gene cluster.
+				for (DirichletCounts dc : gcCounts) {
+					p *= dc.getExpectedConditionalProb(i);
+				}
+				
+				// Update soft completion.
+				sc[j] = p;
+				scSum += p;
+			}
+			
+			// Update soft completion.
+			for (int j = 0; j < sc.length; ++j) {
+				sc[j] /= scSum;
+			}
+			gc.setEntityProbDistribution(i, sc);
+		}
+		System.out.println("Hurra!");
 	}
 	
 }

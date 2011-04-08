@@ -46,7 +46,7 @@ form '%%n' is replaced with the n-th column from the batch file (indexed from
    %%SHELLSCRIPT   is replaced with the currently processed shellscript file,
                    path included.
 
-To get started, try running './bsub.py -e'.
+!!!!!!!!    To get started, try running './bsub.py -e'    !!!!!!!!
 
 --------------------------------------------------------------------------------
 
@@ -65,11 +65,13 @@ contain:
    superprogram -o ccc.RUN11.out aaa
 
 Additionally, one has the possibility of including a "pre-command", executed
-prior to submission. The shellscript directory is always created automatically.
+on the login node prior to submission, as well as a shellscript "preamble", which
+may contain commands to be executed on the devoted node before starting batch commands.
+The shellscript directory is always created automatically.
 
 --------------------------------------------------------------------------------
 
-Author: Joel Sjoestrand, SBC/CSC, SU/KTH.
+Author: Joel Sjostrand, SBC/CSC, SU/KTH.
 
 ********************************************************************************
 """
@@ -444,12 +446,16 @@ required. Note: Tag names are case-sensitive.
           <InDir>%%HOMEDIR/data</InDir>
           <OutDir>%%HOMEDIR/results/%%DATE</OutDir>
           <PreCmd>%%HOMEDIR/bin/mypreprocessor</PreCmd>
+          <ShellscriptPreamble>
+             module add easy;
+             module add mpi;
+             cd %%HOMEDIR/bin;
+          </ShellscriptPreamble>
 \\t        <BatchFileDelim>\\t</BatchFileDelim>
           <BatchFileIgnorePrefix>#</BatchFileIgnorePrefix>
-*         <Cmd>%%HOMEDIR/bin/mymagicexe -abc -o %%OUTDIR.%%BATCHID.out %%0 %%1</Cmd>
+*         <Cmd>mymagicexe -abc -o %%OUTDIR.%%BATCHID.out %%0 %%1</Cmd>
 8         <ProcessesPerNode>8</ProcessesPerNode>
 *         <ShellscriptOutDir>%%HOMEDIR/tmp/%%DATE</ShellscriptOutDir>
-          <ShellscriptPreamble>module add easy; module add mpi;</ShellscriptPreamble>
 *         <ShellscriptCmd>esubmit -c mycac -t 1000 -m -n 1 %%SHELLSCRIPT</ShellscriptCmd>
        </Settings>
     """)
