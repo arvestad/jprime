@@ -8,14 +8,19 @@ import java.util.Set;
 
 /**
  * For a discrete child PRM attribute and a set of discrete parent attributes, computes and stores counts
- * of all entity value
- * configurations (vp1,...,vpk,vc) for parent values vpi and child value vc.
- * Furthermore, assuming parameter independence, holds a Dirichlet hyperparameter representing
+ * of all entity value configurations (vp1,...,vpk,vc) for parent values vpi and child value vc.
+ * Furthermore, assuming parameter independence, it holds a Dirichlet hyperparameter representing
  * the prior belief bestowed upon (any) configuration (i.e. the hyperparameter is invariant).
  * It is possible to let the number of parents be 0, in which case only child entities are counted.
  * <p/>
+ * <b>
+ * In other words, this class provides an estimator for the conditional probability P(vc | vp1,...,vpk),
+ * in that it has a method returning E[P(vc | vp1,...,vpk) | I] where I refers to the current entity
+ * instantiation.
+ * </b>
+ * <p/>
  * The counts are maintained on a hash-basis internally, meaning that memory complexity is
- * O(k) where k is the number of actual value configurations, not possible configurations.
+ * O(k) where k is the number of encountered value configurations, not possible value configurations.
  * <p/>
  * Interestingly, the counts are held as doubles, so that also soft completions for latent
  * attributes may be counted in a "weighted" manner.
@@ -77,11 +82,14 @@ public class DirichletCounts {
 		}
 	}
 	
-	/** Child. */
-	private final DiscreteAttribute child;
-	
-	/** Dependencies for child and its parents (perhaps none). */
+	/** Dependencies for child and its parents (if any). */
 	private Dependency[] dependencies;
+		
+	/** The child. */
+	private final DiscreteAttribute child;
+		
+	/** The parents, possibly empty. */
+	private DiscreteAttribute[] parents;
 	
 	/** Size of total value range |v(p1)|*...*|v(pk)| for parents pi. */
 	private int parentCardinality;
@@ -108,15 +116,17 @@ public class DirichletCounts {
 		if (!dependencies.isDiscrete()) {
 			throw new IllegalArgumentException("Cannot create Dirichlet counts when there are non-discrete dependencies.");
 		}
-		this.child = (DiscreteAttribute) dependencies.getChild();
 		Set<Dependency> deps = dependencies.getAll();
 		int k = deps.size();
 		this.dependencies = new Dependency[k];
+		this.child = (DiscreteAttribute) dependencies.getChild();
+		this.parents = new DiscreteAttribute[k];
 		Iterator<Dependency> it = deps.iterator();
 		int pc = 1;
 		for (int i = 0; i < k; ++i) {
 			this.dependencies[i] = it.next();
-			pc *= ((DiscreteAttribute) this.dependencies[i].getParent()).getIntervalSize();
+			this.parents[i] = (DiscreteAttribute) this.dependencies[i].getParent();
+			pc *= this.parents[i].getIntervalSize();
 		}
 		this.parentCardinality = (k == 0 ? 0 : pc);
 		this.childCardinality = this.child.getIntervalSize();
@@ -193,11 +203,10 @@ public class DirichletCounts {
 		// Use child if index exceeds parent size.
 		DiscreteAttribute attr;
 		if (idx == this.dependencies.length) {
-			attr = (DiscreteAttribute) this.child;
+			attr = this.child;
 		} else {
-			attr = (DiscreteAttribute) this.dependencies[idx].getParent();
-			i = (this.dependencies[idx].hasIndex() ? this.dependencies[idx].getSingleParentEntityIndexed(i) : 
-				this.dependencies[idx].getSingleParentEntity(i));
+			attr = this.parents[idx];
+			i = this.dependencies[idx].getSingleParentEntity(i);
 		}		
 		
 		if (attr.isLatent()) {
@@ -268,6 +277,16 @@ public class DirichletCounts {
 	}
 	
 	/**
+	 * Shorthand for obtaining E[P(vc | vp1,...,vpk) | I] for a specific child
+	 * entity, see <code>getExpectedConditionalProb(int[] pcVals)</code> for more details.
+	 * If containing latent attributes, uses their current hard assignment.
+	 * @return the expected conditional probability of the child value given the parent values.
+	 */
+	public double getExpectedConditionalProb(int cIdx) {
+		return this.getExpectedConditionalProb(this.getValueConfig(cIdx));
+	}
+	
+	/**
 	 * Returns the number of valid child values.
 	 * @return the number of valid child values.
 	 */
@@ -313,5 +332,22 @@ public class DirichletCounts {
 		ConfigCount p = new ConfigCount(pVals, 0);
 		ConfigCount cc = this.summedCounts.get(p);
 		return (cc == null ? 0.0 : cc.count);
+	}
+	
+	/**
+	 * Convenience method.
+	 * Returns the value configuration (vp1,...,vpk,vc) for parent values
+	 * vpi and child value vc for a certain child entity. The values correspond to
+	 * the indexing of the attribute's method <code>getEntityAsNormalisedInt()</code>.
+	 * @param cIdx the child entity.
+	 * @return the value configuration.
+	 */
+	public int[] getValueConfig(int cIdx) {
+		int[] pcVals = new int[this.dependencies.length + 1];
+		for (int i = 0; i < this.dependencies.length; ++i) {
+			pcVals[i] = this.parents[i].getEntityAsNormalisedInt(this.dependencies[i].getSingleParentEntity(cIdx));
+		}
+		pcVals[this.dependencies.length] = this.child.getEntityAsNormalisedInt(cIdx);
+		return pcVals;
 	}
 }

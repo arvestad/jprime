@@ -1,5 +1,6 @@
 package se.cbb.jprime.prm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -115,6 +116,14 @@ public class Structure implements Comparable<Structure> {
 	}
 
 	/**
+	 * Refers the skeleton on which this structure is based.
+	 * @return the skeleton.
+	 */
+	public Skeleton getSkeleton() {
+		return this.skeleton;
+	}
+	
+	/**
 	 * Returns the number of dependencies, i.e. parent-child arcs in
 	 * the "template graph".
 	 * @return the number of dependencies.
@@ -135,11 +144,29 @@ public class Structure implements Comparable<Structure> {
 	/**
 	 * Returns all dependencies for a certain child.
 	 * Even if it has none, an empty collection is returned.
+	 * See also <code>getInverseDependencies(...)</code>.
 	 * @param child the child attribute.
 	 * @return the parent-child dependencies for the child.
 	 */
 	public Dependencies getDependencies(ProbAttribute child) {
 		return this.dependencies.get(child);
+	}
+	
+	/**
+	 * Returns all dependencies in which a specific attribute is a parent.
+	 * If none, an empty collection is returned.
+	 * See also <code>getDependencies(...)</code>.
+	 * @param parent the parent attribute.
+	 * @return the parent-child dependencies for the parent.
+	 */
+	public Collection<Dependencies> getInverseDependencies(ProbAttribute parent) {
+		ArrayList<Dependencies> l = new ArrayList<Dependencies>();
+		for (Dependencies deps : this.dependencies.values()) {
+			if (deps.isParent(parent)) {
+				l.add(deps);
+			}
+		}
+		return l;
 	}
 	
 	/**

@@ -64,7 +64,7 @@ public class ComputeKDEModeParameters {
 				"======================================================================================================\n" +
 				"Takes as input a sample file and outputs the mode of the marginal distribution w.r.t. 1, 2 or 3\n" +
 				"of the parameters. The mode is estimated using kernel density estimation (KDE) by employing CRAN R and\n" +
-				"its 'np' package, which must be installed. Input consists of a tab-/space-/comma-separated file\n" +
+				"its 'np' package (which must be installed). Input consists of a tab-/space-/comma-separated file\n" +
 				"with one parameter per column, and the column(s) of interest as a comma-separated string.\n" +
 				"The sample points are used both for training and evaluation. NOTE: Columns missing names may be\n" +
 				"treated differently by R. Therefore always test the column numbering explicitly in advance.\n\n" +
@@ -94,6 +94,8 @@ public class ComputeKDEModeParameters {
 				"                         domain. The specified number of points is added equidistantly along each axis.\n" +
 				"  -d <delim>             Delimiter between output parameters. Defaults to comma.\n" +
 				"  -o <outfile>           Write CRAN R file to output rather than executing R commands.\n" +
+				"\n" +
+				"Copyright: Joel Sjostrand, 2010.\n" +
 				"======================================================================================================\n"
 				);
 	}

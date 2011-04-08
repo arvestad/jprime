@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Interface for objects perturbing the values of one or more
- * <code>StateParameter</code> objects, e.g. MCMC parameters. Some other softwares use
- * the term <i>operator</i> instead.
+ * Interface for objects perturbing the values of one or more <code>StateParameter</code> objects,
+ * e.g. MCMC parameters. This is closely connected to what is sometimes referred to as <i>operators</i> or
+ * <i>kernels</i>.
  * Each <code>Proposer</code> is also associated with:
  * <ul>
  * <li>a <code>ProposerWeight</code> which dictates how often it will in

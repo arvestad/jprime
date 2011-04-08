@@ -5,7 +5,14 @@ import java.util.Set;
 
 /**
  * Interface for selecting one or more MCMC proposers for actual
- * perturbation based on their current weights.
+ * perturbation based on their current weights. Implementing classes may e.g. consider:
+ * <ul>
+ * <li>Selecting one sole proposer uniformly.</li>
+ * <li>Selecting multiple proposers uniformly.</li>
+ * <li>Selecting the next proposer in a round-robin manner.</li>
+ * <li>Selecting the next proposer conditioned on the previous ones.</li>
+ * <li>...</li>
+ * </ul>
  *  
  * @author Joel Sjöstrand.
  */

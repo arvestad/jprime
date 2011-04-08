@@ -79,11 +79,11 @@ public class IntegerInterval {
 	
 	/**
 	 * Returns the number of elements of this interval, 
-	 * e.g. 5 for [0,4] or 0 for [3,3].
+	 * e.g. 3 for [0,2] or infinity for [7,inf].
 	 * @return the number of elements of the interval.
 	 */
 	public int getSize() {
-		return (this.b -  this.a + 1);
+		return (this.b - this.a + 1);
 	}
 	
 	/**
