@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
@@ -156,13 +157,13 @@ public class SimpleMicroarrayPRM {
 		Relation m2a = this.skeleton.getPRMClass("Measurement").getRelation("Measurement.ArrayID-Array.ID");
 		ArrayList<Relation> sc = new ArrayList<Relation>(1);
 		sc.add(m2g);
-		s.putDependency(new Dependency(lvl, sc, gc));
-		s.putDependency(new Dependency(lvl, sc, a1));
-		s.putDependency(new Dependency(lvl, sc, a2));
-		s.putDependency(new Dependency(lvl, sc, a3));
+		s.putDependency(new Dependency(lvl, sc, gc, true));
+		s.putDependency(new Dependency(lvl, sc, a1, true));
+		s.putDependency(new Dependency(lvl, sc, a2, true));
+		s.putDependency(new Dependency(lvl, sc, a3, true));
 		sc = new ArrayList<Relation>(1);
 		sc.add(m2a);
-		s.putDependency(new Dependency(lvl, sc, ac));
+		s.putDependency(new Dependency(lvl, sc, ac, true));
 		return s;
 	}
 		
@@ -180,21 +181,27 @@ public class SimpleMicroarrayPRM {
 //		}
 //		System.out.println(this.structures.size());
 		
+		DependenciesCache<DirichletCounts> counts = new DependenciesCache<DirichletCounts>();
+		List<Dependencies> toUpdate;
+		
 		// Start with true structure.
 		Structure struct = this.getTrueStructure();
-		ExtensiveDirichletCountsCache countsCache = new ExtensiveDirichletCountsCache(true, 1.5);
-		HashMap<Dependencies, DirichletCounts> counts = countsCache.getCounts(struct);
+		toUpdate = counts.update(struct, true);
+		for (Dependencies deps : toUpdate) {
+			counts.put(deps, new DirichletCounts(deps, 1.0));
+		}
 		this.inferGeneClusters(struct, counts);
 		
 	}
 	
 	/**
 	 * Makes a soft completion inference of gene cluster, assuming it is the only latent attribute and
-	 * that is is a source in the BN. Used instead of implementing a complete belief propagation or similarly.
+	 * that is is a source in the induced BN. Used instead of implementing a complete belief
+	 * propagation or similarly.
 	 * @param struct the structure.
 	 * @param counts the counts (and thus conditional probabilities of the dependencies).
 	 */
-	private void inferGeneClusters(Structure struct, HashMap<Dependencies, DirichletCounts> counts) {
+	private void inferGeneClusters(Structure struct, DependenciesCache<DirichletCounts> counts) {
 		// Obtain all dependencies of which gene cluster is a parent.
 		DiscreteAttribute gc = (DiscreteAttribute) struct.getSkeleton().getPRMClass("Gene").getProbAttribute("Cluster");
 		IntegerInterval ivl = gc.getInterval();
@@ -204,36 +211,46 @@ public class SimpleMicroarrayPRM {
 			gcCounts.add(counts.get(deps));
 		}
 		
-		// For each gene cluster entity.
+		// Clear the soft completions.
 		for (int i = 0; i < gc.getNoOfEntities(); ++i) {
-		
-			// Unnormalised array of soft completion "beliefs" for this entity.
-			double [] sc = new double[ivl.getSize()];
-			double scSum = 0.0;
-			
-			// For each entity value.
-			for (int j = 0; j < sc.length; ++j) {
-				
-				// Make a temporary hard assignment of each gene cluster value.
-				gc.setEntityAsNormalisedInt(i, j);
-				double p = 1.0;
-				
-				// For each child of gene cluster.
-				for (DirichletCounts dc : gcCounts) {
-					p *= dc.getExpectedConditionalProb(i);
-				}
-				
-				// Update soft completion.
-				sc[j] = p;
-				scSum += p;
-			}
-			
-			// Update soft completion.
-			for (int j = 0; j < sc.length; ++j) {
-				sc[j] /= scSum;
-			}
-			gc.setEntityProbDistribution(i, sc);
+			gc.clearEntityProbDistribution(i);
 		}
+		
+		// For each child attribute.
+		for (Dependencies deps : gcDeps) {
+			// Retrieve child 'ch' and the dependency 'gc->ch', etc.
+			ProbAttribute ch = deps.getChild();
+			DirichletCounts dc = counts.get(deps);
+			Dependency gcDep = null;
+			for (Dependency dep : deps.getAll()) {
+				if (dep.getParent() == gc) {
+					gcDep = dep;  // There can be only one in our case.
+					break;
+				}
+			}
+			
+			// For each child entity.
+			for (int i = 0; i < ch.getNoOfEntities(); ++i) {
+				
+				// Get gene cluster entity and its soft completion.
+				int gcIdx = gcDep.getSingleParentEntity(i);
+				double[] sc = gc.getEntityProbDistribution(gcIdx);
+				
+				// For each possible value of the gene cluster entity,
+				// make a temporary hard assignment, then update soft completion.
+				for (int j = 0; j < 12; ++j) {
+					gc.setEntityAsNormalisedInt(gcIdx, j);
+					double p = dc.getExpectedConditionalProb(i);
+					sc[j] = (Double.isNaN(sc[j]) ? p : sc[j] * p);  // NaN if uninitialised.
+				}
+			}
+		}
+		
+		// Finally, normalise our soft completions.
+		for (int i = 0; i < gc.getNoOfEntities(); ++i) {
+			gc.normaliseEntityProbDistribution(i);
+		}
+		
 		System.out.println("Hurra!");
 	}
 	

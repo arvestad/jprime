@@ -198,4 +198,34 @@ public class IntAttribute implements DiscreteAttribute {
 	public void setEntityProbDistribution(int idx, double[] probDist) {
 		this.entityProbDists.set(idx, probDist);
 	}
+
+	@Override
+	public void clearEntityProbDistribution(int idx) {
+		double pd[] = this.entityProbDists.get(idx);
+		for (int i = 0; i < pd.length; ++i) {
+			pd[i] = Double.NaN;
+		}
+	}
+
+	@Override
+	public void normaliseEntityProbDistribution(int idx) {
+		double sum = 0.0;
+		double pd[] = this.entityProbDists.get(idx);
+		for (int i = 0; i < pd.length; ++i) {
+			if (Double.isNaN(pd[i])) {
+				pd[i] = 0.0;
+			} else {
+				sum += pd[i];
+			}
+		}
+		if (sum == 0.0) {
+			for (int i = 0; i < pd.length; ++i) {
+				pd[i] = 1.0 / pd.length;
+			}
+		} else {
+			for (int i = 0; i < pd.length; ++i) {
+				pd[i] /= sum;
+			}
+		}
+	}
 }

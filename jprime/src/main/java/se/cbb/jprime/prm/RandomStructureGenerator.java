@@ -26,10 +26,11 @@ public class RandomStructureGenerator {
 	 * @param maxParents maximum allowed parent for each child.
 	 * @param maxSlots maximum length of a slot chain.
 	 * @param maxTries maximum number of attempts to generate a dependency.
+	 * @param createIndex true to create an index for each dependency.
 	 * @return the structure.
 	 */
 	public static Structure createStrictRandomStructure(Random rng, Skeleton skeleton,
-			int n, int maxParents, int maxSlots, int maxTries) {
+			int n, int maxParents, int maxSlots, int maxTries, boolean createIndex) {
 		Structure struct = new Structure(skeleton);
 		NaiveAcyclicityVerifier verifier = new NaiveAcyclicityVerifier();
 		int tries = 0;
@@ -55,7 +56,7 @@ public class RandomStructureGenerator {
 				}
 				
 				// Add dependency. If it's already present, it should only overwrite the old one.
-				Dependency dep = new Dependency(child, slotChain, parent);
+				Dependency dep = new Dependency(child, slotChain, parent, createIndex);
 				verifier.isStructureAcyclic(dep, struct);
 				if (struct.getNoOfDependencies(dep.getChild()) >= maxParents) {
 					throw new DependencyException("Cannot add dependency due to too many parents already.");

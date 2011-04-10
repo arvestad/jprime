@@ -116,6 +116,9 @@ public class DirichletCounts {
 		if (!dependencies.isDiscrete()) {
 			throw new IllegalArgumentException("Cannot create Dirichlet counts when there are non-discrete dependencies.");
 		}
+		if (dirichletParam < 0.0) {
+			throw new IllegalArgumentException("Cannot set non-positive dirichlet parameter. Try using very small value.");
+		}
 		Set<Dependency> deps = dependencies.getAll();
 		int k = deps.size();
 		this.dependencies = new Dependency[k];
@@ -266,14 +269,14 @@ public class DirichletCounts {
 		}
 		ConfigCount pc = new ConfigCount(pcVals, 0);
 		ConfigCount p = new ConfigCount(pc);
-		ConfigCount cc = this.summedCounts.get(pc);
-		if (cc == null) {
+		ConfigCount cc = this.summedCounts.get(p);
+		if (cc == null || cc.count == 0.0) {
 			return (1.0 / this.childCardinality);
 		}
-		double s = cc.count;
-		cc = this.counts.get(p);
+		double sum = cc.count;
+		cc = this.counts.get(pc);
 		double c = (cc == null ? 0.0 : cc.count);
-		return ((c + this.dirichletParam) / (s + this.dirichletParam * this.childCardinality));
+		return ((c + this.dirichletParam) / (sum + this.dirichletParam * this.childCardinality));
 	}
 	
 	/**
