@@ -190,4 +190,26 @@ public class BooleanAttribute implements DiscreteAttribute {
 	public void addEntityAsNormalisedInt(int value) {
 		this.addEntity(value == 0 ? false : true);
 	}
+	
+	@Override
+	public void clearEntityProbDistribution(int idx) {
+		double pd[] = this.entityProbDists.get(idx);
+		pd[0] = Double.NaN;
+		pd[1] = Double.NaN;
+	}
+
+	@Override
+	public void normaliseEntityProbDistribution(int idx) {
+		double pd[] = this.entityProbDists.get(idx);
+		if (Double.isNaN(pd[0])) { pd[0] = 0.0; }
+		if (Double.isNaN(pd[1])) { pd[1] = 0.0; }
+		double sum = pd[0] + pd[1];
+		if (sum == 0.0) {
+			pd[0] = 0.5;
+			pd[1] = 0.5;
+		} else {
+			pd[0] /= sum;
+			pd[1] /= sum;
+		}
+	}
 }

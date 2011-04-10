@@ -71,4 +71,19 @@ public interface DiscreteAttribute extends ProbAttribute {
 	 * @param probDist the soft completion.
 	 */
 	public void setEntityProbDistribution(int idx, double[] probDist);
+	
+	/**
+	 * For latent attributes, sets the current estimation of an
+	 * entity's soft completion to NaN for all values.
+	 * @param idx the index.
+	 */
+	public void clearEntityProbDistribution(int idx);
+	
+	/**
+	 * For latent attributes, normalises the current estimation of an
+	 * entity's soft completion so that they sum up to 1. A NaN value is
+	 * considered 0.0.
+	 * @param idx the index.
+	 */
+	public void normaliseEntityProbDistribution(int idx);
 }

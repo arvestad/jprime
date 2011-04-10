@@ -56,9 +56,10 @@ public final class Dependency implements Comparable<Dependency> {
 	 * @param child child attribute.
 	 * @param slotChain slot chain from child to attribute. Null is interpreted as empty.
 	 * @param parent parent attribute.
+	 * @param createIndex if true, creates an index. Only applicable for certain relation types.
 	 */
 	public Dependency(ProbAttribute child, List<Relation> slotChain,
-			ProbAttribute parent) {
+			ProbAttribute parent, boolean createIndex) {
 		this.child = child;
 		if (slotChain == null) {
 			this.slotChain = new Relation[0];
@@ -78,6 +79,11 @@ public final class Dependency implements Comparable<Dependency> {
 		sb.append(this.parent.getPRMClass().getName()).append('.')
 			.append(this.parent.getName());
 		this.name = sb.toString();
+		
+		// Create index if desired.
+		if (createIndex && !this.createIndex()) {
+			throw new IllegalArgumentException("Cannot create an index for this dependency.");
+		}
 	}
 	
 	/**
@@ -150,7 +156,6 @@ public final class Dependency implements Comparable<Dependency> {
 	 * Creates a lookup table relating entities of the child C to its
 	 * parent P for quicker access. If unable to do so (e.g. by a one-to-many
 	 * relation in the slot chain), false is returned.
-	 * See e.g. <code>getSingleParentEntityIndexed()</code>.
 	 * @return true if index was created, false if index could not be created.
 	 */
 	public boolean createIndex() {
