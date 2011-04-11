@@ -37,6 +37,9 @@ public class IntAttribute implements DiscreteAttribute {
 	/** Dependency constraints */
 	private DependencyConstraints dependencyConstraints;
 	
+	/** Makes soft completion comply with hard assignment when adding values. Mostly for debugging. */
+	private boolean sharpSoftCompletion = false;
+	
 	/**
 	 * Constructor for bounded or unbounded integer range.
 	 * @param name attribute's name. Should be unique within PRM class.
@@ -131,7 +134,7 @@ public class IntAttribute implements DiscreteAttribute {
 	}
 	
 	/**
-	 * Adds an attribute value.
+	 * Adds an attribute value. If latent, assigns a soft completion as well.
 	 * @param value the value.
 	 */
 	public void addEntity(int value) {
@@ -142,7 +145,16 @@ public class IntAttribute implements DiscreteAttribute {
 		if (this.isLatent) {
 			double[] pd = new double[this.interval.getSize()];
 			int idx = value - this.interval.getLowerBound();
-			pd[idx] = 1.0;
+			if (this.sharpSoftCompletion) {
+				pd[idx] = 1.0;
+			} else {
+				// As soft completion, assign twice the weight to the value corresponding to the hard assignment.
+				double p = 1.0 / (pd.length + 1);
+				for (int i = 0; i < pd.length; ++i) {
+					pd[i] = p;
+				}
+				pd[idx] = 2 * p;
+			}
 			this.entityProbDists.add(pd);
 		}
 	}
@@ -228,4 +240,15 @@ public class IntAttribute implements DiscreteAttribute {
 			}
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return this.getFullName();
+	}
+	
+	@Override
+	public void useSharpSoftCompletion() {
+		this.sharpSoftCompletion = true;
+	}
+	
 }

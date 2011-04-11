@@ -86,4 +86,11 @@ public interface DiscreteAttribute extends ProbAttribute {
 	 * @param idx the index.
 	 */
 	public void normaliseEntityProbDistribution(int idx);
+	
+	/**
+	 * For a latent attribute, sets the initial soft completion of an added (putative) value to 1.0 for
+	 * precisely that value. Mostly for debugging purposes. Only applicable on latent attributes and prior
+	 * to adding entities.
+	 */
+	public void useSharpSoftCompletion();
 }

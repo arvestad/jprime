@@ -10,6 +10,7 @@ import java.util.Scanner;
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
 import se.cbb.jprime.math.IntegerInterval;
+import se.cbb.jprime.math.Probability;
 import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
 import se.cbb.jprime.prm.Relation.Type;
 
@@ -112,10 +113,10 @@ public class SimpleMicroarrayPRM {
 	private void readMeasurementFiles() throws FileNotFoundException {
 		// Skeleton part.
 		PRMClass measurements = new PRMClass("Measurement");
-		FixedAttribute id = new FixedAttribute("ID", measurements, 8192);
-		FixedAttribute gID = new FixedAttribute("GeneID", measurements, 8192);
-		FixedAttribute aID = new FixedAttribute("ArrayID", measurements, 8192);
-		IntAttribute level = new IntAttribute("Level", measurements, false, 8192, DependencyConstraints.NONE,
+		FixedAttribute id = new FixedAttribute("ID", measurements, 131072);
+		FixedAttribute gID = new FixedAttribute("GeneID", measurements, 131072);
+		FixedAttribute aID = new FixedAttribute("ArrayID", measurements, 131072);
+		IntAttribute level = new IntAttribute("Level", measurements, false, 131072, DependencyConstraints.NONE,
 				new IntegerInterval(-1, 1));
 		PRMClass genes = this.skeleton.getPRMClass("Gene");
 		PRMClass arrays = this.skeleton.getPRMClass("Array");
@@ -182,16 +183,44 @@ public class SimpleMicroarrayPRM {
 //		System.out.println(this.structures.size());
 		
 		DependenciesCache<DirichletCounts> counts = new DependenciesCache<DirichletCounts>();
-		List<Dependencies> toUpdate;
+		ArrayList<Dependencies> toAdd = new ArrayList<Dependencies>();
+		ArrayList<Dependencies> toUpdate = new ArrayList<Dependencies>();
 		
 		// Start with true structure.
 		Structure struct = this.getTrueStructure();
-		toUpdate = counts.update(struct, true);
-		for (Dependencies deps : toUpdate) {
-			counts.put(deps, new DirichletCounts(deps, 1.0));
-		}
-		this.inferGeneClusters(struct, counts);
 		
+		double loglhood = -1000000000;
+		int nonImpr = 0;
+		while (nonImpr < 5) {
+			counts.getNonCached(struct, toAdd, toUpdate);
+			for (Dependencies deps : toAdd) {
+				try {
+					int noOfSamples = deps.getChild().getNoOfEntities();
+					int noOfPosVals = Math.max(1, deps.getParentCardinality()) * deps.getChildCardinality();
+					double pseudoCnt = ((double) noOfSamples / noOfPosVals) / 10;
+					counts.put(deps, new DirichletCounts(deps, pseudoCnt));
+				} catch (Exception ex) {}
+			}
+			for (Dependencies deps : toUpdate) {
+				counts.get(deps).update();
+			}
+			this.inferGeneClusters(struct, counts);
+			Probability p = new Probability(1.0);
+			for (Dependencies deps : struct.getDependencies()) {
+				p.mult(counts.get(deps).getLikelihood());
+			}
+			
+			// Count the number of consecutive non-improvements.
+			if (p.getLogValue() <= loglhood) {
+				++nonImpr;
+			} else {
+				nonImpr = 0;
+			}
+			loglhood = p.getLogValue();
+			System.out.println(loglhood);
+		}
+		ProbAttribute gc = struct.getSkeleton().getPRMClass("Gene").getProbAttribute("Cluster");
+		System.out.println(gc);
 	}
 	
 	/**
@@ -204,7 +233,6 @@ public class SimpleMicroarrayPRM {
 	private void inferGeneClusters(Structure struct, DependenciesCache<DirichletCounts> counts) {
 		// Obtain all dependencies of which gene cluster is a parent.
 		DiscreteAttribute gc = (DiscreteAttribute) struct.getSkeleton().getPRMClass("Gene").getProbAttribute("Cluster");
-		IntegerInterval ivl = gc.getInterval();
 		Collection<Dependencies> gcDeps = struct.getInverseDependencies(gc);
 		ArrayList<DirichletCounts> gcCounts = new ArrayList<DirichletCounts>(gcDeps.size());
 		for (Dependencies deps : gcDeps) {
@@ -250,8 +278,5 @@ public class SimpleMicroarrayPRM {
 		for (int i = 0; i < gc.getNoOfEntities(); ++i) {
 			gc.normaliseEntityProbDistribution(i);
 		}
-		
-		System.out.println("Hurra!");
 	}
-	
 }

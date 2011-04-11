@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import se.cbb.jprime.math.Probability;
+
 /**
  * For a discrete child PRM attribute and a set of discrete parent attributes, computes and stores counts
  * of all entity value configurations (vp1,...,vpk,vc) for parent values vpi and child value vc.
@@ -14,16 +16,17 @@ import java.util.Set;
  * It is possible to let the number of parents be 0, in which case only child entities are counted.
  * <p/>
  * <b>
- * In other words, this class provides an estimator for the conditional probability P(vc | vp1,...,vpk),
+ * In particular, this class provides an estimator for the conditional probability P(vc | vp1,...,vpk),
  * in that it has a method returning E[P(vc | vp1,...,vpk) | I] where I refers to the current entity
- * instantiation.
+ * instantiation. One can also compute the log-likelihood, sum_e(log P(e | par(e)) for all entities
+ * e of I of the child attribute.
  * </b>
- * <p/>
- * The counts are maintained on a hash-basis internally, meaning that memory complexity is
- * O(k) where k is the number of encountered value configurations, not possible value configurations.
  * <p/>
  * Interestingly, the counts are held as doubles, so that also soft completions for latent
  * attributes may be counted in a "weighted" manner.
+ * <p/>
+ * The counts are maintained on a hash-basis internally, meaning that memory complexity is
+ * O(k) where k is the number of encountered value configurations, not possible value configurations.
  * 
  * @author Joel Sjöstrand.
  */
@@ -62,6 +65,7 @@ public class DirichletCounts {
 		}
 		
 		/**
+		 * <b>Note: Not a copy constructor!</b>
 		 * Copies an existing ConfigCount, but leaves its last configuration value out.
 		 * @param cc object to copy, apart from last element.
 		 */
@@ -106,6 +110,9 @@ public class DirichletCounts {
 	/** Counts summed over child values, hashed by (vp1,...,vpk) for parent values vpi. */
 	private HashMap<ConfigCount, ConfigCount> summedCounts;
 	
+	/** Likelihood (or log-likelihood) of all child entities. Only computed once needed. */
+	private Probability likelihood;
+	
 	/**
 	 * Constructor.
 	 * @param dependencies the dependencies.
@@ -125,18 +132,19 @@ public class DirichletCounts {
 		this.child = (DiscreteAttribute) dependencies.getChild();
 		this.parents = new DiscreteAttribute[k];
 		Iterator<Dependency> it = deps.iterator();
-		int pc = 1;
 		for (int i = 0; i < k; ++i) {
 			this.dependencies[i] = it.next();
 			this.parents[i] = (DiscreteAttribute) this.dependencies[i].getParent();
-			pc *= this.parents[i].getIntervalSize();
 		}
-		this.parentCardinality = (k == 0 ? 0 : pc);
-		this.childCardinality = this.child.getIntervalSize();
+		try {
+			this.parentCardinality = dependencies.getParentCardinality();
+			this.childCardinality = dependencies.getChildCardinality();
+		} catch (Exception ex) {}
 		this.dirichletParam = dirichletParam;
 		int n = dependencies.getChild().getNoOfEntities();
 		this.counts = new HashMap<ConfigCount, ConfigCount>(n / 8);
 		this.summedCounts = (k == 0 ? null : new HashMap<ConfigCount, ConfigCount>(n / 8));
+		this.likelihood = null;
 		
 		this.update();
 	}
@@ -145,12 +153,16 @@ public class DirichletCounts {
 	 * Recounts all parent-child value configurations.
 	 */
 	public void update() {
+		
+		// Clear cached likelihood too, since probably invalidated.
+		this.likelihood = null;
+		
 		this.counts.clear();
 		int k = this.dependencies.length;
 		int n = this.child.getNoOfEntities();
-		ArrayList<ConfigCount> ccs = new ArrayList<ConfigCount>();
+		ArrayList<ConfigCount> ccs = new ArrayList<ConfigCount>(64);
 		
-		if (this.dependencies.length == 0) {
+		if (k == 0) {
 			// Count child entities only.
 			for (int i = 0; i < n; ++i) {
 				ccs.clear();
@@ -253,40 +265,54 @@ public class DirichletCounts {
 	/**
 	 * Returns E[P(vc | vp1,...,vpk) | I] where vc is the child value,
 	 * vpi the parent values, and I the complete current entity assignment.
-	 * If there are no parents, returns the prior (uniform) probability
-	 * of the child c, i.e. 1.0/|v(c)|.
+	 * If there are no parents, returns the E[P(vc) | I].
 	 * <p/>
-	 * No bounds checking.
+	 * If no such value configurations have been encountered, returns 1.0/|v(c)|.
+	 * <p/>
+	 * No bounds checking. Note: The order vp1,...,vpk refers to that
+	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * @param pcVals the attribute values converted to integers in this
 	 *        order: (vp1,...,vpk,vc). Conversion must comply with
 	 *        the attributes' method <code>getEntityAsNormalisedInt()</code>.
 	 * @return the expected conditional probability of the child value given the parent values.
 	 */
 	public double getExpectedConditionalProb(int[] pcVals) {
-		int k = this.dependencies.length;
-		if (k == 0) {
-			return (1.0 / this.childCardinality);
-		}
-		ConfigCount pc = new ConfigCount(pcVals, 0);
-		ConfigCount p = new ConfigCount(pc);
-		ConfigCount cc = this.summedCounts.get(p);
-		if (cc == null || cc.count == 0.0) {
-			return (1.0 / this.childCardinality);
-		}
-		double sum = cc.count;
-		cc = this.counts.get(pc);
-		double c = (cc == null ? 0.0 : cc.count);
-		return ((c + this.dirichletParam) / (sum + this.dirichletParam * this.childCardinality));
+		return getExpectedConditionalProb(new ConfigCount(pcVals, 0)); // Dummy count.
 	}
 	
 	/**
 	 * Shorthand for obtaining E[P(vc | vp1,...,vpk) | I] for a specific child
 	 * entity, see <code>getExpectedConditionalProb(int[] pcVals)</code> for more details.
-	 * If containing latent attributes, uses their current hard assignment.
+	 * <b>Important note: If containing latent attributes, uses their current hard assignment.</b>
 	 * @return the expected conditional probability of the child value given the parent values.
 	 */
 	public double getExpectedConditionalProb(int cIdx) {
 		return this.getExpectedConditionalProb(this.getValueConfig(cIdx));
+	}
+	
+	/**
+	 * Computes E[P(vc | vp1,...,vpk) | I] or, in the case of no parents, E[P(vc) | I].
+	 * @param pc the parents-child value configuration.
+	 * @return the expected conditional probability of the child value given the parent values.
+	 */
+	private double getExpectedConditionalProb(ConfigCount pc) {
+		
+		// Child only case.
+		if (this.dependencies.length == 0) {
+			pc = this.counts.get(pc);
+			double cnt = (pc == null ? 0.0 : pc.count);
+			return ((cnt + this.dirichletParam) / (this.child.getNoOfEntities() + this.dirichletParam * this.childCardinality));
+		}
+		
+		// Parents + child case.
+		ConfigCount ccSum = this.summedCounts.get(new ConfigCount(pc));
+		if (ccSum == null || ccSum.count == 0.0) {
+			// Prior probability since unseen.
+			return (1.0 / this.childCardinality);
+		}
+		pc = this.counts.get(pc);
+		double cnt = (pc == null ? 0.0 : pc.count);
+		return ((cnt + this.dirichletParam) / (ccSum.count + this.dirichletParam * this.childCardinality));
 	}
 	
 	/**
@@ -309,7 +335,8 @@ public class DirichletCounts {
 	 * Returns the count of a certain configuration (vp1,...,vpk,vc).
 	 * The count may be a non-integer float if one
 	 * of the pertinent attributes is latent with a soft completion.
-	 * No bounds checking.
+	 * No bounds checking. Note: The order vp1,...,vpk refers to that
+	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * @param pcVals the configuration in the order outlined above.
 	 *        The conversion to integers must comply the attributes' method
 	 *        <code>getEntityAsNormalisedInt()</code>.
@@ -325,7 +352,8 @@ public class DirichletCounts {
 	 * Returns the count of a certain parent configuration (vp1,...,vpk) summed
 	 * over all child values. The count may be a non-integer float if one
 	 * of the pertinent attributes is latent with a soft completion.
-	 * No bounds checking.
+	 * No bounds checking. Note: The order vp1,...,vpk refers to that
+	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * @param pVals the configuration in the order outlined above.
 	 *        The conversion to integers must comply the attributes' method
 	 *        <code>getEntityAsNormalisedInt()</code>.
@@ -342,6 +370,10 @@ public class DirichletCounts {
 	 * Returns the value configuration (vp1,...,vpk,vc) for parent values
 	 * vpi and child value vc for a certain child entity. The values correspond to
 	 * the indexing of the attribute's method <code>getEntityAsNormalisedInt()</code>.
+	 * Note: The order vp1,...,vpk refers to that
+	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
+	 * <b>Important note: If containing latent attributes, their current hard assignment
+	 * will be used.</b>
 	 * @param cIdx the child entity.
 	 * @return the value configuration.
 	 */
@@ -352,5 +384,38 @@ public class DirichletCounts {
 		}
 		pcVals[this.dependencies.length] = this.child.getEntityAsNormalisedInt(cIdx);
 		return pcVals;
+	}
+	
+	/**
+	 * Returns the likelihood, and thus log-likelihood, sum_e(log P(e | par(e))) for all child entities
+	 * e of the current instantiation I. In doing this, it uses parameters which were previously
+	 * estimated as E[P(vc | vp1,...,vpk) | I], typically derived from an older instantiation I in the case of latent
+	 * attributes.
+	 * <b>Important note: For latent attributes, the likelihood is computed using the current soft completion.</b>
+	 * @return the likelihood.
+	 */
+	public Probability getLikelihood() {
+		if (this.likelihood == null) {
+			this.likelihood = new Probability(1.0);
+			int k = this.dependencies.length;
+			int n = this.child.getNoOfEntities();
+			ArrayList<ConfigCount> ccs = new ArrayList<ConfigCount>(64);
+			for (int i = 0; i < n; ++i) {
+				ccs.clear();
+				
+				// Obtain all soft completion variants of the current entity.
+				for (int j = 0; j <= k; ++j) {
+					createConfigurations(ccs, j, i);
+				}
+				
+				// Obtain probability weighted over all soft completions.
+				double p = 0.0;
+				for (ConfigCount cc : ccs) {
+					p += cc.count * this.getExpectedConditionalProb(cc);
+				}
+				this.likelihood.mult(new Probability(p));
+			}
+		}
+		return this.likelihood;
 	}
 }

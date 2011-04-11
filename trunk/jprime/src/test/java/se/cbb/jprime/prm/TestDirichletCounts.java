@@ -27,6 +27,10 @@ public class TestDirichletCounts {
 		this.i = new IntAttribute("I", this.c, false, 4, DependencyConstraints.NONE, new IntegerInterval(-1, 1));
 		this.ilat = new IntAttribute("ILat", this.c, true, 4, DependencyConstraints.NONE, new IntegerInterval(0,2));
 		this.blat = new BooleanAttribute("BLat", this.c, true, 4, DependencyConstraints.NONE);
+		this.b.useSharpSoftCompletion();
+		this.i.useSharpSoftCompletion();
+		this.ilat.useSharpSoftCompletion();
+		this.blat.useSharpSoftCompletion();
 		this.b.addEntity(true);
 		this.b.addEntity(false);
 		this.b.addEntity(true);
@@ -50,8 +54,11 @@ public class TestDirichletCounts {
 		pd = this.blat.getEntityProbDistribution(0);
 		pd[0] = 0.33;
 		pd[1] = 0.67;
-		
-		// Yields (normalised, current hard assignment first for latent variables):
+	}
+	
+	@Test
+	public void TestLatentChild() {
+		// Configurations created (current hard assignment first for latent variables):
 		//
 		// b:  i:  ilat:    blat:
 		//----------------------------------
@@ -82,11 +89,6 @@ public class TestDirichletCounts {
 		// 0   0   1*0.00   0*0.00
 		// 0   0   0*0.00   1*1.00
 		// 0   0   0*0.00   0*0.00
-	}
-	
-	@Test
-	public void TestLatentChild() {
-		
 		Dependencies deps = new Dependencies(this.blat);
 		deps.put(new Dependency(this.blat, null, this.i, true));
 		deps.put(new Dependency(this.blat, null, this.ilat, true));
@@ -116,10 +118,21 @@ public class TestDirichletCounts {
 	
 	@Test
 	public void TestChildOnly() {
+		// Configurations created:
+		//
+		// i:
+		// ------
+		// 2
+		// 0
+		// 1
+		// 0
 		Dependencies deps = new Dependencies(this.i);
-		DirichletCounts dc = new DirichletCounts(deps, 1.5);
+		DirichletCounts dc = new DirichletCounts(deps, 0.0);
 		assertEquals(2, dc.getCount(new int[]{0}), 1e-6);
 		assertEquals(1, dc.getCount(new int[]{1}), 1e-6);
 		assertEquals(1, dc.getCount(new int[]{2}), 1e-6);
+		assertEquals(0.5, dc.getExpectedConditionalProb(new int[]{0}), 1e-6);
+		assertEquals(0.25, dc.getExpectedConditionalProb(new int[]{1}), 1e-6);
+		assertEquals(0.25, dc.getExpectedConditionalProb(new int[]{2}), 1e-6);
 	}
 }

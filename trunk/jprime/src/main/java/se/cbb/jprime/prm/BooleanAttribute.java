@@ -39,6 +39,9 @@ public class BooleanAttribute implements DiscreteAttribute {
 	/** Dependency constraints */
 	private DependencyConstraints dependencyConstraints;
 	
+	/** Makes soft completion comply with hard assignment when adding values. Mostly for debugging. */
+	private boolean sharpSoftCompletion = false;
+	
 	/**
 	 * Constructor.
 	 * @param name attribute's name. Should be unique within PRM class.
@@ -136,8 +139,14 @@ public class BooleanAttribute implements DiscreteAttribute {
 	public void addEntity(boolean value) {
 		this.entities.add(new Boolean(value));
 		if (this.isLatent) {
-			double[] pd = new double[] {(value ? 0.0 : 1.0), (value ? 1.0 : 0.0)};
-			this.entityProbDists.add(pd);
+			if (this.sharpSoftCompletion) {
+				double[] pd = new double[] {(value ? 0.00 : 1.00), (value ? 1.00 : 0.00)};
+				this.entityProbDists.add(pd);
+			} else {
+				// As soft completion, assign 0.67 to "hard" value just set, and 0.33 to the other. 
+				double[] pd = new double[] {(value ? 0.33 : 0.67), (value ? 0.67 : 0.33)};
+				this.entityProbDists.add(pd);
+			}
 		}
 	}
 	
@@ -211,5 +220,15 @@ public class BooleanAttribute implements DiscreteAttribute {
 			pd[0] /= sum;
 			pd[1] /= sum;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return this.getFullName();
+	}
+	
+	@Override
+	public void useSharpSoftCompletion() {
+		this.sharpSoftCompletion = true;
 	}
 }

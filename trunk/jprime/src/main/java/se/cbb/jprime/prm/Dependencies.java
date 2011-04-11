@@ -235,4 +235,33 @@ public class Dependencies implements Comparable<Dependencies> {
 		return this.dependencies.contains(dep);
 	}
 	
+	/**
+	 * Returns |val(c)| for the child attribute c.
+	 * @return the number of valid values.
+	 * @throws Exception if child not discrete.
+	 */
+	public int getChildCardinality() throws Exception {
+		if (this.child.getDataType() == DataType.DISCRETE) {
+			return ((DiscreteAttribute) this.child).getIntervalSize();
+		}
+		throw new Exception("Cannot obtain cardinality since attribute is not discrete.");
+	}
+	
+	/**
+	 * Returns the |val(p1)|*...*|val(pk)| for the parent attributes pi, or 0 if no parents.
+	 * @return the number of valid values.
+	 * @throws Exception if some parent not discrete.
+	 */
+	public int getParentCardinality() throws Exception {
+		if (this.dependencies.size() == 0) { return 0; }
+		int card = 1;
+		for (Dependency dep : this.dependencies) {
+			if (dep.getParent().getDataType() != DataType.DISCRETE) {
+				throw new Exception("Cannot obtain cardinality since attribute is not discrete.");
+			}
+			card *= ((DiscreteAttribute) dep.getParent()).getIntervalSize();	
+		}
+		return card;
+	}
+	
 }
