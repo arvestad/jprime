@@ -1,6 +1,5 @@
 package se.cbb.jprime.prm;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -28,25 +27,23 @@ public class DependenciesCache<T> {
 	}
 	
 	/**
-	 * Given a Structure, retrieves a list of all dependencies which are not in the
-	 * cache and, if desired, may be in the cache but concern latent attributes.
+	 * Given a structure, retrieves a list of all dependencies which are not in the
+	 * cache, and that are in the cache but contains latent attributes.
 	 * @param struct the structure.
-	 * @param includeLatent true to also return all latent dependencies; false to ignore latent
-	 *        dependencies already in cache.
-	 * @return the dependencies not in the cache.
+	 * @param notInCache list to be filled with dependencies of structure not already in cache.
+	 * @param latentInCache list to be filled with dependencies of structure already in cache but with latent attributes.
 	 */
-	public List<Dependencies> update(Structure struct, boolean includeLatent) {
-		ArrayList<Dependencies> l = new ArrayList<Dependencies>();
+	public void getNonCached(Structure struct, List<Dependencies> notInCache, List<Dependencies> latentInCache) {
+		notInCache.clear();
+		latentInCache.clear();
 		Collection<Dependencies> depsSets = struct.getDependencies();
 		for (Dependencies deps : depsSets) {
-			boolean encountered = this.pool.containsKey(deps);
-			if (!encountered) {
-				l.add(deps);
-			} else if (includeLatent && deps.isLatent()) {
-				l.add(deps);
+			if (!this.pool.containsKey(deps)) {
+				notInCache.add(deps);
+			} else if (deps.isLatent()) {
+				latentInCache.add(deps);
 			}
 		}
-		return l;
 	}
 	
 	/**
@@ -66,5 +63,14 @@ public class DependenciesCache<T> {
 	 */
 	public T get(Dependencies deps) {
 		return this.pool.get(deps);
+	}
+	
+	/**
+	 * Returns true if this cache has a value for a specific key.
+	 * @param deps the key.
+	 * @return true if the cache has a value for the key; false otherwise.
+	 */
+	public boolean containsKey(Dependencies deps) {
+		return this.pool.containsKey(deps);
 	}
 }

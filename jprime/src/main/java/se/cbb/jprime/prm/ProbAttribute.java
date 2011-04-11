@@ -116,4 +116,5 @@ public interface ProbAttribute extends Comparable<ProbAttribute> {
 	 * @return a random attribute.
 	 */
 	public Object getRandomEntityAsObject(Random random);
+	
 }

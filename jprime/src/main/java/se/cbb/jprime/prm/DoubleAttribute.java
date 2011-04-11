@@ -164,4 +164,9 @@ public class DoubleAttribute implements ContinuousAttribute {
 	public int compareTo(ProbAttribute o) {
 		return this.fullName.compareTo(o.getFullName());
 	}
+	
+	@Override
+	public String toString() {
+		return this.getFullName();
+	}
 }
