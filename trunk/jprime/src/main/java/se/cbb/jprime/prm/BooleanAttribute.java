@@ -3,8 +3,6 @@ package se.cbb.jprime.prm;
 import java.util.ArrayList;
 import java.util.Random;
 
-import se.cbb.jprime.math.IntegerInterval;
-
 /**
  * Defines a probabilistic boolean PRM attribute.
  * Treated similarly to {0,1}-valued integer
@@ -14,9 +12,6 @@ import se.cbb.jprime.math.IntegerInterval;
  * @author Joel Sjöstrand.
  */
 public class BooleanAttribute implements DiscreteAttribute {
-
-	/** Treated analogous to {0,1}-valued integer. */
-	public static final IntegerInterval INTERVAL = new IntegerInterval(0, 1);
 	
 	/** PRM class. */
 	private final PRMClass prmClass;
@@ -83,8 +78,8 @@ public class BooleanAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public IntegerInterval getInterval() {
-		return INTERVAL;
+	public int getNoOfValues() {
+		return 2;
 	}
 
 	@Override
@@ -139,14 +134,8 @@ public class BooleanAttribute implements DiscreteAttribute {
 	public void addEntity(boolean value) {
 		this.entities.add(new Boolean(value));
 		if (this.isLatent) {
-			if (this.sharpSoftCompletion) {
-				double[] pd = new double[] {(value ? 0.00 : 1.00), (value ? 1.00 : 0.00)};
-				this.entityProbDists.add(pd);
-			} else {
-				// As soft completion, assign 0.67 to "hard" value just set, and 0.33 to the other. 
-				double[] pd = new double[] {(value ? 0.33 : 0.67), (value ? 0.67 : 0.33)};
-				this.entityProbDists.add(pd);
-			}
+			this.entityProbDists.add(new double[2]);
+			this.createSoftCompletion(this.entities.size() - 1);
 		}
 	}
 	
@@ -171,17 +160,12 @@ public class BooleanAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public int getEntityAsNormalisedInt(int idx) {
+	public int getEntityAsInt(int idx) {
 		return (this.entities.get(idx).booleanValue() ? 1 : 0);
 	}
 
 	@Override
-	public int getIntervalSize() {
-		return 2;
-	}
-
-	@Override
-	public void setEntityAsNormalisedInt(int idx, int value) {
+	public void setEntityAsInt(int idx, int value) {
 		this.entities.set(idx, new Boolean(value == 0 ? false : true));
 	}
 
@@ -196,7 +180,7 @@ public class BooleanAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public void addEntityAsNormalisedInt(int value) {
+	public void addEntityAsInt(int value) {
 		this.addEntity(value == 0 ? false : true);
 	}
 	
@@ -230,5 +214,47 @@ public class BooleanAttribute implements DiscreteAttribute {
 	@Override
 	public void useSharpSoftCompletion() {
 		this.sharpSoftCompletion = true;
+	}
+	
+	@Override
+	public int getMostProbEntityAsInt(int idx) {
+		double[] pd = this.entityProbDists.get(idx);
+		return (pd[1] > pd[0] ? 1 : 0);
+	}
+
+	@Override
+	public void perturbEntityProbDistribution(int idx) {
+		double[] pd = this.entityProbDists.get(idx);
+		if (Math.max(pd[0], pd[1]) < 1.5 * Math.min(pd[0], pd[1])) {
+			double tmp = pd[0];
+			pd[0] = pd[1];
+			pd[1] = tmp;
+		}
+	}
+
+	@Override
+	public void assignRandomValues(Random rng) {
+		for (int i = 0; i < this.entities.size(); ++i) {
+			this.entities.set(i, rng.nextBoolean());
+			this.createSoftCompletion(i);
+		}
+		
+	}
+
+	/**
+	 * Updates the soft completion in accordance with the hard assignment.
+	 * Only applicable on latent attributes.
+	 * @param i the entity.
+	 */
+	private void createSoftCompletion(int i) {
+		double[] pd = this.entityProbDists.get(i);
+		boolean b = this.entities.get(i);
+		if (this.sharpSoftCompletion) {
+			pd[0] = (b ? 0.0 : 1.0);
+			pd[1] = (b ? 1.0 : 0.0);
+		} else { 
+			pd[0] = (b ? 0.33 : 0.67);
+			pd[1] = (b ? 0.67 : 0.33);
+		}
 	}
 }

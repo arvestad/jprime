@@ -2,7 +2,6 @@ package se.cbb.jprime.prm;
 
 import org.junit.* ;
 
-import se.cbb.jprime.math.IntegerInterval;
 import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
 
 import static org.junit.Assert.*;
@@ -24,8 +23,8 @@ public class TestDirichletCounts {
 	public void createAttributesAndEntities() {
 		this.c = new PRMClass("TestPRMClass");
 		this.b = new BooleanAttribute("B", this.c, false, 4, DependencyConstraints.NONE);
-		this.i = new IntAttribute("I", this.c, false, 4, DependencyConstraints.NONE, new IntegerInterval(-1, 1));
-		this.ilat = new IntAttribute("ILat", this.c, true, 4, DependencyConstraints.NONE, new IntegerInterval(0,2));
+		this.i = new IntAttribute("I", this.c, false, 4, DependencyConstraints.NONE, 3);
+		this.ilat = new IntAttribute("ILat", this.c, true, 4, DependencyConstraints.NONE, 3);
 		this.blat = new BooleanAttribute("BLat", this.c, true, 4, DependencyConstraints.NONE);
 		this.b.useSharpSoftCompletion();
 		this.i.useSharpSoftCompletion();
@@ -35,18 +34,18 @@ public class TestDirichletCounts {
 		this.b.addEntity(false);
 		this.b.addEntity(true);
 		this.b.addEntity(false);
-		this.i.addEntityAsNormalisedInt(2);
-		this.i.addEntityAsNormalisedInt(0);
-		this.i.addEntityAsNormalisedInt(1);
-		this.i.addEntityAsNormalisedInt(0);
+		this.i.addEntityAsInt(2);
+		this.i.addEntityAsInt(0);
+		this.i.addEntityAsInt(1);
+		this.i.addEntityAsInt(0);
 		this.ilat.addEntity(2);
 		this.ilat.addEntity(1);
 		this.ilat.addEntity(0);
 		this.ilat.addEntity(2);
-		this.blat.addEntityAsNormalisedInt(0);
-		this.blat.addEntityAsNormalisedInt(0);
-		this.blat.addEntityAsNormalisedInt(1);
-		this.blat.addEntityAsNormalisedInt(1);
+		this.blat.addEntityAsInt(0);
+		this.blat.addEntityAsInt(0);
+		this.blat.addEntityAsInt(1);
+		this.blat.addEntityAsInt(1);
 		double[] pd = this.ilat.getEntityProbDistribution(0);
 		pd[0] = 0.25;
 		pd[1] = 0.50;
