@@ -242,7 +242,7 @@ public class Dependencies implements Comparable<Dependencies> {
 	 */
 	public int getChildCardinality() throws Exception {
 		if (this.child.getDataType() == DataType.DISCRETE) {
-			return ((DiscreteAttribute) this.child).getIntervalSize();
+			return ((DiscreteAttribute) this.child).getNoOfValues();
 		}
 		throw new Exception("Cannot obtain cardinality since attribute is not discrete.");
 	}
@@ -259,7 +259,7 @@ public class Dependencies implements Comparable<Dependencies> {
 			if (dep.getParent().getDataType() != DataType.DISCRETE) {
 				throw new Exception("Cannot obtain cardinality since attribute is not discrete.");
 			}
-			card *= ((DiscreteAttribute) dep.getParent()).getIntervalSize();	
+			card *= ((DiscreteAttribute) dep.getParent()).getNoOfValues();	
 		}
 		return card;
 	}

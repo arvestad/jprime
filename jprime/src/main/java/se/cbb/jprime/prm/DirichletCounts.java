@@ -34,7 +34,7 @@ public class DirichletCounts {
 	
 	/**
 	 * Inner class representing a value configuration and its count.
-	 * Two instances are equal if they have the equivalent configurations.
+	 * Two instances are equal if they have equivalent configurations.
 	 */
 	private class ConfigCount {
 		int[] config;
@@ -110,7 +110,7 @@ public class DirichletCounts {
 	/** Counts summed over child values, hashed by (vp1,...,vpk) for parent values vpi. */
 	private HashMap<ConfigCount, ConfigCount> summedCounts;
 	
-	/** Likelihood (or log-likelihood) of all child entities. Only computed once needed. */
+	/** Likelihood (and log-likelihood) of all child entities. Only computed once needed. */
 	private Probability likelihood;
 	
 	/**
@@ -142,8 +142,8 @@ public class DirichletCounts {
 		} catch (Exception ex) {}
 		this.dirichletParam = dirichletParam;
 		int n = dependencies.getChild().getNoOfEntities();
-		this.counts = new HashMap<ConfigCount, ConfigCount>(n / 8);
-		this.summedCounts = (k == 0 ? null : new HashMap<ConfigCount, ConfigCount>(n / 8));
+		this.counts = new HashMap<ConfigCount, ConfigCount>(n / 16);
+		this.summedCounts = (k == 0 ? null : new HashMap<ConfigCount, ConfigCount>(n / 16));
 		this.likelihood = null;
 		
 		this.update();
@@ -249,7 +249,7 @@ public class DirichletCounts {
 			}
 		} else {
 			// Read single value.
-			int val = attr.getEntityAsNormalisedInt(i);
+			int val = attr.getEntityAsInt(i);
 			if (idx == 0) {
 				int[] config = new int[this.dependencies.length + 1];
 				config[0] = val;
@@ -273,11 +273,11 @@ public class DirichletCounts {
 	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * @param pcVals the attribute values converted to integers in this
 	 *        order: (vp1,...,vpk,vc). Conversion must comply with
-	 *        the attributes' method <code>getEntityAsNormalisedInt()</code>.
+	 *        the attributes' method <code>getEntityAsInt()</code>.
 	 * @return the expected conditional probability of the child value given the parent values.
 	 */
 	public double getExpectedConditionalProb(int[] pcVals) {
-		return getExpectedConditionalProb(new ConfigCount(pcVals, 0)); // Dummy count.
+		return getExpectedConditionalProb(new ConfigCount(pcVals, 0.0)); // Dummy count.
 	}
 	
 	/**
@@ -339,7 +339,7 @@ public class DirichletCounts {
 	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * @param pcVals the configuration in the order outlined above.
 	 *        The conversion to integers must comply the attributes' method
-	 *        <code>getEntityAsNormalisedInt()</code>.
+	 *        <code>getEntityAsInt()</code>.
 	 * @return the count, possibly 0.
 	 */
 	public double getCount(int[] pcVals) {
@@ -356,7 +356,7 @@ public class DirichletCounts {
 	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * @param pVals the configuration in the order outlined above.
 	 *        The conversion to integers must comply the attributes' method
-	 *        <code>getEntityAsNormalisedInt()</code>.
+	 *        <code>getEntityAsInt()</code>.
 	 * @return the count, possibly 0.
 	 */
 	public double getSummedCount(int[] pVals) {
@@ -369,7 +369,7 @@ public class DirichletCounts {
 	 * Convenience method.
 	 * Returns the value configuration (vp1,...,vpk,vc) for parent values
 	 * vpi and child value vc for a certain child entity. The values correspond to
-	 * the indexing of the attribute's method <code>getEntityAsNormalisedInt()</code>.
+	 * the indexing of the attribute's method <code>getEntityAsInt()</code>.
 	 * Note: The order vp1,...,vpk refers to that
 	 * returned by the <code>getAll()</code> method of <code>Dependencies</code>.
 	 * <b>Important note: If containing latent attributes, their current hard assignment
@@ -380,9 +380,9 @@ public class DirichletCounts {
 	public int[] getValueConfig(int cIdx) {
 		int[] pcVals = new int[this.dependencies.length + 1];
 		for (int i = 0; i < this.dependencies.length; ++i) {
-			pcVals[i] = this.parents[i].getEntityAsNormalisedInt(this.dependencies[i].getSingleParentEntity(cIdx));
+			pcVals[i] = this.parents[i].getEntityAsInt(this.dependencies[i].getSingleParentEntity(cIdx));
 		}
-		pcVals[this.dependencies.length] = this.child.getEntityAsNormalisedInt(cIdx);
+		pcVals[this.dependencies.length] = this.child.getEntityAsInt(cIdx);
 		return pcVals;
 	}
 	
@@ -391,7 +391,7 @@ public class DirichletCounts {
 	 * e of the current instantiation I. In doing this, it uses parameters which were previously
 	 * estimated as E[P(vc | vp1,...,vpk) | I], typically derived from an older instantiation I in the case of latent
 	 * attributes.
-	 * <b>Important note: For latent attributes, the likelihood is computed using the current soft completion.</b>
+	 * <b>Important note: For latent attributes, the likelihood is computed using the entities' current soft completion.</b>
 	 * @return the likelihood.
 	 */
 	public Probability getLikelihood() {

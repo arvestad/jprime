@@ -3,8 +3,6 @@ package se.cbb.jprime.prm;
 import java.util.ArrayList;
 import java.util.Random;
 
-import se.cbb.jprime.math.IntegerInterval;
-
 /**
  * Defines a probabilistic integer PRM attribute, either bounded or unbounded.
  * The attribute automatically adds itself to its PRM class.
@@ -26,7 +24,7 @@ public class IntAttribute implements DiscreteAttribute {
 	private boolean isLatent;
 	
 	/** Interval defining valid range. */
-	private IntegerInterval interval;
+	private int noOfVals;
 	
 	/** Entities. */
 	private final ArrayList<Integer> entities;
@@ -47,14 +45,14 @@ public class IntAttribute implements DiscreteAttribute {
 	 * @param isLatent true if hidden or unknown.
 	 * @param initialCapacity initial capacity for attribute entities.
 	 * @param dependencyConstraints dependency structure constraints.
-	 * @param interval the valid range of values.
+	 * @param k the number of valid values, i.e., yields the range 0,...,k-1.
 	 */
 	public IntAttribute(String name, PRMClass prmClass, boolean isLatent, int initialCapacity,
-			DependencyConstraints dependencyConstraints, IntegerInterval interval) {
+			DependencyConstraints dependencyConstraints, int k) {
 		this.name = name;
 		this.prmClass = prmClass;
 		this.isLatent = isLatent;
-		this.interval = interval;
+		this.noOfVals = k;
 		this.entities = new ArrayList<Integer>(initialCapacity);
 		this.entityProbDists = (isLatent ? new ArrayList<double[]>(initialCapacity) : null);
 		this.fullName = this.prmClass.getName() + '.' + this.name;
@@ -83,13 +81,13 @@ public class IntAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public IntegerInterval getInterval() {
-		return this.interval;
+	public int getNoOfValues() {
+		return this.noOfVals;
 	}
 
 	@Override
 	public Object getRandomEntityAsObject(Random random) {
-		return new Integer(this.interval.getRandom(random));
+		return new Integer(random.nextInt(this.noOfVals));
 	}
 
 	@Override
@@ -127,9 +125,6 @@ public class IntAttribute implements DiscreteAttribute {
 	 * @param value the value.
 	 */
 	public void setEntity(int idx, int value) {
-		if (!this.interval.isWithin(value)) {
-			throw new IllegalArgumentException("Value out-of-range.");
-		}
 		this.entities.set(idx, new Integer(value));
 	}
 	
@@ -138,27 +133,38 @@ public class IntAttribute implements DiscreteAttribute {
 	 * @param value the value.
 	 */
 	public void addEntity(int value) {
-		if (!this.interval.isWithin(value)) {
+		if (value < 0 || value >= this.noOfVals) {
 			throw new IllegalArgumentException("Value out-of-range.");
 		}
 		this.entities.add(new Integer(value));
 		if (this.isLatent) {
-			double[] pd = new double[this.interval.getSize()];
-			int idx = value - this.interval.getLowerBound();
-			if (this.sharpSoftCompletion) {
-				pd[idx] = 1.0;
-			} else {
-				// As soft completion, assign twice the weight to the value corresponding to the hard assignment.
-				double p = 1.0 / (pd.length + 1);
-				for (int i = 0; i < pd.length; ++i) {
-					pd[i] = p;
-				}
-				pd[idx] = 2 * p;
-			}
-			this.entityProbDists.add(pd);
+			this.entityProbDists.add(new double[this.noOfVals]);
+			this.createSoftCompletion(this.entities.size() - 1);
 		}
 	}
 	
+	/**
+	 * Creates a mock soft completion.
+	 * @param i the entity.
+	 */
+	private void createSoftCompletion(int i) {
+		double[] pd = this.entityProbDists.get(i);
+		int idx = this.entities.get(i);
+		if (this.sharpSoftCompletion) {
+			for (int j = 0; j < pd.length; ++j) {
+				pd[j] = 0.0;
+			}
+			pd[idx] = 1.0;
+		} else {
+			// As soft completion, assign twice the weight to the value corresponding to the hard assignment.
+			double p = 1.0 / (pd.length + 1);
+			for (int j = 0; j < pd.length; ++j) {
+				pd[j] = p;
+			}
+			pd[idx] = 2 * p;
+		}
+	}
+
 	@Override
 	public int getNoOfEntities() {
 		return this.entities.size();
@@ -180,24 +186,17 @@ public class IntAttribute implements DiscreteAttribute {
 	}
 
 	@Override
-	public int getEntityAsNormalisedInt(int idx) {
-		return (this.entities.get(idx).intValue() - this.interval.getLowerBound());
+	public int getEntityAsInt(int idx) {
+		return this.entities.get(idx).intValue();
 	}
 
 	@Override
-	public int getIntervalSize() {
-		return this.interval.getSize();
-	}
-
-	@Override
-	public void setEntityAsNormalisedInt(int idx, int value) {
-		value += this.interval.getLowerBound();
+	public void setEntityAsInt(int idx, int value) {
 		this.setEntity(idx, value);
 	}
 
 	@Override
-	public void addEntityAsNormalisedInt(int value) {
-		value += this.interval.getLowerBound();
+	public void addEntityAsInt(int value) {
 		this.addEntity(value);
 	}
 
@@ -251,4 +250,56 @@ public class IntAttribute implements DiscreteAttribute {
 		this.sharpSoftCompletion = true;
 	}
 	
+	@Override
+	public int getMostProbEntityAsInt(int idx) {
+		int topIdx = -1;
+		double topProb = -1;
+		double[] pd = this.entityProbDists.get(idx);
+		for (int i = 0; i < pd.length; ++i) {
+			if (pd[i] > topProb) {
+				topProb = pd[i];
+				topIdx = i;
+			}
+		}
+		//System.out.print(topProb + "\t");
+		return topIdx;
+	}
+
+	@Override
+	public void perturbEntityProbDistribution(int idx) {
+		// Switch place of best and second best soft completion values.
+		int topIdx = -1;
+		int oldTopIdx = -1;
+		double topProb = -1;
+		double[] pd = this.entityProbDists.get(idx);
+		for (int i = 0; i < pd.length; ++i) {
+			if (pd[i] > topProb) {
+				oldTopIdx = topIdx;
+				topProb = pd[i];
+				topIdx = i;
+			}
+		}
+		if (topIdx == 0) {
+			topProb = -1;
+			for (int i = 1; i < pd.length; ++i) {
+				if (pd[i] > topProb) {
+					topProb = pd[i];
+					oldTopIdx = i;
+				}
+			}
+		}
+		if (pd[topIdx] < 1.5 * pd[oldTopIdx]) {
+			topProb = pd[topIdx];
+			pd[topIdx] = pd[oldTopIdx];
+			pd[oldTopIdx] = topProb;
+		}
+	}
+
+	@Override
+	public void assignRandomValues(Random rng) {
+		for (int i = 0; i < this.entities.size(); ++i) {
+			this.entities.set(i, rng.nextInt(this.noOfVals));
+			this.createSoftCompletion(i);
+		}
+	}
 }

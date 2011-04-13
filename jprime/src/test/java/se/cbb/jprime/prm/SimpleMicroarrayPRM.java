@@ -1,15 +1,14 @@
 package se.cbb.jprime.prm;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
-import se.cbb.jprime.math.IntegerInterval;
 import se.cbb.jprime.math.Probability;
 import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
 import se.cbb.jprime.prm.Relation.Type;
@@ -37,10 +36,23 @@ public class SimpleMicroarrayPRM {
 	
 	private Skeleton skeleton;
 	
+	private int noOfClusters;
+
+	private String suffix;
+	
 	public SimpleMicroarrayPRM() throws FileNotFoundException {
 		this.rng = new MersenneTwisterRNG();
 		System.out.println(this.rng.getSeed().length);
 		this.skeleton = new Skeleton("SimpleMicroarraySkeleton");
+		
+		// For alternating between setups.
+		if (false) {
+			this.noOfClusters = 3;
+			this.suffix = "_new.out";
+		} else {
+			this.noOfClusters = 12;
+			this.suffix = ".out";
+		}
 		
 		// Fill skeleton.
 		this.readGeneFile();
@@ -59,15 +71,15 @@ public class SimpleMicroarrayPRM {
 		BooleanAttribute a1 = new BooleanAttribute("A1", genes, false, 1024, DependencyConstraints.NONE);
 		BooleanAttribute a2 = new BooleanAttribute("A2", genes, false, 1024, DependencyConstraints.NONE);
 		BooleanAttribute a3 = new BooleanAttribute("A3", genes, false, 1024, DependencyConstraints.NONE);
-		IntegerInterval clusterRange = new IntegerInterval(1,12);
-		IntAttribute cluster = new IntAttribute("Cluster", genes, true, 1024, DependencyConstraints.PARENT_ONLY,
-				clusterRange);
+		IntAttribute cluster = new IntAttribute("Cluster", genes, true, 1024, DependencyConstraints.PARENT_ONLY, this.noOfClusters);
 		this.skeleton.addPRMClass(genes);
 		
 		// Read values. Assign random values to latent variable.
 		System.out.println(this.getClass().getResource("."));
-		File f = new File(this.getClass().getResource("/microarray/synthetic/genesAttributes.out").getFile());
+		File f = new File(this.getClass().getResource("/microarray/synthetic/genesAttributes" + this.suffix).getFile());
 		Scanner sc = new Scanner(f);
+		File f2 = new File(this.getClass().getResource("/microarray/synthetic/gene_clusters.true" + this.suffix).getFile());
+		Scanner sc2 = new Scanner(f2);
 		while (sc.hasNextLine()) {
 			String ln = sc.nextLine().trim();
 			if (ln.equals("")) { continue; }
@@ -76,7 +88,7 @@ public class SimpleMicroarrayPRM {
 			a1.addEntity(parts[1].contains("A1"));
 			a2.addEntity(parts[1].contains("A2"));
 			a3.addEntity(parts[1].contains("A3"));
-			cluster.addEntity(clusterRange.getRandom(this.rng));
+			cluster.addEntityAsInt(Integer.parseInt(sc2.nextLine().trim()));
 		}
 		sc.close();
 	}
@@ -89,19 +101,18 @@ public class SimpleMicroarrayPRM {
 		// Skeleton part
 		PRMClass arrays = new PRMClass("Array");
 		FixedAttribute id = new FixedAttribute("ID", arrays, 128);
-		IntAttribute cluster = new IntAttribute("Cluster", arrays, false, 128, DependencyConstraints.PARENT_ONLY,
-				new IntegerInterval(1, 4));
+		IntAttribute cluster = new IntAttribute("Cluster", arrays, false, 128, DependencyConstraints.PARENT_ONLY, 4);
 		this.skeleton.addPRMClass(arrays);
 		
 		// Read values.
-		File f = new File(this.getClass().getResource("/microarray/synthetic/ArrayCluster.out").getFile());
+		File f = new File(this.getClass().getResource("/microarray/synthetic/ArrayCluster" + this.suffix).getFile());
 		Scanner sc = new Scanner(f);
 		while (sc.hasNextLine()) {
 			String ln = sc.nextLine().trim();
 			if (ln.equals("")) { continue; }
 			String[] parts = ln.split("[\t ]+");
 			id.addEntity(parts[0]);
-			cluster.addEntity(Integer.parseInt(parts[1]));
+			cluster.addEntity(Integer.parseInt(parts[1]) - 1);
 		}
 		sc.close();
 	}
@@ -116,8 +127,7 @@ public class SimpleMicroarrayPRM {
 		FixedAttribute id = new FixedAttribute("ID", measurements, 131072);
 		FixedAttribute gID = new FixedAttribute("GeneID", measurements, 131072);
 		FixedAttribute aID = new FixedAttribute("ArrayID", measurements, 131072);
-		IntAttribute level = new IntAttribute("Level", measurements, false, 131072, DependencyConstraints.NONE,
-				new IntegerInterval(-1, 1));
+		IntAttribute level = new IntAttribute("Level", measurements, false, 131072, DependencyConstraints.NONE, 3);
 		PRMClass genes = this.skeleton.getPRMClass("Gene");
 		PRMClass arrays = this.skeleton.getPRMClass("Array");
 		// Relations add themselves to their classes...
@@ -128,9 +138,10 @@ public class SimpleMicroarrayPRM {
 		// Read values.
 		File f;
 		Scanner sc;
+		String suff = this.suffix.equals("_new.out") ? "new_" : "";
 		// One file per array (80 in total).
 		for (int i = 0; i < 80; ++i) {
-			f = new File(this.getClass().getResource("/microarray/synthetic/exp_array_" + i + ".out").getFile());
+			f = new File(this.getClass().getResource("/microarray/synthetic/exp_array_" + suff + i + ".out").getFile());
 			sc = new Scanner(f);
 			String[] lvls = sc.nextLine().trim().split(",");
 			// One expression level per gene (1000 in total).
@@ -138,7 +149,7 @@ public class SimpleMicroarrayPRM {
 				id.addEntity("G" + j + "-" + "A" + i);
 				gID.addEntity("G" + j);
 				aID.addEntity("A" + i);
-				level.addEntity(Integer.parseInt(lvls[j]));
+				level.addEntity(Integer.parseInt(lvls[j]) + 1);
 			}
 			sc.close();
 		}
@@ -171,7 +182,7 @@ public class SimpleMicroarrayPRM {
 	
 	private void run() {
 //		for (int i = 0; i < 5000; ++i) {
-//			Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 12, 5, 2, 200);
+//			Structure s = RandomStructureGenerator.createStrictRandomStructure(this.rng, this.skeleton, 5, 5, 2, 200);
 //			if (!this.structures.contains(s)) {
 //				this.structures.add(s);
 //				//System.out.println(s);
@@ -186,45 +197,107 @@ public class SimpleMicroarrayPRM {
 		ArrayList<Dependencies> toAdd = new ArrayList<Dependencies>();
 		ArrayList<Dependencies> toUpdate = new ArrayList<Dependencies>();
 		
+		IntAttribute gc = (IntAttribute) this.skeleton.getPRMClass("Gene").getProbAttribute("Cluster");
+		int n = gc.getNoOfEntities();
+		
 		// Start with true structure.
 		Structure struct = this.getTrueStructure();
 		
-		double loglhood = -1000000000;
-		int nonImpr = 0;
-		while (nonImpr < 5) {
-			counts.getNonCached(struct, toAdd, toUpdate);
-			for (Dependencies deps : toAdd) {
-				try {
-					int noOfSamples = deps.getChild().getNoOfEntities();
-					int noOfPosVals = Math.max(1, deps.getParentCardinality()) * deps.getChildCardinality();
-					double pseudoCnt = ((double) noOfSamples / noOfPosVals) / 10;
-					counts.put(deps, new DirichletCounts(deps, pseudoCnt));
-				} catch (Exception ex) {}
+		// Classification correlation matrix.
+		int[][] corr = new int[n][n];
+		for (int i = 0; i < n; ++i) {
+			for (int j = 0; j < n; ++j) {
+				corr[i][j] = 0;
 			}
-			for (Dependencies deps : toUpdate) {
-				counts.get(deps).update();
-			}
-			this.inferGeneClusters(struct, counts);
-			Probability p = new Probability(1.0);
+		}
+		
+		// Run many EM runs on the same structure.
+		double topLoglhood = Double.NEGATIVE_INFINITY;
+		for (int emi = 0; emi < 1; ++emi) {
+			
+			// Create random assignments.
+			//gc.assignRandomValues(this.rng);
 			for (Dependencies deps : struct.getDependencies()) {
-				p.mult(counts.get(deps).getLikelihood());
+				counts.put(deps, new DirichletCounts(deps, this.suggestDirichletParam(deps)));
 			}
 			
-			// Count the number of consecutive non-improvements.
-			if (p.getLogValue() <= loglhood) {
-				++nonImpr;
-			} else {
-				nonImpr = 0;
+			// Perform EM algorithm.
+			double loglhood = -1000000000;
+			int nonImpr = 0;
+			int iter = 0;
+			while (nonImpr < 10 && iter < 500) {
+				
+				// ----- E-STEP -----
+				// Make soft completion given current parameters.
+				this.inferGeneClusters(struct, counts);
+	//			if (iter % 20 == 0 && iter <= 100) {
+	//				for (int i = 0; i < gc.getNoOfEntities() / 10; ++i) {
+	//					int idx = (int) (Math.random() * gc.getNoOfEntities());
+	//					gc.perturbEntityProbDistribution(idx);
+	//				}
+	//			}
+				
+				// ----- M-STEP -----
+				// Update parameters.
+				counts.getNonCached(struct, toAdd, toUpdate);
+				for (Dependencies deps : toAdd) {
+					counts.put(deps, new DirichletCounts(deps, this.suggestDirichletParam(deps)));
+				}
+				for (Dependencies deps : toUpdate) {
+					counts.get(deps).update();
+				}
+				
+				// Compute the log-likelihood.
+				Probability p = new Probability(1.0);
+				for (Dependencies deps : struct.getDependencies()) {
+					p.mult(counts.get(deps).getLikelihood());
+				}
+				
+				// Count the number of consecutive non-improvements.
+				if (p.getLogValue() < loglhood || (p.getLogValue() - loglhood) < 1e-8) {
+					++nonImpr;
+				} else {
+					nonImpr = 0;
+				}
+				loglhood = p.getLogValue();
+				if (loglhood > topLoglhood) { topLoglhood = loglhood; }
+				System.out.println(iter + ":\t" + loglhood);
+				++iter;
 			}
-			loglhood = p.getLogValue();
-			System.out.println(loglhood);
+			
+			System.out.println("Top log-likelihood: " + topLoglhood);
+			
+			// Update classification matrix.
+			this.inferGeneClusters(struct, counts);
+			for (int i = 0; i < n; ++i) {
+				int a = gc.getMostProbEntityAsInt(i);
+				System.out.println(a);
+				for (int j = 0; j < n; ++j) {
+					int b = gc.getMostProbEntityAsInt(j);
+					if (i != j && a == b)
+						++corr[i][j];
+				}
+			}
 		}
-		ProbAttribute gc = struct.getSkeleton().getPRMClass("Gene").getProbAttribute("Cluster");
-		System.out.println(gc);
+		
+		// Use e.g. k-means to do final cluster partitioning of matrix.
+		try {
+			FileWriter fstream = new FileWriter("/tmp/corr.matrix");
+			BufferedWriter out = new BufferedWriter(fstream);
+			for (int i = 0; i < n; ++i) {
+				for (int j = 0; j < n; ++j) {
+					out.write("" + corr[i][j] + "\t");
+				}
+				out.write('\n');
+			}
+			out.close();
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}	
 	}
 	
 	/**
-	 * Makes a soft completion inference of gene cluster, assuming it is the only latent attribute and
+	 * Makes a soft completion exact inference of gene cluster, assuming it is the only latent attribute and
 	 * that is is a source in the induced BN. Used instead of implementing a complete belief
 	 * propagation or similarly.
 	 * @param struct the structure.
@@ -252,7 +325,7 @@ public class SimpleMicroarrayPRM {
 			Dependency gcDep = null;
 			for (Dependency dep : deps.getAll()) {
 				if (dep.getParent() == gc) {
-					gcDep = dep;  // There can be only one in our case.
+					gcDep = dep;  // Gene cluster can occur only once in our case.
 					break;
 				}
 			}
@@ -266,17 +339,31 @@ public class SimpleMicroarrayPRM {
 				
 				// For each possible value of the gene cluster entity,
 				// make a temporary hard assignment, then update soft completion.
-				for (int j = 0; j < 12; ++j) {
-					gc.setEntityAsNormalisedInt(gcIdx, j);
+				for (int j = 0; j < this.noOfClusters; ++j) {
+					gc.setEntityAsInt(gcIdx, j);
 					double p = dc.getExpectedConditionalProb(i);
 					sc[j] = (Double.isNaN(sc[j]) ? p : sc[j] * p);  // NaN if uninitialised.
 				}
+				// For well-conditioning, keep mean(sc[j]) to 1.
+				// Should be harmless (right?) since it corresponds to multiplying
+				// end-result with #<relevant rows> intermediary factors.
+				gc.normaliseEntityProbDistribution(gcIdx);
 			}
 		}
-		
-		// Finally, normalise our soft completions.
-		for (int i = 0; i < gc.getNoOfEntities(); ++i) {
-			gc.normaliseEntityProbDistribution(i);
-		}
+	}
+	
+	/**
+	 * 
+	 * @param deps
+	 * @return
+	 */
+	private double suggestDirichletParam(Dependencies deps) {
+		double pseudoCnt = 0.0;
+		try {
+			int noOfSamples = deps.getChild().getNoOfEntities();
+			int noOfPosVals = Math.max(1, deps.getParentCardinality()) * deps.getChildCardinality();
+			pseudoCnt = ((double) noOfSamples / noOfPosVals) / 10;
+		} catch (Exception ex) {}
+		return pseudoCnt;
 	}
 }

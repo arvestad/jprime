@@ -3,7 +3,6 @@ package se.cbb.jprime.prm;
 import java.util.Collection;
 import java.util.Iterator;
 
-import se.cbb.jprime.math.IntegerInterval;
 import se.cbb.jprime.misc.MultiArray;
 
 /**
@@ -63,16 +62,14 @@ public class Counts implements MultiArray {
 		int prevLength = 1;
 		int prevLengthFactor = 1;
 		for (int i = 0; i < this.noOfParents; ++i) {
-			IntegerInterval range = ((DiscreteAttribute) it.next().getParent()).getInterval();
-			this.lengths[i] = range.getSize();
+			this.lengths[i] = ((DiscreteAttribute) it.next().getParent()).getNoOfValues();
 			this.lengthFactors[i] = prevLength * prevLengthFactor;
 			prevLength = this.lengths[i];
 			prevLengthFactor = this.lengthFactors[i];
 		}
 		
 		// Child corresponds to last index.
-		IntegerInterval range = ((DiscreteAttribute) dependencies.getChild()).getInterval();
-		this.lengths[this.noOfParents] = range.getSize();
+		this.lengths[this.noOfParents] = ((DiscreteAttribute) dependencies.getChild()).getNoOfValues();
 		this.lengthFactors[this.noOfParents] = prevLength * prevLengthFactor;
 		
 		// Create space for counts.
@@ -117,9 +114,9 @@ public class Counts implements MultiArray {
 		for (int i = 0; i < n; ++i) {
 			for (int j = 0; j < this.noOfParents; ++j) {
 				DiscreteAttribute par = (DiscreteAttribute) deps[j].getParent();
-				vals[j] = par.getEntityAsNormalisedInt(deps[j].getSingleParentEntity(i));
+				vals[j] = par.getEntityAsInt(deps[j].getSingleParentEntity(i));
 			}
-			vals[this.noOfParents] = ch.getEntityAsNormalisedInt(i);
+			vals[this.noOfParents] = ch.getEntityAsInt(i);
 			this.increment(vals);
 		}
 	}
