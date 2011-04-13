@@ -216,7 +216,7 @@ public class SimpleMicroarrayPRM {
 		for (int emi = 0; emi < 1; ++emi) {
 			
 			// Create random assignments.
-			//gc.assignRandomValues(this.rng);
+			gc.assignRandomValues(this.rng);
 			for (Dependencies deps : struct.getDependencies()) {
 				counts.put(deps, new DirichletCounts(deps, this.suggestDirichletParam(deps)));
 			}
@@ -311,6 +311,9 @@ public class SimpleMicroarrayPRM {
 		for (Dependencies deps : gcDeps) {
 			gcCounts.add(counts.get(deps));
 		}
+		
+		// Also add itself, for the prior!
+		gcCounts.add(counts.get(struct.getDependencies(gc)));
 		
 		// Clear the soft completions.
 		for (int i = 0; i < gc.getNoOfEntities(); ++i) {
