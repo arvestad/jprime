@@ -3,7 +3,8 @@ package se.cbb.jprime.math;
 /**
  * Class for floating point numbers where the value is kept in log-form internally. 
  * As such, it enables higher precision than a regular
- * double for e.g. very small probabilities 0 <= p << 1, although it can be used for negative numbers as well.
+ * double for e.g. very small probabilities 0 <= p << 1, although it can be used for values greater
+ * than 1 and negative values as well.
  * 
  * @author Bengt Sennblad.
  * @author Joel Sjöstrand.
@@ -12,7 +13,7 @@ public final class Probability implements Comparable<Probability> {
 	
 	/**
 	 * Log-value, sign of actual value discarded. If the actual value is 0, this may be set to anything,
-	 * (although most often it will be set to 0.0).
+	 * (although most often it will be set to Double.NEGATIVE_INFINITY.).
 	 */
 	private double p;
 	
@@ -23,7 +24,7 @@ public final class Probability implements Comparable<Probability> {
 	 * Constructor. Sets the probability to 0.
 	 */
 	public Probability() {
-		this.p = 0.0;       // Dummy.
+		this.p = Double.NEGATIVE_INFINITY;       // Dummy.
 		this.sign = 0;
 	}
 	
@@ -33,14 +34,14 @@ public final class Probability implements Comparable<Probability> {
 	 */
 	public Probability(double d) {
 		assert !Double.isNaN(d);
-		assert !Double.isInfinite(d);
+		//assert !Double.isInfinite(d);
 
 		if (d > 0.0) {
 			this.p = Math.log(d);
 			this.sign = 1;
 		}
 		else if (d == 0.0) {
-			this.p = 0.0;      // Dummy.
+			this.p = Double.NEGATIVE_INFINITY;      // Dummy.
 			this.sign = 0;
 		}
 		else {
@@ -63,7 +64,7 @@ public final class Probability implements Comparable<Probability> {
 	 */
 	Probability(Probability prob) {
 		assert !Double.isNaN(prob.p);
-		assert !Double.isInfinite(prob.p);
+		//assert !Double.isInfinite(prob.p);
 		this.p = prob.p;
 		this.sign = prob.sign;
 	}
@@ -75,23 +76,23 @@ public final class Probability implements Comparable<Probability> {
 	 */
 	public Probability(double logProb, int sign) {
 		assert !Double.isNaN(logProb);
-		assert !Double.isInfinite(logProb);
+		//assert !Double.isInfinite(logProb);
 		assert (sign >= -1 && sign <= 1);
 		if (sign == 0) {
-			this.p = 0.0;    // Dummy.
+			this.p = Double.NEGATIVE_INFINITY;    // Dummy.
 			this.sign = 0;
 		} else if (sign <= -1) {
 			this.p = logProb;
 			this.sign = -1;
 		} else {
 			this.p = logProb;
-			this.p = 1;
+			this.sign = 1;
 		}
 	}
 	
 	/**
-	 * Returns the log-value, sign of actual value discarded. If the actual value==sign==0,
-	 * the returned value may be anything.
+	 * Returns log(|v|) for the actual value v. If v==sign==0, the returned
+	 * value may be anything (although commonly Double.NEGATIVE_INFINITY).
 	 * @return the log-value.
 	 */
 	public double getLogValue() {
@@ -107,7 +108,7 @@ public final class Probability implements Comparable<Probability> {
 	}
 
 	/**
-	 * Returns the value non-logged. There may of course be
+	 * Returns the actual value (non-logged). There may of course be
 	 * a loss of precision (small values may e.g. be rounded to 0). 
 	 * @return the actual value.
 	 */
@@ -132,9 +133,9 @@ public final class Probability implements Comparable<Probability> {
 	 */
 	public Probability add(Probability q) {
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		assert !Double.isNaN(q.p);
-		assert !Double.isInfinite(q.p);
+		//assert !Double.isInfinite(q.p);
 		switch (this.sign * q.sign) {
 		case 1:
 			add_(q);	// Sign should not change.
@@ -150,7 +151,7 @@ public final class Probability implements Comparable<Probability> {
 			throw new ArithmeticException("Sign of Probability instance has illegal value.");
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -187,7 +188,7 @@ public final class Probability implements Comparable<Probability> {
 			throw new ArithmeticException("Sign of Probability instance has illegal value.");
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -211,7 +212,7 @@ public final class Probability implements Comparable<Probability> {
 		this.sign *= q.sign;
 		this.p = (this.sign == 0 ? 0.0 : this.p + q.p);
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -238,7 +239,7 @@ public final class Probability implements Comparable<Probability> {
 		this.sign *= q.sign;
 		this.p = (this.sign == 0 ? 0.0 : this.p - q.p);
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -259,7 +260,7 @@ public final class Probability implements Comparable<Probability> {
 	public Probability neg() {
 		this.sign = -this.sign;
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -273,27 +274,27 @@ public final class Probability implements Comparable<Probability> {
 	}
 	
 	/**
-	 * Raises this Probability to a power. See also <code>powerToNew()</code>.
+	 * Raises this Probability to a power. See also <code>powToNew()</code>.
 	 * @param i the power.
 	 * @return this Probability, not a new instance.
 	 */
-	public Probability power(int i) {
+	public Probability pow(int i) {
 		if (this.sign == 1) {
 			this.p *= i;
 		} else if (this.sign == 0) {
 			if (i == 0) {
 				this.p = 0;
 				this.sign = 1;
+			} else if (i < 0) {
+				this.p = Double.POSITIVE_INFINITY;   // Well...
+				this.sign = 1;
 			}
-		} else if (i >= 0) {
+		} else {
 			this.p *= i;
 			this.sign = (i % 2 == 0 ? 1 : -1);
-		} else {
-			throw new ArithmeticException("Cannot raise negative Probability to negative integer power since " +
-					"complex number representation not supported.");
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -304,7 +305,7 @@ public final class Probability implements Comparable<Probability> {
 	 * @return a new Probability.
 	 */
 	public Probability powToNew(int i) {
-		return (new Probability(this)).power(i);
+		return (new Probability(this)).pow(i);
 	}
 	
 	/**
@@ -319,13 +320,16 @@ public final class Probability implements Comparable<Probability> {
 			if (d == 0.0) {
 				this.p = 0;
 				this.sign = 1;
+			} else if (d < 0.0) {
+				this.p = Double.POSITIVE_INFINITY;   // Well...
+				this.sign = 1;
 			}
 		} else {
 			throw new ArithmeticException("Cannot raise negative Probability to negative float power since" +
 					" complex number representation not supported (even if power is in fact an integer).");
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -353,7 +357,7 @@ public final class Probability implements Comparable<Probability> {
 			this.sign = 1;
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -368,16 +372,32 @@ public final class Probability implements Comparable<Probability> {
 	
 	/**
 	 * Sets the value of this Probability to ln(v) where v is the old value.
-	 * See also <code>logToNew()</code>.
+	 * For v==sign==0, sets the new value to negative infinity.
+	 * See also <code>logToNew()</code> and <code>getLogValue()</code>.
 	 * @return this Probability.
 	 */
 	public Probability log() {
-		if (this.sign <= 0) {
+		if (this.sign == 0) {
+			this.p = Double.POSITIVE_INFINITY;
+			this.sign = -1;
+		} else if (this.sign < 0) {
 			throw new ArithmeticException("Cannot take the natural logarithm of a non-positive number.");
+		} else {
+			if (this.p > 0.0) {
+				this.p = Math.log(this.p);
+				this.sign = 1;
+			}
+			else if (this.p == 0.0) {
+				this.p = Double.NEGATIVE_INFINITY;      // Dummy.
+				this.sign = 0;
+			}
+			else {
+				this.p = Math.log(-this.p);
+				this.sign = -1;
+			}
 		}
-		this.p = Math.log(this.p);
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 		return this;
 	}
 	
@@ -393,7 +413,7 @@ public final class Probability implements Comparable<Probability> {
 	@Override
 	public int compareTo(Probability q) {
 		if (this.sign == q.sign) {
-			// We don't require sign==0 => p==0.
+			// We don't require sign==0 => p==Double.NEGATIVE_INFINITY.
 			return (this.sign == 0 || this.p == q.p ? 0 : (this.sign * this.p > q.sign * q.p ? 1 : -1));
 		}
 		return (this.sign < q.sign ? -1 : 1);
@@ -513,14 +533,14 @@ public final class Probability implements Comparable<Probability> {
 			p = q.p + StrictMath.log1p(Math.exp(this.p - q.p));
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 	}
 	
 	/**
 	 * Helper. Subtracts a Probability from this object, sign issue assumed to be resolved already.
 	 * @param q Probability to subtract.
 	 */
-	public void sub_(Probability q) {
+	private void sub_(Probability q) {
 		// Joelgs: Don't know too much about this method with regards to performance
 		// or numeric considerations -- ported from PrIME.
 		// In particular, notice use of log1pl instead of log1p in original class...
@@ -534,7 +554,7 @@ public final class Probability implements Comparable<Probability> {
 			this.sign *= -1;
 		}
 		assert !Double.isNaN(this.p);
-		assert !Double.isInfinite(this.p);
+		//assert !Double.isInfinite(this.p);
 	}
 
 	/**
