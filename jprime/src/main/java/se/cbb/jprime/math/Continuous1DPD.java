@@ -49,52 +49,45 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	/**
 	 * Sets the mean.
 	 * @param mean the new mean.
-	 * @throws MathException if the value cannot be set.
 	 */
-	public void setMean(double mean) throws MathException;
+	public void setMean(double mean);
 		
 	/**
 	 * Returns the median, i.e. the value m so that P(X<=m)=P(X>=m)=1/2.
 	 * @return the median.
-	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getMedian() throws MathException;
+	public double getMedian();
 	
 	/**
 	 * Returns the standard deviation sigma=sqrt(E((X-E(X))^2)).
 	 * @return the standard deviation.
-	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getStandardDeviation() throws MathException;
+	public double getStandardDeviation();
 	
 	/**
 	 * Sets the standard deviation.
 	 * @param stdev the new standard deviation.
-	 * @throws MathException if the value cannot be set.
 	 */
-	public void setStandardDeviation(double stdev) throws MathException;
+	public void setStandardDeviation(double stdev);
 	
 	/**
 	 * Returns the variance sigma^2=E((X-E(X))^2).
 	 * @return the variance.
-	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getVariance() throws MathException;
+	public double getVariance();
 	
 	/**
 	 * Sets the variance.
 	 * @param var the new variance.
-	 * @throws MathException if the value cannot be set.
 	 */
-	public void setVariance(double var) throws MathException;
+	public void setVariance(double var);
 	
 	/**
 	 * Returns the coefficient of variation, i.e. c_v=sigma/|mu|, where sigma
 	 * is the standard deviation and mu the expected value.
 	 * @return the standard deviation.
-	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getCV() throws MathException;
+	public double getCV();
 	
 	/**
 	 * Returns the domain interval.

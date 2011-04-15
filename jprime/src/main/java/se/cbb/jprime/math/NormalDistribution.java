@@ -44,7 +44,10 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	/** Variance. Should reflect p2's value. */
 	private double var;
 	
-	/** Constant term, given the variance, in the log density function: -0.5 * ln(2 * pi * var). */
+	/** Standard deviation. Should reflect p2's value. */
+	private double stdev;
+	
+	/** Constant term, given the variance, in the log density function: -0.5 * ln(2 * PI * var). */
 	private double logDensFact;
 	
 	/** Child dependents. */
@@ -68,6 +71,7 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		this.dependents = new ArrayList<Dependent>();
 		this.mean = mean;
 		this.var = var;
+		this.stdev = Math.sqrt(var);
 		this.update(false);
 	}
 	
@@ -107,18 +111,18 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 
 	@Override
 	public double getCDF(double y) {
-		if (y < 1e-100) { return 0.0; }
-		if (y > 1e100)  { return 1.0; }
-
-		double x = (y - this.mean) / this.var;
-
-		double b1 = 0.319381530;
-		double b2 = -0.356563782;
-		double b3 =  1.781477937;
-		double b4 = -1.821255978;
-		double b5 =  1.330274429;
-		double p  =  0.2316419;
-		double c  =  0.39894228;
+		
+		double x = (y - this.mean) / this.stdev;
+		if (x < -39) { return 0.0; }
+		if (x > 9)   { return 1.0; }
+		
+		final double b1 =  0.319381530;
+		final double b2 = -0.356563782;
+		final double b3 =  1.781477937;
+		final double b4 = -1.821255978;
+		final double b5 =  1.330274429;
+		final double p  =  0.2316419;
+		final double c  =  0.39894228;
 		
 		if (x >= 0.0) {
 			double t = 1.0 / (1.0 + p * x);
@@ -140,23 +144,23 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 
 	@Override
-	public double getMedian() throws MathException {
+	public double getMedian() {
 		return this.mean;
 	}
 
 	@Override
-	public double getStandardDeviation() throws MathException {
-		return Math.sqrt(this.var);
+	public double getStandardDeviation() {
+		return this.stdev;
 	}
 
 	@Override
-	public double getVariance() throws MathException {
+	public double getVariance() {
 		return this.var;
 	}
 
 	@Override
-	public double getCV() throws MathException {
-		return (Math.sqrt(this.var) / Math.abs(this.mean));
+	public double getCV() {
+		return (this.stdev / Math.abs(this.mean));
 	}
 
 	@Override
@@ -207,14 +211,17 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 			case MEAN_AND_VAR:
 				this.mean = this.p1.getValue();
 				this.var = this.p2.getValue();
+				this.stdev = Math.sqrt(this.var);
 				break;
 			case MEAN_AND_STDEV:
 				this.mean = this.p1.getValue();
-				this.var = Math.pow(this.p2.getValue(), 2);
+				this.stdev = this.p2.getValue();
+				this.var = this.stdev * this.stdev;
 				break;
 			case MEAN_AND_CV:
 				this.mean = this.p1.getValue();
-				this.var = Math.pow(this.p2.getValue() * this.mean, 2);
+				this.stdev = this.p2.getValue() * this.mean;
+				this.var = this.stdev * this.stdev;
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
@@ -251,7 +258,7 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 
 	@Override
-	public void setMean(double mean) throws MathException {
+	public void setMean(double mean) {
 		this.mean = mean;
 		if (this.p1 != null) {
 			switch (this.setup) {
@@ -267,11 +274,12 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 	
 	@Override
-	public void setStandardDeviation(double stdev) throws MathException {
+	public void setStandardDeviation(double stdev) {
 		if (stdev <= 0.0) {
 			throw new IllegalArgumentException("Cannot have non-positive standard deviation for normal distribution.");
 		}
-		this.var = Math.pow(stdev, 2);
+		this.stdev = stdev;
+		this.var = stdev * stdev;
 		if (this.p2 != null) {
 			switch (this.setup) {
 			case MEAN_AND_VAR:
@@ -290,20 +298,21 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 
 	@Override
-	public void setVariance(double var) throws MathException {
+	public void setVariance(double var) {
 		if (var <= 0.0) {
 			throw new IllegalArgumentException("Cannot have non-positive variance for normal distribution.");
 		}
 		this.var = var;
+		this.stdev = Math.sqrt(var);
 		if (this.p2 != null) {
 			switch (this.setup) {
 			case MEAN_AND_VAR:
 				this.p2.setValue(var);
 				break;
 			case MEAN_AND_STDEV:
-				this.p2.setValue(Math.sqrt(var));
+				this.p2.setValue(this.stdev);
 			case MEAN_AND_CV:
-				this.p2.setValue(Math.sqrt(var) / Math.abs(this.mean));
+				this.p2.setValue(this.stdev / Math.abs(this.mean));
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
