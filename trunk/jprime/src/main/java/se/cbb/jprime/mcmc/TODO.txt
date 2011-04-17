@@ -1,9 +1,7 @@
 To do (not only w.r.t. mcmc package):
 
-- Write unit tests for Probability.
 - Implement TruncatedNormalProposer.
 - Implement Metropolis-Hastings proposal acceptor.
-- Implement NormalDistribution.
 - Implement MCMC hello world example app.
 
 Later on:

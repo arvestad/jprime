@@ -77,4 +77,16 @@ public interface Proposer extends MCMCSerializable {
 	 */
 	public Proposal propose();
 	
+	/**
+	 * Returns whether this proposer is active or not.
+	 * @return true if enabled; false if disabled.
+	 */
+	public boolean isEnabled();
+	
+	/**
+	 * Controls whether this proposer is active or not.
+	 * @param isActive true to enable; false to disable.
+	 */
+	public void setEnabled(boolean isActive);
+	
 }

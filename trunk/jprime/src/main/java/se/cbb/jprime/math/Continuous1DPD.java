@@ -32,6 +32,13 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	public double getCDF(double x);
 	
 	/**
+	 * Returns the quantile function, i.e., the inverse of the CDF, F^-1(p), 0<=p<=1.
+	 * @param p the probability.
+	 * @return x so that F(x)=P(X<=x)=p.
+	 */
+	public double getQuantile(double p);
+	
+	/**
 	 * For specified values a<=b, returns the probability F(b)-F(a)=P(a<=X<=b).
 	 * @param a the smaller boundary.
 	 * @param b the larger boundary.

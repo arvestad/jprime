@@ -19,13 +19,13 @@ import se.cbb.jprime.math.PRNG;
 public class MultiProposerSelector implements ProposerSelector {
 
 	/** The maximum number of attempts at trying to add another proposer when selecting. */
-	public static final int MAX_NO_OF_ATTEMPTS = 20;
+	public static final int MAX_NO_OF_ATTEMPTS = 100;
 	
 	/** PRNG. */
 	private PRNG prng;
 	
-	/** Accumulated number-of-proposers weights, normalised as [0,...,1]. Null if not used. */
-	private double[] accNoWeights;
+	/** Cumulative number-of-proposers weights, normalised as [0,...,1]. Null if not used. */
+	private double[] cumNoWeights;
 	
 	/**
 	 * Creates an instance where only one proposer at a time is invoked.
@@ -33,7 +33,7 @@ public class MultiProposerSelector implements ProposerSelector {
 	 */
 	public MultiProposerSelector(PRNG prng) {
 		this.prng = prng;
-		this.accNoWeights = new double[] { 1.0 };
+		this.cumNoWeights = new double[] { 1.0 };
 	}
 	
 	/**
@@ -41,26 +41,27 @@ public class MultiProposerSelector implements ProposerSelector {
 	 * The number of proposers attempted is specified in a weight array
 	 * where element 0 corresponds to 1 proposer and so forth.
 	 * @param prng the PRNG used for random selection.
-	 * @param noWeights the desired weights for the number of selected proposers.
+	 * @param noWeights the desired weights for the number of selected proposers, e.g. [0.5,0.5] for
+	 * 1 proposer 50% of the time and 2 proposers 50% of the time.
 	 */
 	public MultiProposerSelector(PRNG prng, double[] noWeights) {
 		if (noWeights == null || noWeights.length == 0) {
 			throw new IllegalArgumentException("Invalid weights in multi proposer selector.");
 		}
 		this.prng = prng;
-		this.accNoWeights = new double[noWeights.length];
+		this.cumNoWeights = new double[noWeights.length];
 		double tot = 0.0;
 		for (int i = 0; i < noWeights.length; ++i) {
 			if (noWeights[i] < 0.0) {
 				throw new IllegalArgumentException("Cannot assign negative weight in multi proposer selector.");
 			}
 			tot += noWeights[i];
-			this.accNoWeights[i] = tot;
+			this.cumNoWeights[i] = tot;
 		}
-		for (int i = 0; i < this.accNoWeights.length; ++i) {
-			this.accNoWeights[i] /= tot;
+		for (int i = 0; i < this.cumNoWeights.length; ++i) {
+			this.cumNoWeights[i] /= tot;
 		}
-		this.accNoWeights[this.accNoWeights.length - 1] = 1.0;   // For numeric safety.
+		this.cumNoWeights[this.cumNoWeights.length - 1] = 1.0;   // For numeric safety.
 	}
 	
 	@Override
@@ -69,10 +70,20 @@ public class MultiProposerSelector implements ProposerSelector {
 			throw new IllegalArgumentException("Cannot select proposer from empty list.");
 		}
 		
+		// Special cases for speed.
+		if (proposers.size() == 1) {
+			return new TreeSet<Proposer>(proposers);
+		}
+		if (this.cumNoWeights.length == 1) {
+			TreeSet<Proposer> ts = new TreeSet<Proposer>();
+			ts.add(proposers.get(this.prng.nextInt(proposers.size())));
+			return ts;
+		}
+		
 		// Determine desired number of proposers.
 		double d = this.prng.nextDouble();
 		int noOfProps = 1;
-		while (d > this.accNoWeights[noOfProps-1]) { ++noOfProps; }
+		while (d > this.cumNoWeights[noOfProps-1]) { ++noOfProps; }
 		
 		// Compute an accumulated weight array for the current proposer weights.
 		double[] accWeights = new double[proposers.size()];
@@ -113,6 +124,11 @@ public class MultiProposerSelector implements ProposerSelector {
 		int i = 0;
 		while (d > accWeights[i]) { ++i; }
 		Proposer p = props.get(i);
+		
+		// If not active, abort.
+		if (!p.isEnabled()) {
+			return false;
+		}
 		
 		// If corresponding state parameters not already selected, add the proposer.
 		for (StateParameter sp : p.getParameters()) {
