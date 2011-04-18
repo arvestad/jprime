@@ -126,6 +126,14 @@ public final class Probability implements Comparable<Probability> {
 	}
 	
 	/**
+	 * Returns true if the actual non-log value is zero.
+	 * @return true if zero; false if not zero.
+	 */
+	public boolean isZero() {
+		return (this.sign == 0);
+	}
+	
+	/**
 	 * Adds another Probability to this Probability. Does not yield a new instance; for that purpose,
 	 * see <code>addToNew()</code>.
 	 * @param q the Probability to add.

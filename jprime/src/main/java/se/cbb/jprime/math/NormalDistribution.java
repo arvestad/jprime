@@ -110,11 +110,11 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 
 	@Override
-	public double getCDF(double y) {
+	public double getCDF(double x) {
 		
-		double x = (y - this.mean) / this.stdev;
-		if (x < -39) { return 0.0; }
-		if (x > 9)   { return 1.0; }
+		double xn = (x - this.mean) / this.stdev;
+		if (xn < -39) { return 0.0; }
+		if (xn > 9)   { return 1.0; }
 		
 		final double b1 =  0.319381530;
 		final double b2 = -0.356563782;
@@ -124,12 +124,12 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		final double p  =  0.2316419;
 		final double c  =  0.39894228;
 		
-		if (x >= 0.0) {
-			double t = 1.0 / (1.0 + p * x);
-			return (1.0 - c * Math.exp(-x * x / 2.0) * t * (t *(t * (t * (t * b5 + b4) + b3) + b2) + b1));
+		if (xn >= 0.0) {
+			double t = 1.0 / (1.0 + p * xn);
+			return (1.0 - c * Math.exp(-xn * xn / 2.0) * t * (t *(t * (t * (t * b5 + b4) + b3) + b2) + b1));
 		} else {
-			double t = 1.0 / (1.0 - p * x);
-			return (c * Math.exp(-x * x / 2.0) * t * (t *(t * (t * (t * b5 + b4) + b3) + b2) + b1));
+			double t = 1.0 / (1.0 - p * xn);
+			return (c * Math.exp(-xn * xn / 2.0) * t * (t *(t * (t * (t * b5 + b4) + b3) + b2) + b1));
 		}
 	}
 
@@ -362,6 +362,13 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		
 		// Too small p-value.
 		return (p < 0.5 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
+	}
+
+	@Override
+	public double sampleValue(PRNG prng) {
+		double x = prng.nextGaussian();
+		// No bounds checking for within representable range...
+		return (x * this.stdev + this.mean);
 	}
 
 }

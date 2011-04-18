@@ -101,4 +101,11 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	 * @return the domain interval.
 	 */
 	public RealInterval getDomainInterval();
+	
+	/**
+	 * Samples a value from the distribution.
+	 * @param prng the pseudo-random number generator.
+	 * @return the sample.
+	 */
+	public double sampleValue(PRNG prng);
 }

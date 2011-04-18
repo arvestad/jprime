@@ -64,7 +64,7 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 			this.noOfRejectedPerWindow[this.currentWindow]++;
 			al = this.noOfRejectedByNoOfParams;
 		}
-		int noOfParams = proposal.getNoOfParameters();
+		int noOfParams = proposal.getNoOfPerturbedParameters();
 		while (noOfParams >= al.size()) {
 			al.add(new Integer(0));
 		}

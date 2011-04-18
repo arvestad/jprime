@@ -1,19 +1,20 @@
 package se.cbb.jprime.mcmc;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import se.cbb.jprime.math.NormalDistribution;
 import se.cbb.jprime.math.PRNG;
+import se.cbb.jprime.math.Probability;
 import se.cbb.jprime.math.RealInterval;
+import se.cbb.jprime.math.RealInterval.Type;
 
 /**
  * Represents a normal proposal distribution. That is, given a current state parameter value m,
  * it draws a new value Y ~ N(m,v). It is also possible to limit the domain to [A,B], (A,inf) and
- * so forth.
+ * so forth, thus creating a truncated normal distribution.
  * <p/>
  * The proposer can perturb both singleton parameters and arrays. In the latter case, the user can control
  * how many sub-parameters should be affected.
@@ -21,16 +22,17 @@ import se.cbb.jprime.math.RealInterval;
  * <code>setSubParameterWeights(...)</code>.
  * <p/>
  * The proposer relies on two user-defined tuning parameters, t1 and t2, which define the variance v of
- * the proposal distribution: v is chosen so that Pr[(1-t1)*m < Y < (1+t1)*m] = t2. For instance, with
+ * the proposal distribution: v is chosen so that for m > 0, Pr[(1-t1)*m < Y < (1+t1)*m] = t2. For instance, with
  * t1 = 0.5 and t2 = 0.6, the proposed value Y will in 60% of the cases be at most 50% greater or smaller
- * than the previous value m. If truncated, v is chosen as if not truncated.
+ * than the previous value m. For m < 0, the case is analogous, whereas for m = 0, a small epsilon proposal variance
+ * is used. For bounded domains, v is chosen as if not truncated and sampling is repeated until within the domain. 
  * 
  * @author Joel Sjöstrand.
  */
 public class NormalProposer implements Proposer {
 
-	/** Distribution used for making all computations. */
-	private final NormalDistribution N = new NormalDistribution(0.0, 1.0);
+	/** Fixed distribution used for making certain computations. */
+	private static final NormalDistribution N = new NormalDistribution(0.0, 1.0);
 	
 	/** Perturbed parameter. */
 	private RealParameter param;
@@ -79,6 +81,10 @@ public class NormalProposer implements Proposer {
 		}
 		if (t2.getMinValue() <= 0 || t2.getMaxValue() >= 1.0) {
 			throw new IllegalArgumentException("Second tuning parameter for normal proposer must be in (0,1).");
+		}
+		RealInterval.Type t = this.interval.getType();
+		if (t == Type.DEGENERATE || t == Type.EMPTY) {
+			throw new IllegalArgumentException("Invalid interval for normal proposer.");
 		}
 		this.param = param;
 		this.interval = interval;
@@ -197,66 +203,63 @@ public class NormalProposer implements Proposer {
 			ArrayList<Integer> l = new ArrayList<Integer>(k);
 			for (int i = 0; i < k; ++i) { l.add(i); }
 			for (int i = 0; i < no; ++i) {
-				indices[i] = l.get(this.prng.nextInt(l.size()));				
+				indices[i] = l.remove(this.prng.nextInt(l.size()));				
 			}
 		}
 		
-		for (int idx : indices) {
-			double oldMean = this.param.getValue(idx);
+		// Get size factor w.r.t. N(0,1) given t2.
+		double normFact = N.getQuantile((1.0 + this.t2.getValue()) / 2);
+		
+		// Perturb all chosen sub-parameters.
+		Probability forward = new Probability(1.0);
+		Probability backward = new Probability(1.0);
+		for (int i = 0; i < indices.length; ++i) {
 			
+			// Compute variance for current proposal distribution.
+			double xOld = this.param.getValue(indices[i]);
+			double stdev = (xOld == 0.0 ? 1e-10 : Math.abs(xOld * this.t1.getValue()) / normFact);
+			
+			// Sample a new value.
+			NormalDistribution pd = new NormalDistribution(xOld, Math.pow(stdev, 2));
+			double x = Double.NaN;
+			int tries = 0;
+			do {
+				x = pd.sampleValue(this.prng);
+				++tries;
+				if (tries > 100) {
+					// Abort.
+					return new MHProposal(this, this.param);
+				}
+			} while (!this.interval.isWithin(x));
+			
+			// Obtain "forward" density.
+			double a = this.interval.getLowerBound();
+			double b = this.interval.getUpperBound();
+			double nonTails = 1.0;
+			if (!Double.isInfinite(a)) {
+				nonTails -= pd.getCDF(a);
+			}
+			if (!Double.isInfinite(b)) {
+				nonTails -= 1.0 - pd.getCDF(b);
+			}
+			forward.mult(new Probability(pd.getPDF(x) / nonTails));
+			
+			// Obtain "backward" density.
+			stdev = (x == 0.0 ? 1e-10 : Math.abs(x * this.t1.getValue()) / normFact);
+			pd.setMean(x);
+			pd.setStandardDeviation(stdev);
+			nonTails = 1.0;
+			if (!Double.isInfinite(a)) {
+				nonTails -= pd.getCDF(a);
+			}
+			if (!Double.isInfinite(b)) {
+				nonTails -= 1.0 - pd.getCDF(b);
+			}
+			backward.mult(new Probability(pd.getPDF(xOld) / nonTails));
 		}
 		
-		
-		//double oldMean = 
-//		Real
-//		  StdMCMCModel::perturbTruncatedNormal(Real value, Real (*varFunc)(Real, Real, Real, Real),
-//						       Real min, Real max, Probability& propRatio, Real hyper) const
-//		  {
-//		    static NormalDensity tnd(1.0, 1.0);
-	//
-//		    assert(value > min && value < max);
-	//
-//		    // Retrieve current variance by invoking function pointer.
-//		    Real old = value;
-//		    Real var = (*varFunc)(old, min, max, hyper);
-	//
-//		    // Use current distribution. Get area when truncated tails excluded.
-//		    tnd.setParameters(old, var);
-//		    Probability nonTails = tnd.cdf(max) - tnd.cdf(min);
-	//
-//		    unsigned cntr = 0;
-//		    do
-//		      {
-//			value = tnd.sampleValue(R.genrand_real3());
-//			++cntr;
-	//
-//			// Abort after 100 tries.
-//			if (cntr > 100)
-//			  {
-//			    propRatio = 0.0;
-//			    return old;
-//			  }
-//		      }
-//		    while (value <= min || value >= max);
-	//
-//		    // Must compensate for removed tails to get true PDF.
-//		    propRatio = 1.0 / (tnd(value) / nonTails);
-	//
-//		    // Get new distribution.
-//		    var = (*varFunc)(value, min, max, hyper);
-//		    tnd.setParameters(value, var);
-//		    nonTails = tnd.cdf(max) - tnd.cdf(min);
-	//
-//		    // Must compensate for removed tails to get true PDF.
-//		    propRatio *= (tnd(old) / nonTails);
-	//
-//		    return value;
-//		  }
-		
-		
-		
-		// TODO Auto-generated method stub
-		return null;
+		// Generate proposal object.
+		return new MHProposal(this, forward, backward, this.param, indices.length);
 	}
 
 	@Override
