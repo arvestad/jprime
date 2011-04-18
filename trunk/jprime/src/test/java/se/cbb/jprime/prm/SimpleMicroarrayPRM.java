@@ -16,7 +16,36 @@ import se.cbb.jprime.prm.Relation.Type;
 import static org.junit.Assert.*;
 
 /**
- * Simple microarray PRM example.
+ * Simple microarray PRM example. Notation more or less complies with the one in "Learning Probabilistic
+ * Relational Models", Friedman et al., IJCAI-99, 1999.
+ * 
+ * Outline (sorry, no proper TeX):
+ * 
+ * - Given a structure S, skeleton sigma and a completion I of all observed attributes, perform EM by:
+ *   0) Create random parameter assignment Theta.
+ *   1) Compute soft assignment of latent attribute(s) using Belief Propagation, or similarly.
+ *      In our case, there is only one latent attribute, conditioned to be a source. Thus, simple
+ *      exact inference is tractable and easier.
+ *   2) Learn parameters Theta_est according to E[P(X.A=v | Pa(X.A)=u) | I] =
+ *      (C_{X.A}[v,u] + alpha_{X.A}[v,u]) / sum_v'(C_{X.A}[v',u] + alpha_{X.A}[v',u]), for all child
+ *      attributes X.A, given its parent(s) Pa(X.A). C_{X.A} refers to child-parent counts and
+ *      alpha_{X.A} to user-defined Dirichlet pseudo-counts.
+ *   3) Estimate log L(Theta | I,sigma,S) = log P(I | sigma,S,Theta) = l(Theta | I,sigma,S) =
+ *      sum_{X_i}( sum_{A in X_i}( sum_{x in O^sigma(X_i)}(log P(I_{x.a} | I_{Pa(x.a)})) ) ).
+ *   4) Iterate 1-3 until convergence.
+ *   
+ *   Of course, starting multiple EM runs will be necessary in order to search for the global
+ *   maximum.
+ *  
+ * - For structure search (not implemented), consider:
+ *   - Obtaining top soft assignment and parameters of current structure S according to above.
+ *   - Doing hard assignment of top ranked soft assignment for all latent attribute entities.
+ *   - Evaluating S according to P(S | I,sigma) prop. to P(I | S,sigma) =
+ *     prod_i( prod{A in A(X_i)}( prod{u in V(Pa(X_i,A))}( DM({C_{X_i,A}[v,u]},{alpha_{X_i,A}[v,u]}) ) ) ),
+ *     where DM({C[v]},{alpha[v]}) = Gamma(sum_v(alpha[v])) / Gamma(sum_v(alpha[v] + C[v])) *
+ *     prod_v(Gamma(alpha[v] + C[v]) / Gamma(alpha[v])).
+ *   - Possible making use of BIC like scoring to avoid too many edges.
+ * 
  * 
  * @author Joel Sjöstrand.
  */
