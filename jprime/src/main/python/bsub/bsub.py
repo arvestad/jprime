@@ -53,7 +53,7 @@ form '%%n' is replaced with the n-th column from the batch file (indexed from
 Example:
 
 If "./bsub set.xml batchlist RUN11" is executed and 'set.xml' contains command
-"superprogram -o %%2.%%BATCHID.out %%0", and 'batchlist' contains:
+"superduperapp -o %%2.%%BATCHID.out %%0", and 'batchlist' contains:
 
    AAA BBB CCC
    aaa bbb ccc
@@ -61,8 +61,8 @@ If "./bsub set.xml batchlist RUN11" is executed and 'set.xml' contains command
 ...the resulting generated shellscript (named 'batchlist.RUN11.0.sh) will
 contain:
 
-   superprogram -o CCC.RUN11.out AAA
-   superprogram -o ccc.RUN11.out aaa
+   superduperapp -o CCC.RUN11.out AAA
+   superduperapp -o ccc.RUN11.out aaa
 
 Additionally, one has the possibility of including a "pre-command", executed
 on the login node prior to submission, as well as a shellscript "preamble", which

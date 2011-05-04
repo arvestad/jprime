@@ -84,7 +84,7 @@ public class ComputeKDEModeParameters {
 				"  -e <noOfPts>           Limit KDE evaluation points to a specified number.\n" +
 				"  -s <column>            Sort samples according to a certain column (indexed from 1). Ascending\n" +
 				"                         sorting is assumed unless column number is prepended with minus sign.\n" +
-				"                         Example: with posterior probability in first column, one can use -s -1 to\n" +
+				"                         Example: with likelihood in first column, one can use -s -1 to\n" +
 				"                         sort samples in decreasing order. Only useful in conjunction with -t or -e.\n" +
 				"  -m                     Mirror samples around the origin. Assumes that the samples are bounded to\n" +
 				"                         the positive domain. Use this to account for the sparser density close to the\n" +
