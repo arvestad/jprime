@@ -75,7 +75,7 @@ public class SimpleMicroarrayPRM {
 		this.skeleton = new Skeleton("SimpleMicroarraySkeleton");
 		
 		// For alternating between setups.
-		if (false) {
+		if (Boolean.parseBoolean("false")) {
 			this.noOfClusters = 3;
 			this.suffix = "_new.out";
 		} else {
