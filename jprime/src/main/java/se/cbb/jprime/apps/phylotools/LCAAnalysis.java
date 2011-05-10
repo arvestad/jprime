@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import se.cbb.jprime.io.*;
-import se.cbb.jprime.topology.GSMap;
+import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.RTreeFactory;
@@ -31,6 +31,7 @@ public class LCAAnalysis {
 		if (args.length != 2) {
 			System.err.println("Expecting 2 arguments.");
 			usage();
+			System.exit(0);
 		}
 		File sFile = new File(args[0]);
 		File gsFile = new File(args[1]);
@@ -40,7 +41,7 @@ public class LCAAnalysis {
 		RTree s = RTreeFactory.createTree(sRaw, "HostTree");
 		NamesMap names = sRaw.getVertexNamesMap(true);
 		TimesMap times = sRaw.getTimesMap();
-		GSMap gs = GSMapReader.readGSMap(gsFile);
+		GuestHostMap gs = GuestHostMapReader.readGuestHostMap(gsFile);
 		Set<String> covNames = gs.getAllHostLeafNames();
 		
 		// Acquire LCA of host tree leaves found in GS file.
