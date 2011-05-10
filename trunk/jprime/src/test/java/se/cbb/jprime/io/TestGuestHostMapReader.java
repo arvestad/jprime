@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  * 
  * @author Joel Sjöstrand.
  */
-public class TestGSMapReader {
+public class TestGuestHostMapReader {
 
 	@Test
 	public void readGSMap() throws IOException, NewickIOException {
