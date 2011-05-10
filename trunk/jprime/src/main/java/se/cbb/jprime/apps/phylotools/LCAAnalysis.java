@@ -1,4 +1,4 @@
-package se.cbb.jprime.apps.lcaanalysis;
+package se.cbb.jprime.apps.phylotools;
 
 import java.io.File;
 import java.io.IOException;
