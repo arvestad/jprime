@@ -1,4 +1,4 @@
-package se.cbb.jprime.apps.lcaanalysis;
+package se.cbb.jprime.apps.phylotools;
 
 import static org.junit.Assert.*;
 
@@ -9,6 +9,7 @@ import java.net.URL;
 
 import org.junit.* ;
 
+import se.cbb.jprime.apps.phylotools.LCAAnalysis;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.topology.TopologyException;
 
