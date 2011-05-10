@@ -6,7 +6,7 @@ import java.net.URL;
 
 import org.junit.* ;
 
-import se.cbb.jprime.topology.GSMap;
+import se.cbb.jprime.topology.GuestHostMap;
 import static org.junit.Assert.*;
 
 /**
@@ -19,7 +19,7 @@ public class TestGSMapReader {
 	@Test
 	public void readGSMap() throws IOException, NewickIOException {
 		URL url = this.getClass().getResource("/phylogenetics/molli.fam.gs");
-		GSMap gs = GSMapReader.readGSMap(new File(url.getFile()));
+		GuestHostMap gs = GuestHostMapReader.readGuestHostMap(new File(url.getFile()));
 		assertEquals(15, gs.getGuestLeafNames("ONYEL").size());
 		assertEquals(30, gs.getAllGuestLeafNames().size());
 		assertTrue(gs.getHostLeafName("MYCCT_1_PE300").equals("MYCCT"));

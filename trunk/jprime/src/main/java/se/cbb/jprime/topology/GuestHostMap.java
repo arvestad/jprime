@@ -12,7 +12,7 @@ import java.util.Set;
  * 
  * @author Joel Sjöstrand.
  */
-public class GSMap {
+public class GuestHostMap {
 	
 	/** Guest-to-host map. */
 	private HashMap<String, String> guestToHostLeafMap;
@@ -23,7 +23,7 @@ public class GSMap {
 	/**
 	 * Creates an empty map.
 	 */
-	public GSMap() {
+	public GuestHostMap() {
 		this.guestToHostLeafMap = new HashMap<String, String>();
 		this.hostToGuestLeafMap = new HashMap<String, Set<String>>();
 	}

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import se.cbb.jprime.topology.GSMap;
+import se.cbb.jprime.topology.GuestHostMap;
 
 /**
  * Reads a tab or space delimited file mapping a guest tree leaf to
@@ -19,16 +19,16 @@ import se.cbb.jprime.topology.GSMap;
  * 
  * @author Joel Sjöstrand.
  */
-public class GSMapReader {
+public class GuestHostMapReader {
 
 	/**
-	 * Reads a G-S map file and returns a corresponding map object.
+	 * Reads a guest-host leaf map file and returns a corresponding map object.
 	 * @param f the file.
 	 * @return the map.
 	 * @throws FileNotFoundException if no file was found.
 	 */
-	public static GSMap readGSMap(File f) throws FileNotFoundException {
-		GSMap gs = new GSMap();
+	public static GuestHostMap readGuestHostMap(File f) throws FileNotFoundException {
+		GuestHostMap gs = new GuestHostMap();
 		Scanner sc = new Scanner(f);
 		while (sc.hasNextLine()) {
 			String ln = sc.nextLine().trim();

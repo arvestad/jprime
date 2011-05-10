@@ -46,4 +46,26 @@ public class TimesMap extends DoubleMap {
 		return this.arcTimes[x];
 	}
 
+	
+	/**
+	 * Returns the absolute time (vertex time) of a vertex.
+	 * Identical to getVertexTime(x).
+	 * @param x the vertex.
+	 * @return the vertex time.
+	 */
+	@Override
+	public double get(int x) {
+		return this.values[x];
+	}
+	
+	/**
+	 * Sets the absolute time (vertex time) of a vertex.
+	 * No bounds checking.
+	 * @param x the vertex.
+	 * @param val the vertex time.
+	 */
+	@Override
+	public void set(int x, double val) {
+		this.values[x] = val;
+	}
 }

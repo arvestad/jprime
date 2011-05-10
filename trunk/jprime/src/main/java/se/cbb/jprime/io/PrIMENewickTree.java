@@ -346,7 +346,7 @@ public class PrIMENewickTree extends NewickTree {
 	/**
 	 * Returns a map of the times (representing both vertex times and arc times)
 	 * indexed by vertex numbers. If the top time property is set, this overrides 
-	 * the root value. Considers both vertex times, arc times and branch lengths
+	 * the root value. Considers both vertex times, arc times and Newick branch lengths
 	 * (in that order).
 	 * @return the map.
 	 * @throws NewickIOException if missing times.
