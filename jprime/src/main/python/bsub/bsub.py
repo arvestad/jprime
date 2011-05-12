@@ -303,13 +303,13 @@ def genAndExecShellscripts(batchFile, sets, doExec):
         print("Creating shellscript directory %s" % sets.SHELLSCRIPT_OUT_DIR)
         os.makedirs(sets.SHELLSCRIPT_OUT_DIR)
     if doExec:
-        if sets.HOME_DIR != None and not os.path.exists(sets.HOME_DIR):
+        if sets.HOME_DIR != None and sets.HOME_DIR != '' and not os.path.exists(sets.HOME_DIR):
             print("Creating home directory %s" % sets.HOME_DIR)
             os.makedirs(sets.HOME_DIR)
-        if sets.IN_DIR != None and not os.path.exists(sets.IN_DIR):
+        if sets.IN_DIR != None and sets.IN_DIR != '' and not os.path.exists(sets.IN_DIR):
             print("Creating in directory %s" % sets.IN_DIR)
             os.makedirs(sets.IN_DIR)
-        if sets.OUT_DIR != None and not os.path.exists(sets.OUT_DIR):
+        if sets.OUT_DIR != None and sets.OUT_DIR != '' and not os.path.exists(sets.OUT_DIR):
             print("Creating out directory %s" % sets.OUT_DIR)
             os.makedirs(sets.OUT_DIR)
 
@@ -443,17 +443,17 @@ required. Note: Tag names are case-sensitive.
        <Settings>
           <Description>Shows bsub settings</Description>
           <HomeDir>~myname/mydir</HomeDir>
-          <InDir>%%HOMEDIR/data</InDir>
-          <OutDir>%%HOMEDIR/results/%%DATE</OutDir>
+          <InDir>data</InDir>
+          <OutDir>results/%%DATE</OutDir>
           <PreCmd>%%HOMEDIR/bin/mypreprocessor</PreCmd>
           <ShellscriptPreamble>
              module add easy;
              module add mpi;
-             cd %%HOMEDIR/bin;
+             cd %%HOMEDIR;
           </ShellscriptPreamble>
 \\t        <BatchFileDelim>\\t</BatchFileDelim>
           <BatchFileIgnorePrefix>#</BatchFileIgnorePrefix>
-*         <Cmd>mymagicexe -abc -o %%OUTDIR.%%BATCHID.out %%0 %%1</Cmd>
+*         <Cmd>./bin/mymagicexe -abc -o %%OUTDIR/%%0.%%BATCHID.out %%0 %%1</Cmd>
 8         <ProcessesPerNode>8</ProcessesPerNode>
 *         <ShellscriptOutDir>%%HOMEDIR/tmp/%%DATE</ShellscriptOutDir>
 *         <ShellscriptCmd>esubmit -c mycac -t 1000 -m -n 1 %%SHELLSCRIPT</ShellscriptCmd>
