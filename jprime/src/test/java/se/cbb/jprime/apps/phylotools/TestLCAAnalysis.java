@@ -45,16 +45,22 @@ public class TestLCAAnalysis {
 		LCAAnalysis.main(args);
 		assertEquals("LCA ID: 26\n" +
 				"LCA time: 1.0\n" +
-				"LCA height: 6\n" +
-				"LCA arcs to root: 0\n", out.toString());
+				"LCA number of leaves of sub-tree: 14\n" +
+				"LCA number of vertices of sub-tree: 27\n" +
+				"LCA height (max arcs to a leaf): 6\n" +
+				"LCA reverse height (arcs to root): 0\n",
+				out.toString());
 		out.reset();
 		gsURL = this.getClass().getResource("/phylogenetics/molli.fam2.gs");
 		args[1] = gsURL.getFile();
 		LCAAnalysis.main(args);
 		assertEquals("LCA ID: 7\n" +
 				"LCA time: 0.27\n" +
-				"LCA height: 2\n" +
-				"LCA arcs to root: 2\n", out.toString());
+				"LCA number of leaves of sub-tree: 3\n" +
+				"LCA number of vertices of sub-tree: 5\n" +
+				"LCA height (max arcs to a leaf): 2\n" +
+				"LCA reverse height (arcs to root): 2\n"
+				,out.toString());
 		out.reset();
 	}
 	

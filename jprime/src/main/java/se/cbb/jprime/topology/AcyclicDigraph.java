@@ -14,7 +14,7 @@ public interface AcyclicDigraph extends Graph {
 	
 	/**
 	 * Returns all vertices with in-degree 0. The list is not guaranteed
-	 * to be sorted or in any particular order. A null-graph returns null.
+	 * to be sorted or in any particular order. An empty graph returns an empty list.
 	 * @return all source vertices.
 	 */
 	public List<Integer> getSources();
@@ -26,17 +26,18 @@ public interface AcyclicDigraph extends Graph {
 	public int getNoOfSources();
 	
 	/**
-	 * Returns all vertices with out-degree 0. The list is not guaranteed
-	 * to be sorted or in any particular order. A null-graph returns null.
+	 * Returns all vertices with out-degree 0, i.e., "leaves". The list is not guaranteed
+	 * to be sorted or in any particular order. An empty graph returns an empty list.
 	 * @return all sink vertices.
 	 */
 	public List<Integer> getSinks();
 	
 	/**
-	 * Returns the number of vertices with out-degree 0, i.e. "leaves.
+	 * Returns the number of vertices with out-degree 0, i.e. "leaves".
 	 * @return the number of sinks.
 	 */
 	public int getNoOfSinks();
+	
 	
 	/**
 	 * Returns true if there is an arc (x,y). By definition,
@@ -59,7 +60,7 @@ public interface AcyclicDigraph extends Graph {
 	
 	/**
 	 * Returns all immediate "children" of a vertex x.
-	 * If no children exist, null is returned.
+	 * If no children exist, an empty list is returned.
 	 * The list is not guaranteed to be sorted or in any
 	 * particular order.
 	 * @param x the tail.
@@ -76,7 +77,7 @@ public interface AcyclicDigraph extends Graph {
 	
 	/**
 	 * Returns all "descendants" of a vertex x, excluding x itself.
-	 * If no descendants exist, null is returned.
+	 * If no descendants exist, an empty list is returned.
 	 * The list is not guaranteed to be sorted or in any
 	 * particular order.
 	 * @param x the tail.
@@ -90,4 +91,34 @@ public interface AcyclicDigraph extends Graph {
 	 * @return the number of vertices y so that there is a path from x to y.
 	 */
 	public int getNoOfSuccessors(int x);
+	
+	/**
+	 * Returns all "descendants" with out-degree 0 of a vertex x, excluding x itself.
+	 * If no descendant sinks exist, an empty list is returned.
+	 * The list is not guaranteed
+	 * to be sorted or in any particular order. A null-graph returns null.
+	 * @return the sink successor vertices.
+	 */
+	public List<Integer> getSuccessorSinks(int x);
+	
+	
+	/**
+	 * Returns the number of "descendants" with out-degree 0 of a vertex x, excluding x itself.
+	 * @return the number of successor sinks.
+	 */
+	public int getNoOfSuccessorSinks(int x);
+
+	/**
+	 * Returns true if the specified vertex is a source.
+	 * @param x the vertex.
+	 * @return true if x is a source; false if it there is some arc (y,x).
+	 */
+	public boolean isSource(int x);
+	
+	/**
+	 * Returns true if the specified vertex is a sink, i.e., has out-degree 0.
+	 * @param x the vertex.
+	 * @return true if x is a sink; false if x has some successor.
+	 */
+	public boolean isSink(int x);
 }

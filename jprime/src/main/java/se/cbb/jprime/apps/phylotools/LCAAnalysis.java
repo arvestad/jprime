@@ -14,7 +14,8 @@ import se.cbb.jprime.topology.TimesMap;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
- * TBD.
+ * Simple script for obtaining some aspects of the least-common-ancestor (LCA)
+ * induced by a set of guest tree leaves when reconciled with a host tree.
  * 
  * @author Joel Sjöstrand
  */
@@ -52,8 +53,10 @@ public class LCAAnalysis {
 		}
 		System.out.println("LCA ID: " + lca);
 		System.out.println("LCA time: " + times.get(lca));
-		System.out.println("LCA height: " + s.getHeight(lca));
-		System.out.println("LCA arcs to root: " + s.getNoOfAncestors(lca, true));
+		System.out.println("LCA number of leaves of sub-tree: " + s.getNoOfDescendantLeaves(lca, false));
+		System.out.println("LCA number of vertices of sub-tree: " + s.getNoOfDescendants(lca, false));
+		System.out.println("LCA height (max arcs to a leaf): " + s.getHeight(lca));
+		System.out.println("LCA reverse height (arcs to root): " + s.getNoOfAncestors(lca, true));
 	}
 	
 	/**

@@ -8,10 +8,10 @@ package se.cbb.jprime.topology;
  * @author Joel Sjöstrand.
  */
 public interface RootedBifurcatingTree extends RootedTree {
-
+	
 	/**
 	 * Returns the left child of a vertex x.
-	 * If x is a leaf, NULL (as defined in the super-interface) is returned.
+	 * If x is a leaf, NULL (as defined in the interface) is returned.
 	 * @param x the vertex.
 	 * @return the left child of x.
 	 */

@@ -11,7 +11,7 @@ import java.util.List;
  * @author Joel Sjöstrand.
  */
 public interface RootedTree extends AcyclicDigraph {
-
+	
 	/**
 	 * Returns the root vertex. Guaranteed not to be null, as there
 	 * is always at least one vertex.
@@ -21,7 +21,7 @@ public interface RootedTree extends AcyclicDigraph {
 	
 	/**
 	 * Returns the immediate children of a vertex.
-	 * If no children, null is returned.
+	 * If no children exist, an empty list is returned.
 	 * There is no guarantee that the list
 	 * appears sorted or in any particular order.
 	 * Equivalent to getDirectSuccessors();
@@ -40,7 +40,7 @@ public interface RootedTree extends AcyclicDigraph {
 	
 	/**
 	 * Returns the descendants of a vertex. If lacking descendants,
-	 * null is returned.
+	 * an empty list is returned.
 	 * There is no guarantee that the list
 	 * appears sorted or in any particular order.
 	 * Equivalent to getSuccessors(), but extended with the possibility to
@@ -53,6 +53,8 @@ public interface RootedTree extends AcyclicDigraph {
 	
 	/**
 	 * Returns the number of descendants of a vertex.
+	 * Equivalent to getNoOfSuccessors(), but extended with the possibility to
+	 * count the vertex itself.
 	 * @param x the vertex.
 	 * @param properOnly set to false to include x among descendants.
 	 * @return the number of proper/improper descendants of x.
@@ -60,17 +62,40 @@ public interface RootedTree extends AcyclicDigraph {
 	public int getNoOfDescendants(int x, boolean properOnly);
 	
 	/**
+	 * Returns the descendant leaves of a vertex. If lacking descendants,
+	 * an empty list is returned.
+	 * There is no guarantee that the list
+	 * appears sorted or in any particular order.
+	 * Equivalent to getSuccessorSinks(), but extended with the possibility to
+	 * include the vertex itself.
+	 * @param x the vertex.
+	 * @param properOnly set to false to include x among descendants.
+	 * @return the proper/improper descendants of x.
+	 */
+	public List<Integer> getDescendantLeaves(int x, boolean properOnly);
+	
+	/**
+	 * Returns the number of descendants of a vertex.
+	 * Equivalent to getNoOfSuccessorSinks(), but extended with the possibility to
+	 * count the vertex itself.
+	 * @param x the vertex.
+	 * @param properOnly set to false to include x among descendants.
+	 * @return the number of proper/improper descendants of x.
+	 */
+	public int getNoOfDescendantLeaves(int x, boolean properOnly);
+	
+	/**
 	 * Returns the immediate parent of x. If x is itself the root,
-	 * NULL (as defined in the superclass) is returned.
+	 * NULL (as defined in the interface) is returned.
 	 * @param x the vertex.
 	 * @return z so that there is an arc (z,x).
 	 */
 	public int getParent(int x);
 
 	/**
-	 * Returns the vertices from x to the root, so that element
+	 * Returns the vertices from x to and including the root, so that element
 	 * i is the parent of element i-1. If no such path exists,
-	 * null is returned.
+	 * an empty list is returned.
 	 * @param x the vertex.
 	 * @param properOnly set to true to start with the parent of x as first element, false
 	 * to start with x.
@@ -113,6 +138,7 @@ public interface RootedTree extends AcyclicDigraph {
 	
 	/**
 	 * Returns true if a specified vertex is the root.
+	 * Equivalent to isSource(...).
 	 * @param x the vertex.
 	 * @return true if x is the root.
 	 */
@@ -120,6 +146,7 @@ public interface RootedTree extends AcyclicDigraph {
 	
 	/**
 	 * Returns true if a specified vertex is a leaf.
+	 * Equivalent to isSink(...).
 	 * @param x the vertex.
 	 * @return true if x is a leaf.
 	 */
@@ -129,7 +156,7 @@ public interface RootedTree extends AcyclicDigraph {
 	 * Returns the length of the longest path in the tree,
 	 * i.e. 0 for a single vertex tree, 1 for a "cherry", etc.
 	 * The hypothetical "arc" predating the root is not counted.
-	 * See also getNoOfAncestors(...).
+	 * See also getNoOfAncestors(...) for the "reverse" height.
 	 * @return the number of arcs of the longest path.
 	 */
 	public int getHeight();
@@ -137,9 +164,8 @@ public interface RootedTree extends AcyclicDigraph {
 	/**
 	 * Returns the length of the longest path from a
 	 * vertex to its leaves, i.e. 0 if the vertex is
-	 * itself a leaf, 1 if it is a "cherry", etc.
-	 * The hypothetical "arc" predating the root is not counted.
-	 * See also getNoOfAncestors(...).
+	 * itself a leaf, 1 if it is a "cherry", etc
+	 * See also getNoOfAncestors(...) for the "reverse" height.
 	 * @param x the vertex.
 	 * @return the number of arcs of the longest leaf-path.
 	 */
