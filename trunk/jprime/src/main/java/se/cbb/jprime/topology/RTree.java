@@ -29,7 +29,7 @@ public class RTree implements RootedTree {
 	/** Parents. Note: parents[root] == NULL. */
 	protected int[] parents;
 	
-	/** Children. Note: children[x][k] accesses child number k of vertex x. */
+	/** Children. Note: children[x][k] accesses child number k of vertex x. Children have empty lists, not null. */
 	protected int[][] children;
 	
 	/** For quick reference, the root index is stored explicitly. */
@@ -69,8 +69,9 @@ public class RTree implements RootedTree {
 	@Override
 	public List< List<Integer> > getComponents() {
 		ArrayList<Integer> vertices = new ArrayList<Integer>(this.parents.length);
-		for (int i = 0; i < this.parents.length; ++i)
+		for (int i = 0; i < this.parents.length; ++i) {
 			vertices.add(i);
+		}
 		ArrayList< List<Integer> > comp = new ArrayList< List<Integer> >(1);
 		comp.add(vertices);
 		return comp;
@@ -148,14 +149,14 @@ public class RTree implements RootedTree {
 
 	@Override
 	public int getNoOfChildren(int x) {
-		return (this.children[x] == null ? 0 : this.children[x].length);
+		return this.children[x].length;
 	}
 
 	@Override
 	public List<Integer> getDescendants(int x, boolean properOnly) {
-		if (this.children[x] == null) {
+		if (this.children[x].length == 0) {
 			if (properOnly) {
-				return null;
+				return new ArrayList<Integer>(0);
 			}
 			ArrayList<Integer> desc = new ArrayList<Integer>(1);
 			desc.add(x);
@@ -173,10 +174,8 @@ public class RTree implements RootedTree {
 		// Use BFS to add remaining descendants.
 		for (int i = 0; i < desc.size(); ++i) {
 			x = desc.get(i);
-			if (this.children[x] != null) {
-				for (int c : this.children[x]) {
-					desc.add(c);
-				}
+			for (int c : this.children[x]) {
+				desc.add(c);
 			}
 		}
 		return desc;
@@ -184,7 +183,7 @@ public class RTree implements RootedTree {
 
 	@Override
 	public int getNoOfDescendants(int x, boolean properOnly) {
-		if (this.children[x] == null)
+		if (this.children[x].length == 0)
 			return (properOnly ? 0 : 1);
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		if (properOnly) {
@@ -198,10 +197,8 @@ public class RTree implements RootedTree {
 		// Use BFS to add remaining descendants.
 		for (int i = 0; i < list.size(); ++i) {
 			x = list.get(i);
-			if (this.children[x] != null) {
-				for (int c : this.children[x]) {
-					list.add(c);
-				}
+			for (int c : this.children[x]) {
+				list.add(c);
 			}
 		}
 		return list.size();
@@ -220,8 +217,6 @@ public class RTree implements RootedTree {
 			anc.add(x);
 			x = this.parents[x];
 		}
-		if (anc.size() == 0)
-			return null;
 		return anc;
 	}
 
@@ -242,7 +237,7 @@ public class RTree implements RootedTree {
 	public List<Integer> getLeaves() {
 		ArrayList<Integer> leaves = new ArrayList<Integer>(this.parents.length);
 		for (int i = 0; i < this.parents.length; ++i) {
-			if (this.children[i] == null) {
+			if (this.children[i].length == 0) {
 				leaves.add(i);
 			}
 		}
@@ -251,13 +246,13 @@ public class RTree implements RootedTree {
 
 	@Override
 	public int getNoOfLeaves() {
-		ArrayList<Integer> leaves = new ArrayList<Integer>(this.parents.length);
+		int cnt = 0;
 		for (int i = 0; i < this.parents.length; ++i) {
-			if (this.children[i] == null) {
-				leaves.add(i);
+			if (this.children[i].length == 0) {
+				++cnt;
 			}
 		}
-		return leaves.size();
+		return cnt;
 	}
 
 	@Override
@@ -285,7 +280,7 @@ public class RTree implements RootedTree {
 
 	@Override
 	public boolean isLeaf(int x) {
-		return (this.children[x] != null);
+		return (this.children[x].length == 0);
 	}
 
 	@Override
@@ -295,13 +290,55 @@ public class RTree implements RootedTree {
 
 	@Override
 	public int getHeight(int x) {
-		if (this.children[x] == null)
-			return 0;
 		int childHeight = -1;
 		for (int c : this.children[x]) {
 			childHeight = Math.max(childHeight, getHeight(c));
 		}
 		return (1 + childHeight);
+	}
+
+	@Override
+	public List<Integer> getSuccessorSinks(int x) {
+		return this.getDescendantLeaves(x, true);
+	}
+
+	@Override
+	public int getNoOfSuccessorSinks(int x) {
+		return this.getNoOfDescendantLeaves(x, true);
+	}
+
+	@Override
+	public List<Integer> getDescendantLeaves(int x, boolean properOnly) {
+		List<Integer> desc = this.getDescendants(x, properOnly);
+		ArrayList<Integer> descLeaves = new ArrayList<Integer>(desc.size());
+		for (Integer i : desc) {
+			if (this.isLeaf(i)) {
+				descLeaves.add(i);
+			}
+		}
+		return descLeaves;
+	}
+
+	@Override
+	public int getNoOfDescendantLeaves(int x, boolean properOnly) {
+		List<Integer> desc = this.getDescendants(x, properOnly);
+		ArrayList<Integer> descLeaves = new ArrayList<Integer>();
+		for (Integer i : desc) {
+			if (this.isLeaf(i)) {
+				descLeaves.add(i);
+			}
+		}
+		return descLeaves.size();
+	}
+
+	@Override
+	public boolean isSource(int x) {
+		return this.isRoot(x);
+	}
+
+	@Override
+	public boolean isSink(int x) {
+		return this.isLeaf(x);
 	}
 
 }

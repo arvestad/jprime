@@ -59,7 +59,7 @@ public class RBTree implements RootedBifurcatingTree {
 	@Override
 	public List<Integer> getChildren(int x) {
 		if (this.leftChildren[x] == NULL) {
-			return null; 
+			return new ArrayList<Integer>(0);
 		}
 		ArrayList<Integer> ch = new ArrayList<Integer>(2);
 		ch.add(this.leftChildren[x]);
@@ -71,7 +71,7 @@ public class RBTree implements RootedBifurcatingTree {
 	public List<Integer> getDescendants(int x, boolean properOnly) {
 		if (this.leftChildren[x] == NULL) {
 			if (properOnly) {
-				return null;
+				return new ArrayList<Integer>(0);
 			}
 			ArrayList<Integer> desc = new ArrayList<Integer>(1);
 			desc.add(x);
@@ -130,8 +130,6 @@ public class RBTree implements RootedBifurcatingTree {
 			anc.add(x);
 			x = this.parents[x];
 		}
-		if (anc.size() == 0)
-			return null;
 		return anc;
 	}
 
@@ -190,7 +188,7 @@ public class RBTree implements RootedBifurcatingTree {
 
 	@Override
 	public int getNoOfVertices() {
-		return (this.parents.length);
+		return this.parents.length;
 	}
 
 	@Override
@@ -277,12 +275,12 @@ public class RBTree implements RootedBifurcatingTree {
 
 	@Override
 	public int getNoOfSinks() {
-		return ((this.parents.length + 1) / 2);
+		return this.getNoOfLeaves();
 	}
 
 	@Override
 	public int getNoOfDirectSuccessors(int x) {
-		return (this.leftChildren[x] == NULL ? 0 : 2);
+		return this.getNoOfChildren(x);
 	}
 
 	@Override
@@ -300,5 +298,50 @@ public class RBTree implements RootedBifurcatingTree {
 		if (this.leftChildren[x] == NULL)
 			return 0;
 		return (1 + Math.max(getHeight(this.leftChildren[x]), getHeight(this.rightChildren[x])));
+	}
+
+	@Override
+	public List<Integer> getDescendantLeaves(int x, boolean properOnly) {
+		List<Integer> desc = this.getDescendants(x, properOnly);
+		ArrayList<Integer> descLeaves = new ArrayList<Integer>((desc.size() + 2) / 2);
+		for (Integer i : desc) {
+			if (this.isLeaf(i)) {
+				descLeaves.add(i);
+			}
+		}
+		return descLeaves;
+	}
+
+	@Override
+	public int getNoOfDescendantLeaves(int x, boolean properOnly) {
+		if (this.isLeaf(x)) {
+			return (properOnly ? 0 : 1);
+		}
+		List<Integer> desc = this.getDescendants(x, properOnly);
+		if (properOnly) {
+			return ((desc.size() + 2) / 2);
+		} else {
+			return ((desc.size() + 1) / 2);
+		}
+	}
+
+	@Override
+	public List<Integer> getSuccessorSinks(int x) {
+		return this.getDescendantLeaves(x, true);
+	}
+
+	@Override
+	public int getNoOfSuccessorSinks(int x) {
+		return this.getNoOfDescendantLeaves(x, true);
+	}
+
+	@Override
+	public boolean isSource(int x) {
+		return this.isRoot(x);
+	}
+
+	@Override
+	public boolean isSink(int x) {
+		return this.isLeaf(x);
 	}
 }

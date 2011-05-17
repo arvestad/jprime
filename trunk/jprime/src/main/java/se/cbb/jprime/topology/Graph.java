@@ -10,7 +10,7 @@ import java.util.List;
  * All vertices are referenced by unique integer IDs which must range from
  * 0 to |V(G)|-1. The behaviour when providing
  * a method an out-of-bounds ID is undefined, and may very well result in an error.
- * Implementations are encouraged to indicate null references by Integer.MIN_VALUE, for
+ * Implementations are encouraged to indicate null references by -1, for
  * which there is a shorthand named 'NULL' in this interface.
  * <p/>
  * Important note: Methods returning or setting reference data types may refer to
@@ -22,7 +22,7 @@ import java.util.List;
 public interface Graph {
 
 	/** Shorthand which may be used to denote null references for vertices and arcs. */
-	public static final int NULL = Integer.MIN_VALUE;
+	public static final int NULL = -1;
 
 	/**
 	 * Returns the name of this graph. Null is preferred over an empty string
@@ -61,7 +61,7 @@ public interface Graph {
 	 * Returns a list of strong components, i.e. each list element contains
 	 * all vertices of that component. Vertices within a component are
 	 * not guaranteed to be sorted or in any particular order.
-	 * An empty graph returns null.
+	 * An empty graph returns an empty list, not null.
 	 * @return all vertices component-wise.
 	 */
 	public List< List<Integer> > getComponents();
