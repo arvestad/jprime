@@ -14,7 +14,7 @@ import java.util.List;
  * Let D1,...,Dk be the objects on which this object relies.
  * Typically, methods will be invoked in this order:
  * <ol>
- * <li>D1,...,Dk is about to change: <code>cache()</code>.</li>
+ * <li>D1,...,Dk (or a subset thereof) is about to change: <code>cache()</code>.</li>
  * <li>D1,...,Dk has changed: <code>update()</code>.</li>
  * <li>
  *   <ul>
@@ -23,8 +23,8 @@ import java.util.List;
  *   </ul>
  * </li>
  * </ol>
- * Additionally, in all calls in a cycle like above, a flag specifying if the
- * pending state will be sampled or not is included, which may be used for special
+ * Additionally, in all calls in a cycle like above, a flag is included specifying if the
+ * pending state will be sampled or not, which may be used for special
  * processing if necessary.
  * 
  * @author Joel Sjöstrand.
@@ -76,7 +76,8 @@ public interface Dependent {
 	public void cache(boolean willSample);
 	
 	/**
-	 * Updates this object, e.g. after a perturbation an object it relies on.
+	 * Updates this object, e.g. after a perturbation of an object it relies on.
+	 * This method should only be invoked when an update might be required.
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
 	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
@@ -104,7 +105,7 @@ public interface Dependent {
 	
 	/**
 	 * If available, provides information on the current changes of
-	 * this object. This may be utilised by children to
+	 * this object. Its contents may be utilised by children to
 	 * perform optimised updates. The info object is typically cleared on a call
 	 * to clearCache() or restoreCache().
 	 * @return info disclosing what has changed on this object.

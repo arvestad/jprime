@@ -202,24 +202,26 @@ public class MCMCManager {
 		
 		// Iterate.
 		while (this.iteration.increment()) {
+			
+			// Query whether this is a sample iteration or not.
 			willSample = this.thinner.doSample();
 			
-			// Get proposer(s) and then obtain topologically ordered set of affected dependents.
+			// Get proposer(s) and then obtain a topologically ordered set of affected dependents.
 			Set<Proposer> props = this.proposerSelector.getDisjointProposers(proposers);
 			List<Dependent> affectedDeps = this.getAffectedDependents(props);
 			
-			// Cache.
+			// Cache affected dependents.
 			for (Dependent d : affectedDeps) {
 				d.cache(willSample);
 			}
 			
-			// Perturb.
+			// Perturb affected dependents.
 			ArrayList<Proposal> proposals = new ArrayList<Proposal>(props.size());
 			for (Proposer p : props) {
 				proposals.add(p.propose());
 			}
 			
-			// Update all dependencies.
+			// Update affected dependents.
 			for (Dependent d : affectedDeps) {
 				d.update(willSample);
 			}
@@ -231,7 +233,8 @@ public class MCMCManager {
 			}
 			
 			// Finally, decide whether to accept or reject.
-			if (this.proposalAcceptor.acceptNewState(newLikelihood, oldLikelihood, proposals)) {
+			boolean doAccept = this.proposalAcceptor.acceptNewState(newLikelihood, oldLikelihood, proposals);
+			if (doAccept) {
 				for (Dependent d : affectedDeps) {
 					d.clearCache(willSample);
 				}
