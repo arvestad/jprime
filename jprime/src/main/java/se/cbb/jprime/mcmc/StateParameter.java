@@ -5,7 +5,8 @@ package se.cbb.jprime.mcmc;
  * A parameter may e.g. be a vector or matrix, in which the individual
  * elements are referred to as "sub-parameters".
  * <p/>
- * A parameter is also a <code>Dependent</code>, although it is generally assumed that it is
+ * A parameter is also a <code>Dependent</code>, although it is generally assumed (but not required)
+ * that it is
  * a source in the corresponding dependency DAG. Even though there may be interconnections between
  * parameters (e.g. the times t of a tree S), it is often assumed that these are independent
  * (although a Proposer which changes S usually also perturbs t). 
@@ -27,5 +28,14 @@ public interface StateParameter extends Dependent, Sampleable, MCMCSerializable 
 	 * @return the number of sub-parameters; 1 for scalar parameters.
 	 */
 	public int getNoOfSubParameters();
+	
+	/**
+	 * Sets info detailing what has changed in this object (so that
+	 * this info can be passed on to any children).
+	 * This should be invoked by a <code>Proposer</code> when it has performed a
+	 * perturbation. If not, the object may not notice it has been changed.
+	 * @param info disclosing the change of this object.
+	 */
+	public void setChangeInfo(ChangeInfo info);
 	
 }

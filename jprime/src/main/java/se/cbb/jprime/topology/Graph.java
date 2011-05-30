@@ -14,7 +14,7 @@ import java.util.List;
  * which there is a shorthand named 'NULL' in this interface.
  * <p/>
  * Important note: Methods returning or setting reference data types may refer to
- * the direct underlying data structures of the instance. It may therefore not be
+ * the direct underlying data structures of the instance. Therefore, it may not be
  * safe to e.g. alter returned values unless explicitly intended in some cases.
  *  
  * @author Joel Sjöstrand.

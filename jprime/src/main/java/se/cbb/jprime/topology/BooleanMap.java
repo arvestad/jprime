@@ -1,11 +1,19 @@
 package se.cbb.jprime.topology;
 
+import java.util.Set;
+import java.util.TreeSet;
+
+import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.ChangeInfo;
+import se.cbb.jprime.mcmc.SampleType;
+import se.cbb.jprime.mcmc.StateParameter;
+
 /**
- * Holds a boolean for each vertex/arc of a tree or graph.
+ * Holds a boolean for each vertex of a graph.
  * 
  * @author Joel Sjöstrand.
  */
-public class BooleanMap implements AcyclicDigraphMap {
+public class BooleanMap implements GraphMap, StateParameter {
 	
 	/** The name of this map, if any. */
 	protected String name;
@@ -13,19 +21,17 @@ public class BooleanMap implements AcyclicDigraphMap {
 	/** The map values. */
 	protected boolean[] values;
 	
-	/**
-	 * Constructor. Initialises all map values to false.
-	 * @param name the map's name.
-	 * @param size the size of the map.
-	 */
-	public BooleanMap(String name, int size) {
-		this.name = name;
-		this.values = new boolean[size];
-	}
+	/** The child dependents. */
+	protected TreeSet<Dependent> dependents;
+	
+	/** Cache. */
+	protected boolean[] cache = null;
+
+	/** Details the current change. Set by a Perturber. */
+	protected ChangeInfo changeInfo = null;
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 * @param defaultVal default value for all elements.
@@ -36,19 +42,20 @@ public class BooleanMap implements AcyclicDigraphMap {
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
 		}
+		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
 	 */
 	public BooleanMap(String name, boolean[] vals) {
 		this.name = name;
 		this.values = vals;
+		this.dependents = new TreeSet<Dependent>();
 	}
-
+	
 	@Override
 	public String getName() {
 		return this.name;
@@ -70,8 +77,8 @@ public class BooleanMap implements AcyclicDigraphMap {
 	}
 
 	/**
-	 * Returns the element of a vertex/arc.
-	 * @param x the vertex/head of arc.
+	 * Returns the element of a vertex.
+	 * @param x the vertex.
 	 * @return the value.
 	 */
 	public boolean get(int x) {
@@ -80,10 +87,87 @@ public class BooleanMap implements AcyclicDigraphMap {
 	
 	/**
 	 * Sets the element of a vertex/arc.
-	 * @param x the vertex/head of arc.
+	 * @param x the vertex.
 	 * @param val the value.
 	 */
 	public void set(int x, boolean val) {
 		this.values[x] = val;
+	}
+
+	@Override
+	public boolean isDependentSink() {
+		return this.dependents.isEmpty();
+	}
+
+	@Override
+	public void addChildDependent(Dependent dep) {
+		this.dependents.add(dep);
+	}
+
+	@Override
+	public Set<Dependent> getChildDependents() {
+		return this.dependents;
+	}
+
+	@Override
+	public void cache(boolean willSample) {
+		this.cache = new boolean[this.values.length];
+		System.arraycopy(this.values, 0, this.cache, 0, this.values.length);
+	}
+
+	@Override
+	public void update(boolean willSample) {
+		// Change info *must* be set in case of an actual change.
+		if (this.changeInfo != null) {
+			for (Dependent dep : this.dependents) {
+				dep.addParentChangeInfo(this.changeInfo, willSample);
+			}
+		}
+	}
+
+	@Override
+	public void clearCache(boolean willSample) {
+		this.cache = null;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public void restoreCache(boolean willSample) {
+		this.values = this.cache;
+		this.cache = null;
+		this.changeInfo= null;
+	}
+
+	@Override
+	public int getNoOfSubParameters() {
+		return this.values.length;
+	}
+
+	@Override
+	public void setChangeInfo(ChangeInfo info) {
+		this.changeInfo = info;
+	}
+
+	@Override
+	public void addParentChangeInfo(ChangeInfo info, boolean willSample) {
+		throw new UnsupportedOperationException("BooleanMap cannot have parent dependents.");
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleHeader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleValue() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

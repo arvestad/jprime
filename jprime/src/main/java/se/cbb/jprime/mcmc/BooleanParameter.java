@@ -1,7 +1,7 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Holds a boolean state parameter.
@@ -11,16 +11,16 @@ import java.util.List;
 public class BooleanParameter implements StateParameter {
 
 	/** Name. */
-	private String name;
+	protected String name;
 	
 	/** Current state. */
-	private boolean value;
+	protected boolean value;
 
-	/** Dependents. */
-	private ArrayList<Dependent> dependents;
+	/** Child dependents. */
+	protected TreeSet<Dependent> dependents;
 	
 	/** Cache. */
-	private Boolean cache;
+	protected Boolean cache;
 	
 	/**
 	 * Constructor.
@@ -30,12 +30,12 @@ public class BooleanParameter implements StateParameter {
 	public BooleanParameter(String name, boolean initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.dependents = new ArrayList<Dependent>();
+		this.dependents = new TreeSet<Dependent>();
 		this.cache = null;
 	}
 	
 	@Override
-	public boolean isSink() {
+	public boolean isDependentSink() {
 		return this.dependents.isEmpty();
 	}
 
@@ -45,7 +45,7 @@ public class BooleanParameter implements StateParameter {
 	}
 
 	@Override
-	public List<Dependent> getChildDependents() {
+	public Set<Dependent> getChildDependents() {
 		return this.dependents;
 	}
 
@@ -56,6 +56,13 @@ public class BooleanParameter implements StateParameter {
 
 	@Override
 	public void update(boolean willSample) {
+		// Notify kids if there was a change.
+		if (this.value != this.cache.booleanValue()) {
+			ChangeInfo info = new ChangeInfo(this);
+			for (Dependent dep : this.dependents) {
+				dep.addParentChangeInfo(info, willSample);
+			}
+		}
 	}
 
 	@Override
@@ -66,15 +73,12 @@ public class BooleanParameter implements StateParameter {
 	@Override
 	public void restoreCache(boolean willSample) {
 		this.value = this.cache.booleanValue();
+		this.cache = null;
 	}
 
 	@Override
-	public PerturbationInfo getPerturbationInfo() {
-		return null;
-	}
-
-	@Override
-	public void setPerturbationInfo(PerturbationInfo info) {
+	public void setChangeInfo(ChangeInfo info) {
+		// We don't really care since we can find out ourselves...
 	}
 
 	@Override
@@ -103,13 +107,8 @@ public class BooleanParameter implements StateParameter {
 	}
 
 	@Override
-	public boolean isSource() {
-		return true;
-	}
-
-	@Override
-	public List<Dependent> getParentDependents() {
-		return null;
+	public void addParentChangeInfo(ChangeInfo info, boolean willSample) {
+		throw new UnsupportedOperationException("BooleanParameter cannot have parent dependents.");
 	}
 
 }

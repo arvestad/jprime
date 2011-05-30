@@ -1,11 +1,12 @@
 package se.cbb.jprime.math;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
-import se.cbb.jprime.mcmc.PerturbationInfo;
+import se.cbb.jprime.mcmc.ChangeInfo;
 
 /**
  * Represents a 1-D normal distribution, "Gaussian", N(m,v).
@@ -30,31 +31,31 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 	
 	/** First state parameter. Null if not used. */
-	private DoubleParameter p1;
+	protected DoubleParameter p1;
 	
 	/** Second state parameter. Null if not used. */
-	private DoubleParameter p2;
+	protected DoubleParameter p2;
 	
 	/** State parameter representation. Null if not used. */
-	private ParameterSetup setup;
+	protected ParameterSetup setup;
 	
 	/** Mean value. Should reflect p1's value. */
-	private double mean;
+	protected double mean;
 	
 	/** Variance. Should reflect p2's value. */
-	private double var;
+	protected double var;
 	
 	/** Standard deviation. Should reflect p2's value. */
-	private double stdev;
+	protected double stdev;
 	
 	/** Constant term, given the variance, in the log density function: -0.5 * ln(2 * PI * var). */
-	private double logDensFact;
+	protected double logDensFact;
 	
 	/** Child dependents. */
-	private ArrayList<Dependent> dependents;
+	protected TreeSet<Dependent> dependents;
 	
-	/** Perturbation info which may be used by proposers. */
-	private PerturbationInfo perturbationInfo = null;
+	/** Change info on p1 and p2. */
+	protected ArrayList<ChangeInfo> parentChanges;
 	
 	/**
 	 * Constructor for when the distribution does not rely on state parameters.
@@ -68,7 +69,8 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		this.p1 = null;
 		this.p2 = null;
 		this.setup = null;
-		this.dependents = new ArrayList<Dependent>();
+		this.dependents = null;
+		this.parentChanges = null;
 		this.mean = mean;
 		this.var = var;
 		this.stdev = Math.sqrt(var);
@@ -77,6 +79,7 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	
 	/**
 	 * Constructor for when the distribution relies on state parameters.
+	 * The distribution will add itself as a child dependent of the parameters.
 	 * @param p1 the first parameter.
 	 * @param p2 the second parameter.
 	 * @param setup what p1 and p2 represents.
@@ -85,8 +88,11 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.setup = setup;
-		this.dependents = new ArrayList<Dependent>();
+		this.dependents = new TreeSet<Dependent>();
+		this.parentChanges = new ArrayList<ChangeInfo>();
 		this.update(false);
+		p1.addChildDependent(this);
+		p2.addChildDependent(this);
 	}
 	
 	@Override
@@ -169,12 +175,7 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 
 	@Override
-	public boolean isSource() {
-		return (this.p1 == null);
-	}
-
-	@Override
-	public boolean isSink() {
+	public boolean isDependentSink() {
 		return this.dependents.isEmpty();
 	}
 
@@ -184,19 +185,8 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	}
 
 	@Override
-	public List<Dependent> getChildDependents() {
+	public Set<Dependent> getChildDependents() {
 		return this.dependents;
-	}
-
-	@Override
-	public List<Dependent> getParentDependents() {
-		if (p1 == null) {
-			return null;
-		}
-		ArrayList<Dependent> l = new ArrayList<Dependent>(2);
-		l.add(this.p1);
-		l.add(this.p2);
-		return l;
 	}
 
 	@Override
@@ -206,6 +196,7 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 
 	@Override
 	public void update(boolean willSample) {
+		// Currently, we always update, irrespective of parent change info.
 		if (this.p1 != null) {
 			switch (this.setup) {
 			case MEAN_AND_VAR:
@@ -226,30 +217,26 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 			default:
 				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
 			}
+			this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
+			ChangeInfo info = new ChangeInfo(this);
+			for (Dependent child : this.dependents) {
+				child.addParentChangeInfo(info, willSample);
+			}
+		} else {
+			this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 		}
-		this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 	}
 
 	@Override
 	public void clearCache(boolean willSample) {
-		this.perturbationInfo = null;
+		this.parentChanges.clear();
 	}
 
 	@Override
 	public void restoreCache(boolean willSample) {
 		// Just do clean update.
 		this.update(willSample);
-		this.perturbationInfo = null;
-	}
-
-	@Override
-	public PerturbationInfo getPerturbationInfo() {
-		return this.perturbationInfo;
-	}
-
-	@Override
-	public void setPerturbationInfo(PerturbationInfo info) {
-		this.perturbationInfo = info;
+		this.parentChanges.clear();
 	}
 
 	@Override
@@ -369,6 +356,12 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		double x = prng.nextGaussian();
 		// No bounds checking for within representable range...
 		return (x * this.stdev + this.mean);
+	}
+
+	@Override
+	public void addParentChangeInfo(ChangeInfo info, boolean willSample) {
+		// Parent change info not used at the moment, but good for debugging.
+		this.parentChanges.add(info);
 	}
 
 }
