@@ -15,7 +15,7 @@ import java.util.List;
  * 
  * @author Joel Sjöstrand.
  */
-public class RBTree implements RootedBifurcatingTree {
+public class RBTree implements RootedBifurcatingTree, StateParameter {
 	
 	/** Used to indicate null references. */
 	public static final int NULL = RootedBifurcatingTree.NULL;

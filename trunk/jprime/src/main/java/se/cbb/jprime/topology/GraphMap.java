@@ -1,17 +1,24 @@
 package se.cbb.jprime.topology;
 
+import se.cbb.jprime.mcmc.StateParameter;
+
 /**
- * Interface for holders of per-vertex values for an acyclic digraph G, e.g. vertex names
- * or branch lengths. A value is accessed using the integer ID of the vertex.
+ * Interface for holders of per-vertex values for a graph G, e.g. vertex names.
+ * A value is accessed using the integer ID of the vertex.
  * <p/>
- * Of course, one may use it for arc values too. In particular, using the head y for access of
+ * Owing to the often complex relationship between a map M and its graph G, M is not
+ * automatically made a dependent of G. However, the user may of course explicitly
+ * specify this.
+ * <p/>
+ * Naturally, for trees, one may use a map for arc values too. In particular,
+ * using the head y for access of
  * an arc (x,y) is useful when one is dealing with trees where there is a requirement
  * of a "pseudo-arc" predating the root (for which one may thus store a value using
  * the root without having to introduce an extra vertex in the tree).
  * 
  * @author Joel Sjöstrand.
  */
-public interface AcyclicDigraphMap {
+public interface GraphMap {
 
 	/**
 	 * Returns this map's name, if any.

@@ -3,6 +3,10 @@ package se.cbb.jprime.topology;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.ChangeInfo;
+import se.cbb.jprime.mcmc.SampleType;
+
 /**
  * Implementation of a rooted multifurcating tree topology where parents,
  * and children are stored in arrays indexed
@@ -18,7 +22,7 @@ import java.util.List;
  * 
  * @author Joel Sjöstrand.
  */
-public class RTree implements RootedTree {
+public class RTree implements RootedTree, StateParameter {
 
 	/** Used to indicate null references. */
 	public static final int NULL = RootedTree.NULL;
@@ -35,10 +39,37 @@ public class RTree implements RootedTree {
 	/** For quick reference, the root index is stored explicitly. */
 	protected int root;
 	
+	/** Dependents. */
+	protected ArrayList<Dependent> dependents;
+	
+	/** Perturbation info. */
+	protected ChangeInfo perturbationInfo = null;
+	
+	/** Cache. Null when empty. */
+	protected RTree cache = null;
+	
 	/**
 	 * Constructor utilised by RTree factory.
 	 */
 	protected RTree() {
+	}
+	
+	/**
+	 * Copy-constructor.
+	 * @param tree the tree to copy.
+	 */
+	public RTree(RTree tree) {
+		this.name = tree.name;
+		this.parents = new int[tree.parents.length];
+		System.arraycopy(tree.parents, 0, this.parents, 0, tree.parents.length);
+		this.children = new int[tree.children.length][];
+		for (int i = 0; i < tree.children.length; ++i) {
+			int j = tree.children[i].length;
+			this.children[i] = new int[j];
+			System.arraycopy(tree.children[i], 0, this.children[i], 0, j);
+		}
+		this.root = tree.root;
+		this.dependents = new ArrayList<Dependent>(tree.dependents);
 	}
 	
 	@Override
@@ -339,6 +370,90 @@ public class RTree implements RootedTree {
 	@Override
 	public boolean isSink(int x) {
 		return this.isLeaf(x);
+	}
+
+	@Override
+	public boolean isDependentSource() {
+		return true;
+	}
+
+	@Override
+	public boolean isDependentSink() {
+		return this.dependents.isEmpty();
+	}
+
+	@Override
+	public void addChildDependent(Dependent dep) {
+		this.dependents.add(dep);
+	}
+
+	@Override
+	public List<Dependent> getChildDependents() {
+		return this.dependents;
+	}
+
+	@Override
+	public List<Dependent> getParentDependents() {
+		return null;
+	}
+
+	@Override
+	public void cache(boolean willSample) {
+		this.cache = new RTree(this);
+	}
+
+	@Override
+	public void update(boolean willSample) {
+	}
+
+	@Override
+	public void clearCache(boolean willSample) {
+		this.cache = null;
+		this.perturbationInfo = null;
+	}
+
+	@Override
+	public void restoreCache(boolean willSample) {
+		this.name = this.cache.name;
+		this.parents = this.cache.parents;
+		this.children = this.cache.children;
+		this.root = this.cache.root;
+		this.dependents = this.cache.dependents;
+		this.cache = null;
+		this.perturbationInfo = null;
+	}
+
+	@Override
+	public ChangeInfo getChangeInfo() {
+		return this.perturbationInfo;
+	}
+
+	@Override
+	public void setPerturbationInfo(ChangeInfo info) {
+		this.perturbationInfo = info;
+	}
+
+	@Override
+	public int getNoOfSubParameters() {
+		return 1;
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		// TODO: Implement.
+		return null;
+	}
+
+	@Override
+	public String getSampleHeader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleValue() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

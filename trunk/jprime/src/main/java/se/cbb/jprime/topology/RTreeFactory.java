@@ -5,6 +5,7 @@ import java.util.List;
 
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.mcmc.Dependent;
 
 /**
  * Factory class used for creating RTree instances.
@@ -29,6 +30,7 @@ public class RTreeFactory {
 		int k = tree.getNoOfVertices();
 		t.parents = new int[k];
 		t.children = new int[k][];
+		t.dependents = new ArrayList<Dependent>();
 		NewickVertex root = tree.getRoot();
 		if (root == null)
 			throw new TopologyException("Cannot create RTree from empty NewickTree.");
