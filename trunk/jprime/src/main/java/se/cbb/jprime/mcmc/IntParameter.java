@@ -22,6 +22,9 @@ public class IntParameter implements StateParameter {
 	/** Cache. */
 	protected Integer cache;
 	
+	/** Change info. */
+	protected ChangeInfo changeInfo = null;
+	
 	/**
 	 * Constructor.
 	 * @param name parameter's name.
@@ -56,26 +59,29 @@ public class IntParameter implements StateParameter {
 
 	@Override
 	public void update(boolean willSample) {
-		// Notify kids if there was a change.
 		if (this.value != this.cache.intValue()) {
-			ChangeInfo info = new ChangeInfo(this);
-			for (Dependent dep : this.dependents) {
-				dep.addParentChangeInfo(info, willSample);
-			}
+			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.value + ", old: " + this.cache.intValue());
 		}
 	}
 
 	@Override
 	public void clearCache(boolean willSample) {
 		this.cache = null;
+		this.changeInfo = null;
 	}
 
 	@Override
 	public void restoreCache(boolean willSample) {
 		this.value = this.cache.intValue();
 		this.cache = null;
+		this.changeInfo = null;
 	}
 
+	@Override
+	public ChangeInfo getChangeInfo() {
+		return this.changeInfo;
+	}
+	
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
 		// We don't really care since we can find out ourselves...
@@ -104,11 +110,6 @@ public class IntParameter implements StateParameter {
 	@Override
 	public SampleType getSampleType() {
 		return new SampleInteger();
-	}
-
-	@Override
-	public void addParentChangeInfo(ChangeInfo info, boolean willSample) {
-		throw new UnsupportedOperationException("IntParameter cannot have parent dependents.");
 	}
 
 }

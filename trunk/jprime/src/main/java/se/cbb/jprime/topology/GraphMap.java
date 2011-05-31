@@ -1,7 +1,5 @@
 package se.cbb.jprime.topology;
 
-import se.cbb.jprime.mcmc.StateParameter;
-
 /**
  * Interface for holders of per-vertex values for a graph G, e.g. vertex names.
  * A value is accessed using the integer ID of the vertex.

@@ -22,7 +22,7 @@ import se.cbb.jprime.mcmc.SampleType;
  * 
  * @author Joel Sjöstrand.
  */
-public class RTree implements RootedTree, StateParameter {
+public class RTree implements RootedBifurcatingTreeParameter {
 
 	/** Used to indicate null references. */
 	public static final int NULL = RootedTree.NULL;
@@ -370,90 +370,6 @@ public class RTree implements RootedTree, StateParameter {
 	@Override
 	public boolean isSink(int x) {
 		return this.isLeaf(x);
-	}
-
-	@Override
-	public boolean isDependentSource() {
-		return true;
-	}
-
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public List<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public List<Dependent> getParentDependents() {
-		return null;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
-		this.cache = new RTree(this);
-	}
-
-	@Override
-	public void update(boolean willSample) {
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
-		this.cache = null;
-		this.perturbationInfo = null;
-	}
-
-	@Override
-	public void restoreCache(boolean willSample) {
-		this.name = this.cache.name;
-		this.parents = this.cache.parents;
-		this.children = this.cache.children;
-		this.root = this.cache.root;
-		this.dependents = this.cache.dependents;
-		this.cache = null;
-		this.perturbationInfo = null;
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.perturbationInfo;
-	}
-
-	@Override
-	public void setPerturbationInfo(ChangeInfo info) {
-		this.perturbationInfo = info;
-	}
-
-	@Override
-	public int getNoOfSubParameters() {
-		return 1;
-	}
-
-	@Override
-	public SampleType getSampleType() {
-		// TODO: Implement.
-		return null;
-	}
-
-	@Override
-	public String getSampleHeader() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSampleValue() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

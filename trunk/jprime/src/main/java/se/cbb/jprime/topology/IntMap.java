@@ -27,7 +27,7 @@ public class IntMap implements GraphMap, StateParameter {
 	/** Cache. */
 	protected int[] cache = null;
 
-	/** Details the current change. Set by a Perturber. */
+	/** Details the current change. Set by a Proposer. */
 	protected ChangeInfo changeInfo = null;
 	
 	/**
@@ -113,6 +113,11 @@ public class IntMap implements GraphMap, StateParameter {
 	}
 
 	@Override
+	public ChangeInfo getChangeInfo() {
+		return this.changeInfo;
+	}
+	
+	@Override
 	public void setChangeInfo(ChangeInfo info) {
 		this.changeInfo = info;
 	}
@@ -140,30 +145,19 @@ public class IntMap implements GraphMap, StateParameter {
 
 	@Override
 	public void update(boolean willSample) {
-		// Change info *must* be set in case of an actual change.
-		if (this.changeInfo != null) {
-			for (Dependent dep : this.dependents) {
-				dep.addParentChangeInfo(this.changeInfo, willSample);
-			}
-		}
 	}
 
 	@Override
 	public void clearCache(boolean willSample) {
 		this.cache = null;
-		this.changeInfo= null;
+		this.changeInfo = null;
 	}
 
 	@Override
 	public void restoreCache(boolean willSample) {
 		this.values = this.cache;
 		this.cache = null;
-		this.changeInfo= null;
-	}
-
-	@Override
-	public void addParentChangeInfo(ChangeInfo info, boolean willSample) {
-		throw new UnsupportedOperationException("IntMap cannot have parent dependents.");
+		this.changeInfo = null;
 	}
 
 	@Override
