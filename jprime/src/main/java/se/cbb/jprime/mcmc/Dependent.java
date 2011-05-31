@@ -17,8 +17,9 @@ import java.util.Set;
  * Typically, methods will be invoked in this order:
  * <ol>
  * <li>D1,...,Dk are about to change: <code>this.cache()</code>.</li>
- * <li>D1,...,Dk changes and notifies this object: <code>this.addParentChangeInfo()</code> [invoked by each Di].</li>
- * <li>D1,...,Dk has finished updating: <code>this.update()</code>.</li>
+ * <li>D1,...,Dk has finished updating: <code>this.update()</code>. When doing this,
+ *     the child should be able to query its parents for updates through
+ *     <code>di.getChangeInfo()</code>.</li>
  * <li>
  *   <ul>
  *     <li>Changes have been accepted: <code>this.clearCache()</code>.</li>
@@ -59,46 +60,40 @@ public interface Dependent {
 	/**
 	 * Stores the current state e.g. prior to a change.
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
-	 *        Invariant over any cache()-addParentChangeInfo()-update()-clearCache()/restoreCache() cycle.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
 	public void cache(boolean willSample);
 	
 	/**
 	 * Updates this object, typically after changes of the objects it relies on.
-	 * Importantly, any child dependents should be notified of this object's own change by invoking
-	 * <code>child.addParentChangeInfo()</code>.
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
-	 *        Invariant over any cache()-addParentChangeInfo()-update()-clearCache()/restoreCache() cycle.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
 	public void update(boolean willSample);
 	
 	/**
-	 * Clears the stored state, e.g. when a proposed state has been accepted.
-	 * Also clears any stored info about previous parent changes.
+	 * Clears the stored state and change info, e.g. when a proposed state has been accepted.
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
-	 *        Invariant over any cache()-addParentChangeInfo()-update()-clearCache()/restoreCache() cycle.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
 	public void clearCache(boolean willSample);
 	
 	/**
-	 * Restores the cached state, e.g. when a proposed state has been rejected.
-	 * Also clears any stored info about previous parent changes.
+	 * Restores the cached state, e.g. when a proposed state has been rejected, and also
+	 * clears the change info.
 	 * Note that if the <code>willSample</code> flag is true, it may
 	 * be necessary to do additional pre-processing on the restored state (since it
 	 * probably originates from an earlier non-sample iteration).
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
-	 *        Invariant over any cache()-addParentChangeInfo()-update()-clearCache()/restoreCache() cycle.
+	 *        Invariant over any cache()-update()-clearCache()/restoreCache() cycle.
 	 */
 	public void restoreCache(boolean willSample);
 	
 	/**
-	 * Callback which parent dependents use to notify this object of
-	 * changes. Any such stored info is typically cleared on a
-	 * call to clearCache() or restoreCache().
-	 * @param info information detailing the parent's change.
-	 * @param willSample true if the pending state will be sampled; false if not sampled.
-	 *        Invariant over any cache()-addParentChangeInfo()-update()-clearCache()/restoreCache() cycle.
+	 * Method which child dependents may use to retrieves info on the change of this object.
+	 * Returning null is considered indication of an unchanged state.
+	 * @return info information detailing this object's change; null if unchanged.
 	 */
-	public void addParentChangeInfo(ChangeInfo info, boolean willSample);
+	public ChangeInfo getChangeInfo();
 	
 }

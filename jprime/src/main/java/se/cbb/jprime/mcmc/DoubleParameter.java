@@ -27,6 +27,9 @@ public class DoubleParameter implements RealParameter {
 	/** Scale according to which internal value as been transformed. Null if not used. */
 	protected ScaleTransformation scale;
 	
+	/** Change info. */
+	protected ChangeInfo changeInfo = null;
+	
 	/**
 	 * Constructor.
 	 * @param name parameter's name.
@@ -73,26 +76,29 @@ public class DoubleParameter implements RealParameter {
 
 	@Override
 	public void update(boolean willSample) {
-		// Notify kids if there was a change.
 		if (Math.abs(this.value - this.cache.doubleValue()) > 1e-20) {
-			ChangeInfo info = new ChangeInfo(this);
-			for (Dependent dep : this.dependents) {
-				dep.addParentChangeInfo(info, willSample);
-			}
+			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.value + ", old: " + this.cache.doubleValue());
 		}
 	}
 
 	@Override
 	public void clearCache(boolean willSample) {
 		this.cache = null;
+		this.changeInfo = null;
 	}
 
 	@Override
 	public void restoreCache(boolean willSample) {
 		this.value = this.cache.doubleValue();
 		this.cache = null;
+		this.changeInfo = null;
 	}
 
+	@Override
+	public ChangeInfo getChangeInfo() {
+		return this.changeInfo;
+	}
+	
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
 		// We don't really care since we can find out ourselves...
@@ -152,8 +158,4 @@ public class DoubleParameter implements RealParameter {
 		this.value = value;
 	}
 
-	@Override
-	public void addParentChangeInfo(ChangeInfo info, boolean willSample) {
-		throw new UnsupportedOperationException("DoubleParameter cannot have parent dependents.");
-	}
 }
