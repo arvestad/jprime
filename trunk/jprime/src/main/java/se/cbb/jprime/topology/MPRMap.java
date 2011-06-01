@@ -10,7 +10,7 @@ import se.cbb.jprime.mcmc.Dependent;
  * Extends a guest-host map with functionality concerning the most parsimonious reconciliation
  * when embedding the guest tree in the host tree using duplication and loss events.
  * It is assumed that the guest-to-host leaf mapping does not change, while the
- * guest or host topologies may.
+ * guest or host topologies may. See also <code>LeafMap</code>.
  * <p/>
  * Note: Only bifurcating trees supported at the moment.
  * 
@@ -129,4 +129,19 @@ public class MPRMap implements Dependent {
 		return this.changeInfo;
 	}
 
+	/**
+	 * For x in V(G), returns the lowermost vertex/arc v in V(S) where x may be placed
+	 * when reconciling G and S using only duplications and losses. More formally,
+	 * sigma is a function f: V(G) -> V(S) where
+	 * <ol>
+	 * <li>sigma(x) is the corresponding leaf in V(S) when x is a leaf.</li>
+	 * <li>sigma(x) = LCA_{c in children(x)}(sigma(c)) otherwise.</li>
+	 * </ol>
+	 * @param x the vertex of G.
+	 * @return sigma(x).
+	 */
+	public int getSigma(int x) {
+		return this.sigma[x];
+	}
+	
 }
