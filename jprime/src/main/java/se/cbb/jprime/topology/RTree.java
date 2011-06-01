@@ -2,6 +2,8 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -22,7 +24,7 @@ import se.cbb.jprime.mcmc.SampleType;
  * 
  * @author Joel Sjöstrand.
  */
-public class RTree implements RootedBifurcatingTreeParameter {
+public class RTree implements RootedTreeParameter {
 
 	/** Used to indicate null references. */
 	public static final int NULL = RootedTree.NULL;
@@ -39,14 +41,20 @@ public class RTree implements RootedBifurcatingTreeParameter {
 	/** For quick reference, the root index is stored explicitly. */
 	protected int root;
 	
-	/** Dependents. */
-	protected ArrayList<Dependent> dependents;
+	/** Child dependents. */
+	protected TreeSet<Dependent> dependents;
 	
-	/** Perturbation info. */
-	protected ChangeInfo perturbationInfo = null;
+	/** Change info. */
+	protected ChangeInfo changeInfo = null;
 	
-	/** Cache. Null when empty. */
-	protected RTree cache = null;
+	/** Parent cache. */
+	protected int[] parentsCache = null;
+	
+	/** Children cache. */
+	protected int[][] childrenCache = null;
+	
+	/** Root cache. */
+	protected int rootCache = RTree.NULL;
 	
 	/**
 	 * Constructor utilised by RTree factory.
@@ -64,12 +72,12 @@ public class RTree implements RootedBifurcatingTreeParameter {
 		System.arraycopy(tree.parents, 0, this.parents, 0, tree.parents.length);
 		this.children = new int[tree.children.length][];
 		for (int i = 0; i < tree.children.length; ++i) {
-			int j = tree.children[i].length;
-			this.children[i] = new int[j];
-			System.arraycopy(tree.children[i], 0, this.children[i], 0, j);
+			int sz = tree.children[i].length;
+			this.children[i] = new int[sz];
+			System.arraycopy(tree.children[i], 0, this.children[i], 0, sz);
 		}
 		this.root = tree.root;
-		this.dependents = new ArrayList<Dependent>(tree.dependents);
+		this.dependents = new TreeSet<Dependent>(tree.dependents);
 	}
 	
 	@Override
@@ -370,6 +378,90 @@ public class RTree implements RootedBifurcatingTreeParameter {
 	@Override
 	public boolean isSink(int x) {
 		return this.isLeaf(x);
+	}
+
+	@Override
+	public int getNoOfSubParameters() {
+		return 1;
+	}
+
+	@Override
+	public void setChangeInfo(ChangeInfo info) {
+		this.changeInfo = info;
+	}
+
+	@Override
+	public boolean isDependentSink() {
+		return this.dependents.isEmpty();
+	}
+
+	@Override
+	public void addChildDependent(Dependent dep) {
+		this.dependents.add(dep);
+	}
+
+	@Override
+	public Set<Dependent> getChildDependents() {
+		return this.dependents;
+	}
+
+	@Override
+	public void cache(boolean willSample) {
+		this.parentsCache = new int[this.parents.length];
+		System.arraycopy(this.parents, 0, this.parentsCache, 0, this.parents.length);
+		this.childrenCache = new int[this.children.length][];
+		for (int i = 0; i < this.children.length; ++i) {
+			int sz = this.children[i].length;
+			this.childrenCache[i] = new int[sz];
+			System.arraycopy(this.children[i], 0, this.childrenCache[i], 0, sz);
+		}
+		this.rootCache = this.root;
+	}
+
+	@Override
+	public void update(boolean willSample) {
+	}
+
+	@Override
+	public void clearCache(boolean willSample) {
+		this.parentsCache = null;
+		this.childrenCache = null;
+		this.rootCache = RTree.NULL;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public void restoreCache(boolean willSample) {
+		this.parents = this.parentsCache;
+		this.children = this.childrenCache;
+		this.root = this.rootCache;
+		this.parentsCache = null;
+		this.childrenCache = null;
+		this.rootCache = RTree.NULL;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public ChangeInfo getChangeInfo() {
+		return this.changeInfo;
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleHeader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleValue() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

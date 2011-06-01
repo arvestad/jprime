@@ -1,9 +1,11 @@
 package se.cbb.jprime.topology;
 
 import java.util.List;
+import java.util.TreeSet;
 
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.mcmc.Dependent;
 
 /**
  * Factory class used for creating RBTree instances.
@@ -16,11 +18,11 @@ public class RBTreeFactory {
 	public static final int NULL = RBTree.NULL;
 	
 	/**
-	 * Creates an instance from a Newick tree, disregarding all meta info.
+	 * Creates an instance from a Newick tree.
 	 * The input tree is required to be bifurcating, not empty, and have
 	 * vertices numbered from 0 to |V(T)|-1.
 	 * @param tree the Newick tree to base the topology on.
-	 * @param name the name of the tree.
+	 * @param name the name of the tree parameter.
 	 */
 	public static RBTree createTree(NewickTree tree, String name) throws TopologyException {
 		RBTree t = new RBTree();
@@ -29,6 +31,7 @@ public class RBTreeFactory {
 		t.parents = new int[k];
 		t.leftChildren = new int[k];
 		t.rightChildren = new int[k];
+		t.dependents = new TreeSet<Dependent>();
 		NewickVertex root = tree.getRoot();
 		if (root == null)
 			throw new TopologyException("Cannot create RBTree from empty NewickTree.");
