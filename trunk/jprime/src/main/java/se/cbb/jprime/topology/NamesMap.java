@@ -8,9 +8,9 @@ import java.util.TreeSet;
 /**
  * Extension of a StringMap, where vertex/arc indices may be retrieved from names (and vice versa).
  * <p/>
- * However, note that retrieving an index will only work for unique identifiers; for instance, a
- * bootstrap value vertex name will in general have many peers with the same name (in which case one
- * of them will be returned).
+ * However, note that retrieving an index will only work for unique name identifiers; for instance, a
+ * bootstrap value vertex name (say, "99") will in general have many peers with the same name (in which
+ * case one of them will be returned).
  * 
  * @author Joel Sjöstrand.
  */

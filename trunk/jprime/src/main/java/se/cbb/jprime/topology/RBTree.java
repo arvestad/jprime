@@ -2,6 +2,12 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import se.cbb.jprime.mcmc.ChangeInfo;
+import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.SampleType;
 
 /**
  * Implementation of a rooted binary tree topology where parents,
@@ -35,10 +41,44 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	/** For quick reference, the root index is stored explicitly. */
 	protected int root;
 	
+	/** Child dependents. */
+	protected TreeSet<Dependent> dependents;
+	
+	/** Change info. */
+	protected ChangeInfo changeInfo = null;
+	
+	/** Parent cache. */
+	protected int[] parentsCache = null;
+	
+	/** Left children cache. */
+	protected int[] leftChildrenCache = null;
+	
+	/** Right children cache. */
+	protected int[] rightChildrenCache = null;
+	
+	/** Root cache. */
+	protected int rootCache = RTree.NULL;
+	
 	/**
 	 * Constructor utilised by RBTree factory.
 	 */
 	protected RBTree() {
+	}
+	
+	/**
+	 * Copy-constructor.
+	 * @param tree the tree to copy.
+	 */
+	public RBTree(RBTree tree) {
+		this.name = tree.name;
+		this.parents = new int[tree.parents.length];
+		System.arraycopy(tree.parents, 0, this.parents, 0, tree.parents.length);
+		this.leftChildren = new int[tree.leftChildren.length];
+		System.arraycopy(tree.leftChildren, 0, this.leftChildren, 0, tree.leftChildren.length);
+		this.rightChildren = new int[tree.rightChildren.length];
+		System.arraycopy(tree.rightChildren, 0, this.rightChildren, 0, tree.rightChildren.length);
+		this.root = tree.root;
+		this.dependents = new TreeSet<Dependent>(tree.dependents);
 	}
 	
 	@Override
@@ -343,5 +383,90 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	@Override
 	public boolean isSink(int x) {
 		return this.isLeaf(x);
+	}
+
+	@Override
+	public int getNoOfSubParameters() {
+		return 1;
+	}
+
+	@Override
+	public void setChangeInfo(ChangeInfo info) {
+		this.changeInfo = info;
+	}
+
+	@Override
+	public boolean isDependentSink() {
+		return this.dependents.isEmpty();
+	}
+
+	@Override
+	public void addChildDependent(Dependent dep) {
+		this.dependents.add(dep);
+	}
+
+	@Override
+	public Set<Dependent> getChildDependents() {
+		return this.dependents;
+	}
+
+	@Override
+	public void cache(boolean willSample) {
+		this.parentsCache = new int[this.parents.length];
+		System.arraycopy(this.parents, 0, this.parentsCache, 0, this.parents.length);
+		this.leftChildrenCache = new int[this.leftChildren.length];
+		System.arraycopy(this.leftChildren, 0, this.leftChildrenCache, 0, this.leftChildren.length);
+		this.rightChildrenCache = new int[this.rightChildren.length];
+		System.arraycopy(this.rightChildren, 0, this.rightChildrenCache, 0, this.rightChildren.length);
+		this.rootCache = this.root;
+	}
+
+	@Override
+	public void update(boolean willSample) {
+	}
+
+	@Override
+	public void clearCache(boolean willSample) {
+		this.parentsCache = null;
+		this.leftChildrenCache = null;
+		this.rightChildrenCache = null;
+		this.rootCache = RTree.NULL;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public void restoreCache(boolean willSample) {
+		this.parents = this.parentsCache;
+		this.leftChildren = this.leftChildrenCache;
+		this.rightChildren = this.rightChildrenCache;
+		this.root = this.rootCache;
+		this.parentsCache = null;
+		this.leftChildrenCache = null;
+		this.rightChildrenCache = null;
+		this.rootCache = RTree.NULL;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public ChangeInfo getChangeInfo() {
+		return this.changeInfo;
+	}
+
+	@Override
+	public SampleType getSampleType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleHeader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSampleValue() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

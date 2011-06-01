@@ -8,7 +8,7 @@ import java.util.Set;
  * Holds a list of guest tree leaf names and a list of
  * host tree leaf names, and mappings between them.
  * Does not implement "sigma" functionality for mappings between
- * reconciled trees, see <code>MPRMap</code> for that.
+ * reconciled trees, see <code>MPRMap</code> for that functionality.
  * 
  * @author Joel Sjöstrand.
  */

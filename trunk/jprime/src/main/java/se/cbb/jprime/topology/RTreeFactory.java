@@ -2,6 +2,7 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.NewickTree;
@@ -18,11 +19,11 @@ public class RTreeFactory {
 	public static final int NULL = RBTree.NULL;
 	
 	/**
-	 * Creates an instance from a Newick tree, disregarding all meta info.
+	 * Creates an instance from a Newick tree.
 	 * The input tree is required to be "uncollapsable"	, not empty, and have
 	 * vertices numbered from 0 to |V(T)|-1.
 	 * @param tree the Newick tree to base the topology on.
-	 * @param name the name of the tree.
+	 * @param name the name of the tree parameter.
 	 */
 	public static RTree createTree(NewickTree tree, String name) throws TopologyException {
 		RTree t = new RTree();
@@ -30,7 +31,7 @@ public class RTreeFactory {
 		int k = tree.getNoOfVertices();
 		t.parents = new int[k];
 		t.children = new int[k][];
-		t.dependents = new ArrayList<Dependent>();
+		t.dependents = new TreeSet<Dependent>();
 		NewickVertex root = tree.getRoot();
 		if (root == null)
 			throw new TopologyException("Cannot create RTree from empty NewickTree.");

@@ -58,14 +58,30 @@ public class TimesMap extends DoubleMap {
 		return this.values[x];
 	}
 	
-	/**
-	 * Sets the absolute time (vertex time) of a vertex.
-	 * No bounds or consistency checking of surrounding vertices.
-	 * @param x the vertex.
-	 * @param val the vertex time.
-	 */
 	@Override
 	public void set(int x, double val) {
-		this.values[x] = val;
+		throw new UnsupportedOperationException("Cannot set absolute time (vertex time) of a vertex without also " +
+				"changing corresponding arc times. Use getVertexTimes() and getArcTimes() for low-level " +
+				"manipulation instead.");
+	}
+	
+	/**
+	 * Returns the actual vertex times of this map for low-level manipulation.
+	 * User must ensure vertex times and arc times are ultrametric and compatible
+	 * after changes to its elements. See also sister method <code>getArcTimes()</code>.
+	 * @return the internal vertex times.
+	 */
+	public double[] getVertexTimes() {
+		return this.values;
+	}
+	
+	/**
+	 * Returns the actual arc times of this map for low-level manipulation.
+	 * User must ensure vertex times and arc times are ultrametric and compatible
+	 * after changes to its elements. See also sister method <code>getVetexTimes()</code>.
+	 * @return the internal arc times.
+	 */
+	public double[] getArcTimes() {
+		return this.arcTimes;
 	}
 }

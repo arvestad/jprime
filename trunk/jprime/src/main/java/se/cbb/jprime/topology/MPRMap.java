@@ -11,6 +11,8 @@ import se.cbb.jprime.mcmc.Dependent;
  * when embedding the guest tree in the host tree using duplication and loss events.
  * It is assumed that the guest-to-host leaf mapping does not change, while the
  * guest or host topologies may.
+ * <p/>
+ * Note: Only bifurcating trees supported at the moment.
  * 
  * @author Joel Sjöstrand.
  */
@@ -20,16 +22,16 @@ public class MPRMap implements Dependent {
 	private GuestHostMap GSMap;
 	
 	/** Guest tree topology. */
-	private RootedTreeParameter G;
+	private RootedBifurcatingTreeParameter G;
 	
 	/** Host tree topology. */
-	private RootedTreeParameter S;
+	private RootedBifurcatingTreeParameter S;
 	
 	/** Child-vertex-to-host-vertex MPR map. */
-	private int[] sigmaMap;
+	private int[] sigma;
 	
 	/** Cache. */
-	private int[] sigmaMapCache = null;
+	private int[] sigmaCache = null;
 	
 	/** Child dependents. */
 	private TreeSet<Dependent> dependents;
@@ -41,16 +43,28 @@ public class MPRMap implements Dependent {
 	 * Constructor.
 	 * @param GSMap guest-to-host leaf map.
 	 * @param G guest tree topology.
+	 * @param GNames guest tree leaf names.
 	 * @param S host tree topology.
+	 * @param SNames host tree leaf names.
 	 */
-	public MPRMap(GuestHostMap GSMap, RootedTreeParameter G, RootedTreeParameter S) {
+	public MPRMap(GuestHostMap GSMap, RootedBifurcatingTreeParameter G, NamesMap GNames,
+			RootedBifurcatingTreeParameter S, NamesMap SNames) {
 		this.GSMap = GSMap;
 		this.G = G;
 		this.S = S;
-		this.sigmaMap = new int[G.getNoOfVertices()];
+		this.sigma = new int[G.getNoOfVertices()];
 		this.dependents = new TreeSet<Dependent>();
 		G.addChildDependent(this);
 		S.addChildDependent(this);
+		
+		// Fill the sigma map for the leaves only once, prior to the rest.
+		for (int l : this.G.getLeaves()) {
+			String sigmaname = this.GSMap.getHostLeafName(GNames.get(l));
+			this.sigma[l] = SNames.getVertex(sigmaname);
+		}
+		
+		// Now fill the rest.
+		this.computeSigma(this.G.getRoot());
 	}
 	
 	@Override
@@ -70,25 +84,43 @@ public class MPRMap implements Dependent {
 
 	@Override
 	public void cache(boolean willSample) {
-		this.sigmaMapCache = new int[this.sigmaMap.length];
-		System.arraycopy(this.sigmaMap, 0, this.sigmaMapCache, 0, this.sigmaMap.length);
+		this.sigmaCache = new int[this.sigma.length];
+		System.arraycopy(this.sigma, 0, this.sigmaCache, 0, this.sigma.length);
 	}
 
 	@Override
 	public void update(boolean willSample) {
-		// TODO Auto-generated method stub
+		if (this.G.getChangeInfo() != null || this.S.getChangeInfo() != null) {
+			this.computeSigma(this.G.getRoot());
+		}
+	}
+	
+	/**
+	 * Recursive method for determining the sigma mapping of the subtree of G rooted at x.
+	 * Fills the sigma array and also returns sigma(x).
+	 * @param x the vertex of G.
+	 */
+	private int computeSigma(int x) {
+		if (this.G.isLeaf(x)) {
+			// Assumed to be correct already.
+			return (this.sigma[x]);
+		}
+		int lcSigma = this.computeSigma(this.G.getLeftChild(x));
+		int rcSigma = this.computeSigma(this.G.getRightChild(x));
+		sigma[x] = this.S.getLCA(lcSigma, rcSigma);
+		return sigma[x];
 	}
 
 	@Override
 	public void clearCache(boolean willSample) {
-		this.sigmaMapCache = null;
+		this.sigmaCache = null;
 		this.changeInfo = null;
 	}
 
 	@Override
 	public void restoreCache(boolean willSample) {
-		this.sigmaMap = this.sigmaMapCache;
-		this.sigmaMapCache = null;
+		this.sigma = this.sigmaCache;
+		this.sigmaCache = null;
 		this.changeInfo = null;
 	}
 
