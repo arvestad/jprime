@@ -32,7 +32,7 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	public double getCDF(double x);
 	
 	/**
-	 * Returns the quantile function, i.e., the inverse of the CDF, F^-1(p), 0<=p<=1.
+	 * Returns the quantile function, i.e., the inverse of the CDF, F^{-1}(p), 0<=p<=1.
 	 * @param p the probability.
 	 * @return x so that F(x)=P(X<=x)=p.
 	 */
@@ -60,7 +60,8 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	public void setMean(double mean);
 		
 	/**
-	 * Returns the median, i.e. the value m so that P(X<=m)=P(X>=m)=1/2.
+	 * Returns the median, i.e. the value m so that P(X<=m)=P(X>m)=1/2.
+	 * Equivalent to <code>getQuantile(0.5)</code>.
 	 * @return the median.
 	 */
 	public double getMedian();
@@ -91,13 +92,13 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	
 	/**
 	 * Returns the coefficient of variation, i.e. c_v=sigma/|mu|, where sigma
-	 * is the standard deviation and mu the expected value.
+	 * is the standard deviation and mu the mean.
 	 * @return the standard deviation.
 	 */
 	public double getCV();
 	
 	/**
-	 * Returns the domain interval.
+	 * Returns the domain interval, i.e. what is sometimes referred to as the <i>support</i>.
 	 * @return the domain interval.
 	 */
 	public RealInterval getDomainInterval();

@@ -87,9 +87,9 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 		this.p2 = p2;
 		this.setup = setup;
 		this.dependents = new TreeSet<Dependent>();
-		this.update(false);
 		p1.addChildDependent(this);
 		p2.addChildDependent(this);
+		this.update(false);
 	}
 	
 	@Override
@@ -241,7 +241,7 @@ public class NormalDistribution implements Continuous1DPD, Dependent {
 	
 	@Override
 	public String toString() {
-		return "N(" + this.mean + ',' + this.var + ')';
+		return "N(" + this.mean + ", " + this.var + ')';
 	}
 
 	@Override
