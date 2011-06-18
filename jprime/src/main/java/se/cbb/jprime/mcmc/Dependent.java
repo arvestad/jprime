@@ -3,7 +3,7 @@ package se.cbb.jprime.mcmc;
 import java.util.Set;
 
 /**
- * Interface for vertices in an acyclig digraph (DAG) of dependencies.
+ * Interface for vertices in an acyclig digraph (DAG) of model dependencies.
  * Most commonly, such a graph will consist of state parameters as
  * sources, sub-models corresponding to conditional probabilities as sinks,
  * possibly with cached data structures in between.
@@ -29,7 +29,7 @@ import java.util.Set;
  * </ol>
  * In all calls in a cycle like above, a flag is included specifying if the
  * pending state will be sampled or not, which may be used for special
- * processing if necessary.
+ * processing if necessary. See also interface <code>StateParameter</code>.
  * 
  * @author Joel Sjöstrand.
  */

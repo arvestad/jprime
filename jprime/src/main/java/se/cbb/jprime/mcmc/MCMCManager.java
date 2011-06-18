@@ -254,7 +254,8 @@ public class MCMCManager {
 	
 	/**
 	 * From the set of all dependents, returns the subset which may be affected
-	 * by the upcoming state change. The set is returned topologically ordered.
+	 * by the upcoming state change. The set is returned topologically ordered, and
+	 * includes the source parameters.
 	 * @param props the proposers to be used for the state change.
 	 * @return the dependents which may be affected, in topological order.
 	 */
