@@ -9,7 +9,18 @@ package se.cbb.jprime.mcmc;
  * that it is
  * a source in the corresponding dependency DAG. Even though there may be interconnections between
  * parameters (e.g. the times t of a tree S), it is often assumed that these are independent
- * (although a Proposer which changes S usually also perturbs t). 
+ * (although a Proposer which changes S usually also perturbs t). Typically, methods will be invoked
+ * in the same order as for a regular <code>Dependent</code>:
+ * <ol>
+ * <li>This object is about to be perturbed by a <code>Proposer</code>: <code>this.cache()</code>.</li>
+ * <li>This object has been perturbed: <code>this.update()</code>.
+ * <li>
+ *   <ul>
+ *     <li>Changes have been accepted: <code>this.clearCache()</code>.</li>
+ *     <li>Changes have been rejected: <code>this.restoreCache()</code>.</li>
+ *   </ul>
+ * </li>
+ * </ol>
  *  
  * @author Joel Sjöstrand.
  */
