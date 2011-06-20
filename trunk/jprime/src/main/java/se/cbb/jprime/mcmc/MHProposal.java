@@ -3,7 +3,7 @@ package se.cbb.jprime.mcmc;
 import java.util.Set;
 import java.util.TreeSet;
 
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.math.LogDouble;
 
 /**
  * Metropolis-Hastings proposal detailing a state parameter change by a <code>Proposer</code>.
@@ -17,10 +17,10 @@ public class MHProposal implements Proposal {
 	private Proposer proposer;
 	
 	/** Forward probability density. */
-	private Probability forwardDensity;
+	private LogDouble forwardDensity;
 	
 	/** Backward probability density. */
-	private Probability backwardDensity;
+	private LogDouble backwardDensity;
 
 	/** Perturbed parameters. */
 	private Set<StateParameter> params;
@@ -36,7 +36,7 @@ public class MHProposal implements Proposal {
 	 * @param perturbedParams the actually changed parameters from old state to new state.
 	 * @param noOfPerturbedSubParams the total number of actually changed sub-parameters of the above.
 	 */
-	public MHProposal(Proposer proposer, Probability forwardDensity, Probability backwardDensity, Set<StateParameter> perturbedParams,
+	public MHProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, Set<StateParameter> perturbedParams,
 			int noOfPerturbedSubParams) {
 		this.proposer = proposer;
 		this.forwardDensity = forwardDensity;
@@ -53,7 +53,7 @@ public class MHProposal implements Proposal {
 	 * @param perturbedParam the perturbed parameter from old state to new state.
 	 * @param noOfPerturbedSubParams the total number of actually changed sub-parameters of the above.
 	 */
-	public MHProposal(Proposer proposer, Probability forwardDensity, Probability backwardDensity, StateParameter perturbedParam,
+	public MHProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, StateParameter perturbedParam,
 			int noOfPerturbedSubParams) {
 		this(proposer, forwardDensity, backwardDensity, new TreeSet<StateParameter>(), noOfPerturbedSubParams);
 		this.params.add(perturbedParam);
@@ -69,8 +69,8 @@ public class MHProposal implements Proposal {
 	public MHProposal(Proposer proposer, Set<StateParameter> attemptedParams) {
 		this.proposer = proposer;
 		this.params = attemptedParams;
-		this.forwardDensity = new Probability(1.0);
-		this.backwardDensity = new Probability(0.0);
+		this.forwardDensity = new LogDouble(1.0);
+		this.backwardDensity = new LogDouble(0.0);
 		this.noOfSubParams = 0;
 	}
 	
@@ -91,7 +91,7 @@ public class MHProposal implements Proposal {
 	 * obtaining the new value x' given the old value x.
 	 * @return the "forward" probability density.
 	 */
-	public Probability getForwardProposalDensity() {
+	public LogDouble getForwardProposalDensity() {
 		return this.forwardDensity;
 	}
 
@@ -100,7 +100,7 @@ public class MHProposal implements Proposal {
 	 * obtaining the old value x given the new value x'.
 	 * @return the "backward" probability density.
 	 */
-	public Probability getBackwardProposalDensity() {
+	public LogDouble getBackwardProposalDensity() {
 		return this.backwardDensity;
 	}
 
@@ -110,7 +110,7 @@ public class MHProposal implements Proposal {
 	 * respectively.
 	 * @return the ratio between the "backward" and "forward" proposal densities.
 	 */
-	public Probability getProposalDensityRatio() {
+	public LogDouble getProposalDensityRatio() {
 		return this.backwardDensity.divToNew(this.forwardDensity);
 	}
 

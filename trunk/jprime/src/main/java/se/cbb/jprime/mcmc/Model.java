@@ -1,6 +1,7 @@
 package se.cbb.jprime.mcmc;
 
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.io.Sampleable;
+import se.cbb.jprime.math.LogDouble;
 
 /**
  * Interface for probabilistic models. Subject to change,
@@ -25,5 +26,5 @@ public interface Model extends Dependent, Sampleable {
 	 * given the current model instantiation, priors, and current parameters.
 	 * @return the probability of the data given the model and parameters.
 	 */
-	public Probability getLikelihood();
+	public LogDouble getLikelihood();
 }

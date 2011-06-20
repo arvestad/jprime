@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Scanner;
 import org.junit.* ;
 import org.uncommons.maths.random.MersenneTwisterRNG;
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.prm.ProbAttribute.DependencyConstraints;
 import se.cbb.jprime.prm.Relation.Type;
 
@@ -277,7 +277,7 @@ public class SimpleMicroarrayPRM {
 				}
 				
 				// Compute the log-likelihood.
-				Probability p = new Probability(1.0);
+				LogDouble p = new LogDouble(1.0);
 				for (Dependencies deps : struct.getDependencies()) {
 					p.mult(counts.get(deps).getLikelihood());
 				}

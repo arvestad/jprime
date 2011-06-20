@@ -3,10 +3,10 @@ package se.cbb.jprime.topology;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.RealParameter;
-import se.cbb.jprime.mcmc.SampleType;
 
 /**
  * Holds a double for each vertex of a graph.

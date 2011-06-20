@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.io.Sampleable;
+import se.cbb.jprime.io.Sampler;
+import se.cbb.jprime.math.LogDouble;
 
 /**
  * MCMC framework class for handling a plain non-hierarchical MCMC chain (MC^2).
@@ -188,7 +190,7 @@ public class MCMCManager {
 		this.sampler.writeSampleHeader(this.sampleables);
 		
 		// First time, do a clean update.
-		Probability oldLikelihood = new Probability(1.0);
+		LogDouble oldLikelihood = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
 		for (Dependent d : this.dependents) {
 			d.update(willSample);
@@ -227,7 +229,7 @@ public class MCMCManager {
 			}
 			
 			// Get likelihood of proposed state.
-			Probability newLikelihood = new Probability(1.0);
+			LogDouble newLikelihood = new LogDouble(1.0);
 			for (Model m : this.models) {
 				newLikelihood.mult(m.getLikelihood());
 			}

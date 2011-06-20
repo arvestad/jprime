@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.math.LogDouble;
 
 /**
  * For a discrete child PRM attribute and a set of discrete parent attributes, computes and stores counts
@@ -111,7 +111,7 @@ public class DirichletCounts {
 	private HashMap<ConfigCount, ConfigCount> summedCounts;
 	
 	/** Likelihood (and log-likelihood) of all child entities. Only computed once needed. */
-	private Probability likelihood;
+	private LogDouble likelihood;
 	
 	/**
 	 * Constructor.
@@ -394,9 +394,9 @@ public class DirichletCounts {
 	 * <b>Important note: For latent attributes, the likelihood is computed using the entities' current soft completion.</b>
 	 * @return the likelihood.
 	 */
-	public Probability getLikelihood() {
+	public LogDouble getLikelihood() {
 		if (this.likelihood == null) {
-			this.likelihood = new Probability(1.0);
+			this.likelihood = new LogDouble(1.0);
 			int k = this.dependencies.length;
 			int n = this.child.getNoOfEntities();
 			ArrayList<ConfigCount> ccs = new ArrayList<ConfigCount>(64);
@@ -413,7 +413,7 @@ public class DirichletCounts {
 				for (ConfigCount cc : ccs) {
 					p += cc.count * this.getExpectedConditionalProb(cc);
 				}
-				this.likelihood.mult(new Probability(p));
+				this.likelihood.mult(new LogDouble(p));
 			}
 		}
 		return this.likelihood;

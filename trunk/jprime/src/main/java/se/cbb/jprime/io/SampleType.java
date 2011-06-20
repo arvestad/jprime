@@ -1,9 +1,9 @@
-package se.cbb.jprime.mcmc;
+package se.cbb.jprime.io;
 
 /**
  * Interface for data types that can be serialised for sampling.
  * Implementing classes may e.g. provide convenience methods
- * for serialisation (MCMC chain) and de-serialisation (chain parser).
+ * for serialisation (e.g. MCMC chain) and de-serialisation (e.g. chain parser).
  * 
  * @author Joel Sjöstrand.
  */

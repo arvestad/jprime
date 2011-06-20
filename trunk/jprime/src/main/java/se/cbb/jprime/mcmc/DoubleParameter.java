@@ -3,6 +3,8 @@ package se.cbb.jprime.mcmc;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.io.SampleDouble;
+import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.math.ScaleTransformation;
 
 /**

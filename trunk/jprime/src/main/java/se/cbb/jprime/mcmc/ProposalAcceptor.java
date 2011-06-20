@@ -2,7 +2,7 @@ package se.cbb.jprime.mcmc;
 
 import java.util.List;
 
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.math.LogDouble;
 
 /**
  * Interface for probabilistic techniques of determining whether a suggested
@@ -21,6 +21,6 @@ public interface ProposalAcceptor extends MCMCSerializable {
 	 * @param proposals details the proposals made for going from x to x'.
 	 * @return true if suggested state accepted; false if rejected.
 	 */
-	public boolean acceptNewState(Probability newStateLikelihood, Probability oldStateLikelihood,
+	public boolean acceptNewState(LogDouble newStateLikelihood, LogDouble oldStateLikelihood,
 			List<Proposal> proposals);
 }

@@ -1,4 +1,4 @@
-package se.cbb.jprime.mcmc;
+package se.cbb.jprime.io;
 
 import java.io.BufferedWriter;
 import java.io.File;
