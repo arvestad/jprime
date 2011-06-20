@@ -22,7 +22,7 @@ public class TestRTree {
 	public void testLCA() throws NewickIOException, IOException, TopologyException {
 		URL url = this.getClass().getResource("/phylogenetics/molli.host.nw");
 		PrIMENewickTree rawTree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
-		RTree tree = RTreeFactory.createTree(rawTree, "molli");
+		RTree tree = new RTree(rawTree, "molli");
 		NamesMap names = rawTree.getVertexNamesMap(true);
 		int x = names.getVertex("MYCH2");
 		assertEquals(x, tree.getLCA(x, x));

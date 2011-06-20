@@ -308,7 +308,7 @@ public class NewickVertex {
 	 * Recursively sorts the children of this vertex according to vertex names.
 	 * If lacking name, a vertex is instead represented by the "smallest" name corresponding
 	 * to the subtrees of its children. Unnamed children are stored last.
-	 * Assumes that vertex names are unique (i.e., beware of bootstrap names!).
+	 * Assumes that vertex names are unique (i.e., beware of bootstrap value names!).
 	 * @return the name representing the subtree rooted at this vertex.
 	 * @throws NewickIOException if there was a collision due to duplicate names while sorting.
 	 */
@@ -337,4 +337,31 @@ public class NewickVertex {
 		return (this.hasName() ? this.name : firstChildName);
 	}
 
+	
+	@Override
+	public String toString() {
+		// Conforms with serialisation of a Newick tree.
+		int n = this.getNoOfChildren();
+		StringBuilder sb = new StringBuilder(16 + 16 * n);
+		if (n > 0) {
+			sb.append('(');
+			for (NewickVertex c : this.children) {
+				sb.append(c.toString());
+				sb.append(',');
+			}
+			sb.deleteCharAt(sb.length() - 1);
+			sb.append(')');
+		}
+		if (this.hasName()) {
+			sb.append(this.name);
+		}
+		if (this.hasBranchLength()) {
+			sb.append(':').append(this.branchLength);
+		}
+		if (this.hasMeta()) {
+			sb.append(this.meta);
+		}
+		return sb.toString();
+	}
+	
 }
