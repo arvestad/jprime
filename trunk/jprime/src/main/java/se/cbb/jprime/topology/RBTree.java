@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.SampleType;
@@ -13,8 +15,6 @@ import se.cbb.jprime.mcmc.SampleType;
  * Implementation of a rooted binary tree topology where parents,
  * left and right children are stored in arrays indexed
  * by vertex number. Null references are indicated as in its interface.
- * <p/>
- * Instances are created using RBTreeFactory.
  * <p/>
  * Data such as leaf names, branch lengths, etc. are stored elsewhere.
  * Completely empty trees are not allowed.
@@ -60,9 +60,41 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	protected int rootCache = RTree.NULL;
 	
 	/**
-	 * Constructor utilised by RBTree factory.
+	 * Constructor. Creates a rooted tree from a Newick tree.
+	 * The input tree is required to be bifurcating, not empty, and have
+	 * vertices numbered from 0 to |V(T)|-1.
+	 * @param tree the Newick tree to base the topology on.
+	 * @param name the name of the tree parameter.
 	 */
-	protected RBTree() {
+	public RBTree(NewickTree tree, String name) throws TopologyException {
+		this.name = name;
+		int k = tree.getNoOfVertices();
+		this.parents = new int[k];
+		this.leftChildren = new int[k];
+		this.rightChildren = new int[k];
+		this.dependents = new TreeSet<Dependent>();
+		NewickVertex root = tree.getRoot();
+		if (root == null)
+			throw new TopologyException("Cannot create RBTree from empty NewickTree.");
+		if (!tree.isBifurcating())
+			throw new TopologyException("Cannot create RBTree from non-bifurcating NewickTree.");
+		List<NewickVertex> vertices = tree.getVerticesAsList();
+		for (NewickVertex v : vertices) {
+			int i = v.getNumber();
+			if (v.isRoot()) {
+				this.parents[i] = NULL;
+				this.root = i;
+			} else {
+				this.parents[i] = v.getParent().getNumber();
+			}
+			if (v.isLeaf()) {
+				this.leftChildren[i] = NULL;
+				this.rightChildren[i] = NULL;
+			} else {
+				this.leftChildren[i] = v.getChildren().get(0).getNumber();
+				this.rightChildren[i] = v.getChildren().get(1).getNumber();
+			}
+		}
 	}
 	
 	/**

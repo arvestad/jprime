@@ -15,7 +15,6 @@ import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.misc.IntTriple;
 import se.cbb.jprime.topology.RBTree;
-import se.cbb.jprime.topology.RBTreeFactory;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
@@ -32,9 +31,9 @@ public class TestClusterTablePSWTree {
 		String s2 = "(F,(((B,C),(D,E)),(A,G)));";
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
-		RBTree t1 = RBTreeFactory.createTree(n1, "t1");
+		RBTree t1 = new RBTree(n1, "t1");
 		NamesMap names1 = n1.getVertexNamesMap(true);
-		RBTree t2 = RBTreeFactory.createTree(n2, "t2");
+		RBTree t2 = new RBTree(n2, "t2");
 		NamesMap names2 = n2.getVertexNamesMap(true);
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, false);
 		ClusterTablePSWTree d2 = new ClusterTablePSWTree(t2, names2, false);
@@ -56,9 +55,9 @@ public class TestClusterTablePSWTree {
 		String s2 = "(((root,F),(A,G)),((B,C),(D,E)));";
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
-		RBTree t1 = RBTreeFactory.createTree(n1, "t1");
+		RBTree t1 = new RBTree(n1, "t1");
 		NamesMap names1 = n1.getVertexNamesMap(true);
-		RBTree t2 = RBTreeFactory.createTree(n2, "t2");
+		RBTree t2 = new RBTree(n2, "t2");
 		NamesMap names2 = n2.getVertexNamesMap(true);
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, true);
 		ClusterTablePSWTree d2 = new ClusterTablePSWTree(t2, names2, true);
@@ -92,7 +91,7 @@ public class TestClusterTablePSWTree {
 		// Tests a bifurcating rooted tree.
 		String s1 = "(A,(((B,C),(D,E)),(F,G)));";
 		NewickTree n1 = NewickTreeReader.readTree(s1, true);
-		RBTree t1 = RBTreeFactory.createTree(n1, "t1");
+		RBTree t1 = new RBTree(n1, "t1");
 		NamesMap names1 = n1.getVertexNamesMap(true);
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, false);
 		int sz = d1.getClusterTableSize();

@@ -12,7 +12,6 @@ import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RTree;
-import se.cbb.jprime.topology.RTreeFactory;
 import se.cbb.jprime.topology.TimesMap;
 import se.cbb.jprime.topology.TopologyException;
 
@@ -50,7 +49,7 @@ public class ParsimoniousTimeEstimator {
 		
 		// Read tree and G-S map.
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(sFile, false, true);
-		RTree s = RTreeFactory.createTree(sRaw, "HostTree");
+		RTree s = new RTree(sRaw, "HostTree");
 		NamesMap names = sRaw.getVertexNamesMap(true);
 		TimesMap times = sRaw.getTimesMap();
 		GuestHostMap gs = GuestHostMapReader.readGuestHostMap(gsFile);

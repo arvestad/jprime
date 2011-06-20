@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.SampleType;
@@ -15,8 +17,6 @@ import se.cbb.jprime.mcmc.SampleType;
  * by vertex number (the children of a specified vertex are, in turn, held as an array
  * in no particular order).
  * Null references are indicated as in its interface.
- * <p/>
- * Instances are created using RTreeFactory.
  * <p/>
  * Data such as leaf names, branch lengths, etc. are stored elsewhere.
  * Completely empty trees are not allowed, nor are trees with vertices that may
@@ -57,9 +57,46 @@ public class RTree implements RootedTreeParameter {
 	protected int rootCache = RTree.NULL;
 	
 	/**
-	 * Constructor utilised by RTree factory.
+	 * Constructor. Creates a rooted tree from a Newick tree.
+	 * The input tree is required to be "uncollapsable", not empty, and have
+	 * vertices numbered from 0 to |V(T)|-1.
+	 * @param tree the Newick tree to base the topology on.
+	 * @param name the name of the tree parameter.
 	 */
-	protected RTree() {
+	public RTree(NewickTree tree, String name) throws TopologyException {
+		this.name = name;
+		int k = tree.getNoOfVertices();
+		this.parents = new int[k];
+		this.children = new int[k][];
+		this.dependents = new TreeSet<Dependent>();
+		NewickVertex root = tree.getRoot();
+		if (root == null)
+			throw new TopologyException("Cannot create RTree from empty NewickTree.");
+		if (tree.isCollapsable())
+			throw new TopologyException("Cannot create RTree from collapsable NewickTree.");
+		List<NewickVertex> vertices = tree.getVerticesAsList();
+		for (NewickVertex v : vertices) {
+			int i = v.getNumber();
+			
+			// Parent relationships.
+			if (v.isRoot()) {
+				this.parents[i] = NULL;
+				this.root = i;
+			} else {
+				this.parents[i] = v.getParent().getNumber();
+			}
+			
+			// Child relationships.
+			if (v.isLeaf()) {
+				this.children[i] = new int[0];
+			} else {
+				ArrayList<NewickVertex> ch = v.getChildren();
+				this.children[i] = new int[ch.size()];
+				for (int j = 0; j < this.children[i].length; ++j) {
+					this.children[i][j] = ch.get(j).getNumber();
+				}
+			}
+		}
 	}
 	
 	/**

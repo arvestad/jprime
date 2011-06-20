@@ -8,8 +8,9 @@ import se.cbb.jprime.topology.NamesMap;
 
 /**
  * Holds a "pure" Newick tree. Essentially, this only consists of a tree
- * rooted at a NewickNode, but with tree-specific meta info added, as well as
- * some convenience methods. See NewickNode for more details.
+ * rooted at a <code>NewickNode</code>, but with tree-specific meta info added, as well as
+ * some convenience methods. See <code>NewickNode</code> for more details, and <code>PrIMENewickTree</code>
+ * for an extenension.
  * <p/>
  * One may invoke renumber() to renumber a tree post-order (Newick-style),
  * starting with 0 at the first leaf. Be advised that this property may
@@ -30,10 +31,10 @@ public class NewickTree {
 	 * Creates a Newick tree from a topology rooted at a NewickVertex.
 	 * If chosen to be sorted, this occurs prior to numbering.
 	 * @param root the root of the topology, must not be null.
-	 * @param meta the meta info (provided between brackets).
+	 * @param meta the meta info (provided between brackets) for the tree itself (vertices have their own meta tags).
 	 * @param doRenumber true to relabel the NewickNodes post-order (Newick-style).
 	 * @param doSort true to sort the tree using method sort(). Do not use when there are
-	 *        bootstrap vertex names.
+	 *        non-unique vertex names (e.g. bootstrap value names).
 	 * @throws NewickIOException.
 	 */
 	public NewickTree(NewickVertex root, String meta, boolean doRenumber, boolean doSort) throws NewickIOException {
@@ -86,7 +87,8 @@ public class NewickTree {
 	}
 	
 	/**
-	 * Returns the meta info (provided between brackets) for the tree.
+	 * Returns the meta info (provided between brackets) for the tree itself
+	 * (vertices have their own tags).
 	 * @return the meta info, possibly null.
 	 */
 	public String getMeta() {
@@ -94,8 +96,8 @@ public class NewickTree {
 	}
 	
 	/**
-	 * Sets the meta info for the tree. Null is recommended
-	 * over empty string if lacking such info.
+	 * Sets the meta info for the tree itself. Null is recommended over
+	 * empty string if lacking such info.
 	 * @param meta the meta info.
 	 */
 	public void setMeta(String meta) {
@@ -124,6 +126,17 @@ public class NewickTree {
 	 */
 	public int getNoOfLeaves() {
 		return this.root.getNoOfLeaves();
+	}
+	
+	/**
+	 * Returns true if meta info is not null (only referring to the tag of the tree
+	 * itself, not its vertices).
+	 * Empty string returns true, as does
+	 * empty string enclosed in brackets.
+	 * @return true if vertex has meta info.
+	 */
+	public boolean hasMeta() {
+		return (this.meta != null);
 	}
 	
 	/**
@@ -250,5 +263,16 @@ public class NewickTree {
 	public DoubleMap getBranchLengthsMap() {
 		double[] bls = this.getBranchLengths();
 		return (bls != null ? new DoubleMap("BranchLengths", bls) : null);
+	}
+	
+	@Override
+	public String toString() {
+		// Conforms with serialisation of a Newick tree.
+		if (this.hasMeta()) {
+			StringBuilder sb = new StringBuilder(this.root.toString());
+			sb.append(this.meta).append(';');
+			return sb.toString();
+		}
+		return (this.root.toString() + ';');
 	}
 }

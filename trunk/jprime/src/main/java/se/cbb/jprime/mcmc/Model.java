@@ -22,7 +22,7 @@ public interface Model extends Dependent, Sampleable {
 
 	/**
 	 * Returns the (often conditional) probability density of the observations
-	 * given the current model instantiation and its current parameters.
+	 * given the current model instantiation, priors, and current parameters.
 	 * @return the probability of the data given the model and parameters.
 	 */
 	public Probability getLikelihood();
