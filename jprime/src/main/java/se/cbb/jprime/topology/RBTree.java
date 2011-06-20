@@ -7,9 +7,9 @@ import java.util.TreeSet;
 
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
+import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
-import se.cbb.jprime.mcmc.SampleType;
 
 /**
  * Implementation of a rooted binary tree topology where parents,

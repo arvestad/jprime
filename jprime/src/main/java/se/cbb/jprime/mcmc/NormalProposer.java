@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 import se.cbb.jprime.math.NormalDistribution;
 import se.cbb.jprime.math.PRNG;
-import se.cbb.jprime.math.Probability;
+import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.RealInterval;
 import se.cbb.jprime.math.RealInterval.Type;
 
@@ -211,8 +211,8 @@ public class NormalProposer implements Proposer {
 		double normFact = N.getQuantile((1.0 + this.t2.getValue()) / 2);
 		
 		// Perturb all chosen sub-parameters.
-		Probability forward = new Probability(1.0);
-		Probability backward = new Probability(1.0);
+		LogDouble forward = new LogDouble(1.0);
+		LogDouble backward = new LogDouble(1.0);
 		for (int i = 0; i < indices.length; ++i) {
 			
 			// Compute variance for current proposal distribution.
@@ -242,7 +242,7 @@ public class NormalProposer implements Proposer {
 			if (!Double.isInfinite(b)) {
 				nonTails -= 1.0 - pd.getCDF(b);
 			}
-			forward.mult(new Probability(pd.getPDF(x) / nonTails));
+			forward.mult(new LogDouble(pd.getPDF(x) / nonTails));
 			
 			// Obtain "backward" density.
 			stdev = (x == 0.0 ? 1e-10 : Math.abs(x * this.t1.getValue()) / normFact);
@@ -255,7 +255,7 @@ public class NormalProposer implements Proposer {
 			if (!Double.isInfinite(b)) {
 				nonTails -= 1.0 - pd.getCDF(b);
 			}
-			backward.mult(new Probability(pd.getPDF(xOld) / nonTails));
+			backward.mult(new LogDouble(pd.getPDF(xOld) / nonTails));
 		}
 		
 		// Generate proposal object.

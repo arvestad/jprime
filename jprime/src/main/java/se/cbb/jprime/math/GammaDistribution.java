@@ -205,8 +205,8 @@ public class GammaDistribution implements Continuous1DPD, Dependent {
 	 * @param x the value where to evaluate density.
 	 * @return the probability density, f(x).
 	 */
-	public Probability getPDFAsProbability(double x) {
-		return new Probability((this.k - 1.0) * Math.log(x) - x / this.theta + this.c, 1);
+	public LogDouble getPDFAsProbability(double x) {
+		return new LogDouble((this.k - 1.0) * Math.log(x) - x / this.theta + this.c, 1);
 	}
 
 	@Override

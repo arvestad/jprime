@@ -3,6 +3,9 @@ package se.cbb.jprime.mcmc;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.io.SampleInteger;
+import se.cbb.jprime.io.SampleType;
+
 /**
  * Holds an integer state parameter.
  * 

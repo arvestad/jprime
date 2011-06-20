@@ -1,4 +1,4 @@
-package se.cbb.jprime.mcmc;
+package se.cbb.jprime.io;
 
 /**
  * Interface for classes from which one can obtain a sample for output, e.g.

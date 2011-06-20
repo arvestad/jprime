@@ -5,26 +5,26 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
- * Unit tests for Probability.
+ * Unit tests for LogDouble.
  * 
  * @author Joel Sjöstrand.
  */
-public class TestProbability {
+public class TestLogDouble {
 
-	private Probability z = new Probability(0.0);
-	private Probability p1 = new Probability(0.0001);
-	private Probability p2 = new Probability(0.00123);
-	private Probability n1 = new Probability(-0.00345);
-	private Probability n2 = new Probability(-0.0456);
-	private Probability e = new Probability(Math.E);
-	private Probability one = new Probability(1.0);
-	private Probability two = new Probability(2.0);
+	private LogDouble z = new LogDouble(0.0);
+	private LogDouble p1 = new LogDouble(0.0001);
+	private LogDouble p2 = new LogDouble(0.00123);
+	private LogDouble n1 = new LogDouble(-0.00345);
+	private LogDouble n2 = new LogDouble(-0.0456);
+	private LogDouble e = new LogDouble(Math.E);
+	private LogDouble one = new LogDouble(1.0);
+	private LogDouble two = new LogDouble(2.0);
 
 	@Test
 	public void testConstructors() {
-		Probability p = new Probability(p1);
+		LogDouble p = new LogDouble(p1);
 		assertEquals(-9.21034, p.getLogValue(), 1e-6);
-		p = new Probability(-100.0, 1);
+		p = new LogDouble(-100.0, 1);
 		assertEquals(-100.0, p.getLogValue(), 1e-6);
 	}
 	
@@ -55,7 +55,7 @@ public class TestProbability {
 	
 	@Test
 	public void testAdd() {
-		Probability p = z.addToNew(p1);
+		LogDouble p = z.addToNew(p1);
 		assertEquals(p1.getValue(), p.getValue(), 1e-6);
 		p = p1.addToNew(z);
 		assertEquals(p1.getValue(), p.getValue(), 1e-6);
@@ -69,7 +69,7 @@ public class TestProbability {
 	
 	@Test
 	public void testSub() {
-		Probability p = z.subToNew(p1);
+		LogDouble p = z.subToNew(p1);
 		assertEquals(-p1.getValue(), p.getValue(), 1e-6);
 		p = p1.subToNew(z);
 		assertEquals(p1.getValue(), p.getValue(), 1e-6);
@@ -83,7 +83,7 @@ public class TestProbability {
 	
 	@Test
 	public void testMult() {
-		Probability p = z.multToNew(p1);
+		LogDouble p = z.multToNew(p1);
 		assertEquals(0, p.getValue(), 1e-6);
 		p = p1.multToNew(z);
 		assertEquals(0, p.getValue(), 1e-6);
@@ -97,7 +97,7 @@ public class TestProbability {
 	
 	@Test
 	public void testDiv() {
-		Probability p = z.divToNew(p1);
+		LogDouble p = z.divToNew(p1);
 		assertEquals(0, p.getValue(), 1e-6);
 		p = p1.divToNew(p2);
 		assertEquals(p1.getValue() / p2.getValue(), p.getValue(), 1e-6);
@@ -111,7 +111,7 @@ public class TestProbability {
 	
 	@Test
 	public void testNeg() {
-		Probability p = z.negToNew();
+		LogDouble p = z.negToNew();
 		assertEquals(0, p.getValue(), 1e-6);
 		p = p1.negToNew();
 		assertEquals(-p1.getValue(), p.getValue(), 1e-6);
@@ -121,7 +121,7 @@ public class TestProbability {
 	
 	@Test
 	public void testPower() {
-		Probability p = z.powToNew(2);
+		LogDouble p = z.powToNew(2);
 		assertEquals(0, p.getValue(), 1e-6);
 		p = z.powToNew(0);
 		assertEquals(1.0, p.getValue(), 1e-6);
@@ -145,7 +145,7 @@ public class TestProbability {
 	
 	@Test
 	public void testExp() {
-		Probability p = z.expToNew();
+		LogDouble p = z.expToNew();
 		assertEquals(1.0, p.getValue(), 1e-6);
 		p = p1.expToNew();
 		assertEquals(Math.exp(p1.getValue()), p.getValue(), 1e-6);
@@ -157,7 +157,7 @@ public class TestProbability {
 	
 	@Test
 	public void testLog() {
-		Probability p = z.logToNew();
+		LogDouble p = z.logToNew();
 		assertTrue(Double.isInfinite(p.getValue()) && p.getSign() == -1);
 		p = p1.logToNew();
 		assertEquals(Math.log(p1.getValue()), p.getValue(), 1e-6);
@@ -272,7 +272,7 @@ public class TestProbability {
 		assertFalse(n1.equals(n2));
 		assertFalse(n2.equals(n1));
 		assertFalse(n2.equals(p1));
-		Probability p = new Probability(p1);
+		LogDouble p = new LogDouble(p1);
 		assertEquals(p1, p);
 	}
 	
@@ -286,10 +286,10 @@ public class TestProbability {
 		//System.out.println(sp1);
 		//System.out.println(sn1);
 		//System.out.println(one);
-		Probability cz = Probability.parseProbability(sz);
-		Probability cp1 = Probability.parseProbability(sp1);
-		Probability cn1 = Probability.parseProbability(sn1);
-		Probability ctwo = Probability.parseProbability(stwo);
+		LogDouble cz = LogDouble.parseLogDouble(sz);
+		LogDouble cp1 = LogDouble.parseLogDouble(sp1);
+		LogDouble cn1 = LogDouble.parseLogDouble(sn1);
+		LogDouble ctwo = LogDouble.parseLogDouble(stwo);
 		assertEquals(z.getValue(), cz.getValue(), 1e-6);
 		assertEquals(p1.getValue(), cp1.getValue(), 1e-6);
 		assertEquals(n1.getValue(), cn1.getValue(), 1e-6);

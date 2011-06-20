@@ -2,6 +2,10 @@ package se.cbb.jprime.mcmc;
 
 import java.util.LinkedList;
 
+import se.cbb.jprime.io.SampleInteger;
+import se.cbb.jprime.io.SampleType;
+import se.cbb.jprime.io.Sampleable;
+
 /**
  * Holds the current and total number of iterations k for e.g. an MCMC chain.
  * Iterations typically range between 0 and k, where 0 refers to a "non-counted" starting iteration.

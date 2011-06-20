@@ -3,9 +3,9 @@ package se.cbb.jprime.topology;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
-import se.cbb.jprime.mcmc.SampleType;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**

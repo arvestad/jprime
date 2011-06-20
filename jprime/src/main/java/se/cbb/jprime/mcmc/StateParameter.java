@@ -1,5 +1,7 @@
 package se.cbb.jprime.mcmc;
 
+import se.cbb.jprime.io.Sampleable;
+
 /**
  * Interface for parameters, e.g. the states of an MCMC chain.
  * A parameter may e.g. be a vector or matrix, in which the individual
