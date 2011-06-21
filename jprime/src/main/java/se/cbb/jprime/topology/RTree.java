@@ -7,7 +7,6 @@ import java.util.TreeSet;
 
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
-import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ChangeInfo;
 
@@ -484,21 +483,18 @@ public class RTree implements RootedTreeParameter {
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		// TODO Auto-generated method stub
-		return null;
+	public Class<?> getSampleType() {
+		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
 	}
 
 	@Override
 	public String getSampleHeader() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
 	}
 
 	@Override
 	public String getSampleValue() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
 	}
 
 }

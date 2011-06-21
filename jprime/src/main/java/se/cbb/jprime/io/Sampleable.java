@@ -13,7 +13,7 @@ public interface Sampleable {
 	 * Must not return null.
 	 * @return the sample type.
 	 */
-	public SampleType getSampleType();
+	public Class<?> getSampleType();
 	
 	/**
 	 * Returns this object's name or some similar ID.

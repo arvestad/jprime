@@ -6,7 +6,7 @@ package se.cbb.jprime.topology;
  * 
  * @author Joel Sjöstrand.
  */
-public class LeafMap {
+public class LeafLeafMap {
 
 	/** Child-leaf-to-host-leaf map. */
 	private int[] leafSigma;
@@ -19,7 +19,7 @@ public class LeafMap {
 	 * @param S host tree topology.
 	 * @param SNames host tree leaf names.
 	 */
-	public LeafMap(GuestHostMap GSMap, RootedTreeParameter G, NamesMap GNames,
+	public LeafLeafMap(GuestHostMap GSMap, RootedTreeParameter G, NamesMap GNames,
 			RootedTreeParameter S, NamesMap SNames) {
 		this.leafSigma = new int[G.getNoOfVertices()];
 		for (int i = 0; i < this.leafSigma.length; ++i) {

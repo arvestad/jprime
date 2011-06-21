@@ -3,7 +3,7 @@ package se.cbb.jprime.topology;
 import java.util.Set;
 import java.util.TreeSet;
 
-import se.cbb.jprime.io.SampleType;
+import se.cbb.jprime.io.SampleIntArray;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
@@ -161,20 +161,17 @@ public class IntMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		// TODO Auto-generated method stub
-		return null;
+	public Class<?> getSampleType() {
+		return SampleIntArray.class;
 	}
 
 	@Override
 	public String getSampleHeader() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.name;
 	}
 
 	@Override
 	public String getSampleValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return SampleIntArray.toString(this.values);
 	}
 }

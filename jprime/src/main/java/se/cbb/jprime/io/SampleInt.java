@@ -5,10 +5,10 @@ package se.cbb.jprime.io;
  * 
  * @author Joel Sjöstrand.
  */
-public class SampleInteger implements SampleType {
+public class SampleInt implements SampleType {
 
 	/** Sample type ID. */
-	public static final String TYPE = "Integer";
+	public static final String TYPE = "Int";
 	
 	@Override
 	public String getType() {

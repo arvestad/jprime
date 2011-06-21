@@ -3,8 +3,7 @@ package se.cbb.jprime.mcmc;
 import java.util.Set;
 import java.util.TreeSet;
 
-import se.cbb.jprime.io.SampleInteger;
-import se.cbb.jprime.io.SampleType;
+import se.cbb.jprime.io.SampleInt;
 
 /**
  * Holds an integer state parameter.
@@ -107,12 +106,12 @@ public class IntParameter implements StateParameter {
 
 	@Override
 	public String getSampleValue() {
-		return SampleInteger.toString(this.value);
+		return SampleInt.toString(this.value);
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		return new SampleInteger();
+	public Class<?> getSampleType() {
+		return SampleInt.class;
 	}
 
 }
