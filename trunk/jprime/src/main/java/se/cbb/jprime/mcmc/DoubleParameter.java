@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import se.cbb.jprime.io.SampleDouble;
-import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.math.ScaleTransformation;
 
 /**
@@ -128,8 +127,8 @@ public class DoubleParameter implements RealParameter {
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		return new SampleDouble();
+	public Class<?> getSampleType() {
+		return SampleDouble.class;
 	}
 
 	@Override

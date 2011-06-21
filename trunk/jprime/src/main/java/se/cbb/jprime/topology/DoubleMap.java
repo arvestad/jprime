@@ -3,7 +3,7 @@ package se.cbb.jprime.topology;
 import java.util.Set;
 import java.util.TreeSet;
 
-import se.cbb.jprime.io.SampleType;
+import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.RealParameter;
@@ -160,21 +160,18 @@ public class DoubleMap implements GraphMap, RealParameter {
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		// TODO Auto-generated method stub
-		return null;
+	public Class<?> getSampleType() {
+		return SampleDoubleArray.class;
 	}
 
 	@Override
 	public String getSampleHeader() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.name;
 	}
 
 	@Override
 	public String getSampleValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return SampleDoubleArray.toString(this.values);
 	}
 
 	@Override

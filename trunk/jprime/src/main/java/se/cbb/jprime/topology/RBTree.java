@@ -7,13 +7,12 @@ import java.util.TreeSet;
 
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
-import se.cbb.jprime.io.SampleType;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 
 /**
- * Implementation of a rooted binary tree topology where parents,
- * left and right children are stored in arrays indexed
+ * Implementation of a rooted binary tree topology (the name does not refer to the data structure <i>red-black tree</i>!)
+ * Internally, parents, left and right children are stored in arrays indexed
  * by vertex number. Null references are indicated as in its interface.
  * <p/>
  * Data such as leaf names, branch lengths, etc. are stored elsewhere.
@@ -485,20 +484,17 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		// TODO Auto-generated method stub
-		return null;
+	public Class<?> getSampleType() {
+		throw new UnsupportedOperationException("Cannot serialise RBTree topology alone without access to vertex or leaf names.");
 	}
 
 	@Override
 	public String getSampleHeader() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Cannot serialise RBTree topology alone without access to vertex or leaf names.");
 	}
 
 	@Override
 	public String getSampleValue() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Cannot serialise RBTree topology alone without access to vertex or leaf names.");
 	}
 }

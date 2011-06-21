@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import se.cbb.jprime.io.SampleBoolean;
-import se.cbb.jprime.io.SampleType;
 
 /**
  * Holds a boolean state parameter.
@@ -111,8 +110,8 @@ public class BooleanParameter implements StateParameter {
 	}
 
 	@Override
-	public SampleType getSampleType() {
-		return new SampleBoolean();
+	public Class<?> getSampleType() {
+		return SampleBoolean.class;
 	}
 
 }
