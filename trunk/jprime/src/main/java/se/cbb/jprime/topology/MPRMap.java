@@ -91,6 +91,7 @@ public class MPRMap implements Dependent {
 	@Override
 	public void update(boolean willSample) {
 		if (this.G.getChangeInfo() != null || this.S.getChangeInfo() != null) {
+			// We do full update, regardless of any info on changed subtrees, etc.
 			this.computeSigma(this.G.getRoot());
 		}
 	}
