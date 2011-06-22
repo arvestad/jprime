@@ -80,7 +80,7 @@ public class RBTreeArcDiscretiser implements Discretiser, Dependent {
 		this.dependents = new TreeSet<Dependent>();
 		S.addChildDependent(this);
 		times.addChildDependent(this);
-		this.updateAll();
+		this.update(null);
 	}
 
 	/**
@@ -118,10 +118,26 @@ public class RBTreeArcDiscretiser implements Discretiser, Dependent {
 
 	@Override
 	public void update(boolean willSample) {
-		// Right now, no optimised update.
-		if (this.S.getChangeInfo() != null || this.times.getChangeInfo() != null) {
-			this.updateAll();
-			this.changeInfo = new ChangeInfo(this);
+		ChangeInfo sInfo = this.S.getChangeInfo();
+		ChangeInfo timesInfo = this.times.getChangeInfo();
+		if (sInfo != null || timesInfo != null) {
+			// Determine affected indices. Whenever we lack info
+			// we use null == all elements changed.
+			Set<Integer> indices = null;
+			if (sInfo == null) {
+				indices = timesInfo.getAffectedElements();
+			} else if (timesInfo == null) {
+				indices = sInfo.getAffectedElements();
+			} else {
+				Set<Integer> a = sInfo.getAffectedElements();
+				Set<Integer> b = timesInfo.getAffectedElements();
+				if (a != null && b != null) {
+					indices = new TreeSet<Integer>(a);
+					indices.addAll(b);
+				}
+			}
+			this.update(indices);
+			this.changeInfo = new ChangeInfo(this, null, indices);
 		}
 	}
 
@@ -150,11 +166,19 @@ public class RBTreeArcDiscretiser implements Discretiser, Dependent {
 
 	/**
 	 * Updates number of slices for entire tree.
+	 * @param a list of indices; null for the entire tree.
 	 */
-	private void updateAll() {
-		for (int x = 0; x < this.S.getNoOfVertices(); ++x) {
-			this.noOfPts[x] = Math.min(Math.max(this.nmin,
-					(int) Math.ceil(this.times.getArcTime(x)/this.deltat)), this.nmax);
+	private void update(Set<Integer> indices) {
+		if (indices == null) {
+			for (int x = 0; x < this.S.getNoOfVertices(); ++x) {
+				this.noOfPts[x] = Math.min(Math.max(this.nmin,
+						(int) Math.ceil(this.times.getArcTime(x) / this.deltat)), this.nmax);
+			}
+		} else {
+			for (int x : indices) {
+				this.noOfPts[x] = Math.min(Math.max(this.nmin,
+					(int) Math.ceil(this.times.getArcTime(x) / this.deltat)), this.nmax);
+			}
 		}
 		// Override root arc if specified.
 		if (this.nroot > 0 && this.times.getArcTime(this.S.getRoot()) > 0) {
