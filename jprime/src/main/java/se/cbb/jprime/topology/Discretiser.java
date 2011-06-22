@@ -6,7 +6,7 @@ package se.cbb.jprime.topology;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Discretizer {
+public interface Discretiser {
 
 	/**
 	 * Returns the number of discretization points for some entity x,
