@@ -63,6 +63,7 @@ public class GuestHostMap {
 	
 	/**
 	 * Returns the host leaf names of a guest leaf.
+	 * May return null.
 	 * @param guestLeaf the guest leaf.
 	 * @return the host leaf.
 	 */
@@ -72,6 +73,7 @@ public class GuestHostMap {
 	
 	/**
 	 * Returns the guest leaf names of a host leaf.
+	 * May return null.
 	 * @param guestLeaf the guest leaf.
 	 * @return the host leaf.
 	 */

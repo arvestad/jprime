@@ -341,12 +341,12 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 
 	@Override
 	public int getLeftChild(int x) {
-		return this.getLeftChild(x);
+		return this.leftChildren[x];
 	}
 
 	@Override
 	public int getRightChild(int x) {
-		return this.getRightChild(x);
+		return this.rightChildren[x];
 	}
 
 	@Override
