@@ -21,7 +21,6 @@ public class NamesMap extends StringMap {
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
 	 */

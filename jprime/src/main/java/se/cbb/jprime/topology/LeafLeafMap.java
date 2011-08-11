@@ -2,7 +2,8 @@ package se.cbb.jprime.topology;
 
 /**
  * Very simple map linking each leaf in a guest topology G to its leaf
- * in a host topology S. See also <code>MPRMap</code>.
+ * in a host topology S. Assumes that this mapping will never change,
+ * and is therefore not a <code>Dependent</code>. See also <code>MPRMap</code>.
  * 
  * @author Joel Sjöstrand.
  */

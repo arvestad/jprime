@@ -97,6 +97,26 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 	
 	/**
+	 * Low-level constructor. Initialises all vertex references to NULL.
+	 * @param name the name of the tree parameter.
+	 * @param noOfLeaves the number of leaves.
+	 */
+	public RBTree(String name, int noOfLeaves) {
+		this.name = name;
+		int k = 2 * noOfLeaves - 1;
+		this.parents = new int[k];
+		this.leftChildren = new int[k];
+		this.rightChildren = new int[k];
+		for (int i = 0; i < k; ++i) {
+			this.parents[i] = NULL;
+			this.leftChildren[i] = NULL;
+			this.rightChildren[i] = NULL;
+		}
+		this.root = NULL;
+		this.dependents = new TreeSet<Dependent>();
+	}
+	
+	/**
 	 * Copy-constructor.
 	 * @param tree the tree to copy.
 	 */
@@ -496,5 +516,42 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	@Override
 	public String getSampleValue() {
 		throw new UnsupportedOperationException("Cannot serialise RBTree topology alone without access to vertex or leaf names.");
+	}
+
+	@Override
+	public int getSibling(int x) {
+		int p = this.parents[x];
+		if (p == RBTree.NULL) {
+			return RBTree.NULL;  // x is the root.
+		}
+		return (x == this.leftChildren[p] ? this.rightChildren[p] : this.leftChildren[p]);
+	}
+	
+	/**
+	 * Low-level setter for parent array.
+	 * @param x vertex.
+	 * @param p new parent of x.
+	 */
+	void setParent(int x, int p) {
+		this.parents[x] = p;
+	}
+	
+	/**
+	 * Low-level setter for children arrays.
+	 * @param x vertex.
+	 * @param lc new left child of x.
+	 * @param rc new right child of x.
+	 */
+	void setChildren(int x, int lc, int rc) {
+		this.leftChildren[x] = lc;
+		this.rightChildren[x] = rc;
+	}
+	
+	/**
+	 * Low-level setter for root.
+	 * @param x new root vertex.
+	 */
+	void setRoot(int x) {
+		this.root = x;
 	}
 }

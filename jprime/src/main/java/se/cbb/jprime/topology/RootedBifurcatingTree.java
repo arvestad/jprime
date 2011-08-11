@@ -24,5 +24,13 @@ public interface RootedBifurcatingTree extends RootedTree {
 	 * @return the right child of x.
 	 */
 	public int getRightChild(int x);
+
+	/**
+	 * Returns the sibling of a vertex x (i.e. its parents other child).
+	 * If x is the root, NULL (as defined in the super-interface) is returned.
+	 * @param x the vertex.
+	 * @return the sibling of x.
+	 */
+	public int getSibling(int x);
 	
 }
