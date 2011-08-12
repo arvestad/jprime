@@ -28,6 +28,13 @@
   	<name>Computational biology &amp; bioinformatics at KTH &amp; SU, Stockholm, Sweden</name>
   	<url>http://www.sbc.su.se</url>
   </organization>
+  <repositories>
+    <repository>
+      <id>biojava-maven-repo</id>
+        <name>BioJava repository</name>
+          <url>http://www.biojava.org/download/maven/</url>			
+    </repository>
+  </repositories>
   <dependencies>
   	<dependency>
   		<groupId>junit</groupId>
@@ -50,26 +57,31 @@
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
-  	<dependency>
-    	<groupId>org.biojava</groupId>
-    	<artifactId>biojava</artifactId>
-    	<version>1.7.1</version>
-    	<type>jar</type>
-    	<scope>system</scope>
-    	<systemPath>${basedir}/lib/java/biojava-1.7.1-bin.jar</systemPath>
-	</dependency>
-	<dependency>
-    	<groupId>org.biojava.utils.bytecode</groupId>
-    	<artifactId>biojava.bytecode</artifactId>
-    	<version>1.7.1</version>
-    	<type>jar</type>
-    	<scope>system</scope>
-    	<systemPath>${basedir}/lib/java/biojava-1.7.1.bytecode.jar</systemPath>
-	</dependency>
 	<dependency>
 		<groupId>org.apache.mahout.uncommons.math</groupId>
 		<artifactId>uncommons-math</artifactId>
 		<version>1.0.2</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.biojava</groupId>
+		<artifactId>biojava3-phylo</artifactId>
+		<version>3.0.1</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.biojava</groupId>
+		<artifactId>biojava3-core</artifactId>
+		<version>3.0.1</version>
+		<type>pom</type>
+		<scope>compile</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.biojava</groupId>
+		<artifactId>biojava3-alignment</artifactId>
+		<version>3.0.1</version>
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
