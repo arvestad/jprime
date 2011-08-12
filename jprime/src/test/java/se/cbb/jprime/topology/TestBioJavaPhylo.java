@@ -9,10 +9,8 @@ import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.template.AlignedSequence;
 import org.biojava3.alignment.template.Profile;
 import org.biojava3.core.sequence.AccessionID;
-import org.biojava3.core.sequence.MultipleSequenceAlignment;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 import org.biojava3.core.util.ConcurrencyTools;
 import org.biojava3.phylo.ProgessListenerStub;
@@ -21,18 +19,9 @@ import org.biojava3.phylo.TreeConstructor;
 import org.biojava3.phylo.TreeType;
 import org.junit.Test;
 
+import se.cbb.jprime.seqevo.MultiAlignment;
 
 public class TestBioJavaPhylo {
-	
-	/**
-	 * There seems to be indexing inconsistencies in BioJava (starting from 0 vs. starting from 1).
-	 */
-	class MSA<S extends Sequence<C>, C extends Compound> extends MultipleSequenceAlignment<S, C> {
-		@Override
-		public S getAlignedSequence(int listIndex) {
-			return super.getAlignedSequence(listIndex + 1);
-		}
-	}
 	
 	@Test
 	public void testNJ() throws Exception {
@@ -57,7 +46,7 @@ public class TestBioJavaPhylo {
 		Profile<ProteinSequence, AminoAcidCompound> profile = Alignments.getMultipleSequenceAlignment(lst);
 		//System.out.printf("Clustalw:%n%s%n", profile);
         ConcurrencyTools.shutdown();
-		MSA<ProteinSequence, AminoAcidCompound> msa = new MSA<ProteinSequence, AminoAcidCompound>();
+		MultiAlignment<ProteinSequence, AminoAcidCompound> msa = new MultiAlignment<ProteinSequence, AminoAcidCompound>(false);
 		List<AlignedSequence<ProteinSequence,AminoAcidCompound>> alSeq = profile.getAlignedSequences();
 		for (Sequence<AminoAcidCompound> seq : alSeq) {
 			ProteinSequence pSeq = new ProteinSequence(seq.getSequenceAsString());
