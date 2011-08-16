@@ -57,3 +57,6 @@ Parameter parsing can be achieved in (almost) GNU style using the dependency JCo
 
 == XML ==
 At the moment, ordinary XML tasks should be carried out with JAXB if possible.
+
+== Bioinformatics ==
+BioJava 3 should sufficient for most common bioinformatics tasks involving alignments and such. 
