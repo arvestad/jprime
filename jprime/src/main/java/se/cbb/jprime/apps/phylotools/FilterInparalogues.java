@@ -149,9 +149,9 @@ public class FilterInparalogues {
 	 */
 	public static void usage() {
 		System.out.println(
-				"Takes as input a host tree and a guest tree, then outputs a reduced guest tree where all in-paralogues\n" +
-				"in the MPR have been replaced with only one in-paralogue (no particular selection).\n" +
-				"usage:    InparalogueFilterer <host tree> <guest tree> <guest-host leaf map>"
+				"Takes as input a guest tree and a host tree, then outputs a reduced guest tree where all in-paralogues\n" +
+				"in the MPR have been replaced with only one in-paralogue (in no particular order).\n" +
+				"Usage:    FilterInparalogues <guest tree> <host tree> <guest-host leaf map>"
 				);
 	}
 
