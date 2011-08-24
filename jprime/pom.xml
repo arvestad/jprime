@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>JPrIME</name>
-  <description>Probabilistic phylogenetic inference tools.</description>
+  <description>Probabilistic phylogenetic inference tools (and more).</description>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -25,8 +25,8 @@
   	<url>https://jprime.googlecode.com/svn/</url>
   </scm>
   <organization>
-  	<name>Computational biology &amp; bioinformatics at KTH &amp; SU, Stockholm, Sweden</name>
-  	<url>http://www.sbc.su.se</url>
+  	<name>Computational biology groups at SciLifeLab, Stockholm, Sweden</name>
+  	<url>http://www.scilifelab.se</url>
   </organization>
   <repositories>
     <repository>
