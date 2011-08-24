@@ -23,7 +23,7 @@ import se.cbb.jprime.topology.TopologyException;
  * 
  * @author Joel Sjöstrand.
  */
-public class InparalogueFilterer {
+public class FilterInparalogues {
 	
 	/**
 	 * Starter.
