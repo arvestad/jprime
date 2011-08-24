@@ -6,10 +6,13 @@ import java.util.Set;
 
 /**
  * Holds a list of guest tree leaf names and a list of
- * host tree leaf names, and mappings between them.
- * Does not implement "sigma" functionality for mappings between
+ * host tree leaf names, and mappings between them. It has no knowledge of
+ * tree topologies, and as such,
+ * does not implement "sigma" functionality for mappings between
  * reconciled trees, see <code>MPRMap</code> for that functionality,
  * and <code>LeafLeafMap</code> for a simpler case.
+ * <p/>
+ * See <code>GuestHostMapReader</code> for factory methods.
  * 
  * @author Joel Sjöstrand.
  */

@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.Dependent;
 /**
  * Extends a guest-host map with functionality concerning the most parsimonious reconciliation
  * when embedding the guest tree in the host tree using duplication and loss events.
- * It is assumed that the guest-to-host leaf mapping does not change, while the
+ * It is assumed that the guest-to-host leaf mapping does not change (not the names), while the
  * guest or host topologies may. See also <code>LeafMap</code>.
  * <p/>
  * Note: Only bifurcating trees supported at the moment.

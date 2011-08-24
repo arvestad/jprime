@@ -23,15 +23,38 @@ public class GuestHostMapReader {
 
 	/**
 	 * Reads a guest-host leaf map file and returns a corresponding map object.
+	 * No syntax verification at the moment.
 	 * @param f the file.
 	 * @return the map.
 	 * @throws FileNotFoundException if no file was found.
 	 */
 	public static GuestHostMap readGuestHostMap(File f) throws FileNotFoundException {
-		GuestHostMap gs = new GuestHostMap();
 		Scanner sc = new Scanner(f);
+		return readGuestHostMap(sc);
+	}
+	
+	/**
+	 * Reads a guest-host leaf map file and returns a corresponding map object.
+	 * No syntax verification at the moment.
+	 * @param s the string with the map.
+	 * @return the map.
+	 */
+	public static GuestHostMap readGuestHostMap(String s) {
+		Scanner sc = new Scanner(s);
+		return readGuestHostMap(sc);
+	}
+	
+	/**
+	 * Reads a guest-host leaf map file and returns a corresponding map object.
+	 * No syntax verification at the moment.
+	 * @param sc the Scanner with the map.
+	 * @return the map.
+	 */
+	public static GuestHostMap readGuestHostMap(Scanner sc) {
+		GuestHostMap gs = new GuestHostMap();
 		while (sc.hasNextLine()) {
 			String ln = sc.nextLine().trim();
+			if (ln.equals("")) { break; }
 			String[] parts = ln.split("[ \t]+");
 			gs.add(parts[0], parts[1]);
 		}

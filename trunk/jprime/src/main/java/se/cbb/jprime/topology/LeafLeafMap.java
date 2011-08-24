@@ -20,12 +20,12 @@ public class LeafLeafMap {
 	 * @param S host tree topology.
 	 * @param SNames host tree leaf names.
 	 */
-	public LeafLeafMap(GuestHostMap GSMap, RootedTreeParameter G, NamesMap GNames,
-			RootedTreeParameter S, NamesMap SNames) {
+	public LeafLeafMap(GuestHostMap GSMap, RootedTree G, NamesMap GNames,
+			RootedTree S, NamesMap SNames) {
 		this.leafSigma = new int[G.getNoOfVertices()];
 		for (int i = 0; i < this.leafSigma.length; ++i) {
 			// Just for safety.
-			this.leafSigma[i] = RootedTreeParameter.NULL;
+			this.leafSigma[i] = RootedTree.NULL;
 		}
 		for (int l : G.getLeaves()) {
 			String sigmaname = GSMap.getHostLeafName(GNames.get(l));
