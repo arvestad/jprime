@@ -5,43 +5,28 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public class ConstantProposerWeight implements ProposerWeight {
-
-	/** The fixed weight. */
-	private double weight;
+public class ConstantProposerWeight extends ConstantTuningParameter implements ProposerWeight {
 
 	/**
 	 * Constructor.
 	 * @param weight the invariant weight.
 	 */
 	public ConstantProposerWeight(double weight) {
-		this.setWeight(weight);
-	}
-	
-	@Override
-	public double getWeight() {
-		return this.weight;
+		super(weight);
+		if (weight < 0) {
+			throw new IllegalArgumentException("Cannot set negative proposer weight.");
+		}
 	}
 
 	/**
 	 * Sets the weight.
 	 * @param weight the new weight.
 	 */
-	public void setWeight(double weight) {
+	public void setValue(double weight) {
 		if (weight < 0) {
 			throw new IllegalArgumentException("Cannot set negative proposer weight.");
 		}
-		this.weight = weight;
-	}	
-	
-	@Override
-	public double getMinWeight() {
-		return this.weight;
-	}
-
-	@Override
-	public double getMaxWeight() {
-		return this.weight;
+		this.value = weight;
 	}
 
 }

@@ -135,7 +135,7 @@ public class NormalProposer implements Proposer {
 
 	@Override
 	public double getWeight() {
-		return this.weight.getWeight();
+		return this.weight.getValue();
 	}
 
 	/**

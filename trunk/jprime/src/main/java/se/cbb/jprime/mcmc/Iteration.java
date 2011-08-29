@@ -106,7 +106,7 @@ public class Iteration implements Sampleable, MCMCSerializable {
 		this.currentIteration++;
 		if (this.notifyListeners) {
 			for (IterationListener i : this.listeners) {
-				i.wasIncremented(this);
+				i.incrementPerformed(this);
 			}
 		}
 		return true;

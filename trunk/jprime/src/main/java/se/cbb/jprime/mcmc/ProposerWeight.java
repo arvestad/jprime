@@ -12,26 +12,29 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface ProposerWeight extends MCMCSerializable {
+public interface ProposerWeight extends TuningParameter {
 
 	/**
 	 * Returns the current weight of this object.
 	 * It is assumed that this value is in the range [getMinWeight(),getMaxWeight()].
 	 * @return the weight.
 	 */
-	public double getWeight();
+	@Override
+	public double getValue();
 	
 	/**
 	 * Returns the minimum weight that <code>getWeight()</code>
 	 * can return. May return 0, but never less.
 	 * @return the minimum weight.
 	 */
-	public double getMinWeight();
+	@Override
+	public double getMinValue();
 	
 	/**
 	 * Returns the maximum weight that <code>getWeight()</code>
 	 * can return. May return 0, but never less.
 	 * @return the maximum weight.
 	 */
-	public double getMaxWeight();
+	@Override
+	public double getMaxValue();
 }

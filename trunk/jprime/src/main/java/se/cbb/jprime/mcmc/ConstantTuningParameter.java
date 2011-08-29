@@ -8,7 +8,7 @@ package se.cbb.jprime.mcmc;
 public class ConstantTuningParameter implements TuningParameter {
 
 	/** The value. */
-	private double value;
+	protected double value;
 
 	/**
 	 * Constructor.

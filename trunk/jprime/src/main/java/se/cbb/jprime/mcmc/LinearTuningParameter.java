@@ -9,13 +9,13 @@ package se.cbb.jprime.mcmc;
 public class LinearTuningParameter implements TuningParameter, IterationListener {
 
 	/** The value at iteration 0. */
-	private double startValue;
+	protected double startValue;
 	
 	/** The value at the last iteration. */
-	private double endValue;
+	protected double endValue;
 	
 	/** The current weight. */
-	private double value;
+	protected double value;
 	
 	/**
 	 * Constructor.
@@ -52,7 +52,7 @@ public class LinearTuningParameter implements TuningParameter, IterationListener
 	}
 
 	@Override
-	public void wasIncremented(Iteration iter) {
+	public void incrementPerformed(Iteration iter) {
 		this.value = this.startValue + (this.endValue - this.startValue) *
 			(iter.getIteration() / ((double) iter.getTotalNoOfIterations()));
 	}
