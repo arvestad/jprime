@@ -6,16 +6,7 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public class LinearProposerWeight implements ProposerWeight, IterationListener {
-
-	/** The weight at iteration 0. */
-	private double startWeight;
-	
-	/** The weight at the last iteration. */
-	private double endWeight;
-	
-	/** The current weight. */
-	private double weight;
+public class LinearProposerWeight extends LinearTuningParameter implements ProposerWeight {
 	
 	/**
 	 * Constructor.
@@ -24,37 +15,10 @@ public class LinearProposerWeight implements ProposerWeight, IterationListener {
 	 * @param endWeight weight at the last iteration. Must be >= 0.
 	 */
 	public LinearProposerWeight(Iteration iter, double startWeight, double endWeight) {
-		if (iter == null) {
-			throw new IllegalArgumentException("Iteration object for linear proposer weight must not be null.");
-		}
+		super(iter, startWeight, endWeight);
 		if (startWeight < 0.0 || endWeight < 0.0) {
-			throw new IllegalArgumentException("Start or end weight for proposer out-of-range.");
+			throw new IllegalArgumentException("Start or end value for proposer weight out-of-range.");
 		}
-		iter.addIterationListener(this);
-		this.startWeight = startWeight;
-		this.endWeight = endWeight;
-		this.weight = startWeight;
-	}
-	
-	@Override
-	public double getWeight() {
-		return this.weight;
-	}
-
-	@Override
-	public double getMinWeight() {
-		return Math.min(this.startWeight, this.endWeight);
-	}
-
-	@Override
-	public double getMaxWeight() {
-		return Math.max(this.startWeight, this.endWeight);
-	}
-
-	@Override
-	public void wasIncremented(Iteration iter) {
-		this.weight = this.startWeight + (this.endWeight - this.startWeight) *
-			(iter.getIteration() / ((double) iter.getTotalNoOfIterations()));
 	}
 
 }

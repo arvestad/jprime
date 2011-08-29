@@ -48,7 +48,7 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	}
 	
 	@Override
-	public void wasIncremented(Iteration iter) {
+	public void incrementPerformed(Iteration iter) {
 		int sz = noOfAcceptedPerWindow.length;
 		this.currentWindow = Math.min((iter.getIteration() / iter.getTotalNoOfIterations()) * sz, sz - 1);
 	}
