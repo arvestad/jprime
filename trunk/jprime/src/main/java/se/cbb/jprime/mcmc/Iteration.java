@@ -12,7 +12,7 @@ import se.cbb.jprime.io.Sampleable;
  * 
  * @author Joel Sjöstrand.
  */
-public class Iteration implements Sampleable, MCMCSerializable {
+public class Iteration implements Sampleable, InfoProvider {
 
 	/** The total number of iterations, start iteration 0 excluded. */
 	private int totalNoOfIterations;

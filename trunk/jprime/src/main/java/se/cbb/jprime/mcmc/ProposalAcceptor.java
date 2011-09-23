@@ -12,7 +12,7 @@ import se.cbb.jprime.math.LogDouble;
  * 
  * @author Joel Sjöstrand.
  */
-public interface ProposalAcceptor extends MCMCSerializable {
+public interface ProposalAcceptor extends InfoProvider {
 
 	/**
 	 * Returns true if a new state should be accepted.

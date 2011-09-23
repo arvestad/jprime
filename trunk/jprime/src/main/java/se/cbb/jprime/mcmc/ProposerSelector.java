@@ -16,7 +16,7 @@ import java.util.Set;
  *  
  * @author Joel Sjöstrand.
  */
-public interface ProposerSelector extends MCMCSerializable {
+public interface ProposerSelector extends InfoProvider {
 
 	/**
 	 * Selects a subset of a list of proposers which can then be used

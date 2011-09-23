@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.Dependent;
 /**
  * Extends a guest-host map with functionality concerning the most parsimonious reconciliation
  * when embedding the guest tree in the host tree using duplication and loss events.
- * It is assumed that the guest-to-host leaf mapping does not change (not the names), while the
+ * It is assumed that the guest-to-host leaf mapping does not change (nor the names), while the
  * guest or host topologies may. See also <code>LeafMap</code>.
  * <p/>
  * Note: Only bifurcating trees supported at the moment.
@@ -143,6 +143,19 @@ public class MPRMap implements Dependent {
 	 */
 	public int getSigma(int x) {
 		return this.sigma[x];
+	}
+	
+	/**
+	 * Returns true if a vertex x of G is forced to be a duplication, i.e., it sigma(x)==sigma(y) or sigma(x)==sigma(z),
+	 * where y and z are its children.
+	 * @param x the vertex of x.
+	 * @return true if x must be a duplication in the MPR; false otherwise.
+	 */
+	public boolean isDuplication(int x) {
+		if (this.G.isLeaf(x)) {
+			return false;
+		}
+		return (this.sigma[x] == this.sigma[this.G.getLeftChild(x)] || this.sigma[x] == this.sigma[this.G.getRightChild(x)]);
 	}
 	
 }

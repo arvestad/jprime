@@ -26,7 +26,7 @@ import se.cbb.jprime.io.Sampleable;
  *  
  * @author Joel Sjöstrand.
  */
-public interface StateParameter extends Dependent, Sampleable, MCMCSerializable {
+public interface StateParameter extends Dependent, Sampleable {
 
 	/**
 	 * Returns the name of the parameter.
