@@ -24,8 +24,7 @@ import se.cbb.jprime.topology.TopologyException;
  * and returns the time span of the subtree of the host tree induced by the guest leaves.
  * <p/>
  * The word <i>parsimonious</i> may be a bit misleading, although one can imagine returning
- * the time of the most parsimonious reconciled guest tree when all duplications have occurred as close
- * to the leaves as possible.
+ * the time of the root of the guest tree when this necessarily occurs at a speciation.
  * 
  * @author Joel Sjöstrand
  */

@@ -11,7 +11,7 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface TuningParameter extends MCMCSerializable {
+public interface TuningParameter extends InfoProvider {
 
 	/**
 	 * Returns the current value.

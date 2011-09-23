@@ -8,7 +8,7 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public class ProposerStatistics implements MCMCSerializable {
+public class ProposerStatistics implements InfoProvider {
 
 	/** Number of accepted proposals. */
 	protected int noOfAccepted;

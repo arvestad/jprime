@@ -7,7 +7,7 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Thinner extends MCMCSerializable {
+public interface Thinner extends InfoProvider {
 
 	/**
 	 * Returns true if sampling should be performed.

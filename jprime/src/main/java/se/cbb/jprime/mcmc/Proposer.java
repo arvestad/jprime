@@ -20,7 +20,7 @@ import java.util.Set;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Proposer extends MCMCSerializable {
+public interface Proposer extends InfoProvider {
 
 	/**
 	 * Returns all parameters which can be perturbed by this object.

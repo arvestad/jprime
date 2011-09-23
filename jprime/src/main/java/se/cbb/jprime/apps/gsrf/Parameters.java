@@ -24,10 +24,10 @@ public class Parameters {
 	@Parameter(names = {"-o", "--outfile"}, description = "Output file. Default: stdout.")
 	public String outfile = null;
 	
-	/** Post scriptum location. */
-	@Parameter(names = {"-ps", "--postscriptumfile"}, description = "Post scriptum file. Default: <outfile>.ps when -o has been specified, " +
-			"stdout when -o has not been specified, suppressed if -ps NONE is specified.")
-	public String psfile = null;
+	/** Info location. */
+	@Parameter(names = {"-info", "--infofile"}, description = "Info file. Default: <outfile>.info when -o has been specified, " +
+			"stdout when -o has not been specified, suppressed if -info NONE is specified.")
+	public String infofile = null;
 	
 	/** PRNG seed. */
 	@Parameter(names = {"-s", "--seed"}, description = "PRNG seed. Default: Random seed.")
