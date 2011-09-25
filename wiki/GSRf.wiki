@@ -12,7 +12,7 @@ JPrIME-GSRf is a phylogenetic application for reconciling an unknown guest tree 
 *Output:*
   * a file with samples drawn from the posterior distribution.
 
-== ---------- Input ---------- ==
+== -------------------- INPUT -------------------- ==
  
 === Host tree ===
 Obtain a dated species tree in Newick format. The divergence times may be specified as branch lengths, e.g.:
@@ -53,7 +53,7 @@ c1   C
 c2   C
 }}}
 
-== ---------- Output ---------- ==
+== -------------------- OUTPUT -------------------- ==
 Output normally consists of two files, e.g.:
   * {{{myoutput.info}}}, containing general pre- and post-run information.
   * {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
