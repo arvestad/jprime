@@ -1,8 +1,10 @@
-#Description and instructions for GSRf reconciliation application.
+#summary Description and instructions for GSRf reconciliation application.
 
-= Introduction =
+= GSRf =
 
-Add your content here.
+JPrIME-GSRf is a phylogenetic application for reconciling a guest tree and a host tree by means of duplication events and loss events. It relies on Bayesian inference of model parameters using an MCMC framework.
+
+
 
 
 = Details =
