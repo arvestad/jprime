@@ -16,6 +16,9 @@ JPrIME-GSRf is a phylogenetic application for reconciling an unknown guest tree 
  
 === Host tree ===
 Obtain a dated species tree in Newick format. The dates may be specified as branch lengths, or as absolute times using special formatting, e.g.
+
 {{{((A:0.4,B:0.4):0.6,C:1.0):0.5;}}}
+
 or analogously
+
 {{{((A[&&PRIME NT=0.0],B[&&PRIME NT=0.0])[&&PRIME NT=0.4],C[&&PRIME NT=0.0])[&&PRIME NT=1.0][&&PRIME TT=0.5];}}}.
