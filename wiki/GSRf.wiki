@@ -1,6 +1,6 @@
 #summary Description and instructions for GSRf.
 
-= GSRf =
+= JPrIME-GSRf =
 
 JPrIME-GSRf is a phylogenetic application for reconciling an unknown guest tree and a known host tree by means of duplication events and loss events. Typically, the guest tree corresponds to a gene tree, and the host tree corresponds to a species tree. JPrIME-GSRf relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
 
