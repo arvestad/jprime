@@ -6,15 +6,15 @@
 Below is a list of features that should / has already been added with noteworthy remarks.
 
 || *Feature* ||  *Comment* || *Priority* ||
-|| MPI parallelization  || Use of some Java port, which one? Probably good to wait until Java 7 has been out for a while. || Medium ||
+|| MPI parallelization  || Use of some Java port, which one? Probably good to wait until Java 7 has been out for a while. Maybe use Hadoop instead? || Medium ||
 || XML input and output || JAXB for standard stuff. External library required for condensed XML? || In place (at least partly) ||
 || Multicore parallelization || Hopefully in Java 7. || Medium ||
 || Program manuals auto-generated from Javadoc ||  || Low ||
-|| Unit testing framework || Now using JUnit. || In place ||
-|| GCC option parsing || Now using JCommander. Not quite pure GNU style though. || In place  ||
-||Logging || Logback now used instead of native logger. || In place ||
-|| Build system  || Now using Maven, See Maven JAR plugin for packaging. || In place ||
-|| Bug-tracking || Now using issue tracking within Google Code. || In place ||
+|| ~~Unit testing framework~~ || Now using JUnit. || In place ||
+|| ~~GCC option parsing~~ || Now using JCommander. Not quite pure GNU style though. || In place  ||
+|| ~~Logging~~ || Logback now used instead of native logger. || In place ||
+|| ~~Build system~~  || Now using Maven, See Maven JAR plugin for packaging. || In place ||
+|| ~~Bug-tracking~~ || Now using issue tracking within Google Code. || In place ||
 || Profiling tool ||  Not of major importance for now. || Low ||
 || Numeric methods package. || EJML seems like a good alternative. See also e.g. http://code.google.com/p/java-matrix-benchmark/, or http://ojalgo.org/matrix%5Fcompare.html, or http://stackoverflow.com/questions/529457/performance-of-java-matrix-math-libraries. || Medium ||
 || Support for TeX in Javadoc || || Low ||
