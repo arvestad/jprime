@@ -1,4 +1,4 @@
-#summary Description and instructions for GSRf reconciliation application.
+#summary Description and instructions for GSRf.
 
 = GSRf =
 
