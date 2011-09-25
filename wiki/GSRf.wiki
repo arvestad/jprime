@@ -28,7 +28,7 @@ The host tree must be ultrametric, with time 0 at the leaves and >0 at the root,
 A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of putative core gene families (e.g. monocopy putative orthologs), aligning these, then feeding the concatenated super-alignment into a program which estimates divergence times. For acquiring core genes for microbial datasets [http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0024704 this article] may be of help. For dating, consider e.g. [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
 
 === Multialignment ===
-The multialignments can be computed with any suitable program (MAFFT, MUSCLE, CLUSTAL), but should be provided on the Fasta format, e.g.
+The multialignments can be computed with any suitable program (MAFFT, MUSCLE, CLUSTAL, etc.), but should be provided on the Fasta format, e.g.
 {{{
 >a1
 MTKKELIKSIAEKNKTSITQTEEFYNSFENAIIKAI
@@ -42,3 +42,13 @@ MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 }}}
 Please consider clearing ambiguous positions from the alignment using e.g. [http://trimal.cgenomics.org trimAl] or [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks] before feeding it into JPrIME-GSRf.
+
+=== Mapping ===
+The guest-to-host map is very straighforward, e.g.:
+{{{
+a1   A
+a2   A
+b1   B
+c1   C
+c2   C
+}}}
