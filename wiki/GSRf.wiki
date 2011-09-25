@@ -15,7 +15,7 @@ JPrIME-GSRf is a phylogenetic application for reconciling an unknown guest tree 
 == Running ==
  
 === Host tree ===
-Obtain a dated species tree in Newick format. The dates may be specified as branch lengths, or as absolute times using special formatting, e.g.
+Obtain a dated species tree in Newick format. The divergence times may be specified as branch lengths, or as absolute times using special formatting, e.g.
 
 {{{((A:0.4,B:0.4):0.6,C:1.0):0.5;}}}
 
@@ -23,4 +23,6 @@ or analogously
 
 {{{((A[&&PRIME NT=0.0],B[&&PRIME NT=0.0])[&&PRIME NT=0.4],C[&&PRIME NT=0.0])[&&PRIME NT=1.0][&&PRIME TT=0.5];}}}
 
-The host tree must be ultrametric, with time 0 at the leaves and >0 at the root, and a "stem" length >0 (above, this  is set to 0.5). The scale of the dates can be any unit: *they will be rescaled internally s.t. the root time is 1.0 before running, and the output will refer to this*.
+The host tree must be ultrametric, with time 0 at the leaves and >0 at the root, and a "stem" length >0 (above, this  is set to 0.5). The scale of the dates can be any unit: *they will be rescaled internally s.t. the root time is 1.0 before running, and the output will refer to this scale*, and not the original.
+
+A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of putative core gene families (e.g. monocopy putative orthologs), aligning these, then feeding the concatenated superalignment them into a program which estimates divergence times.
