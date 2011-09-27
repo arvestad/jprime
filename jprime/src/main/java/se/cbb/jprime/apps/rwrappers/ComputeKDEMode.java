@@ -9,7 +9,7 @@ import java.util.Scanner;
 import com.beust.jcommander.JCommander;
 
 /**
- * CODA R wrapper application to non-parametrically estimate the mode of a sampled distribution
+ * R wrapper application to non-parametrically estimate the mode of a sampled distribution
  * using kernel density estimation (KDE). k-variate distributions for k={1,2,3}
  * are supported.
  * <p/>
@@ -90,21 +90,22 @@ public class ComputeKDEMode {
 		if (cols.length < 1 || cols.length > 3) {
 			throw new IllegalArgumentException("Number of columns must be between 1 and 3.");
 		}
-		// Sort data if desired.
+		
+		// Filter out only the relevant columns.
 		out.write((new SampleFilter("dat", cols, null, "dat")).toString());
 		
-		// Filter training points if desired.
+		// Acquire the subset of training points.
 		out.write((new SampleFilter("dat", null, params.trainingPts, "tdat")).toString());
 		
-		// Filter training points if desired.
+		// Acquire the subset of evaluation points.
 		out.write((new SampleFilter("dat", null, params.evaluationPts, "edat")).toString());
 		
 		// Bandwidth object.
-		// NOTE: Occurs prior to mirroring now. Which is most reasonable: before/after?
+		// NOTE: BW estimation occurs prior to mirroring now. Which is most reasonable: before/after?
 		//       The latter is intuitive, but may lead to over-smoothing...?
 		out.write((new NPBandwidth("tdat", params.bandwidthMethod, params.kernel, "bw")).toString());
 		
-		// Boundary correction (mirror) if desired.
+		// Boundary correction (mirroring) if desired.
 		if (params.mirror) {
 			out.write((new BoundaryMirror("tdat", cols.length, "tdat")).toString());
 		}
