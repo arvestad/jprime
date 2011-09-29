@@ -6,7 +6,7 @@ import org.uncommons.maths.random.SeedGenerator;
 
 /**
  * Extension of a Mersenne twister pseudo-random number generator.
- * Enables adding functionality like specialised serialisation, 
+ * In the future, may be used for adding functionality like specialised serialisation, 
  * statistics, etc.
  * 
  * @author Joel Sjöstrand.
@@ -29,6 +29,15 @@ public class PRNG extends MersenneTwisterRNG {
 	 */
 	public PRNG(byte[] seed) {
 		super(seed);
+	}
+
+	/**
+	 * Constructor. Uses the specified seed data by converting the
+	 * int to a byte array.
+	 * @param seed the seed data.
+	 */
+	public PRNG(int seed) {
+		super(new byte[] {(byte)(seed >>> 24), (byte)(seed >>> 16), (byte)(seed >>> 8), (byte)seed});
 	}
 	
 	/**

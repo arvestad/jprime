@@ -24,8 +24,8 @@ public class Parameters {
 	@Parameter(names = {"-o", "--outfile"}, description = "Output file. Default: stdout.")
 	public String outfile = null;
 	
-	/** Info location. */
-	@Parameter(names = {"-info", "--infofile"}, description = "Info file. Default: <outfile>.info when -o has been specified, " +
+	/** Info output location. */
+	@Parameter(names = {"-info", "--infofile"}, description = "Info output file. Default: <outfile>.info when -o has been specified, " +
 			"stdout when -o has not been specified, suppressed if -info NONE is specified.")
 	public String infofile = null;
 	
@@ -56,29 +56,19 @@ public class Parameters {
 	public String edgeRateDistrib = "GAMMA";
 	
 	/** Edge rate distribution parameters. */
-	@Parameter(names = {"-erdmv", "--edgeratedistributionmeanvar"}, arity = 2, description = "Mean and variance for relaxed clock. Refers to range (a,b)" +
-			" if UNIFORM. Default: Simple rule-of-thumb.")
+	@Parameter(names = {"-erdmv", "--edgeratedistributionmeanvar"}, arity = 2, description = "Mean and variance for relaxed clock. If UNIFORM," +
+			"refers to range (a,b) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
 	public List<String> edgeRateDistribMeanVar = null;
 	
-	/** Fix edge rate distribution. */
-	@Parameter(names = {"-erdfix", "--edgeratedistributionfixed"}, description = "Fix relaxed molecular clock parameters.")
-	public Boolean edgeRateDistribFixed = false;
-	
 	/** Duplication rate. */
-	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate.")
+	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no" +
+			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
 	public Double dupRate = 1.0;
 	
-	/** Fix duplication rate. */
-	@Parameter(names = {"-dupfix", "--duplicationratefixed"}, description = "Fix duplication rate.")
-	public Boolean dupRateFixed = false;
-	
 	/** Loss rate. */
-	@Parameter(names = {"-loss", "--lossrate"}, description = "Initial loss rate.")
+	@Parameter(names = {"-loss", "--lossrate"}, description = "Initial loss rate. Append with FIXED for no" +
+			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
 	public Double lossRate = 1.0;
-	
-	/** Fix loss rate. */
-	@Parameter(names = {"-lossfix", "--lossratefixed"}, description = "Fix loss rate.")
-	public Boolean lossRateFixed = false;
 	
 	/** Discretisation timestep. */
 	@Parameter(names = {"-dts", "--discretisationtimestep"}, description = "Discretisation timestep upper bound. E.g. 0.02 yields" +
