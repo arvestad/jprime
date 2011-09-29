@@ -22,7 +22,7 @@ public class TestReconciledRBTreeGenerator {
 		String newickS = "(((A,B),C),D);";
 		NewickTree rawS = NewickTreeReader.readTree(newickS, false);
 		RBTree S = new RBTree(rawS, "S");
-		NamesMap SNames = rawS.getVertexNamesMap(true);
+		NamesMap SNames = rawS.getVertexNamesMap(true, "S.names");
 		GuestHostMap GSMap = new GuestHostMap();
 		GSMap.add("a0", "A");
 		GSMap.add("a1", "A");

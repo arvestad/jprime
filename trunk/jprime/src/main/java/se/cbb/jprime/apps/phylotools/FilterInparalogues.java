@@ -64,8 +64,8 @@ public class FilterInparalogues {
 		// Turn into non-raw topologies.
 		RBTree G = new RBTree(GRaw, "G");
 		RBTree S = new RBTree(SRaw, "S");
-		NamesMap GNames = GRaw.getVertexNamesMap(true);
-		NamesMap SNames = SRaw.getVertexNamesMap(true);
+		NamesMap GNames = GRaw.getVertexNamesMap(true, "G.names");
+		NamesMap SNames = SRaw.getVertexNamesMap(true, "S.names");
 		MPRMap mpr = new MPRMap(GS, G, GNames, S, SNames);
 		
 		// ===================================================================

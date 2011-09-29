@@ -23,7 +23,7 @@ public class TestRTree {
 		URL url = this.getClass().getResource("/phylogenetics/molli.host.nw");
 		PrIMENewickTree rawTree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		RTree tree = new RTree(rawTree, "molli");
-		NamesMap names = rawTree.getVertexNamesMap(true);
+		NamesMap names = rawTree.getVertexNamesMap(true, "tree.names");
 		int x = names.getVertex("MYCH2");
 		assertEquals(x, tree.getLCA(x, x));
 		int y = names.getVertex("URPAR");

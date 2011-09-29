@@ -27,7 +27,7 @@ public class TestPrIMENewickTreeReader {
 		String[] names = tree.getVertexNames(true);
 		assertEquals("AYWBP", names[0]);
 		assertEquals("URPAR", names[21]);
-		NamesMap namesMap = tree.getVertexNamesMap(true);
+		NamesMap namesMap = tree.getVertexNamesMap(true, "T.names");
 		assertEquals("AYWBP", namesMap.get(0));
 		assertEquals(0, namesMap.getVertex("AYWBP"));
 		assertEquals(21, namesMap.getVertex("URPAR"));
@@ -35,7 +35,7 @@ public class TestPrIMENewickTreeReader {
 		assertEquals("AYWBP", namesSorted.first());
 		assertEquals("URPAR", namesSorted.last());
 		assertEquals(14, namesSorted.size());
-		namesMap = tree.getVertexNamesMap(false);
+		namesMap = tree.getVertexNamesMap(false, "T.names");
 		assertNotSame(14, namesMap.getNamesSorted(false).size());
 		assertEquals(14, namesMap.getNamesSorted(true).size());
 	}

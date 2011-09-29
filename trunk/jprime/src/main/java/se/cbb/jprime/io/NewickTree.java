@@ -249,20 +249,22 @@ public class NewickTree {
 	/**
 	 * Returns a map of the names indexed by vertex numbers.
 	 * @param leafNamesOnly true to set map's interior vertex names to null.
+	 * @param name the name of the map.
 	 * @return the map.
 	 */
-	public NamesMap getVertexNamesMap(boolean leafNamesOnly) {
-		return new NamesMap("VertexNames", this.getVertexNames(leafNamesOnly));
+	public NamesMap getVertexNamesMap(boolean leafNamesOnly, String name) {
+		return new NamesMap(name, this.getVertexNames(leafNamesOnly));
 	}
 	
 	/**
 	 * Returns a map of the branch lengths indexed by vertex numbers.
 	 * If branch lengths are lacking altogether, null is returned.
+	 * @param name the name of the map.
 	 * @return the map.
 	 */
-	public DoubleMap getBranchLengthsMap() {
+	public DoubleMap getBranchLengthsMap(String name) {
 		double[] bls = this.getBranchLengths();
-		return (bls != null ? new DoubleMap("BranchLengths", bls) : null);
+		return (bls != null ? new DoubleMap(name, bls) : null);
 	}
 	
 	@Override

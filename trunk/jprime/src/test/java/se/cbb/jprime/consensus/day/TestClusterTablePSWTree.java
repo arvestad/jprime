@@ -32,9 +32,9 @@ public class TestClusterTablePSWTree {
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
 		RBTree t1 = new RBTree(n1, "t1");
-		NamesMap names1 = n1.getVertexNamesMap(true);
+		NamesMap names1 = n1.getVertexNamesMap(true, "t1.names");
 		RBTree t2 = new RBTree(n2, "t2");
-		NamesMap names2 = n2.getVertexNamesMap(true);
+		NamesMap names2 = n2.getVertexNamesMap(true, "t2.names");
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, false);
 		ClusterTablePSWTree d2 = new ClusterTablePSWTree(t2, names2, false);
 		assertTrue(d1.getNoOfLeaves() == 7);
@@ -56,9 +56,9 @@ public class TestClusterTablePSWTree {
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
 		RBTree t1 = new RBTree(n1, "t1");
-		NamesMap names1 = n1.getVertexNamesMap(true);
+		NamesMap names1 = n1.getVertexNamesMap(true, "t1.names");
 		RBTree t2 = new RBTree(n2, "t2");
-		NamesMap names2 = n2.getVertexNamesMap(true);
+		NamesMap names2 = n2.getVertexNamesMap(true, "t2.names");
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, true);
 		ClusterTablePSWTree d2 = new ClusterTablePSWTree(t2, names2, true);
 //		printTree(d1.getRoot(), 0);
@@ -92,7 +92,7 @@ public class TestClusterTablePSWTree {
 		String s1 = "(A,(((B,C),(D,E)),(F,G)));";
 		NewickTree n1 = NewickTreeReader.readTree(s1, true);
 		RBTree t1 = new RBTree(n1, "t1");
-		NamesMap names1 = n1.getVertexNamesMap(true);
+		NamesMap names1 = n1.getVertexNamesMap(true, "t1.names");
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, false);
 		int sz = d1.getClusterTableSize();
 		assertEquals(d1.getNoOfLeaves(), sz);
