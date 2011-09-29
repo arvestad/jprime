@@ -43,12 +43,11 @@ public class DoubleMap implements GraphMap, RealParameter {
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 * @param defaultVal default value for all elements.
 	 */
-	public DoubleMap(String name, int size, int defaultVal) {
+	public DoubleMap(String name, int size, double defaultVal) {
 		this(name, size);
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
@@ -58,7 +57,6 @@ public class DoubleMap implements GraphMap, RealParameter {
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
 	 */

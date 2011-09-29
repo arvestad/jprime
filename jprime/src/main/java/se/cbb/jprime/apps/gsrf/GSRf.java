@@ -2,8 +2,6 @@ package se.cbb.jprime.apps.gsrf;
 
 import com.beust.jcommander.JCommander;
 
-import se.cbb.jprime.topology.RBTree;
-
 /**
  * TBD.
  * 

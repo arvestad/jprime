@@ -43,8 +43,8 @@ public class LCAAnalysis {
 		// Read tree and G-S map.
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(sFile, false, true);
 		RTree s = new RTree(sRaw, "S");
-		NamesMap sNames = sRaw.getVertexNamesMap(true);
-		TimesMap sTimes = sRaw.getTimesMap();
+		NamesMap sNames = sRaw.getVertexNamesMap(true, "S.names");
+		TimesMap sTimes = sRaw.getTimesMap("S.times");
 		GuestHostMap gs = GuestHostMapReader.readGuestHostMap(gsFile);
 		Set<String> covNames = gs.getAllHostLeafNames();
 		
@@ -66,7 +66,7 @@ public class LCAAnalysis {
 			RBTree sb = new RBTree(sRaw, "S");
 			PrIMENewickTree gRaw = PrIMENewickTreeReader.readTree(gFile, false, true);
 			RBTree g = new RBTree(gRaw, "G");
-			NamesMap gNames = gRaw.getVertexNamesMap(true);
+			NamesMap gNames = gRaw.getVertexNamesMap(true, "G.names");
 			MPRMap mpr = new MPRMap(gs, g, gNames, sb, sNames);
 			if (mpr.isDuplication(g.getRoot())) {
 				System.out.println("MPR guest tree root: Duplication");

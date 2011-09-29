@@ -43,7 +43,6 @@ public class StringMap implements GraphMap, StateParameter {
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 * @param defaultVal default value for all elements.
@@ -59,7 +58,6 @@ public class StringMap implements GraphMap, StateParameter {
 	
 	/**
 	 * Constructor.
-	 * @param graph the graph to which the map refers.
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
 	 */

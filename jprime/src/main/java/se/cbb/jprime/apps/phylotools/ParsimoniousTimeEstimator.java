@@ -49,8 +49,8 @@ public class ParsimoniousTimeEstimator {
 		// Read tree and G-S map.
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(sFile, false, true);
 		RTree s = new RTree(sRaw, "HostTree");
-		NamesMap names = sRaw.getVertexNamesMap(true);
-		TimesMap times = sRaw.getTimesMap();
+		NamesMap names = sRaw.getVertexNamesMap(true, "S.names");
+		TimesMap times = sRaw.getTimesMap("S.times");
 		GuestHostMap gs = GuestHostMapReader.readGuestHostMap(gsFile);
 		Set<String> covNames = gs.getAllHostLeafNames();
 		

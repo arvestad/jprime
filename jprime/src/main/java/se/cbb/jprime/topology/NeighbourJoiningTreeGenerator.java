@@ -18,6 +18,7 @@ import org.biojava3.phylo.TreeConstructionAlgorithm;
 import org.biojava3.phylo.TreeConstructor;
 import org.biojava3.phylo.TreeType;
 
+import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.seqevo.MultiAlignment;
 
@@ -32,7 +33,7 @@ import se.cbb.jprime.seqevo.MultiAlignment;
 public class NeighbourJoiningTreeGenerator {
 
 	/**
-	 * Creates a NJ Newick tree (with some sort of lengths) using a list of unaligned sequences.
+	 * Creates a NJ Newick tree on string format (with some sort of lengths) using a list of unaligned sequences.
 	 * Based on sequence identity only.
 	 * Sequences will be aligned with CLUSTALW first.
 	 * @param <S> sequence type.
@@ -41,7 +42,7 @@ public class NeighbourJoiningTreeGenerator {
 	 * @return an inferred Newick tree with lengths.
 	 * @throws Exception.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTree(List<S> unalignedSeqs) throws Exception {
+	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(List<S> unalignedSeqs) throws Exception {
 		Profile<S, C> profile = Alignments.getMultipleSequenceAlignment(unalignedSeqs);
 		ConcurrencyTools.shutdown();
 		
@@ -53,7 +54,7 @@ public class NeighbourJoiningTreeGenerator {
 				pSeq.setAccession(seq.getAccession());
 				msa.addAlignedSequence(pSeq);
 			}
-			return createNewickTree(msa);
+			return createNewickTreeString(msa);
 		} else if (unalignedSeqs.get(0) instanceof RNASequence) {
 			MultiAlignment<RNASequence, NucleotideCompound> msa = new MultiAlignment<RNASequence, NucleotideCompound>(false);
 			for (Sequence<C> seq : profile.getAlignedSequences()) {
@@ -61,7 +62,7 @@ public class NeighbourJoiningTreeGenerator {
 				pSeq.setAccession(seq.getAccession());
 				msa.addAlignedSequence(pSeq);
 			}
-			return createNewickTree(msa);
+			return createNewickTreeString(msa);
 		} else if (unalignedSeqs.get(0) instanceof ProteinSequence) {
 			MultiAlignment<ProteinSequence, AminoAcidCompound> msa = new MultiAlignment<ProteinSequence, AminoAcidCompound>(false);
 			for (Sequence<C> seq : profile.getAlignedSequences()) {
@@ -69,13 +70,13 @@ public class NeighbourJoiningTreeGenerator {
 				pSeq.setAccession(seq.getAccession());
 				msa.addAlignedSequence(pSeq);
 			}
-			return createNewickTree(msa);
+			return createNewickTreeString(msa);
 		}
 		throw new IllegalArgumentException("Unknown sequence type in when trying to compute NJ tree.");
 	}
 	
 	/**
-	 * Creates a NJ Newick tree (with some sort of lengths) using a list corresponding to an existing multialignment.
+	 * Creates a NJ Newick tree on string format (with some sort of lengths) using a list corresponding to an existing multialignment.
 	 * Based on sequence identity only.
 	 * @param <S> sequence type.
 	 * @param <C> compound type.
@@ -83,7 +84,7 @@ public class NeighbourJoiningTreeGenerator {
 	 * @return an inferred Newick tree with lengths.
 	 * @throws Exception.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTree(MultiAlignment<S, C> alignedSeqs) throws Exception {
+	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(MultiAlignment<S, C> alignedSeqs) throws Exception {
 		TreeConstructor<S, C> treeConstructor =
 			new TreeConstructor<S, C>(alignedSeqs, TreeType.NJ, TreeConstructionAlgorithm.PID, new ProgessListenerStub());
 	    treeConstructor.process();
@@ -97,15 +98,14 @@ public class NeighbourJoiningTreeGenerator {
 	 * @param <S> sequence type.
 	 * @param <C> compound type.
 	 * @param unalignedSeqs unaligned sequences.
-	 * @param treeName tree parameter's name.
 	 * @return an inferred tree.
 	 * @throws Exception.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> RBTree
-	createTree(List<S> unalignedSeqs, String treeName) throws Exception {
+	public static <S extends AbstractSequence<C>, C extends Compound> NewickTree
+	createNewickTree(List<S> unalignedSeqs) throws Exception {
 		// HACK: Go detour via Newick string.
-		String nw = createNewickTree(unalignedSeqs);
-		return new RBTree(NewickTreeReader.readTree(nw, false), treeName);
+		String nw = createNewickTreeString(unalignedSeqs);
+		return NewickTreeReader.readTree(nw, false);
 	}
 	
 	/**
@@ -114,14 +114,13 @@ public class NeighbourJoiningTreeGenerator {
 	 * @param <S> sequence type.
 	 * @param <C> compound type.
 	 * @param unalignedSeqs unaligned sequences.
-	 * @param treeName tree parameter's name.
 	 * @return an inferred tree.
 	 * @throws Exception.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> RBTree
-	createTree(MultiAlignment<S, C> alignedSeqs, String treeName) throws Exception {
+	public static <S extends AbstractSequence<C>, C extends Compound> NewickTree
+	createNewickTree(MultiAlignment<S, C> alignedSeqs) throws Exception {
 		// HACK: Go detour via Newick string.
-		String nw = createNewickTree(alignedSeqs);
-		return new RBTree(NewickTreeReader.readTree(nw, false), treeName);
+		String nw = createNewickTreeString(alignedSeqs);
+		return NewickTreeReader.readTree(nw, false);
 	}
 }

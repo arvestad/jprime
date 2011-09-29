@@ -28,9 +28,9 @@ public class TestRobinsonFoulds {
 		NewickTree n1 = NewickTreeReader.readTree(s1, false);
 		NewickTree n2 = NewickTreeReader.readTree(s2, false);
 		RBTree t1 = new RBTree(n1, "t1");
-		NamesMap names1 = n1.getVertexNamesMap(true);
+		NamesMap names1 = n1.getVertexNamesMap(true, "t1.names");
 		RBTree t2 = new RBTree(n2, "t2");
-		NamesMap names2 = n2.getVertexNamesMap(true);
+		NamesMap names2 = n2.getVertexNamesMap(true, "t2.names");
 		ClusterTablePSWTree d1 = new ClusterTablePSWTree(t1, names1, true);
 		TemplatedPSWTree d2 = new TemplatedPSWTree(t2, names2, d1);
 		

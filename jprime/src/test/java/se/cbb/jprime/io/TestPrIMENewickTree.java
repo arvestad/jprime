@@ -27,7 +27,7 @@ public class TestPrIMENewickTree {
 		assertTrue(t.hasProperty(MetaProperty.BRANCH_LENGTHS));
 		assertFalse(t.hasProperty(MetaProperty.ARC_TIMES));
 		assertTrue(t.hasProperty(MetaProperty.VERTEX_TIMES));
-		DoubleMap bls = t.getBranchLengthsMap();
+		DoubleMap bls = t.getBranchLengthsMap("T.lengths");
 		assertTrue(bls.get(0) == 12);
 		assertTrue(t.getVertexTimes()[7] == 22);
 		
