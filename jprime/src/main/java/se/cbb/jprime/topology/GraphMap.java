@@ -47,4 +47,11 @@ public interface GraphMap {
 	 * @param the value of the vertex/arc.
 	 */
 	public void setAsObject(int x, Object value);
+	
+	/**
+	 * Returns the number of elements of the map, i.e., typically the number of vertices
+	 * of the corresponding graph.
+	 * @return the number of elements.
+	 */
+	public int getSize();
 }

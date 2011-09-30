@@ -9,9 +9,9 @@ import se.cbb.jprime.mcmc.Dependent;
 /**
  * Discretises an ultrametric host tree by splitting every arc into
  * a number of equidistant slices. This is governed by a user-specified
- * minimum number of slices per edge <i>nmin</i>, a maximum number <i>nmax</i>, and an
- * approximate timestep <i>deltat</i> (which is never exceeded). The number of slices
- * of an arc with timespan <i>t</i> will then be
+ * minimum number of slices per edge, <i>nmin</i>, a maximum number, <i>nmax</i>, and an
+ * approximate timestep, <i>deltat</i>, (which is never exceeded). The number of slices
+ * of an arc with timespan, <i>t</i>, will then be
  * min(max(<i>nmin</i>,ceil(<i>t</i>/<i>deltat</i>)),<i>nmax</i>).
  * <p/>
  * The number of points of the arc leading into the root can be treated separately if

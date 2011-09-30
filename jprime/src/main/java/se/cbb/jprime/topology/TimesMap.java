@@ -61,8 +61,8 @@ public class TimesMap extends DoubleMap {
 	@Override
 	public void set(int x, double val) {
 		throw new UnsupportedOperationException("Cannot set absolute time (vertex time) of a vertex without also " +
-				"changing corresponding arc times. Use getVertexTimes() and getArcTimes() for low-level " +
-				"manipulation instead.");
+				"changing corresponding arc times. Use getVertexTimes() and getArcTimes() instead for low-level " +
+				"manipulation of the underlying values.");
 	}
 	
 	/**

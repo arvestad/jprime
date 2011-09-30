@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
- * Holds a string for each vertex of a graph.
+ * Holds a string for each vertex of a graph. No generics for the sake of speed.
  * 
  * @author Joel Sjöstrand.
  */
@@ -171,5 +171,10 @@ public class StringMap implements GraphMap, StateParameter {
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
 		this.changeInfo = info;
+	}
+
+	@Override
+	public int getSize() {
+		return this.values.length;
 	}
 }

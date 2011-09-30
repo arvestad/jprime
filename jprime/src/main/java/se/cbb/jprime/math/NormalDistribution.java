@@ -17,7 +17,7 @@ import se.cbb.jprime.mcmc.ChangeInfo;
  * @author Bengt Sennblad.
  * @author Joel Sjöstrand.
  */
-public class NormalDistribution implements Continuous1DPD, Dependent {
+public class NormalDistribution implements Continuous1DPDDependent {
 	
 	/**
 	 * When the distribution depends on state parameters, defines

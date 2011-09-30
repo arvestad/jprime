@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
- * Holds a boolean for each vertex of a graph.
+ * Holds a boolean for each vertex of a graph. No generics for the sake of speed.
  * 
  * @author Joel Sjöstrand.
  */
@@ -160,5 +160,10 @@ public class BooleanMap implements GraphMap, StateParameter {
 	@Override
 	public String getSampleValue() {
 		return SampleBooleanArray.toString(this.values);
+	}
+
+	@Override
+	public int getSize() {
+		return this.values.length;
 	}
 }

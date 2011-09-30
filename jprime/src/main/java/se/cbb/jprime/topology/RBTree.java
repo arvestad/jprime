@@ -9,6 +9,7 @@ import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.misc.IntQueue;
 
 /**
  * Implementation of a rooted binary tree topology (the name does not refer to the data structure <i>red-black tree</i>!)
@@ -553,5 +554,21 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	 */
 	void setRoot(int x) {
 		this.root = x;
+	}
+	
+	@Override
+	public List<Integer> getTopologicalOrdering() {
+		ArrayList<Integer> l = new ArrayList<Integer>(this.parents.length);
+		IntQueue q = new IntQueue();
+		q.put(this.root);
+		while (q.isEmpty()) {
+			int x = q.get();
+			l.add(x);
+			if (!this.isLeaf(x)) {
+				q.put(this.leftChildren[x]);
+				q.put(this.rightChildren[x]);
+			}
+		}
+		return l;
 	}
 }
