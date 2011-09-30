@@ -14,9 +14,15 @@ import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
+import se.cbb.jprime.io.PrIMENewickTreeVerifier;
 import se.cbb.jprime.io.SampleWriter;
+import se.cbb.jprime.math.Continuous1DPD;
+import se.cbb.jprime.math.Continuous1DPDDependent;
+import se.cbb.jprime.math.GammaDistribution;
+import se.cbb.jprime.math.NormalDistribution.ParameterSetup;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.ConstantThinner;
+import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.Iteration;
 import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.misc.Pair;
@@ -24,9 +30,11 @@ import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.MultiAlignment;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
+import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.NeighbourJoiningTreeGenerator;
 import se.cbb.jprime.topology.RBTree;
+import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.TimesMap;
 import se.cbb.jprime.topology.UniformRBTreeGenerator;
 
@@ -48,6 +56,24 @@ public class ParameterParser {
 			RBTree s = new RBTree(sRaw, "S");
 			NamesMap sNames = sRaw.getVertexNamesMap(true, "S.names");
 			TimesMap sTimes = sRaw.getTimesMap("S.times");
+			double stemTime = sTimes.getArcTime(s.getRoot());
+			if (Double.isNaN(stemTime) || stemTime <= 0.0) {
+				throw new IllegalArgumentException("Missing time for stem in host tree (i.e., \"arc\" predating root).");
+			}
+			double leafTime = sTimes.get(s.getLeaves().get(0));
+			if (leafTime <= 0.0) {
+				throw new IllegalArgumentException("Absolute leaf times for host tree must be 0.");
+			}
+			// Rescale tree so that root has time 1.0.
+			double rootTime = sTimes.getVertexTime(s.getRoot());
+			if (Math.abs(rootTime - 1.0) > 1e-6) {
+				double[] vts = sTimes.getVertexTimes();
+				double[] ats = sTimes.getArcTimes();
+				for (int x = 0; x < vts.length; ++x) {
+					vts[x] /= rootTime;
+					ats[x] /= rootTime;
+				}
+			}
 			return new Triple<RBTree, NamesMap, TimesMap>(s, sNames, sTimes);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid host tree.", e);
@@ -141,4 +167,53 @@ public class ParameterParser {
 		}
 	}
 	
+	public static Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> getEdgeRateDB(Parameters ps) {
+		// TODO: Implement.
+		boolean isUni = ps.edgeRateDistrib.equalsIgnoreCase("UNIFORM");
+		DoubleParameter p1 = new DoubleParameter(isUni ? "EdgeRate.A" : "EdgeRate.mean", isUni ? 0.0 : 0.1);
+		DoubleParameter p2 = new DoubleParameter(isUni ? "EdgeRate.B" : "EdgeRate.CV", isUni ? 1.5 : Math.sqrt(0.005)/0.1);
+		Continuous1DPDDependent pd = null;
+		if (ps.edgeRateDistrib.equalsIgnoreCase("GAMMA")) {
+			pd = new GammaDistribution(p1, p2, GammaDistribution.ParameterSetup.MEAN_AND_CV);
+/*
+		} else if (ps.edgeRateDistrib.equalsIgnoreCase("INVGAMMA")) {
+			//pd = new InvGammaDistribution(p1, p2, InvGammaDistribution.ParameterSetup.MEAN_AND_CV);
+		} else if (ps.edgeRateDistrib.equalsIgnoreCase("LOGN")) {
+			//pd = new LogNDistribution(p1, p2, LogNDistribution.ParameterSetup.MEAN_AND_CV);
+*/
+		} else if (ps.edgeRateDistrib.equalsIgnoreCase("UNIFORM")) {
+			//pd = new UniformDistribution(p1, p2);
+		} else {
+			throw new IllegalArgumentException("Invalid edge rate distribution.");
+		}
+		return new Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent>(p1, p2, pd);
+	}
+	
+	public static void getDupLossProbs(Parameters ps, MPRMap mpr, TimesMap times) {
+		// Set initial duplication rate as number of inferred MPR duplications divided by total time tree span.
+		// Then set loss rate to the same amount.
+		int dups = 0;
+		double totTime = 0.0;
+		for (int x = 0; x < times.getSize(); ++x) {
+			if (mpr.isDuplication(x)) {
+				++dups;
+			}
+			totTime += times.getArcTime(x);
+		}
+		DoubleParameter dr = new DoubleParameter("DuplicationRate", dups / totTime + 1e-3);
+		DoubleParameter lr = new DoubleParameter("LossRate", dups / totTime + 1e-3);
+		// TODO: Implement.
+		// DupLossProbs dlProbs = new DupLossProbs(dr, dl, ...);
+		// return new Triple<DoubleParameter, DoubleParameter, DupLossProbs>(dr, dl, dlProbs);
+	}
+	
+	public static RBTreeArcDiscretiser getDiscretizer(Parameters ps, RBTree S, TimesMap times, RBTree G) {
+		if (ps.discStem == null) {
+			// Try to find a small but sufficient number of stem points to accommodate all
+			// duplications in the stem during G perturbation.
+			int h = (int) Math.round(Math.log((double) G.getNoOfLeaves()) / Math.log(2.0));
+			ps.discStem = Math.min(h + 5, 30);
+		}
+		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, ps.discTimestep, ps.discStem);
+	}
 }

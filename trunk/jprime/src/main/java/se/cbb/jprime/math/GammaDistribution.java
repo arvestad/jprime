@@ -24,7 +24,7 @@ import se.cbb.jprime.mcmc.DoubleParameter;
  * @author Bengt Sennblad.
  * @author Joel Sjöstrand.
  */
-public class GammaDistribution implements Continuous1DPD, Dependent {
+public class GammaDistribution implements Continuous1DPDDependent {
 
 	/**
 	 * When the distribution depends on state parameters, defines

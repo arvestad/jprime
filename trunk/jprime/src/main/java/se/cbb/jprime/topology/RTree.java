@@ -9,6 +9,7 @@ import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ChangeInfo;
+import se.cbb.jprime.misc.IntQueue;
 
 /**
  * Implementation of a rooted multifurcating tree topology where parents,
@@ -495,6 +496,21 @@ public class RTree implements RootedTreeParameter {
 	@Override
 	public String getSampleValue() {
 		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
+	}
+
+	@Override
+	public List<Integer> getTopologicalOrdering() {
+		ArrayList<Integer> l = new ArrayList<Integer>(this.parents.length);
+		IntQueue q = new IntQueue();
+		q.put(this.root);
+		while (q.isEmpty()) {
+			int x = q.get();
+			l.add(x);
+			for (int c : this.children[x]) {
+				q.put(c);
+			}
+		}
+		return l;
 	}
 
 }

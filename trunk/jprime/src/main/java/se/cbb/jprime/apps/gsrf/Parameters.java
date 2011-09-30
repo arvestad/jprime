@@ -52,12 +52,12 @@ public class Parameters {
 
 	/** Edge rate distribution. */
 	@Parameter(names = {"-erd", "--edgeratedistribution"}, description = "Distribution underlying relaxed molecular clock through IID" +
-			" substitution rates across lineages. Valid values are GAMMA, INVGAMMA, LOGN and UNIFORM.")
+			" substitution rates across lineages. Valid values are currently GAMMA and UNIFORM.")
 	public String edgeRateDistrib = "GAMMA";
 	
 	/** Edge rate distribution parameters. */
 	@Parameter(names = {"-erdmv", "--edgeratedistributionmeanvar"}, arity = 2, description = "Mean and variance for relaxed clock. If UNIFORM," +
-			"refers to range (a,b) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
+			"refers to range (a,b) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: 0.1 and 0.005, (0,1.5) if UNIFORM.")
 	public List<String> edgeRateDistribMeanVar = null;
 	
 	/** Duplication rate. */
@@ -94,7 +94,7 @@ public class Parameters {
 	
 	/** Fix guest tree. */
 	@Parameter(names = {"-gfix", "--guesttreefixed"}, description = "Fix guest tree topology.")
-	public Boolean guestTreeFixed =false;
+	public Boolean guestTreeFixed = false;
 	
 	/** Debug flag. */
 	@Parameter(names = {"-d", "--debug"}, description = "Output debugging info.")

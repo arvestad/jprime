@@ -121,4 +121,11 @@ public interface AcyclicDigraph extends Graph {
 	 * @return true if x is a sink; false if x has some successor.
 	 */
 	public boolean isSink(int x);
+	
+	/**
+	 * Returns a topologically sorted list of all vertices, i.e., a list
+	 * such that x will appear before y whenever there is an arc (x,y).
+	 * @return a topological sort with a source at index 0.
+	 */
+	public List<Integer> getTopologicalOrdering();
 }

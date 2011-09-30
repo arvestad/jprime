@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
- * Holds an int for each vertex of a graph.
+ * Holds an int for each vertex of a graph. No generics for the sake of speed.
  * 
  * @author Joel Sjöstrand.
  */
@@ -171,5 +171,10 @@ public class IntMap implements GraphMap, StateParameter {
 	@Override
 	public String getSampleValue() {
 		return SampleIntArray.toString(this.values);
+	}
+
+	@Override
+	public int getSize() {
+		return this.values.length;
 	}
 }

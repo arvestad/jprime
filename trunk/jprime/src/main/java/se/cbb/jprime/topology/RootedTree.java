@@ -170,4 +170,5 @@ public interface RootedTree extends AcyclicDigraph {
 	 * @return the number of arcs of the longest leaf-path.
 	 */
 	public int getHeight(int x);
+	
 }

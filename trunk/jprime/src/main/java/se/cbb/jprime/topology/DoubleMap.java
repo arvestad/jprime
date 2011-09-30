@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.RealParameter;
 
 /**
- * Holds a double for each vertex of a graph.
+ * Holds a double for each vertex of a graph. No generics for the sake of speed.
  * 
  * @author Joel Sjöstrand.
  */
@@ -180,5 +180,10 @@ public class DoubleMap implements GraphMap, RealParameter {
 	@Override
 	public void setValue(int idx, double value) {
 		this.values[idx] = value;
+	}
+
+	@Override
+	public int getSize() {
+		return this.values.length;
 	}
 }
