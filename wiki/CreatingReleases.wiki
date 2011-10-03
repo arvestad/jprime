@@ -1,0 +1,5 @@
+#summary Creating releases
+
+= How to create releases of JPrIME =
+
+Unknown as of yet. Probably, we'll package everything it to a single JAR using [http://maven.apache.org/plugins/maven-jar-plugin/ Maven JAR Plugin]. Perhaps dependencies can be included, see e.g. [http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven this page] on StackOverflow.
