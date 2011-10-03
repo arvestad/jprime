@@ -69,7 +69,7 @@ N       L         Param1     Param2   Param3
 }}}
 
 == -------------------- RUNNING -------------------- ==
-TBD
+To be announced.
 
 == -------------------- ANALYSIS -------------------- ==
-TBD
+To be announced. However, consider using CRAN R in general, and, for convergence in particular, its [http://cran.r-project.org/web/packages/coda/index.html CODA package].
