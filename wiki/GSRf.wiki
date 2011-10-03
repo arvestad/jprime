@@ -46,7 +46,7 @@ MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 Please consider clearing ambiguous positions from the alignment using e.g. [http://trimal.cgenomics.org trimAl] or [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks] before feeding it into JPrIME-GSRf.
 
 === Mapping ===
-The guest-to-host map is very straighforward, e.g.:
+The guest-to-host map is very straighforward, e.g. for the example above:
 {{{
 a1   A
 a2   A
