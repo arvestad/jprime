@@ -4,6 +4,6 @@
 
 Unknown as of yet. Probably, we'll package everything it to a single JAR using [http://maven.apache.org/plugins/maven-jar-plugin/ Maven JAR Plugin].
 
-Perhaps dependencies can be included too, see e.g. [http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven this page] on StackOverflow.
+Perhaps dependencies can be included too, see e.g. [http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven this page] on Stack Overflow.
 
 A tool for listing all (non-transitive) depencies from the root pom.xml can be found in {{{JPrIME/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
