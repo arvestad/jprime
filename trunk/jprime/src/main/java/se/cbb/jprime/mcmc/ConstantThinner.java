@@ -52,4 +52,16 @@ public class ConstantThinner implements Thinner, IterationListener {
 		this.doSample = (iter.getIteration() % factor == 0);
 	}
 
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

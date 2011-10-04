@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.io.Sampler;
 import se.cbb.jprime.math.LogDouble;
+import se.cbb.jprime.math.PRNG;
 
 /**
  * MCMC framework class for handling a plain non-hierarchical MCMC chain (MC^2).
@@ -61,37 +62,40 @@ import se.cbb.jprime.math.LogDouble;
 public class MCMCManager {
 	
 	/** Iteration of MCMC chain. */
-	private Iteration iteration;
+	protected Iteration iteration;
 	
 	/** Governs how often samples are taken. */
-	private Thinner thinner;
+	protected Thinner thinner;
 	
 	/** Governs which proposer(s) should be selected at each iteration. */
-	private ProposerSelector proposerSelector;
+	protected ProposerSelector proposerSelector;
 	
 	/** Governs whether the proposed state be accepted or rejected. */
-	private ProposalAcceptor proposalAcceptor;
+	protected ProposalAcceptor proposalAcceptor;
 	
 	/** Governs how output is produced. */
-	private Sampler sampler;
+	protected Sampler sampler;
+	
+	/** Pseudo-random number generator. */
+	protected PRNG prng;
 	
 	/** The state parameters. */
-	private ArrayList<StateParameter> stateParameters;
+	protected ArrayList<StateParameter> stateParameters;
 	
 	/**
 	 * The state parameters, "pure" dependents, and models in topological
 	 * ordering, from sources to sinks.
 	 */
-	private ArrayList<Dependent> dependents;
+	protected ArrayList<Dependent> dependents;
 	
 	/** The models of the overall model. */
-	private ArrayList<Model> models;
+	protected ArrayList<Model> models;
 	
 	/** The proposers which perturb the state parameters. */
-	private ArrayList<Proposer> proposers;
+	protected ArrayList<Proposer> proposers;
 	
 	/** The fields included in each sampling-tuple. */
-	private ArrayList<Sampleable> sampleables;
+	protected ArrayList<Sampleable> sampleables;
 	
 	/**
 	 * Constructor.
@@ -100,14 +104,16 @@ public class MCMCManager {
 	 * @param proposerSelector controls which proposers are selected each iteration.
 	 * @param proposalAcceptor controls when a proposed state should be accepted or not.
 	 * @param sampler handles output of drawn samples.
+	 * @param prng pseudo-random number generator. May be null in certain situations.
 	 */
 	public MCMCManager(Iteration iteration, Thinner thinner, ProposerSelector proposerSelector,
-			ProposalAcceptor proposalAcceptor, Sampler sampler) {
+			ProposalAcceptor proposalAcceptor, Sampler sampler, PRNG prng) {
 		this.iteration = iteration;
 		this.thinner = thinner;
 		this.proposerSelector = proposerSelector;
 		this.proposalAcceptor = proposalAcceptor;
 		this.sampler = sampler;
+		this.prng = prng;
 		this.stateParameters = new ArrayList<StateParameter>();
 		this.dependents = new ArrayList<Dependent>();
 		this.models = new ArrayList<Model>();
@@ -235,7 +241,7 @@ public class MCMCManager {
 			}
 			
 			// Finally, decide whether to accept or reject.
-			boolean doAccept = this.proposalAcceptor.acceptNewState(newLikelihood, oldLikelihood, proposals);
+			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, oldLikelihood, proposals, this.prng);
 			if (doAccept) {
 				for (Dependent d : affectedDeps) {
 					d.clearCache(willSample);

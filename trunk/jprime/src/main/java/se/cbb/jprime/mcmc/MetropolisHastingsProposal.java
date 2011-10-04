@@ -11,7 +11,7 @@ import se.cbb.jprime.math.LogDouble;
  * 
  * @author Joel Sjöstrand.
  */
-public class MHProposal implements Proposal {
+public class MetropolisHastingsProposal implements Proposal {
 
 	/** Proposer which generated this object. */
 	private Proposer proposer;
@@ -36,7 +36,7 @@ public class MHProposal implements Proposal {
 	 * @param perturbedParams the actually changed parameters from old state to new state.
 	 * @param noOfPerturbedSubParams the total number of actually changed sub-parameters of the above.
 	 */
-	public MHProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, Set<StateParameter> perturbedParams,
+	public MetropolisHastingsProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, Set<StateParameter> perturbedParams,
 			int noOfPerturbedSubParams) {
 		this.proposer = proposer;
 		this.forwardDensity = forwardDensity;
@@ -53,7 +53,7 @@ public class MHProposal implements Proposal {
 	 * @param perturbedParam the perturbed parameter from old state to new state.
 	 * @param noOfPerturbedSubParams the total number of actually changed sub-parameters of the above.
 	 */
-	public MHProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, StateParameter perturbedParam,
+	public MetropolisHastingsProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, StateParameter perturbedParam,
 			int noOfPerturbedSubParams) {
 		this(proposer, forwardDensity, backwardDensity, new TreeSet<StateParameter>(), noOfPerturbedSubParams);
 		this.params.add(perturbedParam);
@@ -66,7 +66,7 @@ public class MHProposal implements Proposal {
 	 * @param proposer the proposer which generated this object.
 	 * @param attemptedParams the parameters which failed to be perturbed.
 	 */
-	public MHProposal(Proposer proposer, Set<StateParameter> attemptedParams) {
+	public MetropolisHastingsProposal(Proposer proposer, Set<StateParameter> attemptedParams) {
 		this.proposer = proposer;
 		this.params = attemptedParams;
 		this.forwardDensity = new LogDouble(1.0);
@@ -81,7 +81,7 @@ public class MHProposal implements Proposal {
 	 * @param proposer the proposer which generated this object.
 	 * @param attemptedParam the parameter which failed to be perturbed.
 	 */
-	public MHProposal(Proposer proposer, StateParameter attemptedParam) {
+	public MetropolisHastingsProposal(Proposer proposer, StateParameter attemptedParam) {
 		this(proposer, new TreeSet<StateParameter>());
 		this.params.add(attemptedParam);
 	}
@@ -91,7 +91,7 @@ public class MHProposal implements Proposal {
 	 * obtaining the new value x' given the old value x.
 	 * @return the "forward" probability density.
 	 */
-	public LogDouble getForwardProposalDensity() {
+	public LogDouble getForwardDensity() {
 		return this.forwardDensity;
 	}
 
@@ -100,7 +100,7 @@ public class MHProposal implements Proposal {
 	 * obtaining the old value x given the new value x'.
 	 * @return the "backward" probability density.
 	 */
-	public LogDouble getBackwardProposalDensity() {
+	public LogDouble getBackwardDensity() {
 		return this.backwardDensity;
 	}
 
@@ -110,7 +110,7 @@ public class MHProposal implements Proposal {
 	 * respectively.
 	 * @return the ratio between the "backward" and "forward" proposal densities.
 	 */
-	public LogDouble getProposalDensityRatio() {
+	public LogDouble getDensityRatio() {
 		return this.backwardDensity.divToNew(this.forwardDensity);
 	}
 

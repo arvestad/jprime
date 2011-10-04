@@ -57,4 +57,16 @@ public class LinearTuningParameter implements TuningParameter, IterationListener
 			(iter.getIteration() / ((double) iter.getTotalNoOfIterations()));
 	}
 
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -6,14 +6,14 @@ import java.util.List;
 import com.beust.jcommander.Parameter;
 
 /**
- * Handles all application parameters.
+ * Handles all regular application parameters.
  * 
  * @author Joel Sjöstrand.
  */
 public class Parameters {
 
-	/** Required parameters: D, S and GS. */
-	@Parameter(description = "<Multialignment> <Host tree> <Guest-to-host leaf map>.")
+	/** Required parameters: S, D and GS. */
+	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map>.")
 	public List<String> files = new ArrayList<String>();
 	
 	/** Help. */

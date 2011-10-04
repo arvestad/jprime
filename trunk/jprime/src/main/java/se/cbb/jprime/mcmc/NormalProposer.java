@@ -228,7 +228,7 @@ public class NormalProposer implements Proposer {
 				++tries;
 				if (tries > 100) {
 					// Abort.
-					return new MHProposal(this, this.param);
+					return new MetropolisHastingsProposal(this, this.param);
 				}
 			} while (!this.interval.isWithin(x));
 			
@@ -259,7 +259,7 @@ public class NormalProposer implements Proposer {
 		}
 		
 		// Generate proposal object.
-		return new MHProposal(this, forward, backward, this.param, indices.length);
+		return new MetropolisHastingsProposal(this, forward, backward, this.param, indices.length);
 	}
 
 	@Override
@@ -270,6 +270,18 @@ public class NormalProposer implements Proposer {
 	@Override
 	public void setEnabled(boolean isActive) {
 		this.isEnabled = isActive;
+	}
+
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

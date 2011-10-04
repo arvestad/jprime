@@ -12,7 +12,8 @@ import se.cbb.jprime.math.PRNG;
  * one proposer should be invoked, e.g. [0.60,0.30,0.10] for
  * 1 proposer 60% of the time, 2 proposers 30% of the time and 3 proposers
  * 10% of the time. However, there is no guarantee that exactly these
- * numbers will be achieved in practice.
+ * numbers will be achieved in practice (due to that they
+ * act on the same parameters).
  * 
  * @author Joel Sjöstrand.
  */
@@ -141,6 +142,18 @@ public class MultiProposerSelector implements ProposerSelector {
 			selParams.add(sp);
 		}
 		return true;
+	}
+
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
