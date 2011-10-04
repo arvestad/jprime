@@ -33,4 +33,16 @@ public class ConstantTuningParameter implements TuningParameter {
 		return this.value;
 	}
 
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

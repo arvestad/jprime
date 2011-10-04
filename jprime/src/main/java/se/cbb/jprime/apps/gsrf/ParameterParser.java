@@ -45,14 +45,9 @@ import se.cbb.jprime.topology.UniformRBTreeGenerator;
  */
 public class ParameterParser {
 
-	public static String getMultialignment(Parameters ps) {
-		// TODO: Implement.
-		return null;
-	}
-
 	public static Triple<RBTree, NamesMap, TimesMap> getHostTree(Parameters ps) {
 		try {
-			PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(new File(ps.files.get(1)), true, true);
+			PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(new File(ps.files.get(0)), true, true);
 			RBTree s = new RBTree(sRaw, "S");
 			NamesMap sNames = sRaw.getVertexNamesMap(true, "S.names");
 			TimesMap sTimes = sRaw.getTimesMap("S.times");
@@ -78,6 +73,11 @@ public class ParameterParser {
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid host tree.", e);
 		}
+	}
+	
+	public static String getMultialignment(Parameters ps) {
+		// TODO: Implement.
+		return null;
 	}
 	
 	public static GuestHostMap getGSMap(Parameters ps) {
@@ -189,7 +189,17 @@ public class ParameterParser {
 		return new Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent>(p1, p2, pd);
 	}
 	
-	public static void getDupLossProbs(Parameters ps, MPRMap mpr, TimesMap times) {
+	public static RBTreeArcDiscretiser getDiscretizer(Parameters ps, RBTree S, TimesMap times, RBTree G) {
+		if (ps.discStem == null) {
+			// Try to find a small but sufficient number of stem points to accommodate all
+			// duplications in the stem during G perturbation.
+			int h = (int) Math.round(Math.log((double) G.getNoOfLeaves()) / Math.log(2.0));
+			ps.discStem = Math.min(h + 5, 30);
+		}
+		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, ps.discTimestep, ps.discStem);
+	}
+	
+	public static Triple<DoubleParameter, DoubleParameter, DupLossProbs> getDupLossProbs(Parameters ps, MPRMap mpr, RBTree s, TimesMap times) {
 		// Set initial duplication rate as number of inferred MPR duplications divided by total time tree span.
 		// Then set loss rate to the same amount.
 		int dups = 0;
@@ -203,17 +213,8 @@ public class ParameterParser {
 		DoubleParameter dr = new DoubleParameter("DuplicationRate", dups / totTime + 1e-3);
 		DoubleParameter lr = new DoubleParameter("LossRate", dups / totTime + 1e-3);
 		// TODO: Implement.
-		// DupLossProbs dlProbs = new DupLossProbs(dr, dl, ...);
-		// return new Triple<DoubleParameter, DoubleParameter, DupLossProbs>(dr, dl, dlProbs);
+		DupLossProbs dlProbs = new DupLossProbs(s, dr, lr);
+		return new Triple<DoubleParameter, DoubleParameter, DupLossProbs>(dr, lr, dlProbs);
 	}
 	
-	public static RBTreeArcDiscretiser getDiscretizer(Parameters ps, RBTree S, TimesMap times, RBTree G) {
-		if (ps.discStem == null) {
-			// Try to find a small but sufficient number of stem points to accommodate all
-			// duplications in the stem during G perturbation.
-			int h = (int) Math.round(Math.log((double) G.getNoOfLeaves()) / Math.log(2.0));
-			ps.discStem = Math.min(h + 5, 30);
-		}
-		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, ps.discTimestep, ps.discStem);
-	}
 }

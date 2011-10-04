@@ -134,6 +134,18 @@ public class Iteration implements Sampleable, InfoProvider {
 	public String getSampleValue() {
 		return SampleInt.toString(this.currentIteration);
 	}
+
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
 

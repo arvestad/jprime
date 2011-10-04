@@ -71,4 +71,16 @@ public class ProposerStatistics implements InfoProvider {
 			this.noOfRejected++;
 		}
 	}
+
+	@Override
+	public String getPreInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPostInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
