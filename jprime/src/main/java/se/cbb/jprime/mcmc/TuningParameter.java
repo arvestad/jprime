@@ -2,12 +2,13 @@ package se.cbb.jprime.mcmc;
 
 /**
  * Interface for tuning parameters of <code>Proposer</code> objects,
- * i.e. parameters that typically define how large state changes these
- * suggest. A tuning parameter may of course implement <code>IterationListener</code>
- * to change its value over time.
+ * i.e. parameters that typically define how large state changes <code>Proposer</code>s
+ * suggest.
  * <p/>
  * A <code>ProposerWeight</code> constitutes a special kind of tuning parameter,
- * since it defines how often a <code>Proposer</code> itself will be utilised.
+ * since it governs how often a <code>Proposer</code> itself will be utilised.
+ * <p/>
+ * See also <code>ConstantTuningParameter</code> and <code>LinearTuningParameter</code>.
  * 
  * @author Joel Sjöstrand.
  */

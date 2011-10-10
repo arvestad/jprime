@@ -10,6 +10,8 @@ import se.cbb.jprime.math.PRNG;
  * parameter state change should be accepted or not. At the moment this
  * has been written with Metropolis-Hastings-like methods in mind, so it is
  * subject to change to become more general.
+ * <p/>
+ * See also <code>MetropolisHastingsAcceptor</code> and <code>HillClimbingAcceptor</code>.
  * 
  * @author Joel Sjöstrand.
  */

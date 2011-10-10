@@ -1,5 +1,6 @@
 package se.cbb.jprime.mcmc;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -9,10 +10,10 @@ import se.cbb.jprime.math.PRNG;
 /**
  * Selects one or more proposers (acting on disjoint state parameters).
  * The user may specify a desired weight set for how often more than
- * one proposer should be invoked, e.g. [0.60,0.30,0.10] for
+ * one proposer should be attempted to be invoked, e.g. [0.60,0.30,0.10] for
  * 1 proposer 60% of the time, 2 proposers 30% of the time and 3 proposers
  * 10% of the time. However, there is no guarantee that exactly these
- * numbers will be achieved in practice (due to that they
+ * numbers will be achieved in practice (due to that they may
  * act on the same parameters).
  * 
  * @author Joel Sjöstrand.
@@ -145,14 +146,15 @@ public class MultiProposerSelector implements ProposerSelector {
 	}
 
 	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("MULTI-PROPOSER SELECTOR\n");
+		sb.append(prefix).append("Cumulative no.-of-proposer weights: ").append(Arrays.toString(this.cumNoWeights)).append('\n');
+		return sb.toString();
 	}
 
 	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
+	public String getPostInfo(String prefix) {
 		return null;
 	}
 	

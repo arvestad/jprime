@@ -8,6 +8,9 @@ package se.cbb.jprime.mcmc;
  */
 public class LinearTuningParameter implements TuningParameter, IterationListener {
 
+	/** Iteration. */
+	protected Iteration iter;
+	
 	/** The value at iteration 0. */
 	protected double startValue;
 	
@@ -30,10 +33,11 @@ public class LinearTuningParameter implements TuningParameter, IterationListener
 		if (Double.isInfinite(startValue) || Double.isInfinite(endValue)) {
 			throw new IllegalArgumentException("Start or end weight for linear tuning parameter out-of-range.");
 		}
-		iter.addIterationListener(this);
+		this.iter = iter;
 		this.startValue = startValue;
 		this.endValue = endValue;
 		this.value = startValue;
+		this.iter.addIterationListener(this);
 	}
 	
 	@Override
@@ -52,20 +56,21 @@ public class LinearTuningParameter implements TuningParameter, IterationListener
 	}
 
 	@Override
-	public void incrementPerformed(Iteration iter) {
+	public void incrementPerformed(int iterValue) {
 		this.value = this.startValue + (this.endValue - this.startValue) *
-			(iter.getIteration() / ((double) iter.getTotalNoOfIterations()));
+			(iterValue / ((double) iter.getTotalNoOfIterations()));
 	}
 
 	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("LINEAR TUNING PARAMETER\n");
+		sb.append("Value range: ").append(this.startValue).append(" to ").append(this.endValue).append("\n");
+		return sb.toString();
 	}
 
 	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
+	public String getPostInfo(String prefix) {
 		return null;
 	}
 

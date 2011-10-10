@@ -4,7 +4,9 @@ package se.cbb.jprime.mcmc;
  * Base class for statistics of <code>Proposer</code> objects with respect to
  * acceptance and rejection. Only provides access to the most basic numbers, although
  * subclasses may add information like how the acceptance ratio has changed over time,
- * etc. 
+ * etc.
+ * <p/>
+ * See also <code>FineProposerStatistics</code>.
  * 
  * @author Joel Sjöstrand.
  */
@@ -60,27 +62,36 @@ public class ProposerStatistics implements InfoProvider {
 	}
 	
 	/**
+	 * Returns the number of rejected proposals divided by the total number of proposals.
+	 * @return the rejection ratio.
+	 */
+	public double getRejectionRatio() {
+		return (this.noOfRejected / (double) (this.noOfAccepted + this.noOfRejected));
+	}
+	
+	/**
 	 * Adds a proposal outcome.
 	 * @param wasAccepted true is new state was accepted; false if rejected.
 	 * @param proposal the state change.
 	 */
 	public void increment(boolean wasAccepted, Proposal proposal) {
 		if (wasAccepted) {
-			this.noOfAccepted++;
+			++this.noOfAccepted;
 		} else {
-			this.noOfRejected++;
+			++this.noOfRejected;
 		}
 	}
 
 	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
+	public String getPreInfo(String prefix) {
 		return null;
 	}
 
 	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("PROPOSER STATISTICS\n");
+		sb.append(prefix).append("Acceptance ratio: ").append(this.noOfAccepted).append(" / ").append(this.getNoOfProposals()).append(" = ").append(this.getAcceptanceRatio()).append("\n");
+		return sb.toString();
 	}
 }

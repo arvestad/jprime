@@ -6,23 +6,12 @@ import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
 
 /**
- * Hill-climbing proposal acceptor. Only accepts proposed states which are better than the current.
+ * Hill-climbing proposal acceptor. Only accepts a proposed state x' which has higher likelihood
+ * than the old state x.
  * 
  * @author Joel Sjöstrand.
  */
-public class HillClimbingProposalAcceptor implements ProposalAcceptor {
-
-	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+public class HillClimbingAcceptor implements ProposalAcceptor {
 
 	/**
 	 * Returns true if a proposed state x' has a higher likelihood than the old state x. Does not require any proposal
@@ -43,6 +32,16 @@ public class HillClimbingProposalAcceptor implements ProposalAcceptor {
 			}
 		}
 		return proposedStateLikelihood.greaterThan(oldStateLikelihood);
+	}
+	
+	@Override
+	public String getPreInfo(String prefix) {
+		return (prefix + "HILL-CLIMBING ACCEPTOR\n");
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		return null;
 	}
 
 }

@@ -3,7 +3,7 @@ package se.cbb.jprime.mcmc;
 import java.util.Set;
 
 /**
- * Interface for detailing a state parameter initiated by a single <code>Proposer</code>.
+ * Interface for detailing a state parameter change initiated by a single <code>Proposer</code>.
  * The entire state change consists of one or possibly more of these objects.
  * 
  * @author Joel Sjöstrand.

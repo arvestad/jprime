@@ -29,4 +29,16 @@ public class ConstantProposerWeight extends ConstantTuningParameter implements P
 		this.value = weight;
 	}
 
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("CONSTANT PROPOSER WEIGHT\n");
+		sb.append(prefix).append("Value: ").append(this.value).append('\n');
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		return null;
+	}
 }

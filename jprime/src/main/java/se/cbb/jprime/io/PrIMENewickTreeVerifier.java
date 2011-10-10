@@ -6,10 +6,10 @@ import java.util.List;
 import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
 
 /**
- * Collects a number of sanity checks and similar for PrIMENewickTrees,
+ * Collects a number of sanity checks and similar for a <code>PrIMENewickTree</code>,
  * e.g. that all leaves have names, ultrametricity property on times, etc.
  * <p/>
- * Either invoke static method runStandardTestSuite() or create an instance
+ * Either invoke static method <code>runStandardTestSuite()</code> or create an instance
  * and run individual tests.
  * 
  * @author Joel Sjöstrand.

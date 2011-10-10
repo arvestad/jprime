@@ -1,6 +1,7 @@
 package se.cbb.jprime.mcmc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -16,8 +17,8 @@ import se.cbb.jprime.math.RealInterval.Type;
  * it draws a new value Y ~ N(m,v). It is also possible to limit the domain to [A,B], (A,inf) and
  * so forth, thus creating a truncated normal distribution.
  * <p/>
- * The proposer can perturb both singleton parameters and arrays. In the latter case, the user can control
- * how many sub-parameters should be affected.
+ * The proposer can perturb both singleton parameters and arrays. In the latter case, sub-parameters are treated
+ * individually, and the user can control how many of them should be affected.
  * By default, this is set to one sub-parameter only, but it may be changed by invoking
  * <code>setSubParameterWeights(...)</code>.
  * <p/>
@@ -77,7 +78,7 @@ public class NormalProposer implements Proposer {
 	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter t1,
 			TuningParameter t2, ProposerWeight weight, ProposerStatistics stats, PRNG prng) {
 		if (t1.getMinValue() <= 0) {
-			throw new IllegalArgumentException("First tuning parameter for normal proposer must be > 0.");
+			throw new IllegalArgumentException("First tuning parameter for normal proposer must be in (0,inf).");
 		}
 		if (t2.getMinValue() <= 0 || t2.getMaxValue() >= 1.0) {
 			throw new IllegalArgumentException("Second tuning parameter for normal proposer must be in (0,1).");
@@ -142,7 +143,7 @@ public class NormalProposer implements Proposer {
 	 * For a parameter containing multiple sub-parameters, it is possible to allow for multiple
 	 * sub-parameters to be changed each proposal. This achieved by specifying a set of weights
 	 * for the probabilities, e.g. [0.5,0.3,0.1] for perturbing 1 sub-parameter 50% of the time,
-	 * 2 30% of the time, and 3 10% of the time. The sub-parameters are chosen uniformly.
+	 * 2 sub-parameters 30% of the time, and 3 sub-parameters 10% of the time. The sub-parameters are chosen uniformly.
 	 * @param weights the weights.
 	 */
 	public void setSubParameterWeights(double[] weights) {
@@ -273,15 +274,25 @@ public class NormalProposer implements Proposer {
 	}
 
 	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("NORMAL DISTRIBUTED PROPOSER\n");
+		sb.append("Perturbed parameter: ").append(this.param.getName()).append('\n');
+		sb.append("Is active: ").append(this.isEnabled).append("\n");
+		sb.append("Domain: ").append(this.interval.toString()).append('\n');
+		sb.append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
+		sb.append("Tuning parameter 1:\n").append(this.t1.getPreInfo(prefix + '\t'));
+		sb.append("Tuning parameter 2:\n").append(this.t2.getPreInfo(prefix + '\t'));
+		sb.append("Weight:\n").append(this.weight.getPreInfo(prefix + '\t'));
+		return sb.toString();
 	}
 
 	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("NORMAL DISTRIBUTED PROPOSER\n");
+		sb.append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));
+		return sb.toString();
 	}
 
 }

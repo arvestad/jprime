@@ -86,7 +86,7 @@ public class BooleanParameter implements StateParameter {
 	
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
-		// We don't really care since we can find out ourselves...
+		// We don't really care since we can find out ourselves so easily...
 	}
 
 	@Override

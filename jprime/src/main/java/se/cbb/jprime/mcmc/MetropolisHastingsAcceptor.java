@@ -6,23 +6,13 @@ import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
 
 /**
- * Metropolis-Hastings proposal acceptor.
+ * Metropolis-Hastings proposal acceptor. As such, it probabilistically accepts or rejects a proposed
+ * state x' originating from an old state x depending on the likelihood of x' and x, and the
+ * probability of moving between them.
  * 
  * @author Joel Sjöstrand.
  */
-public class MetropolisHastingsProposalAcceptor implements ProposalAcceptor {
-
-	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+public class MetropolisHastingsAcceptor implements ProposalAcceptor {
 
 	/**
 	 * Returns true if a proposed state x' should be accepted according to the Metropolis-Hastings sampling scheme.
@@ -45,6 +35,16 @@ public class MetropolisHastingsProposalAcceptor implements ProposalAcceptor {
 			}
 		}
 		return a.greaterThanOrEquals(new LogDouble(prng.nextDouble()));   // Accounts also for case a >= 1.0.
+	}
+	
+	@Override
+	public String getPreInfo(String prefix) {
+		return (prefix + "METROPOLIS-HASTINGS ACCEPTOR\n");
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		return null;
 	}
 
 }

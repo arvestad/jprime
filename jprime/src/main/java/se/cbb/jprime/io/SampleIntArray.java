@@ -1,6 +1,7 @@
 package se.cbb.jprime.io;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Sample type for int arrays.
@@ -11,6 +12,9 @@ public class SampleIntArray implements SampleType {
 
 	/** Sample type ID. */
 	public static final String TYPE = "IntArray";
+	
+	/** Regular expression for the string of this type. */
+	public static final Pattern STRING_REGEX = Pattern.compile("^\\[(|\\-?[0-9]+|(\\-?[0-9]+(, [\\-?0-9]+)*))\\]$");
 	
 	@Override
 	public String getType() {
@@ -37,7 +41,20 @@ public class SampleIntArray implements SampleType {
 	 * @return the int array.
 	 */
 	public static int[] toIntArray(String s) {
-		// TODO: Implement.
-		return null;
+		if (s.equals("null")) {
+			return null;
+		}
+		if (STRING_REGEX.matcher(s).matches()) {
+			if (s.equals("[]")) {
+				return new int[]{};
+			}
+			String[] sVals = s.substring(1, s.length() - 1).split(", ");
+			int[] vals = new int[sVals.length];
+			for (int i = 0; i < sVals.length; ++i) {
+				vals[i] = Integer.parseInt(sVals[i]);
+			}
+			return vals;
+		}
+		throw new IllegalArgumentException("Cannot convert string into sample int array.");
 	}
 }
