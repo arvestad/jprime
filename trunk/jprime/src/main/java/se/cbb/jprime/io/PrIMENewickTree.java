@@ -8,7 +8,7 @@ import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
- * Extension of a NewickTree which parses the PrIME-specific meta info and
+ * Extension of a <code>NewickTree</code> which parses the PrIME-specific meta info and
  * provides simplified access to such data (alongside the original topology).
  * It is required that vertices are numbered from 0 to |V(T)|-1, and that
  * meta info tags have the form "[&&PRIME ...]".
@@ -22,7 +22,7 @@ import se.cbb.jprime.topology.TimesMap;
  * <p/>
  * Vertex times and arc times may coexist, and similarly a "tree top time" may coexist alongside
  * an arc time of the root. However, one may verify compatibility of such properties (see
- * also PrIMENewickTreeVerifier).
+ * also <code>PrIMENewickTreeVerifier</code>).
  * <p/>
  * The following properties are handled:
  * <pre>

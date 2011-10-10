@@ -10,8 +10,8 @@ import se.cbb.jprime.io.Sampleable;
  * A parameter is also a <code>Dependent</code>, although it is generally assumed (but not required)
  * that it is
  * a source in the corresponding dependency DAG. Even though there may be interconnections between
- * parameters (e.g. the times t of a tree S), it is often assumed that these are independent
- * (although a Proposer which changes S usually also perturbs t). Typically, methods will be invoked
+ * parameters (e.g. the times <i>t</i> of a tree <i>S</i>), it is often assumed that these are independent
+ * (although a <code>Proposer</code> which changes <i>S</i> usually also perturbs <i>t</i>). Typically, methods will be invoked
  * in the same order as for a regular <code>Dependent</code>:
  * <ol>
  * <li>This object is about to be perturbed by a <code>Proposer</code>: <code>this.cache()</code>.</li>

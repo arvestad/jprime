@@ -71,8 +71,8 @@ public class ChangeInfo {
 	/**
 	 * For array-based objects which have changed, may return a list
 	 * of affected elements. Typically, null should be interpreted as lacking
-	 * info, in which case all elements can be considered affected.
-	 * @return the affected elements; typically null if such info lacking.
+	 * information, in which case all elements can be considered affected.
+	 * @return the affected elements; typically all if null.
 	 */
 	public Set<Integer> getAffectedElements() {
 		return this.affectedElements;

@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Interface for objects perturbing the values of one or more <code>StateParameter</code> objects,
  * e.g. MCMC parameters. This is closely connected to what is sometimes referred to as <i>operators</i> or
- * <i>kernels</i>.
+ * <i>kernels</i> in an MCMC context.
  * Each <code>Proposer</code> is also associated with:
  * <ul>
  * <li>a <code>ProposerWeight</code> which dictates how often it will in
@@ -16,7 +16,8 @@ import java.util.Set;
  * <li>a set of <code>TuningParameter</code> objects, possibly empty, which typically governs the
  *     "size" of state changes suggested. These parameters may also change over time.</li>
  * </ul>
- * Generally, state parameters are assumed to themselves take care of caching and similarly.
+ * Generally, state parameters are assumed to themselves take care of caching and similar actions.
+ * A <code>Proposer</code> may be turned off/on with method <code>setEnabled(...)</code>.
  * 
  * @author Joel Sjöstrand.
  */

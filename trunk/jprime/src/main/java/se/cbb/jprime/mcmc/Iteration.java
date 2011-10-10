@@ -7,7 +7,8 @@ import se.cbb.jprime.io.Sampleable;
 
 /**
  * Holds the current and total number of iterations k for e.g. an MCMC chain.
- * Iterations typically range between 0 and k, where 0 refers to a "non-counted" starting iteration.
+ * Iterations typically range between 0 and k, where 0 refers to a starting iteration (which
+ * is not counted, but may very well be sampled).
  * Other objects may subscribe as listeners to increments of this object.
  * 
  * @author Joel Sjöstrand.
@@ -106,7 +107,7 @@ public class Iteration implements Sampleable, InfoProvider {
 		this.currentIteration++;
 		if (this.notifyListeners) {
 			for (IterationListener i : this.listeners) {
-				i.incrementPerformed(this);
+				i.incrementPerformed(this.currentIteration);
 			}
 		}
 		return true;
@@ -136,14 +137,15 @@ public class Iteration implements Sampleable, InfoProvider {
 	}
 
 	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("ITERATION\n");
+		sb.append("Range: [").append(this.currentIteration).append(", ").append(this.totalNoOfIterations).append("]\n");
+		return sb.toString();
 	}
 
 	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
+	public String getPostInfo(String prefix) {
 		return null;
 	}
 	

@@ -287,13 +287,13 @@ public class RBTreeBranchSwapper implements Proposer {
 	}
 
 	@Override
-	public String getPreInfo() {
+	public String getPreInfo(String prefix) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getPostInfo() {
+	public String getPostInfo(String prefix) {
 		// TODO Auto-generated method stub
 		return null;
 	}

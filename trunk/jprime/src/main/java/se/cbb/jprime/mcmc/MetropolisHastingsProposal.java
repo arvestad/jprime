@@ -6,8 +6,8 @@ import java.util.TreeSet;
 import se.cbb.jprime.math.LogDouble;
 
 /**
- * Metropolis-Hastings proposal detailing a state parameter change by a <code>Proposer</code>.
- * Enables storing the "backward" and "forward" proposal densities. 
+ * Details a state parameter change w.r.t. a Metropolis-Hastings proposal by a <code>Proposer</code>.
+ * Thus, enables storing the "backward" and "forward" proposal densities. 
  * 
  * @author Joel Sjöstrand.
  */

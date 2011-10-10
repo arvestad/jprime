@@ -48,19 +48,20 @@ public class ConstantThinner implements Thinner, IterationListener {
 	}
 
 	@Override
-	public void incrementPerformed(Iteration iter) {
-		this.doSample = (iter.getIteration() % factor == 0);
+	public void incrementPerformed(int iterValue) {
+		this.doSample = (iterValue % factor == 0);
 	}
 
 	@Override
-	public String getPreInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("CONSTANT THINNER\n");
+		sb.append(prefix).append("Factor: ").append(this.factor).append('\n');
+		return sb.toString();
 	}
 
 	@Override
-	public String getPostInfo() {
-		// TODO Auto-generated method stub
+	public String getPostInfo(String prefix) {
 		return null;
 	}
 

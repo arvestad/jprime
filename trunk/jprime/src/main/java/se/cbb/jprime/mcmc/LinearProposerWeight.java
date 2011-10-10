@@ -20,5 +20,18 @@ public class LinearProposerWeight extends LinearTuningParameter implements Propo
 			throw new IllegalArgumentException("Start or end value for proposer weight out-of-range.");
 		}
 	}
+	
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("LINEAR PROPOSER WEIGHT\n");
+		sb.append(prefix).append("Value range: ").append(this.startValue).append(" to ").append(this.endValue).append("\n");
+		return sb.toString();
+	}
+	
+	@Override
+	public String getPostInfo(String prefix) {
+		return null;
+	}
 
 }

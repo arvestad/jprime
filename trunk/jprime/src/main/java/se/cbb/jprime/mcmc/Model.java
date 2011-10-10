@@ -11,8 +11,8 @@ import se.cbb.jprime.math.LogDouble;
  * in a dependency DAG where the state parameters are sources.
  * It should ideally compute its likelihood when <code>update()</code>
  * is invoked, and only return this value when <code>getLikelihood()</code> is
- * called. Also, it should be able to cache and restore its old values if proposed
- * state rejected.
+ * called. Also, it should be able to cache and restore its old values if the proposed
+ * state is rejected.
  * <p/>
  * Furthermore, a model can act as a "sampleable". No particular requirements are made as to
  * what is sampled, although outputting the model's log-likelihood is recommended.

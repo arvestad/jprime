@@ -9,7 +9,7 @@ public interface IterationListener {
 
 	/**
 	 * Callback invoked when an <code>Iteration</code> object has been incremented.
-	 * @param iter the object which was incremented.
+	 * @param iterValue the new iteration value after incrementing.
 	 */
-	public void incrementPerformed(Iteration iter);
+	public void incrementPerformed(int iterValue);
 }
