@@ -3,7 +3,7 @@ package se.cbb.jprime.math;
 /**
  * General purpose exception class for math-related issues such
  * as (unimplemented) computations lacking closed-form expressions, probabilities
- * having negative sign, etc.
+ * having negative sign, etc. Not really used that much.
  * 
  * @author Joel Sjöstrand.
  */

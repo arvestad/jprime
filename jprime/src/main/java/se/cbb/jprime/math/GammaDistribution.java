@@ -16,12 +16,7 @@ import se.cbb.jprime.mcmc.DoubleParameter;
  * <i>shape</i> parameter k and <i>scale</i> parameter theta. Sometimes, one
  * encounters Gamma(alpha,beta), with shape parameter alpha=k and <i>rate</i> parameter
  * beta=1/theta.
- * <p/>
- * <b>Note: As of yet, many methods which involve extensive numerical computations
- * have not been implemented.</b>
- * 
- * @author Martin Linder.
- * @author Bengt Sennblad.
+ *
  * @author Joel Sjöstrand.
  */
 public class GammaDistribution implements Continuous1DPDDependent {
@@ -225,7 +220,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	}
 
 	@Override
-	public double getMean() throws MathException {
+	public double getMean() {
 		return (this.k * this.theta);
 	}
 
@@ -320,14 +315,20 @@ public class GammaDistribution implements Continuous1DPDDependent {
 
 	@Override
 	public double sampleValue(PRNG prng) {
-		// TODO: Implement.
-		//return Gamma.ppGamma(p, alpha, beta); 
-		throw new UnsupportedOperationException("Sampling from gamma function not implemented yet.");
+		return Gamma.gammaQuantile(prng.nextDouble(), this.k, this.theta);	
 	}
 
 	@Override
 	public String toString() {
 		return "Gamma(" + this.k + ", " + this.theta + ')';
+	}
+
+	@Override
+	public double getMode() {
+		if (this.k >= 1.0) {
+			return ((this.k - 1.0) * this.theta);
+		}
+		throw new UnsupportedOperationException("Cannot compute gamma distribution mode when shape parameter k < 1.");
 	}  
 
 }

@@ -156,8 +156,9 @@ public class RealInterval {
 	 * @return true if within; false if outside.
 	 */
 	public boolean isWithin(double value) {
-		// TODO: Implement.
-		throw new IllegalArgumentException("Not yet implemented!");
+		boolean aOK = (this.isLeftOpen ? (value > this.a) : (value >= this.a));
+		boolean bOK = (this.isRightOpen ? (value < this.b) : (value <= this.b));
+		return (aOK && bOK);
 	}
 	
 	/**
@@ -184,7 +185,7 @@ public class RealInterval {
 		if ((diff < 0) ||
 				((t == Type.LEFT_OPEN || t == Type.LEFT_CLOSED) && this.a < 0) ||
 				((t == Type.RIGHT_OPEN || t == Type.RIGHT_CLOSED) && this.b > 0)) {
-			throw new IllegalArgumentException("Do not yet support random number from interval of this span.");
+			throw new UnsupportedOperationException("Do not yet support random number from interval of this span.");
 		}
 		
 		if (t == Type.DEGENERATE) {
@@ -238,4 +239,19 @@ public class RealInterval {
 			throw new IllegalArgumentException("Unknown error when producing random number in interval.");
 		}
 	}
+	
+	/**
+	 * Returns b-a.
+	 * @return the width.
+	 */
+	public double getWidth() {
+		return (this.b - this.a);
+	}
+
+	@Override
+	public String toString() {
+		return ((this.isLeftOpen ? "(" : "[") + this.a + ',' + this.b + (this.isRightOpen ? ')' : ']'));
+	}
+	
+	
 }

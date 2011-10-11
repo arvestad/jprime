@@ -124,7 +124,7 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	}
 
 	@Override
-	public double getMean() throws MathException {
+	public double getMean() {
 		return this.mean;
 	}
 
@@ -300,6 +300,11 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		double x = prng.nextGaussian();
 		// No bounds checking for within representable range...
 		return (x * this.stdev + this.mean);
+	}
+
+	@Override
+	public double getMode() {
+		return this.mean;
 	}
 
 }
