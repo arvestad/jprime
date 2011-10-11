@@ -50,10 +50,10 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	public UniformDistribution(double a, double b, boolean isLeftOpen, boolean isRightOpen) {
 		this.p1 = null;
 		this.p2 = null;
-		this.ab = new RealInterval(a, b, this.isLeftOpen, this.isRightOpen);
-		this.dependents = null;
 		this.isLeftOpen = isLeftOpen;
 		this.isRightOpen = isRightOpen;
+		this.ab = new RealInterval(a, b, this.isLeftOpen, this.isRightOpen);
+		this.dependents = null;
 	}
 	
 	/**
@@ -70,6 +70,8 @@ public class UniformDistribution implements Continuous1DPDDependent {
 		}
 		this.p1 = p1;
 		this.p2 = p2;
+		this.isLeftOpen = isLeftOpen;
+		this.isRightOpen = isRightOpen;
 		this.dependents = new TreeSet<Dependent>();
 		p1.addChildDependent(this);
 		p2.addChildDependent(this);
@@ -252,7 +254,7 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	public double getCV() {
 		double a = this.ab.getLowerBound();
 		double b = this.ab.getUpperBound();
-		return ((b - a) / (Math.sqrt(3) * (b + a)));
+		return Math.abs((b - a) / (Math.sqrt(3) * (b + a)));
 	}
 
 	@Override
