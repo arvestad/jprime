@@ -19,6 +19,8 @@ public class TestGamma {
 		double lngB = Gamma.lnGamma(b);
 		assertTrue(Math.abs(lngA - 0.6931472) < 1e-5);
 		assertTrue(Math.abs(lngB - 18.35183) < 1e-5);
+		//System.out.println(Gamma.lnGamma(a));
+		//System.out.println(Gamma.lnGamma(b));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -29,5 +31,29 @@ public class TestGamma {
 	@Test(expected=IllegalArgumentException.class)
 	public void testLnGammaSafeTwo() {
 	    Gamma.lnGammaSafe(-1);
+	}
+	
+	@Test
+	public void testGammaQuantile() {
+		assertEquals(0.1025866, Gamma.gammaQuantile(0.05, 1, 2), 1e-6);
+		assertEquals(5.991465, Gamma.gammaQuantile(0.95, 1, 2), 1e-6);
+		assertEquals(3.621315, Gamma.gammaQuantile(0.05, 9.876, 0.6789), 1e-6);
+		assertEquals(10.55584, Gamma.gammaQuantile(0.95, 9.876, 0.6789), 1e-6);
+	}
+	
+	@Test
+	public void testIncGammaRatio() {
+		assertEquals(0.3934693, Gamma.incGammaRatio(0.5, 1.0), 1e-6);
+		assertEquals(0.3009707, Gamma.incGammaRatio(1.1, 2.0), 1e-6);
+		assertEquals(0.7483561, Gamma.incGammaRatio(1.1, 0.8), 1e-6);
+		assertEquals(0.566861, Gamma.incGammaRatio(1005, 1000), 1e-6);
+	}
+	
+	@Test
+	public void testGammaCDF() {
+		assertEquals(0.04877058, Gamma.gammaCDF(0.1, 1, 2), 1e-6);
+		assertEquals(0.3623718, Gamma.gammaCDF(0.9, 1, 2), 1e-6);
+		assertEquals(1.966058e-15, Gamma.gammaCDF(0.1, 9.876, 0.6789), 1e-10);
+		assertEquals(1.802166e-06, Gamma.gammaCDF(0.9, 9.876, 0.6789), 1e-10);
 	}
 }
