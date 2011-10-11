@@ -49,9 +49,8 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	/**
 	 * Returns the mean, i.e. the expected value mu=E(X).
 	 * @return the mean.
-	 * @throws MathException if the value cannot be computed.
 	 */
-	public double getMean() throws MathException;
+	public double getMean();
 	
 	/**
 	 * Sets the mean.
@@ -65,6 +64,13 @@ public interface Continuous1DPD extends ProbabilityDistribution {
 	 * @return the median.
 	 */
 	public double getMedian();
+	
+	/**
+	 * Returns the mode. If there are multiple modes, may e.g. return
+	 * one of them.
+	 * @return the mode.
+	 */
+	public double getMode();
 	
 	/**
 	 * Returns the standard deviation sigma=sqrt(E((X-E(X))^2)).
