@@ -211,24 +211,12 @@ public class GammaDistribution implements Continuous1DPDDependent {
 
 	@Override
 	public double getCDF(double x) {
-		// TODO: Implement.
-//		if (x < 0) {
-//			return 0.0;
-//		}
-//		double invG = Gamma.gamma_in(x / this.theta, this.k);
-//		if (invG < 0.0) {
-//			return 0.0;
-//		} else if (invG > 1.0) {
-//			return 1.0;
-//		}
-//		return invG;
-		throw new UnsupportedOperationException("Numerical estimate of gamma CDF not implemented yet.");
+		return Gamma.gammaCDF(x, this.k, this.theta);
 	}
 
 	@Override
 	public double getQuantile(double p) {
-		// TODO: Implement.
-		throw new UnsupportedOperationException("Numerical estimate of gamma quantile function not implemented yet.");
+		return Gamma.gammaQuantile(p, this.k, this.theta);
 	}
 
 	@Override
