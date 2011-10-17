@@ -1,8 +1,5 @@
 package se.cbb.jprime.topology;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.SampleStringArray;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
@@ -21,9 +18,6 @@ public class StringMap implements GraphMap, StateParameter {
 	/** The map values. */
 	protected String[] values;
 	
-	/** The child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
 	/** Cache. */
 	protected String[] cache = null;
 
@@ -38,7 +32,6 @@ public class StringMap implements GraphMap, StateParameter {
 	public StringMap(String name, int size) {
 		this.name = name;
 		this.values = new String[size];
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
@@ -53,7 +46,6 @@ public class StringMap implements GraphMap, StateParameter {
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
 		}
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
@@ -64,7 +56,6 @@ public class StringMap implements GraphMap, StateParameter {
 	public StringMap(String name, String[] vals) {
 		this.name = name;
 		this.values = vals;
-		this.dependents = new TreeSet<Dependent>();
 	}
 
 	@Override
@@ -105,39 +96,27 @@ public class StringMap implements GraphMap, StateParameter {
 		this.values[x] = val;
 	}
 
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.cache = new String[this.values.length];
 		System.arraycopy(this.values, 0, this.cache, 0, this.values.length);
 	}
 
-	@Override
-	public void update(boolean willSample) {
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached map and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.cache = null;
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current map with the cached map, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.values = this.cache;
 		this.cache = null;
 		this.changeInfo = null;
@@ -176,5 +155,10 @@ public class StringMap implements GraphMap, StateParameter {
 	@Override
 	public int getSize() {
 		return this.values.length;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 }

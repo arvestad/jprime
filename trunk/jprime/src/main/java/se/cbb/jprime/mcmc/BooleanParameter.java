@@ -1,8 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.SampleBoolean;
 
 /**
@@ -17,9 +14,6 @@ public class BooleanParameter implements StateParameter {
 	
 	/** Current state. */
 	protected boolean value;
-
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
 	
 	/** Cache. */
 	protected Boolean cache;
@@ -35,45 +29,29 @@ public class BooleanParameter implements StateParameter {
 	public BooleanParameter(String name, boolean initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.dependents = new TreeSet<Dependent>();
 		this.cache = null;
 	}
-	
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
 
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the current value. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.cache = new Boolean(this.value);
 	}
 
-	@Override
-	public void update(boolean willSample) {
-		if (this.value != this.cache.booleanValue()) {
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.value + ", old: " + !this.value);
-		}
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached value and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.cache = null;
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current value with the cached value, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.value = this.cache.booleanValue();
 		this.cache = null;
 		this.changeInfo = null;
@@ -86,7 +64,7 @@ public class BooleanParameter implements StateParameter {
 	
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
-		// We don't really care since we can find out ourselves so easily...
+		this.changeInfo = info;
 	}
 
 	@Override
@@ -112,6 +90,11 @@ public class BooleanParameter implements StateParameter {
 	@Override
 	public Class<?> getSampleType() {
 		return SampleBoolean.class;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }

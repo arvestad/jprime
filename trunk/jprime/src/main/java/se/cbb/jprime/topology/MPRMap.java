@@ -1,10 +1,8 @@
 package se.cbb.jprime.topology;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.ProperDependent;
 
 /**
  * Extends a guest-host map with functionality concerning the most parsimonious reconciliation
@@ -16,7 +14,7 @@ import se.cbb.jprime.mcmc.Dependent;
  * 
  * @author Joel Sjöstrand.
  */
-public class MPRMap implements Dependent {
+public class MPRMap implements ProperDependent {
 
 	/** Guest-to-host leaf map. */
 	private GuestHostMap GSMap;
@@ -32,9 +30,6 @@ public class MPRMap implements Dependent {
 	
 	/** Cache. */
 	private int[] sigmaCache = null;
-	
-	/** Child dependents. */
-	private TreeSet<Dependent> dependents;
 	
 	/** Change info. */
 	private ChangeInfo changeInfo = null;
@@ -53,9 +48,6 @@ public class MPRMap implements Dependent {
 		this.G = G;
 		this.S = S;
 		this.sigma = new int[G.getNoOfVertices()];
-		this.dependents = new TreeSet<Dependent>();
-		G.addChildDependent(this);
-		S.addChildDependent(this);
 		
 		// Fill the sigma map for the leaves only once, prior to the rest.
 		for (int l : this.G.getLeaves()) {
@@ -66,34 +58,33 @@ public class MPRMap implements Dependent {
 		// Now fill the rest.
 		this.computeSigma(this.G.getRoot());
 	}
-	
+
 	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
+	public Dependent[] getParentDependents() {
+		return new Dependent[] { this.S, this.G };
 	}
 
 	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
+		// Full cache...
 		this.sigmaCache = new int[this.sigma.length];
 		System.arraycopy(this.sigma, 0, this.sigmaCache, 0, this.sigma.length);
+		// We do full update, regardless of any info on changed subtrees, etc.
+		this.computeSigma(this.G.getRoot());
+		this.changeInfo = new ChangeInfo(this, "Updated MPR map (i.e. sigma map).");
+	}
+	
+	@Override
+	public void clearCacheAndClearChangeInfo(boolean willSample) {
+		this.sigmaCache = null;
+		this.changeInfo = null;
 	}
 
 	@Override
-	public void update(boolean willSample) {
-		if (this.G.getChangeInfo() != null || this.S.getChangeInfo() != null) {
-			// We do full update, regardless of any info on changed subtrees, etc.
-			this.computeSigma(this.G.getRoot());
-		}
+	public void restoreCacheAndClearChangeInfo(boolean willSample) {
+		this.sigma = this.sigmaCache;
+		this.sigmaCache = null;
+		this.changeInfo = null;
 	}
 	
 	/**
@@ -110,19 +101,6 @@ public class MPRMap implements Dependent {
 		int rcSigma = this.computeSigma(this.G.getRightChild(x));
 		sigma[x] = this.S.getLCA(lcSigma, rcSigma);
 		return sigma[x];
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
-		this.sigmaCache = null;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public void restoreCache(boolean willSample) {
-		this.sigma = this.sigmaCache;
-		this.sigmaCache = null;
-		this.changeInfo = null;
 	}
 
 	@Override

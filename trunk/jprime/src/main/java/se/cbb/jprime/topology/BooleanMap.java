@@ -1,11 +1,8 @@
 package se.cbb.jprime.topology;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.SampleBooleanArray;
-import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ChangeInfo;
+import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
@@ -20,9 +17,6 @@ public class BooleanMap implements GraphMap, StateParameter {
 	
 	/** The map values. */
 	protected boolean[] values;
-	
-	/** The child dependents. */
-	protected TreeSet<Dependent> dependents;
 	
 	/** Cache. */
 	protected boolean[] cache = null;
@@ -42,7 +36,6 @@ public class BooleanMap implements GraphMap, StateParameter {
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
 		}
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
@@ -53,7 +46,6 @@ public class BooleanMap implements GraphMap, StateParameter {
 	public BooleanMap(String name, boolean[] vals) {
 		this.name = name;
 		this.values = vals;
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	@Override
@@ -94,39 +86,27 @@ public class BooleanMap implements GraphMap, StateParameter {
 		this.values[x] = val;
 	}
 
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.cache = new boolean[this.values.length];
 		System.arraycopy(this.values, 0, this.cache, 0, this.values.length);
 	}
 
-	@Override
-	public void update(boolean willSample) {
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached map and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.cache = null;
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current map with the cached map, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.values = this.cache;
 		this.cache = null;
 		this.changeInfo = null;
@@ -165,5 +145,10 @@ public class BooleanMap implements GraphMap, StateParameter {
 	@Override
 	public int getSize() {
 		return this.values.length;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 }

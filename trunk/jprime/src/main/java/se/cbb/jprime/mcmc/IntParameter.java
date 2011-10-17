@@ -1,8 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.SampleInt;
 
 /**
@@ -17,9 +14,6 @@ public class IntParameter implements StateParameter {
 	
 	/** Current state. */
 	protected int value;
-
-	/** Dependents. */
-	protected TreeSet<Dependent> dependents;
 	
 	/** Cache. */
 	protected Integer cache;
@@ -35,44 +29,28 @@ public class IntParameter implements StateParameter {
 	public IntParameter(String name, int initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.dependents = new TreeSet<Dependent>();
 		this.cache = null;
 	}
-	
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
 
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the current value. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.cache = new Integer(this.value);
 	}
 
-	@Override
-	public void update(boolean willSample) {
-		if (this.value != this.cache.intValue()) {
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.value + ", old: " + this.cache.intValue());
-		}
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached value and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.cache = null;
 		this.changeInfo = null;
 	}
 
-	@Override
+	/**
+	 * Replaces the current value with the cached value, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
 	public void restoreCache(boolean willSample) {
 		this.value = this.cache.intValue();
 		this.cache = null;
@@ -86,7 +64,7 @@ public class IntParameter implements StateParameter {
 	
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
-		// We don't really care since we can find out ourselves...
+		this.changeInfo = info;
 	}
 
 	@Override
@@ -112,6 +90,11 @@ public class IntParameter implements StateParameter {
 	@Override
 	public Class<?> getSampleType() {
 		return SampleInt.class;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }

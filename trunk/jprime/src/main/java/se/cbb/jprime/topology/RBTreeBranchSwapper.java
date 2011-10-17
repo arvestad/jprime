@@ -160,9 +160,9 @@ public class RBTreeBranchSwapper implements Proposer {
 	public List<TuningParameter> getTuningParameters() {
 		return Arrays.asList(this.tuningParams);
 	}
-
+	
 	@Override
-	public Proposal propose() {
+	public Proposal cacheAndPerturbAndSetChangeInfo() {
 		// First determine move to make.
 		double w = this.prng.nextDouble() * (this.tuningParams[0].getValue() + this.tuningParams[1].getValue() +
 				this.tuningParams[2].getValue());
@@ -296,6 +296,18 @@ public class RBTreeBranchSwapper implements Proposer {
 	public String getPostInfo(String prefix) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void clearCacheAndClearChangeInfo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void restoreCacheAndClearChangeInfo() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 //
