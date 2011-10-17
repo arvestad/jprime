@@ -1,8 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.SampleDouble;
 import se.cbb.jprime.math.ScaleTransformation;
 
@@ -18,9 +15,6 @@ public class DoubleParameter implements RealParameter {
 	
 	/** Current state. */
 	protected double value;
-
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
 	
 	/** Cache. */
 	protected Double cache;
@@ -39,7 +33,6 @@ public class DoubleParameter implements RealParameter {
 	public DoubleParameter(String name, double initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.dependents = new TreeSet<Dependent>();
 		this.cache = null;
 	}
 	
@@ -54,42 +47,27 @@ public class DoubleParameter implements RealParameter {
 		this(name, initVal);
 		this.scale = scale;
 	}
-	
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
 
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the current value. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.cache = new Double(this.value);
 	}
 
-	@Override
-	public void update(boolean willSample) {
-		if (Math.abs(this.value - this.cache.doubleValue()) > 1e-20) {
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.value + ", old: " + this.cache.doubleValue());
-		}
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached value and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.cache = null;
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current value with the cached value, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.value = this.cache.doubleValue();
 		this.cache = null;
 		this.changeInfo = null;
@@ -102,7 +80,7 @@ public class DoubleParameter implements RealParameter {
 	
 	@Override
 	public void setChangeInfo(ChangeInfo info) {
-		// We don't really care since we can find out ourselves...
+		this.changeInfo = info;
 	}
 
 	@Override
@@ -157,6 +135,11 @@ public class DoubleParameter implements RealParameter {
 	 */
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }

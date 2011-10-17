@@ -2,7 +2,6 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 import se.cbb.jprime.io.NewickTree;
@@ -446,24 +445,11 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	public void setChangeInfo(ChangeInfo info) {
 		this.changeInfo = info;
 	}
-
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	
+	/**
+	 * Caches the whole current tree. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.parentsCache = new int[this.parents.length];
 		System.arraycopy(this.parents, 0, this.parentsCache, 0, this.parents.length);
 		this.leftChildrenCache = new int[this.leftChildren.length];
@@ -473,12 +459,10 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 		this.rootCache = this.root;
 	}
 
-	@Override
-	public void update(boolean willSample) {
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached tree and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.parentsCache = null;
 		this.leftChildrenCache = null;
 		this.rightChildrenCache = null;
@@ -486,8 +470,11 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current tree with the cached tree, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.parents = this.parentsCache;
 		this.leftChildren = this.leftChildrenCache;
 		this.rightChildren = this.rightChildrenCache;
@@ -570,5 +557,10 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 			}
 		}
 		return l;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 }

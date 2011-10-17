@@ -2,9 +2,6 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.mcmc.Dependent;
@@ -41,9 +38,6 @@ public class RTree implements RootedTreeParameter {
 	/** For quick reference, the root index is stored explicitly. */
 	protected int root;
 	
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
 	/** Change info. */
 	protected ChangeInfo changeInfo = null;
 	
@@ -68,7 +62,6 @@ public class RTree implements RootedTreeParameter {
 		int k = tree.getNoOfVertices();
 		this.parents = new int[k];
 		this.children = new int[k][];
-		this.dependents = new TreeSet<Dependent>();
 		NewickVertex root = tree.getRoot();
 		if (root == null)
 			throw new TopologyException("Cannot create RTree from empty NewickTree.");
@@ -114,7 +107,6 @@ public class RTree implements RootedTreeParameter {
 			System.arraycopy(tree.children[i], 0, this.children[i], 0, sz);
 		}
 		this.root = tree.root;
-		this.dependents = new TreeSet<Dependent>(tree.dependents);
 	}
 	
 	@Override
@@ -427,23 +419,10 @@ public class RTree implements RootedTreeParameter {
 		this.changeInfo = info;
 	}
 
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the whole current tree. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.parentsCache = new int[this.parents.length];
 		System.arraycopy(this.parents, 0, this.parentsCache, 0, this.parents.length);
 		this.childrenCache = new int[this.children.length][];
@@ -455,20 +434,21 @@ public class RTree implements RootedTreeParameter {
 		this.rootCache = this.root;
 	}
 
-	@Override
-	public void update(boolean willSample) {
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached tree and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.parentsCache = null;
 		this.childrenCache = null;
 		this.rootCache = RTree.NULL;
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current tree with the cached tree, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.parents = this.parentsCache;
 		this.children = this.childrenCache;
 		this.root = this.rootCache;
@@ -511,6 +491,11 @@ public class RTree implements RootedTreeParameter {
 			}
 		}
 		return l;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }

@@ -56,6 +56,12 @@ public class NormalProposer implements Proposer {
 	/** Statistics. */
 	private ProposerStatistics stats;
 	
+	/** Index cache. */
+	private int[] indexCache = null;
+	
+	/** Value cache. */
+	private double[] valueCache = null;
+	
 	/**
 	 * Cumulative sub-parameter weights. Controls the probability of perturbing
 	 * 0,1,2,... sub-parameters. Sums up to 1.0.
@@ -176,36 +182,41 @@ public class NormalProposer implements Proposer {
 	}
 
 	@Override
-	public Proposal propose() {
+	public Proposal cacheAndPerturbAndSetChangeInfo() {
 		
 		int k = this.getNoOfSubParameters();
 		int m = this.cumSubParamWeights.length;
 		
 		// Determine desired number of sub-parameters and select them.
 		// Some special cases for better speed.
-		int[] indices;
 		if (k == 1) {
 			// Only one to choose from.
-			indices = new int[] { 0 };
+			this.indexCache = new int[] { 0 };
 		} else if (m == 1) {
 			// Only one to choose.
-			indices = new int[1];
-			indices[0] = this.prng.nextInt(k);
+			this.indexCache = new int[1];
+			this.indexCache[0] = this.prng.nextInt(k);
 		} else if (m == k && this.cumSubParamWeights[m-2] == 0.0) {
 			// All should be chosen.
-			indices = new int[k];
-			for (int i = 0; i < k; ++i) { indices[i] = i; }
+			this.indexCache = new int[k];
+			for (int i = 0; i < k; ++i) { this.indexCache[i] = i; }
 		} else {
 			// Remaining cases.
 			int no = 1;
 			double d = this.prng.nextDouble();
 			while (d > this.cumSubParamWeights[no-1]) { ++no; }
-			indices = new int[no];
+			this.indexCache = new int[no];
 			ArrayList<Integer> l = new ArrayList<Integer>(k);
 			for (int i = 0; i < k; ++i) { l.add(i); }
 			for (int i = 0; i < no; ++i) {
-				indices[i] = l.remove(this.prng.nextInt(l.size()));				
+				this.indexCache[i] = l.remove(this.prng.nextInt(l.size()));				
 			}
+		}
+		
+		// Cache.
+		this.valueCache = new double[this.indexCache.length];
+		for (int i = 0; i < this.indexCache.length; ++i) {
+			this.valueCache[i] = this.param.getValue(this.indexCache[i]);
 		}
 		
 		// Get size factor w.r.t. N(0,1) given t2.
@@ -214,10 +225,10 @@ public class NormalProposer implements Proposer {
 		// Perturb all chosen sub-parameters.
 		LogDouble forward = new LogDouble(1.0);
 		LogDouble backward = new LogDouble(1.0);
-		for (int i = 0; i < indices.length; ++i) {
+		for (int i = 0; i < this.indexCache.length; ++i) {
 			
 			// Compute variance for current proposal distribution.
-			double xOld = this.param.getValue(indices[i]);
+			double xOld = this.param.getValue(this.indexCache[i]);
 			double stdev = (xOld == 0.0 ? 1e-10 : Math.abs(xOld * this.t1.getValue()) / normFact);
 			
 			// Sample a new value.
@@ -228,7 +239,7 @@ public class NormalProposer implements Proposer {
 				x = pd.sampleValue(this.prng);
 				++tries;
 				if (tries > 100) {
-					// Abort.
+					// Abort with invalid proposal.
 					return new MetropolisHastingsProposal(this, this.param);
 				}
 			} while (!this.interval.isWithin(x));
@@ -259,8 +270,28 @@ public class NormalProposer implements Proposer {
 			backward.mult(new LogDouble(pd.getPDF(xOld) / nonTails));
 		}
 		
+		// Set change info.
+		this.param.setChangeInfo(new ChangeInfo(this.param, "Perturbed by NormalProposer", this.indexCache));
+		
 		// Generate proposal object.
-		return new MetropolisHastingsProposal(this, forward, backward, this.param, indices.length);
+		return new MetropolisHastingsProposal(this, forward, backward, this.param, this.indexCache.length);
+	}
+
+	@Override
+	public void clearCacheAndClearChangeInfo() {
+		this.indexCache = null;
+		this.valueCache = null;
+		this.param.setChangeInfo(null);
+	}
+
+	@Override
+	public void restoreCacheAndClearChangeInfo() {
+		for (int i = 0; i < this.indexCache.length; ++i) {
+			this.param.setValue(this.indexCache[i], this.valueCache[i]);
+		}
+		this.indexCache = null;
+		this.valueCache = null;
+		this.param.setChangeInfo(null);
 	}
 
 	@Override

@@ -1,8 +1,5 @@
 package se.cbb.jprime.math;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -50,9 +47,6 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	/** Constant term, given the variance, in the log density function: -0.5 * ln(2 * PI * var). */
 	protected double logDensFact;
 	
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
 	/** Change info. */
 	protected ChangeInfo changeInfo = null;
 	
@@ -68,11 +62,10 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		this.p1 = null;
 		this.p2 = null;
 		this.setup = null;
-		this.dependents = null;
 		this.mean = mean;
 		this.var = var;
 		this.stdev = Math.sqrt(var);
-		this.update(false);
+		this.update();
 	}
 	
 	/**
@@ -86,10 +79,7 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.setup = setup;
-		this.dependents = new TreeSet<Dependent>();
-		p1.addChildDependent(this);
-		p2.addChildDependent(this);
-		this.update(false);
+		this.update();
 	}
 	
 	@Override
@@ -154,27 +144,35 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	}
 
 	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
+	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
+		// Caching not worthwhile.
+		update();
 	}
 
 	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
+	public void clearCacheAndClearChangeInfo(boolean willSample) {
+		this.changeInfo = null;
 	}
 
 	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
+	public void restoreCacheAndClearChangeInfo(boolean willSample) {
+		// Just do clean update.
+		this.update();
+		this.changeInfo = null;
 	}
 
 	@Override
-	public void cache(boolean willSample) {
-		// Not worthwhile.
+	public Dependent[] getParentDependents() {
+		if (this.p1 != null) {
+			return new Dependent[] { p1, p2 };
+		}
+		return null;
 	}
 
-	@Override
-	public void update(boolean willSample) {
+	/**
+	 * Updates the distribution.
+	 */
+	public void update() {
 		// We always do an update.
 		if (this.p1 != null) {
 			String old = this.toString();
@@ -202,18 +200,6 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		} else {
 			this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 		}
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
-		this.changeInfo = null;
-	}
-
-	@Override
-	public void restoreCache(boolean willSample) {
-		// Just do clean update.
-		this.update(willSample);
-		this.changeInfo = null;
 	}
 
 	@Override

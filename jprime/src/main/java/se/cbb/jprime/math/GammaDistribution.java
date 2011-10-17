@@ -1,8 +1,5 @@
 package se.cbb.jprime.math;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
@@ -49,9 +46,6 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	/** For speed, holds -ln(G(k)*theta^k), where G() is the gamma function. */
 	protected double c;
 	
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
 	/** Shape cache. */
 	private double kCache = Double.NaN;
 
@@ -77,10 +71,9 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		this.p1 = null;
 		this.p2 = null;
 		this.setup = null;
-		this.dependents = null;
 		this.k = k;
 		this.theta = theta;
-		this.update(false);
+		this.update();
 	}
 	
 	/**
@@ -94,10 +87,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.setup = setup;
-		this.dependents = new TreeSet<Dependent>();
-		p1.addChildDependent(this);
-		p2.addChildDependent(this);
-		this.update(false);
+		this.update();
 	}
 	
 	@Override
@@ -114,31 +104,46 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	public int getNoOfDimensions() {
 		return 1;
 	}
-
+	
 	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
 		this.kCache = this.k;
 		this.thetaCache = this.theta;
 		this.cCache = this.c;
+		this.update();
 	}
 
 	@Override
-	public void update(boolean willSample) {
+	public void clearCacheAndClearChangeInfo(boolean willSample) {
+		this.kCache = Double.NaN;
+		this.thetaCache = Double.NaN;
+		this.cCache = Double.NaN;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public void restoreCacheAndClearChangeInfo(boolean willSample) {
+		this.k = this.kCache;
+		this.theta = this.thetaCache;
+		this.c = this.cCache;
+		this.kCache = Double.NaN;
+		this.thetaCache = Double.NaN;
+		this.cCache = Double.NaN;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		if (this.p1 != null) {
+			return new Dependent[] { p1, p2 };
+		}
+		return null;
+	}
+
+	/**
+	 * Updates the distribution.
+	 */
+	public void update() {
 		// We always do an update.
 		if (this.p1 != null) {
 			String old = this.toString();
@@ -163,25 +168,6 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		} else {
 			this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 		}
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
-		this.kCache = Double.NaN;
-		this.thetaCache = Double.NaN;
-		this.cCache = Double.NaN;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public void restoreCache(boolean willSample) {
-		this.k = this.kCache;
-		this.theta = this.thetaCache;
-		this.c = this.cCache;
-		this.k = Double.NaN;
-		this.thetaCache = Double.NaN;
-		this.cCache = Double.NaN;
-		this.changeInfo = null;
 	}
 
 	@Override
@@ -329,6 +315,6 @@ public class GammaDistribution implements Continuous1DPDDependent {
 			return ((this.k - 1.0) * this.theta);
 		}
 		throw new UnsupportedOperationException("Cannot compute gamma distribution mode when shape parameter k < 1.");
-	}  
+	}
 
 }

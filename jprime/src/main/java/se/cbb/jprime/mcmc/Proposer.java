@@ -16,7 +16,9 @@ import java.util.Set;
  * <li>a set of <code>TuningParameter</code> objects, possibly empty, which typically governs the
  *     "size" of state changes suggested. These parameters may also change over time.</li>
  * </ul>
- * Generally, state parameters are assumed to themselves take care of caching and similar actions.
+ * Generally, for optimisation reasons, the <code>Proposer</code> is responsible for caching and
+ * possibly restoring the state parameter values rather than the parameters themselves.
+ * <p/>
  * A <code>Proposer</code> may be turned off/on with method <code>setEnabled(...)</code>.
  * 
  * @author Joel Sjöstrand.
@@ -73,12 +75,6 @@ public interface Proposer extends InfoProvider {
 	public List<TuningParameter> getTuningParameters();
 	
 	/**
-	 * Executes an actual perturbation of the parameter / parameters.
-	 * @return an object detailing the proposal.
-	 */
-	public Proposal propose();
-	
-	/**
 	 * Returns whether this proposer is active or not.
 	 * @return true if enabled; false if disabled.
 	 */
@@ -90,4 +86,21 @@ public interface Proposer extends InfoProvider {
 	 */
 	public void setEnabled(boolean isActive);
 	
+	/**
+	 * Executes an actual perturbation of the state parameter(s). First caches, then
+	 * perturbs, then sets the change info of the parameters.
+	 * @return an object detailing the proposal.
+	 */
+	public Proposal cacheAndPerturbAndSetChangeInfo();
+	
+	/**
+	 * Clears the cached (previous) state and change info when a proposed state has been accepted.
+	 */
+	public void clearCacheAndClearChangeInfo();
+	
+	/**
+	 * Restores the cached state when a proposed state has been rejected, and also
+	 * clears the change info.
+	 */
+	public void restoreCacheAndClearChangeInfo();
 }

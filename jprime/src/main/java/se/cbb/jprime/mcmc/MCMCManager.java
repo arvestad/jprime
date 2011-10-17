@@ -26,7 +26,7 @@ import se.cbb.jprime.math.PRNG;
  *     of the state parameters S1,...,Sk as sources, the models M1,...,Mn as sinks, and possibly cached
  *     data structures in between.</li>
  * <li>a list of "sampleable" objects to sample from, C1,...,Cv. These are usually comprised
- *     of the state parameters S1,...,Sk (or some other dependency Di).</li>
+ *     of the state parameters S1,...,Sk (and perhaps some pure dependency Di).</li>
  * </ul>
  * Apart from this, the class has:
  * <ul>
@@ -261,28 +261,32 @@ public class MCMCManager {
 	}
 	
 	/**
-	 * From the set of all dependents, returns the subset which may be affected
+	 * From the set of all dependents, returns the subset which is affected
 	 * by the upcoming state change. The set is returned topologically ordered, and
-	 * includes the source parameters.
-	 * @param props the proposers to be used for the state change.
+	 * includes the originating state parameters.
+	 * @param props the proposers used for the state change.
 	 * @return the dependents which may be affected, in topological order.
 	 */
 	private List<Dependent> getAffectedDependents(Set<Proposer> props) {
-		TreeSet<Dependent> deps = new TreeSet<Dependent>();
-		LinkedList<Dependent> q = new LinkedList<Dependent>();
-		for (Proposer p : props) {
-			q.addAll(p.getParameters());
-		}
-		while (!q.isEmpty()) {
-			Dependent dep = q.pop();
-			if (deps.add(dep)) {
-				q.addAll(dep.getChildDependents());
-			}
-		}
 		ArrayList<Dependent> affectedDeps = new ArrayList<Dependent>(16);
-		for (Dependent d : this.dependents) {
-			if (deps.contains(d)) {
-				affectedDeps.add(d);
+		// Add changed state parameters. These must be independent.
+		for (Proposer p : props) {
+			Set<StateParameter> params = p.getParameters();
+			for (StateParameter sp : params) {
+				if (sp.getChangeInfo() != null) {
+					// Only add actually changed parameters.
+					affectedDeps.add(sp);
+				}
+			}
+		} 
+		// Add proper dependents.
+		for (ProperDependent pd : this.dependents) {
+			for (Dependent d : pd.getParentDependents()) {
+				if (d.getChangeInfo() != null) {
+					// Only add actually changed proper dependents.
+					affectedDeps.add(pd);
+					break;
+				}
 			}
 		}
 		return affectedDeps;

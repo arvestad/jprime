@@ -1,6 +1,5 @@
 package se.cbb.jprime.topology;
 
-import java.util.Set;
 import java.util.TreeSet;
 
 import se.cbb.jprime.io.SampleDoubleArray;
@@ -119,39 +118,27 @@ public class DoubleMap implements GraphMap, RealParameter {
 		this.changeInfo = info;
 	}
 
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
+	/**
+	 * Caches the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void cache() {
 		this.cache = new double[this.values.length];
 		System.arraycopy(this.values, 0, this.cache, 0, this.values.length);
 	}
 
-	@Override
-	public void update(boolean willSample) {
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
+	/**
+	 * Clears the cached map and change info. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache() {
 		this.cache = null;
 		this.changeInfo = null;
 	}
 
-	@Override
-	public void restoreCache(boolean willSample) {
+	/**
+	 * Replaces the current map with the cached value, and clears the latter and the change info.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache() {
 		this.values = this.cache;
 		this.cache = null;
 		this.changeInfo = null;
@@ -185,5 +172,10 @@ public class DoubleMap implements GraphMap, RealParameter {
 	@Override
 	public int getSize() {
 		return this.values.length;
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 }

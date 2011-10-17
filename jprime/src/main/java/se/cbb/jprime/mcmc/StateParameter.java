@@ -3,26 +3,19 @@ package se.cbb.jprime.mcmc;
 import se.cbb.jprime.io.Sampleable;
 
 /**
- * Interface for parameters, e.g. the states of an MCMC chain.
- * A parameter may e.g. be a vector or matrix, in which the individual
+ * Interface for state parameters, for instance in an MCMC chain.
+ * A state parameter may e.g. be a vector or matrix, in which the individual
  * elements are referred to as "sub-parameters".
  * <p/>
- * A parameter is also a <code>Dependent</code>, although it is generally assumed (but not required)
- * that it is
- * a source in the corresponding dependency DAG. Even though there may be interconnections between
+ * A state parameter is a <code>Dependent</code>, albeit typically a source in the DAG.
+ * Even though there may be interconnections between
  * parameters (e.g. the times <i>t</i> of a tree <i>S</i>), it is often assumed that these are independent
- * (although a <code>Proposer</code> which changes <i>S</i> usually also perturbs <i>t</i>). Typically, methods will be invoked
- * in the same order as for a regular <code>Dependent</code>:
- * <ol>
- * <li>This object is about to be perturbed by a <code>Proposer</code>: <code>this.cache()</code>.</li>
- * <li>This object has been perturbed: <code>this.update()</code>.
- * <li>
- *   <ul>
- *     <li>Changes have been accepted: <code>this.clearCache()</code>.</li>
- *     <li>Changes have been rejected: <code>this.restoreCache()</code>.</li>
- *   </ul>
- * </li>
- * </ol>
+ * (although a <code>Proposer</code> which changes <i>S</i> usually also perturbs <i>t</i>).
+ * <p/>
+ * Importantly, a <code>Proposer</code> acting on a state parameter is responsible for
+ * caching and possibly restoring its value. However, after a perturbation (but prior to
+ * accepting or rejecting the state), the <code>Proposer</code> must invoke <code>setChangeInfo()</code>
+ * so that child dependents may know what has happened.
  *  
  * @author Joel Sjöstrand.
  */
@@ -47,6 +40,8 @@ public interface StateParameter extends Dependent, Sampleable {
 	 * this info can be passed on to any children).
 	 * This should be invoked by a <code>Proposer</code> when it has performed a
 	 * perturbation. If not, the object may not notice it has been changed.
+	 * Also, the <code>Proposer</code> should clear it after state has been
+	 * accepted or rejected.
 	 * @param info disclosing the change of this object.
 	 */
 	public void setChangeInfo(ChangeInfo info);

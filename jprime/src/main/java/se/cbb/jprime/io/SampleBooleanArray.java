@@ -14,7 +14,7 @@ public class SampleBooleanArray implements SampleType {
 	public static final String TYPE = "BooleanArray";
 	
 	/** Regular expression for the string of this type. */
-	public static final Pattern STRING_REGEX = Pattern.compile("^\\[(|false|true|((true|false)(, (true|false))*))\\]$");
+	public static final Pattern STRING_REGEX = Pattern.compile("^\\[(|false|true|((true|false)(,(true|false))*))\\]$");
 	
 	@Override
 	public String getType() {
@@ -44,6 +44,7 @@ public class SampleBooleanArray implements SampleType {
 		if (s.equals("null")) {
 			return null;
 		}
+		s = s.replaceAll(" ", "");
 		if (STRING_REGEX.matcher(s).matches()) {
 			if (s.equals("[]")) {
 				return new boolean[]{};

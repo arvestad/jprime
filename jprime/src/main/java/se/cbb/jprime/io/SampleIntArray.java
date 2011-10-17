@@ -14,7 +14,7 @@ public class SampleIntArray implements SampleType {
 	public static final String TYPE = "IntArray";
 	
 	/** Regular expression for the string of this type. */
-	public static final Pattern STRING_REGEX = Pattern.compile("^\\[(|\\-?[0-9]+|(\\-?[0-9]+(, [\\-?0-9]+)*))\\]$");
+	public static final Pattern STRING_REGEX = Pattern.compile("^\\[(|\\-?[0-9]+|(\\-?[0-9]+(,[\\-?0-9]+)*))\\]$");
 	
 	@Override
 	public String getType() {
@@ -44,6 +44,7 @@ public class SampleIntArray implements SampleType {
 		if (s.equals("null")) {
 			return null;
 		}
+		s = s.replaceAll(" ", "");
 		if (STRING_REGEX.matcher(s).matches()) {
 			if (s.equals("[]")) {
 				return new int[]{};

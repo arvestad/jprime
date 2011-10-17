@@ -1,7 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
-
 /**
  * Base class for storing information on changes of state
  * parameters and other data structures. This enables e.g. optimised
@@ -20,7 +18,7 @@ public class ChangeInfo {
 	protected String info;
 	
 	/** List of indices which array-based structures can use to detail affected elements. */
-	protected Set<Integer> affectedElements;
+	protected int[] affectedElements;
 	
 	/**
 	 * Constructor.
@@ -46,7 +44,7 @@ public class ChangeInfo {
 	 * @param info details or ID for the change. May be null.
 	 * @param affectedElements the indices of affected elements. May be null.
 	 */
-	public ChangeInfo(Dependent changed, String info, Set<Integer> affectedElements) {
+	public ChangeInfo(Dependent changed, String info, int[] affectedElements) {
 		this.changed = changed;
 		this.info = info;
 		this.affectedElements = affectedElements;
@@ -74,7 +72,7 @@ public class ChangeInfo {
 	 * information, in which case all elements can be considered affected.
 	 * @return the affected elements; typically all if null.
 	 */
-	public Set<Integer> getAffectedElements() {
+	public int[] getAffectedElements() {
 		return this.affectedElements;
 	}
 }

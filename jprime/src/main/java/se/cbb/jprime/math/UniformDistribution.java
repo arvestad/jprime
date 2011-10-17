@@ -1,8 +1,5 @@
 package se.cbb.jprime.math;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
@@ -31,9 +28,6 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	/** B's boundary type. */
 	protected boolean isRightOpen;
 	
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
 	/** Cache. */
 	private RealInterval abCache = null;
 
@@ -48,12 +42,14 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	 * @param isRightOpen true for ...,b) and false for ...,b].
 	 */
 	public UniformDistribution(double a, double b, boolean isLeftOpen, boolean isRightOpen) {
+		if (a >= b) {
+			throw new IllegalArgumentException("Invalid range for uniform distribution.");
+		}
 		this.p1 = null;
 		this.p2 = null;
 		this.isLeftOpen = isLeftOpen;
 		this.isRightOpen = isRightOpen;
 		this.ab = new RealInterval(a, b, this.isLeftOpen, this.isRightOpen);
-		this.dependents = null;
 	}
 	
 	/**
@@ -72,10 +68,7 @@ public class UniformDistribution implements Continuous1DPDDependent {
 		this.p2 = p2;
 		this.isLeftOpen = isLeftOpen;
 		this.isRightOpen = isRightOpen;
-		this.dependents = new TreeSet<Dependent>();
-		p1.addChildDependent(this);
-		p2.addChildDependent(this);
-		this.update(false);
+		this.ab = new RealInterval(p1.getValue(), p2.getValue(), this.isLeftOpen, this.isRightOpen);
 	}
 	
 	@Override
@@ -91,52 +84,6 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	@Override
 	public int getNoOfDimensions() {
 		return 1;
-	}
-
-	@Override
-	public boolean isDependentSink() {
-		return this.dependents.isEmpty();
-	}
-
-	@Override
-	public void addChildDependent(Dependent dep) {
-		this.dependents.add(dep);
-	}
-
-	@Override
-	public Set<Dependent> getChildDependents() {
-		return this.dependents;
-	}
-
-	@Override
-	public void cache(boolean willSample) {
-		this.abCache = this.ab;
-	}
-
-	@Override
-	public void update(boolean willSample) {
-		if (this.p1 != null) {
-			// We always do an update.
-			String old = this.toString();
-			if (p1.getValue() >= p2.getValue()) {
-				throw new IllegalArgumentException("Invalid range for uniform distribution.");
-			}
-			this.ab = new RealInterval(this.p1.getValue(), this.p2.getValue(), this.isLeftOpen, this.isRightOpen);
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.toString() + ", Old: " + old);
-		}
-	}
-
-	@Override
-	public void clearCache(boolean willSample) {
-		this.abCache = null;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public void restoreCache(boolean willSample) {
-		this.ab = this.abCache;
-		this.abCache = null;
-		this.changeInfo = null;
 	}
 
 	@Override
@@ -278,5 +225,40 @@ public class UniformDistribution implements Continuous1DPDDependent {
 		return ("Uniform" + this.ab.toString());
 	}
 
+	@Override
+	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
+		if (this.p1 != null) {
+			this.abCache = this.ab;
+			// We always do an update.
+			String old = this.toString();
+			if (p1.getValue() >= p2.getValue()) {
+				throw new IllegalArgumentException("Invalid range for uniform distribution.");
+			}
+			this.ab = new RealInterval(this.p1.getValue(), this.p2.getValue(), this.isLeftOpen, this.isRightOpen);
+			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.toString() + ", Old: " + old);
+		}
+	}
+
+	@Override
+	public void clearCacheAndClearChangeInfo(boolean willSample) {
+		this.abCache = null;
+		this.changeInfo = null;
+	}
+
+	@Override
+	public void restoreCacheAndClearChangeInfo(boolean willSample) {
+		this.ab = this.abCache;
+		this.abCache = null;
+		this.changeInfo = null;
+		
+	}
+
+	@Override
+	public Dependent[] getParentDependents() {
+		if (this.p1 != null) {
+			return new Dependent[] { p1, p2 };
+		}
+		return null;
+	}
 
 }
