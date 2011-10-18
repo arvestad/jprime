@@ -7,19 +7,19 @@ import se.cbb.jprime.math.LogDouble;
  * Interface for probabilistic models. Subject to change,
  * and very spartan at the moment.
  * <p/>
- * A model is a <code>Dependent</code>, and as such typically a sink
+ * A model is a <code>ProperDependent</code>, and as such, typically a sink
  * in a dependency DAG where the state parameters are sources.
- * It should ideally compute its likelihood when <code>update()</code>
+ * It should ideally compute its likelihood when <code>cacheAndUpdateAndSetChangeInfo()</code>
  * is invoked, and only return this value when <code>getLikelihood()</code> is
  * called. Also, it should be able to cache and restore its old values if the proposed
- * state is rejected.
+ * state is rejected like any other <code>ProperDependent</code>.
  * <p/>
  * Furthermore, a model can act as a "sampleable". No particular requirements are made as to
  * what is sampled, although outputting the model's log-likelihood is recommended.
  * 
  * @author Joel Sjöstrand.
  */
-public interface Model extends Dependent, Sampleable {
+public interface Model extends ProperDependent, Sampleable {
 
 	/**
 	 * Returns the (often conditional) probability density of the observations
