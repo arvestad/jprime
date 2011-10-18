@@ -31,7 +31,7 @@ package se.cbb.jprime.mcmc;
 public interface ProperDependent extends Dependent {
 	
 	/**
-	 * Caches, then updates this object, then sets its change info.
+	 * Caches this object, then updates, then sets its change info.
 	 * It may be assumed that prior to this call, all parent dependents have
 	 * been changed and updated, and their change info can be acquired through <code>parent.getChangeInfo()</code>.
 	 * @param willSample true if the pending state will be sampled; false if not sampled.
