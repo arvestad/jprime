@@ -2,7 +2,12 @@
 
 = JPrIME-GSRf =
 
-[GSRf#INTRODUCTION]
+== CONTENTS ==
+  # [GSRf#INTRODUCTION]
+  # [GSRf#INPUT]
+  # [GSRf#OUTPUT]
+  # [GSRf#RUNNING]
+  # [GSRf#ANALYSIS]
 
 == INTRODUCTION ==
 
@@ -16,7 +21,7 @@ JPrIME-GSRf is a phylogenetic application for reconciling an unknown guest tree 
 *Output:*
   * a file with samples drawn from the posterior distribution.
 
-== -------------------- INPUT -------------------- ==
+== INPUT ==
  
 === Host tree ===
 Obtain a dated species tree in Newick format. The divergence times may be specified as branch lengths, e.g.:
@@ -57,7 +62,7 @@ c1   C
 c2   C
 }}}
 
-== -------------------- OUTPUT -------------------- ==
+== OUTPUT ==
 Output normally consists of two files, e.g.:
   * {{{myoutput.info}}}, containing general pre- and post-run information.
   * {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
@@ -70,12 +75,12 @@ N       L         Param1     Param2   Param3
 ...
 }}}
 
-== -------------------- RUNNING -------------------- ==
+== RUNNING ==
 Typically, you would start it by running e.g.:
 {{{
 java -cp mypath/jprime-0.0.0.jar se.cbb.jprime.apps.gsrf
 }}}
 where the path and version number of course refer to your current setup.
 
-== -------------------- ANALYSIS -------------------- ==
+== ANALYSIS ==
 To be announced. However, consider using CRAN R in general, and, for convergence in particular, its [http://cran.r-project.org/web/packages/coda/index.html CODA package].
