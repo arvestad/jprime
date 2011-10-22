@@ -46,7 +46,7 @@ MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 Please consider clearing ambiguous positions from the alignment using e.g. [http://trimal.cgenomics.org trimAl] or [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks] before feeding it into JPrIME-GSRf.
 
 === Mapping ===
-The guest-to-host map is very straighforward, e.g. for the example above:
+The guest-to-host leaf map is straighforward, e.g., for the example above:
 {{{
 a1   A
 a2   A
@@ -69,7 +69,11 @@ N       L         Param1     Param2   Param3
 }}}
 
 == -------------------- RUNNING -------------------- ==
-To be announced.
+Typically, you would start it by running e.g.:
+{{{
+java -cp mypath/jprime-0.0.0.jar se.cbb.jprime.apps.gsrf
+}}}
+where the path and version number of course refer to your current setup.
 
 == -------------------- ANALYSIS -------------------- ==
 To be announced. However, consider using CRAN R in general, and, for convergence in particular, its [http://cran.r-project.org/web/packages/coda/index.html CODA package].
