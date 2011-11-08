@@ -5,7 +5,7 @@ package se.cbb.jprime.mcmc;
  * Most commonly, such a graph will consist of state parameters as
  * sources, sub-models corresponding to conditional probabilities as sinks,
  * possibly with cached data structures in between.
- * Note: The DAG will induce the Bayesian hierarchy of the sub-models, but, as
+ * Note: The DAG will induce any Bayesian hierarchy of the sub-models, but, as
  * mentioned, allows for additional intermediary data structures.
  * <p/>
  * See sub-interfaces <code>StateParameter</code> and <code>ProperDependent</code>
@@ -14,20 +14,13 @@ package se.cbb.jprime.mcmc;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Dependent {
+public abstract interface Dependent {
 	
 	/**
-	 * Returns all dependents on which this object relies, i.e. the
-	 * parents of this vertex in the corresponding DAG.
-	 * @return all dependents.
+	 * Returns true if this object relies on parent dependents,
+	 * and false if it is a source in the DAG (e.g. a state parameter).
+	 * @return true if a proper dependent; false if it does not rely on others.
 	 */
-	public Dependent[] getParentDependents();
-	
-	/**
-	 * Method which child dependents use to retrieve info on the change of this object.
-	 * Returning null is considered indication of an unchanged state.
-	 * @return info information detailing this object's change; null if unchanged.
-	 */
-	public ChangeInfo getChangeInfo();
+	public boolean isProperDependent();
 	
 }

@@ -10,6 +10,7 @@ public interface IterationListener {
 	/**
 	 * Callback invoked when an <code>Iteration</code> object has been incremented.
 	 * @param iterValue the new iteration value after incrementing.
+	 * @param iterTotal the total number of iterations to perform.
 	 */
-	public void incrementPerformed(int iterValue);
+	public void incrementPerformed(int iterCurr, int iterTotal);
 }

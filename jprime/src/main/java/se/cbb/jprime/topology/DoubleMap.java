@@ -1,10 +1,6 @@
 package se.cbb.jprime.topology;
 
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.SampleDoubleArray;
-import se.cbb.jprime.mcmc.ChangeInfo;
-import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.RealParameter;
 
 /**
@@ -20,14 +16,11 @@ public class DoubleMap implements GraphMap, RealParameter {
 	/** The map values. */
 	protected double[] values;
 	
-	/** The child dependents. */
-	protected TreeSet<Dependent> dependents;
+	/** Cache vertices. */
+	protected int[] cacheVertices = null;
 	
-	/** Cache. */
-	protected double[] cache = null;
-
-	/** Details the current change. Set by a Proposer. */
-	protected ChangeInfo changeInfo = null;
+	/** Cache values for affected vertices. */
+	protected double[] cacheValues = null;
 	
 	/**
 	 * Constructor. Initialises all map values to 0.0.
@@ -37,7 +30,6 @@ public class DoubleMap implements GraphMap, RealParameter {
 	public DoubleMap(String name, int size) {
 		this.name = name;
 		this.values = new double[size];
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
@@ -51,7 +43,6 @@ public class DoubleMap implements GraphMap, RealParameter {
 		for (int i = 0; i < this.values.length; ++i) {
 			values[i] = defaultVal;
 		}
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
@@ -62,7 +53,16 @@ public class DoubleMap implements GraphMap, RealParameter {
 	public DoubleMap(String name, double[] vals) {
 		this.name = name;
 		this.values = vals;
-		this.dependents = new TreeSet<Dependent>();
+	}
+	
+	/**
+	 * Copy constructor.
+	 * @param map the map to be copied.
+	 */
+	public DoubleMap(DoubleMap map) {
+		this.name = map.name;
+		this.values = new double[map.values.length];
+		System.arraycopy(map.values, 0, this.values, 0, this.values.length);
 	}
 
 	@Override
@@ -108,40 +108,47 @@ public class DoubleMap implements GraphMap, RealParameter {
 		return this.values.length;
 	}
 
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
-	}
-	
-	@Override
-	public void setChangeInfo(ChangeInfo info) {
-		this.changeInfo = info;
-	}
-
 	/**
-	 * Caches the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 * Caches a part of or the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 * @param vertices the vertices. Null will cache all values.
 	 */
-	public void cache() {
-		this.cache = new double[this.values.length];
-		System.arraycopy(this.values, 0, this.cache, 0, this.values.length);
+	public void cache(int[] vertices) {
+		if (vertices == null) {
+			this.cacheValues = new double[this.values.length];
+			System.arraycopy(this.values, 0, this.cacheValues, 0, this.values.length);
+		} else {
+			this.cacheVertices = new int[vertices.length];
+			System.arraycopy(vertices, 0, this.cacheVertices, 0, vertices.length);
+			this.cacheValues = new double[vertices.length];
+			for (int i = 0; i < vertices.length; ++i) {
+				this.cacheValues[i] = this.values[vertices[i]];
+			}
+		}
 	}
 
 	/**
-	 * Clears the cached map and change info. May e.g. be used by a <code>Proposer</code>.
+	 * Clears the cached map. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
-		this.cache = null;
-		this.changeInfo = null;
+		this.cacheVertices = null;
+		this.cacheValues = null;
 	}
 
 	/**
-	 * Replaces the current map with the cached value, and clears the latter and the change info.
+	 * Replaces the current map with the cached map, and clears the latter.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache() {
-		this.values = this.cache;
-		this.cache = null;
-		this.changeInfo = null;
+		if (this.cacheVertices == null) {
+			this.values = this.cacheValues;
+			this.cacheValues = null;
+		} else {
+			for (int i = 0; i < this.cacheVertices.length; ++i) {
+				this.values[this.cacheVertices[i]] = this.cacheValues[i];
+			}
+			this.cacheVertices = null;
+			this.cacheValues = null;
+		}
 	}
 
 	@Override
@@ -175,7 +182,7 @@ public class DoubleMap implements GraphMap, RealParameter {
 	}
 
 	@Override
-	public Dependent[] getParentDependents() {
-		return null;
+	public boolean isProperDependent() {
+		return false;
 	}
 }

@@ -1,8 +1,6 @@
 package se.cbb.jprime.topology;
 
 import se.cbb.jprime.io.SampleIntArrayArray;
-import se.cbb.jprime.mcmc.ChangeInfo;
-import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
@@ -18,11 +16,11 @@ public class IntArrayMap implements GraphMap, StateParameter {
 	/** The map values. */
 	protected int[][] values;
 	
-	/** Cache. */
-	protected int[][] cache = null;
-
-	/** Details the current change. Set by a Proposer. */
-	protected ChangeInfo changeInfo = null;
+	/** Cache vertices. */
+	protected int[] cacheVertices = null;
+	
+	/** Cache values for affected vertices. */
+	protected int[][] cacheValues = null;
 	
 	/**
 	 * Constructor. Initialises all map values to a null array.
@@ -42,6 +40,19 @@ public class IntArrayMap implements GraphMap, StateParameter {
 	public IntArrayMap(String name, int[][] vals) {
 		this.name = name;
 		this.values = vals;
+	}
+	
+	/**
+	 * Copy constructor.
+	 * @param map the map to be copied.
+	 */
+	public IntArrayMap(IntArrayMap map) {
+		this.name = map.name;
+		this.values = new int[map.values.length][];
+		for (int i = 0; i < this.values.length; ++i) {
+			this.values[i] = new int[map.values[i].length];
+			System.arraycopy(map.values[i], 0, this.values[i], 0, this.values[i].length);
+		}
 	}
 
 	@Override
@@ -113,43 +124,51 @@ public class IntArrayMap implements GraphMap, StateParameter {
 		return cnt;
 	}
 
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
-	}
-	
-	@Override
-	public void setChangeInfo(ChangeInfo info) {
-		this.changeInfo = info;
-	}
-
 	/**
-	 * Caches the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 * Caches a part of or the whole current map. May e.g. be used by a <code>Proposer</code>.
+	 * @param vertices the vertices. Null will cache all values.
 	 */
-	public void cache() {
-		this.cache = new int[this.values.length][];
-		for (int i = 0; i < this.values.length; ++i) {
-			this.cache[i] = new int[this.values[i].length];
-			System.arraycopy(this.values[i], 0, this.cache[i], 0, this.values[i].length);
+	public void cache(int[] vertices) {
+		if (vertices == null) {
+			this.cacheValues = new int[this.values.length][];
+			for (int i = 0; i < this.values.length; ++i) {
+				this.cacheValues[i] = new int[this.values[i].length];
+				System.arraycopy(this.values[i], 0, this.cacheValues[i], 0, this.values[i].length);
+			}
+		} else {
+			this.cacheVertices = new int[vertices.length];
+			System.arraycopy(vertices, 0, this.cacheVertices, 0, vertices.length);
+			this.cacheValues = new int[vertices.length][];
+			for (int i = 0; i < vertices.length; ++i) {
+				this.cacheValues[i] = new int[this.values[vertices[i]].length];
+				System.arraycopy(this.values[vertices[i]], 0, this.cacheValues[i], 0, this.cacheValues[i].length);
+			}
 		}
 	}
 
 	/**
-	 * Clears the cached map and change info. May e.g. be used by a <code>Proposer</code>.
+	 * Clears the cached map. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
-		this.cache = null;
-		this.changeInfo = null;
+		this.cacheVertices = null;
+		this.cacheValues = null;
 	}
 
 	/**
-	 * Replaces the current map with the cached map, and clears the latter and the change info.
+	 * Replaces the current map with the cached map, and clears the latter.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache() {
-		this.values = this.cache;
-		this.cache = null;
-		this.changeInfo = null;
+		if (this.cacheVertices == null) {
+			this.values = this.cacheValues;
+			this.cacheValues = null;
+		} else {
+			for (int i = 0; i < this.cacheVertices.length; ++i) {
+				this.values[this.cacheVertices[i]] = this.cacheValues[i];
+			}
+			this.cacheVertices = null;
+			this.cacheValues = null;
+		}
 	}
 
 	@Override
@@ -173,7 +192,8 @@ public class IntArrayMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public Dependent[] getParentDependents() {
-		return null;
+	public boolean isProperDependent() {
+		return false;
 	}
+
 }

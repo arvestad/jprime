@@ -2,12 +2,8 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
-
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
-import se.cbb.jprime.mcmc.ChangeInfo;
-import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.misc.IntQueue;
 
 /**
@@ -40,23 +36,8 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	/** For quick reference, the root index is stored explicitly. */
 	protected int root;
 	
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
-	/** Change info. */
-	protected ChangeInfo changeInfo = null;
-	
-	/** Parent cache. */
-	protected int[] parentsCache = null;
-	
-	/** Left children cache. */
-	protected int[] leftChildrenCache = null;
-	
-	/** Right children cache. */
-	protected int[] rightChildrenCache = null;
-	
-	/** Root cache. */
-	protected int rootCache = RTree.NULL;
+	/** Cache. */
+	protected RBTree cache = null;
 	
 	/**
 	 * Constructor. Creates a rooted tree from a Newick tree.
@@ -71,7 +52,6 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 		this.parents = new int[k];
 		this.leftChildren = new int[k];
 		this.rightChildren = new int[k];
-		this.dependents = new TreeSet<Dependent>();
 		NewickVertex root = tree.getRoot();
 		if (root == null)
 			throw new TopologyException("Cannot create RBTree from empty NewickTree.");
@@ -113,7 +93,6 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 			this.rightChildren[i] = NULL;
 		}
 		this.root = NULL;
-		this.dependents = new TreeSet<Dependent>();
 	}
 	
 	/**
@@ -129,7 +108,6 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 		this.rightChildren = new int[tree.rightChildren.length];
 		System.arraycopy(tree.rightChildren, 0, this.rightChildren, 0, tree.rightChildren.length);
 		this.root = tree.root;
-		this.dependents = new TreeSet<Dependent>(tree.dependents);
 	}
 	
 	@Override
@@ -440,55 +418,31 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	public int getNoOfSubParameters() {
 		return 1;
 	}
-
-	@Override
-	public void setChangeInfo(ChangeInfo info) {
-		this.changeInfo = info;
-	}
 	
 	/**
 	 * Caches the whole current tree. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void cache() {
-		this.parentsCache = new int[this.parents.length];
-		System.arraycopy(this.parents, 0, this.parentsCache, 0, this.parents.length);
-		this.leftChildrenCache = new int[this.leftChildren.length];
-		System.arraycopy(this.leftChildren, 0, this.leftChildrenCache, 0, this.leftChildren.length);
-		this.rightChildrenCache = new int[this.rightChildren.length];
-		System.arraycopy(this.rightChildren, 0, this.rightChildrenCache, 0, this.rightChildren.length);
-		this.rootCache = this.root;
+		this.cache = new RBTree(this);
 	}
 
 	/**
-	 * Clears the cached tree and change info. May e.g. be used by a <code>Proposer</code>.
+	 * Clears the cached tree. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
-		this.parentsCache = null;
-		this.leftChildrenCache = null;
-		this.rightChildrenCache = null;
-		this.rootCache = RTree.NULL;
-		this.changeInfo = null;
+		this.cache = null;
 	}
 
 	/**
-	 * Replaces the current tree with the cached tree, and clears the latter and the change info.
+	 * Replaces the current tree with the cached tree, and clears the latter.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache() {
-		this.parents = this.parentsCache;
-		this.leftChildren = this.leftChildrenCache;
-		this.rightChildren = this.rightChildrenCache;
-		this.root = this.rootCache;
-		this.parentsCache = null;
-		this.leftChildrenCache = null;
-		this.rightChildrenCache = null;
-		this.rootCache = RTree.NULL;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
+		this.parents = this.cache.parents;
+		this.leftChildren = this.cache.leftChildren;
+		this.rightChildren = this.cache.rightChildren;
+		this.root = this.cache.root;
+		this.cache = null;
 	}
 
 	@Override
@@ -560,7 +514,7 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 
 	@Override
-	public Dependent[] getParentDependents() {
-		return null;
+	public boolean isProperDependent() {
+		return false;
 	}
 }

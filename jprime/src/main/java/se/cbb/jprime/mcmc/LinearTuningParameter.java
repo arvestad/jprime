@@ -56,9 +56,9 @@ public class LinearTuningParameter implements TuningParameter, IterationListener
 	}
 
 	@Override
-	public void incrementPerformed(int iterValue) {
+	public void incrementPerformed(int iterCurr, int iterTotal) {
 		this.value = this.startValue + (this.endValue - this.startValue) *
-			(iterValue / ((double) iter.getTotalNoOfIterations()));
+			(iterCurr / ((double) iterTotal));
 	}
 
 	@Override
