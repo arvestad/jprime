@@ -107,7 +107,7 @@ public class Iteration implements Sampleable, InfoProvider {
 		this.currentIteration++;
 		if (this.notifyListeners) {
 			for (IterationListener i : this.listeners) {
-				i.incrementPerformed(this.currentIteration);
+				i.incrementPerformed(this.currentIteration, this.totalNoOfIterations);
 			}
 		}
 		return true;

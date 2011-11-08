@@ -1,5 +1,7 @@
 package se.cbb.jprime.topology;
 
+import java.util.Map;
+
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ProperDependent;
@@ -31,9 +33,6 @@ public class MPRMap implements ProperDependent {
 	/** Cache. */
 	private int[] sigmaCache = null;
 	
-	/** Change info. */
-	private ChangeInfo changeInfo = null;
-	
 	/**
 	 * Constructor.
 	 * @param GSMap guest-to-host leaf map.
@@ -58,6 +57,18 @@ public class MPRMap implements ProperDependent {
 		// Now fill the rest.
 		this.computeSigma(this.G.getRoot());
 	}
+	
+	/**
+	 * Copy constructor.
+	 * @param map the map to copy.
+	 */
+	public MPRMap(MPRMap map) {
+		this.GSMap = map.GSMap;
+		this.G = map.G;
+		this.S = map.S;
+		this.sigma = new int[map.sigma.length];
+		System.arraycopy(map.sigma, 0, this.sigma, 0, map.sigma.length);
+	}
 
 	@Override
 	public Dependent[] getParentDependents() {
@@ -65,26 +76,28 @@ public class MPRMap implements ProperDependent {
 	}
 
 	@Override
-	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
-		// Full cache...
-		this.sigmaCache = new int[this.sigma.length];
-		System.arraycopy(this.sigma, 0, this.sigmaCache, 0, this.sigma.length);
-		// We do full update, regardless of any info on changed subtrees, etc.
-		this.computeSigma(this.G.getRoot());
-		this.changeInfo = new ChangeInfo(this, "Updated MPR map (i.e. sigma map).");
-	}
-	
-	@Override
-	public void clearCacheAndClearChangeInfo(boolean willSample) {
-		this.sigmaCache = null;
-		this.changeInfo = null;
+	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos,
+			boolean willSample) {
+		if (changeInfos.get(this.G) != null || changeInfos.get(this.S) != null) {
+			// Full cache and update regardless of children's changes.
+			this.sigmaCache = new int[this.sigma.length];
+			System.arraycopy(this.sigma, 0, this.sigmaCache, 0, this.sigma.length);
+			this.computeSigma(this.G.getRoot());
+			changeInfos.put(this, new ChangeInfo(this, "Updated MPR map (i.e. sigma map)."));
+		} else {
+			changeInfos.put(this, null);
+		}
 	}
 
 	@Override
-	public void restoreCacheAndClearChangeInfo(boolean willSample) {
+	public void clearCache(boolean willSample) {
+		this.sigmaCache = null;
+	}
+
+	@Override
+	public void restoreCache(boolean willSample) {
 		this.sigma = this.sigmaCache;
 		this.sigmaCache = null;
-		this.changeInfo = null;
 	}
 	
 	/**
@@ -101,11 +114,6 @@ public class MPRMap implements ProperDependent {
 		int rcSigma = this.computeSigma(this.G.getRightChild(x));
 		sigma[x] = this.S.getLCA(lcSigma, rcSigma);
 		return sigma[x];
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
 	}
 
 	/**
@@ -134,6 +142,11 @@ public class MPRMap implements ProperDependent {
 			return false;
 		}
 		return (this.sigma[x] == this.sigma[this.G.getLeftChild(x)] || this.sigma[x] == this.sigma[this.G.getRightChild(x)]);
+	}
+
+	@Override
+	public boolean isProperDependent() {
+		return true;
 	}
 	
 }

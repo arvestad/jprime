@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
-import se.cbb.jprime.mcmc.Dependent;
-import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.misc.IntQueue;
 
 /**
@@ -15,7 +13,7 @@ import se.cbb.jprime.misc.IntQueue;
  * in no particular order).
  * Null references are indicated as in its interface.
  * <p/>
- * Data such as leaf names, branch lengths, etc. are stored elsewhere.
+ * Data such as leaf names, branch lengths, etc. are stored elsewhere, in maps.
  * Completely empty trees are not allowed, nor are trees with vertices that may
  * be collapsed.
  * 
@@ -38,17 +36,8 @@ public class RTree implements RootedTreeParameter {
 	/** For quick reference, the root index is stored explicitly. */
 	protected int root;
 	
-	/** Change info. */
-	protected ChangeInfo changeInfo = null;
-	
-	/** Parent cache. */
-	protected int[] parentsCache = null;
-	
-	/** Children cache. */
-	protected int[][] childrenCache = null;
-	
-	/** Root cache. */
-	protected int rootCache = RTree.NULL;
+	/** Cache. */
+	protected RTree cache = null;
 	
 	/**
 	 * Constructor. Creates a rooted tree from a Newick tree.
@@ -414,53 +403,29 @@ public class RTree implements RootedTreeParameter {
 		return 1;
 	}
 
-	@Override
-	public void setChangeInfo(ChangeInfo info) {
-		this.changeInfo = info;
-	}
-
 	/**
 	 * Caches the whole current tree. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void cache() {
-		this.parentsCache = new int[this.parents.length];
-		System.arraycopy(this.parents, 0, this.parentsCache, 0, this.parents.length);
-		this.childrenCache = new int[this.children.length][];
-		for (int i = 0; i < this.children.length; ++i) {
-			int sz = this.children[i].length;
-			this.childrenCache[i] = new int[sz];
-			System.arraycopy(this.children[i], 0, this.childrenCache[i], 0, sz);
-		}
-		this.rootCache = this.root;
+		this.cache = new RTree(this);
 	}
 
 	/**
-	 * Clears the cached tree and change info. May e.g. be used by a <code>Proposer</code>.
+	 * Clears the cached tree. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
-		this.parentsCache = null;
-		this.childrenCache = null;
-		this.rootCache = RTree.NULL;
-		this.changeInfo = null;
+		this.cache = null;
 	}
 
 	/**
-	 * Replaces the current tree with the cached tree, and clears the latter and the change info.
+	 * Replaces the current tree with the cached tree, and clears the latter.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache() {
-		this.parents = this.parentsCache;
-		this.children = this.childrenCache;
-		this.root = this.rootCache;
-		this.parentsCache = null;
-		this.childrenCache = null;
-		this.rootCache = RTree.NULL;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
+		this.parents = this.cache.parents;
+		this.children = this.cache.children;
+		this.root = this.cache.root;
+		this.cache = null;
 	}
 
 	@Override
@@ -494,8 +459,8 @@ public class RTree implements RootedTreeParameter {
 	}
 
 	@Override
-	public Dependent[] getParentDependents() {
-		return null;
+	public boolean isProperDependent() {
+		return false;
 	}
 
 }

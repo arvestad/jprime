@@ -18,9 +18,6 @@ public class IntParameter implements StateParameter {
 	/** Cache. */
 	protected Integer cache;
 	
-	/** Change info. */
-	protected ChangeInfo changeInfo = null;
-	
 	/**
 	 * Constructor.
 	 * @param name parameter's name.
@@ -40,31 +37,19 @@ public class IntParameter implements StateParameter {
 	}
 
 	/**
-	 * Clears the cached value and change info. May e.g. be used by a <code>Proposer</code>.
+	 * Clears the cached value. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
 		this.cache = null;
-		this.changeInfo = null;
 	}
 
 	/**
-	 * Replaces the current value with the cached value, and clears the latter and the change info.
+	 * Replaces the current value with the cached value, and clears the latter.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache(boolean willSample) {
 		this.value = this.cache.intValue();
 		this.cache = null;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
-	}
-	
-	@Override
-	public void setChangeInfo(ChangeInfo info) {
-		this.changeInfo = info;
 	}
 
 	@Override
@@ -93,8 +78,8 @@ public class IntParameter implements StateParameter {
 	}
 
 	@Override
-	public Dependent[] getParentDependents() {
-		return null;
+	public boolean isProperDependent() {
+		return false;
 	}
 
 }

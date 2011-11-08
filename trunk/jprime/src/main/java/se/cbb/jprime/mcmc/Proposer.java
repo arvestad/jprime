@@ -1,6 +1,7 @@
 package se.cbb.jprime.mcmc;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -87,20 +88,21 @@ public interface Proposer extends InfoProvider {
 	public void setEnabled(boolean isActive);
 	
 	/**
-	 * Executes an actual perturbation of the state parameter(s). First caches, then
-	 * perturbs, then sets the change info of the parameters.
+	 * Executes an actual perturbation of state parameter(s).
+	 * Behaviour must adhere to the following: Change info is set for
+	 * each perturbed parameter, and set to null for each non-perturbed parameter
+	 * which this <code>Proposer</code> acts on.
 	 * @return an object detailing the proposal.
 	 */
-	public Proposal cacheAndPerturbAndSetChangeInfo();
+	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos);
 	
 	/**
-	 * Clears the cached (previous) state and change info when a proposed state has been accepted.
+	 * Clears the cached (previous) state of perturbed parameters when a proposed state has been accepted.
 	 */
-	public void clearCacheAndClearChangeInfo();
+	public void clearCache();
 	
 	/**
-	 * Restores the cached state when a proposed state has been rejected, and also
-	 * clears the change info.
+	 * Restores the cached (previous) state of perturbed parameters when a proposed state has been rejected.
 	 */
-	public void restoreCacheAndClearChangeInfo();
+	public void restoreCache();
 }

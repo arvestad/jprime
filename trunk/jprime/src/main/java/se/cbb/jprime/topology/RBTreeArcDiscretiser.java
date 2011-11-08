@@ -1,6 +1,8 @@
 package se.cbb.jprime.topology;
 
 import java.util.HashSet;
+import java.util.Map;
+
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.ProperDependent;
@@ -49,9 +51,6 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	
 	/** Cached times for affected vertices. */
 	private double[][] discTimesCache = null;
-	
-	/** Change info. */
-	private ChangeInfo changeInfo = null;
 	
 	/**
 	 * Constructor.
@@ -151,11 +150,14 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	}
 
 	@Override
-	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
+	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
+
+		// TODO: Sort out this mess.
 		
 		// Determine affected vertices.
-		ChangeInfo sInfo = this.S.getChangeInfo();
-		ChangeInfo timesInfo = this.times.getChangeInfo();
+		ChangeInfo sInfo = changeInfos.get(this.S);
+		ChangeInfo timesInfo = changeInfos.get(this.times);
+				
 		this.vertexCache = null;
 		if (sInfo == null) {
 			this.vertexCache = timesInfo.getAffectedElements();
@@ -195,20 +197,18 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	}
 
 	@Override
-	public void clearCacheAndClearChangeInfo(boolean willSample) {
+	public void clearCache(boolean willSample) {
 		this.vertexCache = null;
 		this.discTimesCache = null;
-		this.changeInfo = null;
 	}
 
 	@Override
-	public void restoreCacheAndClearChangeInfo(boolean willSample) {
+	public void restoreCache(boolean willSample) {
 		for (int x : this.vertexCache) {
-				this.discTimes[x] = this.discTimesCache[x];
+			this.discTimes[x] = this.discTimesCache[x];
 		}
 		this.vertexCache = null;
 		this.discTimesCache = null;
-		this.changeInfo = null;
 	}
 	
 	/**
@@ -234,10 +234,15 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	 * Returns the midpoint time for a discretisation interval of an arc.
 	 * @param x the head vertex of the arc.
 	 * @param xx the index of the discretisation interval (0,...,k in the
-	 * direction from head to tail, i.e., leaves to root).
+	 * direction from head to tail, i.e., from leaves to root).
 	 * @return the midpoint time.
 	 */
 	public double getMidpointTime(int x, int xx) {
 		return this.discTimes[x][xx];
+	}
+
+	@Override
+	public boolean isProperDependent() {
+		return false;
 	}
 }

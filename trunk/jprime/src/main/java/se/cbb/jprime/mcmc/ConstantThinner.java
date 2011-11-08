@@ -48,8 +48,8 @@ public class ConstantThinner implements Thinner, IterationListener {
 	}
 
 	@Override
-	public void incrementPerformed(int iterValue) {
-		this.doSample = (iterValue % factor == 0);
+	public void incrementPerformed(int iterCurr, int iterTotal) {
+		this.doSample = (iterCurr % factor == 0);
 	}
 
 	@Override

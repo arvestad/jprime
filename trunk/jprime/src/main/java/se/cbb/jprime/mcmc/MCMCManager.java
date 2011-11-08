@@ -25,7 +25,7 @@ import se.cbb.jprime.math.PRNG;
  *     of the state parameters S1,...,Sk as sources, the models M1,...,Mn as sinks, and possibly 
  *     "proper dependents" (e.g. cached data structures) in between.</li>
  * <li>a list of "sampleable" objects to sample from, C1,...,Cv. These are usually comprised
- *     of the state parameters S1,...,Sk (and perhaps more).</li>
+ *     of the state parameters S1,...,Sk  and the models M1,...,Mn.</li>
  * </ul>
  * Apart from this, the class has:
  * <ul>
@@ -40,17 +40,16 @@ import se.cbb.jprime.math.PRNG;
  * <li>Listeners of I are implicitly updated.</li>
  * <li>L is used to select a (possibly singleton) set Pa1,...,Paq so that the state parameters
  *     Sb1,...,Sbr perturbed by these only appear in one Paj.</li>
- * <li>The dependencies Dc1,...,Dcs induced by (and including) Sb1,...,Sbr are asked to cache.</li>
- * <li>Sb1,...,Sbr are perturbed by Pa1,...,Paq, any info detailing the perturbations are stored within,
- *     and the proposal densities from/to the new state are noted.</li>
- * <li>Dc1,...,Dcs are asked to update in topological order.</li>
+ * <li>Sb1,...,Sbr are cached and perturbed by Pa1,...,Paq, and proposal densities from/to the new state are noted</li>
+ * <li>The dependencies Dc1,...,Dcs relying on Sb1,...,Sbr are asked to cache and update in topological order.
+ *     This is then recursively repeated until all dependencies up to and including the models are up-to-date.</li>
  * <li>The likelihood of the proposed state is collected from M1,...,Mn.</li>
  * <li>A is used to decide whether to accept or reject the new state:</li>
  * <li>
  *   <ul>
- *     <li>Accepted: Dc1,...,Dcs are asked to clear their cache and clear any perturbation info.
+ *     <li>Accepted: Sb1,...,Sbr and induced dependencies are asked to clear their cache.
  *         The current likelihood is updated.</li>
- *     <li>Rejected: Dc1,...,Dcs are asked to restore their cache and clear any perturbation info.</li>
+ *     <li>Rejected: Sb1,...,Sbr and induced dependencies are asked to restore their cache.</li>
  *   </ul>
  * </li>
  * <li>Go to 1 or finish.</li>
