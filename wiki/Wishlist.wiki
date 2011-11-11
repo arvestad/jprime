@@ -13,7 +13,7 @@ Below is a list of features that should / has already been added with noteworthy
 || ~~Bug-tracking~~ || Now using issue tracking within Google Code. || In place ||
 || XML input and output || JAXB for standard stuff. External library required for condensed XML? || In place (at least partly) ||
 || Numeric methods package. || EJML seems like a good alternative. See also e.g. http://code.google.com/p/java-matrix-benchmark/, or http://ojalgo.org/matrix%5Fcompare.html, or http://stackoverflow.com/questions/529457/performance-of-java-matrix-math-libraries. || Medium ||
-|| Multicore parallelization || Hopefully in Java 7. || Medium ||
+|| Multicore parallelization || There is fantastic fork-join capabilities in Java 7. || Medium ||
 || Computer node parallelization  || Maybe use Hadoop instead of MPI? If MPI, use of some Java port, which one? || Medium ||
 || Program manuals auto-generated from Javadoc ||  || Low ||
 || Profiling tool ||  Not of major importance for now. || Low ||
