@@ -33,8 +33,9 @@ Builds are handled using the very competent (and alas complex) framework Maven. 
 
 == File structure ==
 The source file structure adheres to the Maven standard directory layout (as a subset thereof). Before adding new root folders, consider using a folder name proposed by this standard. Of particular importance are:
-  * {{{src/main/java}}} - where main source code goes. Note that there is a package for applications and tools, but that that these are not separated.
-  * {{{src/test/java}}} - where unit tests and test suites go.
+  * {{{src/main/java}}} - where main Java source code goes.
+  * {{{src/main/python}}} - where additional Python source code goes.
+  * {{{src/test/java}}} - where Java unit tests and test suites go.
   * {{{target}}} - where local builds are kept (not under version control).
   * {{{lib}}} - where non-Mavenized dependencies are kept, see below.
 Furthermore, non-Java resources kan be maintained in the same manner, e.g. {{{src/main/python}}} and so forth.
