@@ -92,7 +92,7 @@ where the path and version of course refer to your current setup. You may want t
 
 Before performing your final runs, you should make pilot runs to assess the mixing and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2-0.5 (preferrably in the lower region). For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
 
-For your final runs, the number of iterations required, and a suitable thinning factor will depend on the size of your input.
+For your final runs, the number of iterations required, and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on analysis and "common sense", ;-)
 
 ----
 
