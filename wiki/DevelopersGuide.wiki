@@ -29,7 +29,7 @@ The latest verified version is shown within brackets.
 As mentioned, the source code is under version control using Subversion (SVN). Please note that "dot directories", target directories, and similar should not be under version control, i.e. they should be added to {{{svn:ignore}}}.
 
 == Builds ==
-Builds are handled using the very competent (and alas complex) framework Maven. In particular, Maven takes care of all external dependencies (see also below). One may build a project JAR file using the Maven JAR plugin.
+Builds are handled using the very competent (and alas complex) framework Maven. In particular, Maven takes care of all external dependencies (see also below). For creating releases, see [CreatingReleases this wiki page].
 
 == File structure ==
 The source file structure adheres to the Maven standard directory layout (as a subset thereof). Before adding new root folders, consider using a folder name proposed by this standard. Of particular importance are:
