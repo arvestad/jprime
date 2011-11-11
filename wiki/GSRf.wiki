@@ -90,9 +90,9 @@ java -cp mypath/jprime-0.0.0.jar se.cbb.jprime.apps.gsrf
 }}}
 where the path and version of course refer to your current setup. You may want to tune the Java VM to your specific needs (heap size, performance tuning options, etc.). This is a non-trivial area however. If you are using an Oracle Java HotSpot VM, these documents may be of assistance: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
-Before performing your final runs, you should make pilot runs to assess the mixing and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2-0.5 (preferrably in the lower region). For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
+Before performing your final runs, you should make pilot runs to assess the mixing, and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2-0.5 (preferrably in the lower region). For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
 
-For your final runs, the number of iterations required, and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on analysis and "common sense", ;-)
+For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)
 
 ----
 
