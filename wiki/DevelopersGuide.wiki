@@ -52,13 +52,13 @@ Unit tests and test suites are handled with JUnit. Tests reside under the {{{src
 Bug tracking is handled using the Issues page here at Google Code.
 
 == Logging ==
-Logging is not handled with the built-in logger, but with Logback, which is a successor of log4j.
+Logging is not handled with the built-in logger, but with Logback (included using Maven), which is a successor of log4j.
 
 == Application parameter parsing ==
-Parameter parsing can be achieved in (almost) GNU style using the dependency JCommander.
+Parameter parsing can be achieved in (almost) GNU style using JCommander (included using Maven).
 
 == XML ==
-At the moment, ordinary XML tasks should be carried out with JAXB if possible.
+At the moment, ordinary XML tasks should be carried out with Java's built-in JAXB package if possible.
 
 == Bioinformatics ==
-!BioJava 3 should be sufficient for most common bioinformatics tasks involving alignments and such. 
+!BioJava 3 (included using Maven) should be sufficient for common bioinformatics tasks involving alignments and similar.
