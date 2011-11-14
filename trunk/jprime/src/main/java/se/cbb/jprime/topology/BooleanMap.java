@@ -1,6 +1,7 @@
 package se.cbb.jprime.topology;
 
 import se.cbb.jprime.io.SampleBooleanArray;
+import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
@@ -163,7 +164,8 @@ public class BooleanMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public boolean isProperDependent() {
-		return false;
+	public Dependent[] getParentDependents() {
+		return null;
 	}
+
 }

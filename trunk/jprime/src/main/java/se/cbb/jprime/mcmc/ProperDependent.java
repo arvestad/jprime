@@ -27,13 +27,6 @@ import java.util.Map;
 public interface ProperDependent extends Dependent {
 	
 	/**
-	 * Returns all dependents on which this object relies, i.e. the
-	 * parents of this vertex in the corresponding DAG.
-	 * @return all dependents.
-	 */
-	public Dependent[] getParentDependents();
-	
-	/**
 	 * Caches and updates this object.<br/>
 	 * <b>Input:</b> All changes made so far, i.e.,
 	 * changes to dependent objects which precede this in the dependency DAG.<br/>

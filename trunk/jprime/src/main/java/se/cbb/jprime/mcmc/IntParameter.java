@@ -78,8 +78,8 @@ public class IntParameter implements StateParameter {
 	}
 
 	@Override
-	public boolean isProperDependent() {
-		return false;
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }

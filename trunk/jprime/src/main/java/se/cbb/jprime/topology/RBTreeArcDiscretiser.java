@@ -95,11 +95,6 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	}
 
 	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
-	}
-
-	@Override
 	public int getNoOfPts(int x) {
 		return this.discTimes[x].length;
 	}
@@ -151,12 +146,15 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 
 	@Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
-
-		// TODO: Sort out this mess.
 		
 		// Determine affected vertices.
 		ChangeInfo sInfo = changeInfos.get(this.S);
 		ChangeInfo timesInfo = changeInfos.get(this.times);
+		
+		if (sInfo == null && timesInfo == null) {
+			changeInfos.put(this, null);
+			return;
+		}
 				
 		this.vertexCache = null;
 		if (sInfo == null) {
@@ -164,6 +162,7 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 		} else if (timesInfo == null) {
 			this.vertexCache = sInfo.getAffectedElements();
 		} else {
+			// Compute union of affected vertices.
 			int[] a = sInfo.getAffectedElements();
 			int[] b = timesInfo.getAffectedElements();
 			if (a != null && b != null) {
@@ -193,7 +192,7 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 		this.update();
 		
 		// Set change info.
-		this.changeInfo = new ChangeInfo(this, null, this.vertexCache);
+		changeInfos.put(this, new ChangeInfo(this, null, this.vertexCache));
 	}
 
 	@Override
@@ -241,8 +240,4 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 		return this.discTimes[x][xx];
 	}
 
-	@Override
-	public boolean isProperDependent() {
-		return false;
-	}
 }

@@ -2,11 +2,14 @@ package se.cbb.jprime.topology;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import se.cbb.jprime.math.PRNG;
+import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.ConstantTuningParameter;
+import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.Proposal;
 import se.cbb.jprime.mcmc.Proposer;
 import se.cbb.jprime.mcmc.ProposerStatistics;
@@ -21,9 +24,8 @@ import se.cbb.jprime.mcmc.TuningParameter;
  * to simple heuristics.
  * <p/>
  * Currently, the tree is perturbed using NNI, SPR (also superset of NNI), and
- * rerooting. By default, one of these is selected with equal probability
- * according to individual tuning parameters, but
- * these may be substituted using <code>setTuningParameters(...)</code>.
+ * rerooting. By default, these are selected probability [0.5,0,3,0,2], but
+ * this may be substituted using <code>setPerturbationWeights(...)</code>.
  * 
  * @author Lars Arvestad.
  * @author Örjan Åkerborg.
@@ -49,8 +51,8 @@ public class RBTreeBranchSwapper implements Proposer {
 	/** Pseudo-random number generator. */
 	private PRNG prng;
 	
-	/** Array of tuning weights for SPR, NNI and rerooting respectively. */
-	private TuningParameter[] tuningParams;
+	/** Array of weights for NNI, SPR and rerooting respectively. */
+	private double[] operationWeights;
 	
 	/** Active flag. */
 	private boolean isActive;
@@ -110,10 +112,7 @@ public class RBTreeBranchSwapper implements Proposer {
 		this.weight = weight;
 		this.statistics = stats;
 		this.prng = prng;
-		this.tuningParams = new TuningParameter[3];
-		this.tuningParams[0] = new ConstantTuningParameter(1.0/3);
-		this.tuningParams[1] = new ConstantTuningParameter(1.0/3);
-		this.tuningParams[2] = new ConstantTuningParameter(1.0/3);
+		this.operationWeights = new double[] { 0.5, 0.3, 0.2};
 	}
 	
 	@Override
@@ -158,20 +157,37 @@ public class RBTreeBranchSwapper implements Proposer {
 
 	@Override
 	public List<TuningParameter> getTuningParameters() {
-		return Arrays.asList(this.tuningParams);
+		return null;
 	}
 	
 	@Override
-	public Proposal cacheAndPerturbAndSetChangeInfo() {
+	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
 		// First determine move to make.
-		double w = this.prng.nextDouble() * (this.tuningParams[0].getValue() + this.tuningParams[1].getValue() +
-				this.tuningParams[2].getValue());
-		if (w < this.tuningParams[0].getValue()) {
-			//this.doSPR();
-		} else if (w < this.tuningParams[0].getValue() + this.tuningParams[1].getValue()) {
-			// this.doNNI();
+		double w = this.prng.nextDouble() * (this.operationWeights[0] + this.operationWeights[1] + this.operationWeights[2]);
+		
+		// Cache everything.
+		this.T.cache();
+		if (this.lengths != null) {
+			this.lengths.cache(null);
+		}
+		if (this.times != null) {
+			this.times.cache(null);
+		}
+		
+		if (w < this.operationWeights[0]) {
+			//this.doNNI();
+		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
+			// this.doSPR();
 		} else {
 			// this.doRerooting();
+		}
+		
+		changeInfos.put(this.T, new ChangeInfo(this.T));
+		if (this.lengths != null) {
+			changeInfos.put(this.lengths, new ChangeInfo(this.lengths));
+		}
+		if (this.times != null) {
+			changeInfos.put(this.times, new ChangeInfo(this.times));
 		}
 		// TODO Implement!
 		return null;
@@ -188,20 +204,20 @@ public class RBTreeBranchSwapper implements Proposer {
 	}
 	
 	/**
-	 * Sets the tuning parameters for how often certain branch-swapping
+	 * Sets the operation weights for how often certain branch-swapping
 	 * operations will be undertaken. The probability of an operation
-	 * is its tuning parameter divided by the sum of all tuning parameters.
-	 * @param spr SPR tuning parameter.
+	 * is its weight divided by the sum of all weights.
 	 * @param nni NNI tuning parameter.
+	 * @param spr SPR tuning parameter.
 	 * @param rerooting rerooting tuning parameter.
 	 */
-	public void setMoveWeight(TuningParameter spr, TuningParameter nni, TuningParameter rerooting) {
-		if (spr.getMinValue() < 0.0 || nni.getMinValue() < 0.0 || rerooting.getMinValue() < 0.0) {
-			throw new IllegalArgumentException("Must set non-negative tuning parameter in branch-swapper.");
+	public void setMoveWeight(double nni, double spr, double rerooting) {
+		if (nni < 0.0 || spr < 0.0 || rerooting < 0.0) {
+			throw new IllegalArgumentException("Must set non-negative operation weight in branch-swapper.");
 		}
-		this.tuningParams[0] = spr;
-		this.tuningParams[1] = nni;
-		this.tuningParams[2] = rerooting;
+		this.operationWeights[0] = nni;
+		this.operationWeights[1] = spr;
+		this.operationWeights[2] = rerooting;
 	}
 	
 
@@ -298,17 +314,6 @@ public class RBTreeBranchSwapper implements Proposer {
 		return null;
 	}
 
-	@Override
-	public void clearCacheAndClearChangeInfo() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void restoreCacheAndClearChangeInfo() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 //
 //

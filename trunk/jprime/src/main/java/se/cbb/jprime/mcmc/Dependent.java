@@ -17,10 +17,10 @@ package se.cbb.jprime.mcmc;
 public abstract interface Dependent {
 	
 	/**
-	 * Returns true if this object relies on parent dependents,
-	 * and false if it is a source in the DAG (e.g. a state parameter).
-	 * @return true if a proper dependent; false if it does not rely on others.
+	 * Returns all dependents on which this object relies, i.e. the
+	 * parents of this vertex in the corresponding DAG.
+	 * @return all parent dependents (if any).
 	 */
-	public boolean isProperDependent();
+	public Dependent[] getParentDependents();
 	
 }

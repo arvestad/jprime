@@ -1,6 +1,7 @@
 package se.cbb.jprime.topology;
 
 import se.cbb.jprime.io.SampleDoubleArray;
+import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.RealParameter;
 
 /**
@@ -108,10 +109,7 @@ public class DoubleMap implements GraphMap, RealParameter {
 		return this.values.length;
 	}
 
-	/**
-	 * Caches a part of or the whole current map. May e.g. be used by a <code>Proposer</code>.
-	 * @param vertices the vertices. Null will cache all values.
-	 */
+	@Override
 	public void cache(int[] vertices) {
 		if (vertices == null) {
 			this.cacheValues = new double[this.values.length];
@@ -126,18 +124,13 @@ public class DoubleMap implements GraphMap, RealParameter {
 		}
 	}
 
-	/**
-	 * Clears the cached map. May e.g. be used by a <code>Proposer</code>.
-	 */
+	@Override
 	public void clearCache() {
 		this.cacheVertices = null;
 		this.cacheValues = null;
 	}
 
-	/**
-	 * Replaces the current map with the cached map, and clears the latter.
-	 * May e.g. be used by a <code>Proposer</code>.
-	 */
+	@Override
 	public void restoreCache() {
 		if (this.cacheVertices == null) {
 			this.values = this.cacheValues;
@@ -182,7 +175,7 @@ public class DoubleMap implements GraphMap, RealParameter {
 	}
 
 	@Override
-	public boolean isProperDependent() {
-		return false;
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 }

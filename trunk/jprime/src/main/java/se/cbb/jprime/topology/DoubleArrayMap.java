@@ -1,6 +1,7 @@
 package se.cbb.jprime.topology;
 
 import se.cbb.jprime.io.SampleDoubleArrayArray;
+import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
@@ -192,8 +193,8 @@ public class DoubleArrayMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public boolean isProperDependent() {
-		return false;
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }
