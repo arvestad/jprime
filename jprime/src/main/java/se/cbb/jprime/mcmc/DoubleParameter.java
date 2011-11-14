@@ -47,22 +47,19 @@ public class DoubleParameter implements RealParameter {
 
 	/**
 	 * Caches the current value. May e.g. be used by a <code>Proposer</code>.
+	 * @param indices is of no importance.
 	 */
-	public void cache() {
+	@Override
+	public void cache(int[] indices) {
 		this.cache = new Double(this.value);
 	}
 
-	/**
-	 * Clears the cached value. May e.g. be used by a <code>Proposer</code>.
-	 */
+	@Override
 	public void clearCache() {
 		this.cache = null;
 	}
 
-	/**
-	 * Replaces the current value with the cached value, and clears the latter.
-	 * May e.g. be used by a <code>Proposer</code>.
-	 */
+	@Override
 	public void restoreCache() {
 		this.value = this.cache.doubleValue();
 		this.cache = null;
@@ -123,8 +120,8 @@ public class DoubleParameter implements RealParameter {
 	}
 
 	@Override
-	public boolean isProperDependent() {
-		return false;
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 
 }

@@ -23,4 +23,20 @@ public interface RealParameter extends StateParameter {
 	 */
 	public void setValue(int idx, double value);
 	
+	/**
+	 * Caches a part of or the whole current parameter. May e.g. be used by a <code>Proposer</code>.
+	 * @param indices the indices of sub-parameters to cache. Null will cache all values.
+	 */
+	public void cache(int[] indices);
+	
+	/**
+	 * Clears the cached parameter. May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void clearCache();
+	
+	/**
+	 * Replaces the current parameter with the cached parameter, and clears the latter.
+	 * May e.g. be used by a <code>Proposer</code>.
+	 */
+	public void restoreCache();
 }

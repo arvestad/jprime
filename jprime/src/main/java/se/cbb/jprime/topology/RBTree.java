@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
+import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.misc.IntQueue;
 
 /**
@@ -514,7 +515,7 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 
 	@Override
-	public boolean isProperDependent() {
-		return false;
+	public Dependent[] getParentDependents() {
+		return null;
 	}
 }

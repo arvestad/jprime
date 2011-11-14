@@ -1,5 +1,7 @@
 package se.cbb.jprime.math;
 
+import java.util.Map;
+
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -46,9 +48,6 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	
 	/** Constant term, given the variance, in the log density function: -0.5 * ln(2 * PI * var). */
 	protected double logDensFact;
-	
-	/** Change info. */
-	protected ChangeInfo changeInfo = null;
 	
 	/**
 	 * Constructor for when the distribution does not rely on state parameters.
@@ -144,23 +143,27 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	}
 
 	@Override
-	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
+	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
+		if (changeInfos.get(this.p1) != null || changeInfos.get(this.p2) != null) {
+			String s = this.toString();
+			this.update();
+			changeInfos.put(this, new ChangeInfo(this, s + " was perturbed into " + this.toString()));
+		} else {
+			changeInfos.put(this, null);
+		}
+	}
+
+	@Override
+	public void clearCache(boolean willSample) {
 		// Caching not worthwhile.
-		update();
 	}
 
 	@Override
-	public void clearCacheAndClearChangeInfo(boolean willSample) {
-		this.changeInfo = null;
-	}
-
-	@Override
-	public void restoreCacheAndClearChangeInfo(boolean willSample) {
-		// Just do clean update.
+	public void restoreCache(boolean willSample) {
+		// Caching not worthwhile.
 		this.update();
-		this.changeInfo = null;
 	}
-
+	
 	@Override
 	public Dependent[] getParentDependents() {
 		if (this.p1 != null) {
@@ -173,9 +176,7 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	 * Updates the distribution.
 	 */
 	public void update() {
-		// We always do an update.
 		if (this.p1 != null) {
-			String old = this.toString();
 			switch (this.setup) {
 			case MEAN_AND_VAR:
 				this.mean = this.p1.getValue();
@@ -195,16 +196,8 @@ public class NormalDistribution implements Continuous1DPDDependent {
 			default:
 				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
 			}
-			this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.toString() + ", Old: " + old);
-		} else {
-			this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 		}
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
+		this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 	}
 	
 	@Override

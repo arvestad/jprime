@@ -1,5 +1,7 @@
 package se.cbb.jprime.math;
 
+import java.util.Map;
+
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
@@ -55,9 +57,6 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	/** C cache. */
 	private double cCache = Double.NaN;
 	
-	/** Change info. */
-	protected ChangeInfo changeInfo = null;
-	
 	/**
 	 * Constructor for when the distribution does not rely on state parameters.
 	 * Note the parametrisation where <i>scale</i> parameter theta=1/beta, for <i>rate</i> parameter beta.
@@ -104,33 +103,6 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	public int getNoOfDimensions() {
 		return 1;
 	}
-	
-	@Override
-	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
-		this.kCache = this.k;
-		this.thetaCache = this.theta;
-		this.cCache = this.c;
-		this.update();
-	}
-
-	@Override
-	public void clearCacheAndClearChangeInfo(boolean willSample) {
-		this.kCache = Double.NaN;
-		this.thetaCache = Double.NaN;
-		this.cCache = Double.NaN;
-		this.changeInfo = null;
-	}
-
-	@Override
-	public void restoreCacheAndClearChangeInfo(boolean willSample) {
-		this.k = this.kCache;
-		this.theta = this.thetaCache;
-		this.c = this.cCache;
-		this.kCache = Double.NaN;
-		this.thetaCache = Double.NaN;
-		this.cCache = Double.NaN;
-		this.changeInfo = null;
-	}
 
 	@Override
 	public Dependent[] getParentDependents() {
@@ -144,9 +116,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	 * Updates the distribution.
 	 */
 	public void update() {
-		// We always do an update.
 		if (this.p1 != null) {
-			String old = this.toString();
 			switch (this.setup) {
 			case K_AND_THETA:
 				this.k = this.p1.getValue();
@@ -164,17 +134,42 @@ public class GammaDistribution implements Continuous1DPDDependent {
 				throw new IllegalArgumentException("Unknown parameter setup for gamma distribution.");
 			}
 			this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.toString() + ", Old: " + old);
 		} else {
 			this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 		}
 	}
 
 	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
+	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
+		if (changeInfos.get(this.p1) != null || changeInfos.get(this.p2) != null) {
+			String s = this.toString();
+			this.kCache = this.k;
+			this.thetaCache = this.theta;
+			this.cCache = this.c;
+			this.update();
+			changeInfos.put(this, new ChangeInfo(this, s + " was perturbed into " + this.toString()));
+		} else {
+			changeInfos.put(this, null);
+		}
 	}
 
+	@Override
+	public void clearCache(boolean willSample) {
+		this.kCache = Double.NaN;
+		this.thetaCache = Double.NaN;
+		this.cCache = Double.NaN;
+	}
+
+	@Override
+	public void restoreCache(boolean willSample) {
+		this.k = this.kCache;
+		this.theta = this.thetaCache;
+		this.c = this.cCache;
+		this.kCache = Double.NaN;
+		this.thetaCache = Double.NaN;
+		this.cCache = Double.NaN;
+	}
+	
 	@Override
 	public double getPDF(double x) {
 		return Math.exp((this.k - 1.0) * Math.log(x) - x / this.theta + this.c);

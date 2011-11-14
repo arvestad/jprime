@@ -1,5 +1,7 @@
 package se.cbb.jprime.math;
 
+import java.util.Map;
+
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
@@ -27,12 +29,6 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	
 	/** B's boundary type. */
 	protected boolean isRightOpen;
-	
-	/** Cache. */
-	private RealInterval abCache = null;
-
-	/** Change info. */
-	protected ChangeInfo changeInfo = null;
 	
 	/**
 	 * Constructor for when the distribution does not rely on state parameters.
@@ -84,11 +80,6 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	@Override
 	public int getNoOfDimensions() {
 		return 1;
-	}
-
-	@Override
-	public ChangeInfo getChangeInfo() {
-		return this.changeInfo;
 	}
 
 	@Override
@@ -226,31 +217,28 @@ public class UniformDistribution implements Continuous1DPDDependent {
 	}
 
 	@Override
-	public void cacheAndUpdateAndSetChangeInfo(boolean willSample) {
-		if (this.p1 != null) {
-			this.abCache = this.ab;
-			// We always do an update.
-			String old = this.toString();
+	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
+		if (changeInfos.get(this.p1) != null || changeInfos.get(this.p2) != null) {
 			if (p1.getValue() >= p2.getValue()) {
 				throw new IllegalArgumentException("Invalid range for uniform distribution.");
 			}
+			String old = this.toString();
 			this.ab = new RealInterval(this.p1.getValue(), this.p2.getValue(), this.isLeftOpen, this.isRightOpen);
-			this.changeInfo = new ChangeInfo(this, "Proposed: " + this.toString() + ", Old: " + old);
+			changeInfos.put(this, new ChangeInfo(this, old + " was perturbed into " + this.toString()));
+		} else {
+			changeInfos.put(this, null);
 		}
 	}
 
 	@Override
-	public void clearCacheAndClearChangeInfo(boolean willSample) {
-		this.abCache = null;
-		this.changeInfo = null;
+	public void clearCache(boolean willSample) {
+		// Caching not worthwhile.
 	}
 
 	@Override
-	public void restoreCacheAndClearChangeInfo(boolean willSample) {
-		this.ab = this.abCache;
-		this.abCache = null;
-		this.changeInfo = null;
-		
+	public void restoreCache(boolean willSample) {
+		// Caching not worthwhile.
+		this.ab = new RealInterval(this.p1.getValue(), this.p2.getValue(), this.isLeftOpen, this.isRightOpen);
 	}
 
 	@Override

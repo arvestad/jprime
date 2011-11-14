@@ -143,10 +143,5 @@ public class MPRMap implements ProperDependent {
 		}
 		return (this.sigma[x] == this.sigma[this.G.getLeftChild(x)] || this.sigma[x] == this.sigma[this.G.getRightChild(x)]);
 	}
-
-	@Override
-	public boolean isProperDependent() {
-		return true;
-	}
 	
 }
