@@ -58,11 +58,26 @@ public class TimesMap extends DoubleMap {
 		return this.values[x];
 	}
 	
+	/**
+	 * Unsupported method. Use getVertexTimes() and getArcTimes() instead for low-level manipulation of times.
+	 * @param x the vertex.
+	 * @param val the new value.
+	 */
 	@Override
 	public void set(int x, double val) {
 		throw new UnsupportedOperationException("Cannot set absolute time (vertex time) of a vertex without also " +
 				"changing corresponding arc times. Use getVertexTimes() and getArcTimes() instead for low-level " +
 				"manipulation of the underlying values.");
+	}
+	
+	/**
+	 * Unsupported method. Use getVertexTimes() and getArcTimes() instead for low-level manipulation of times.
+	 * @param x the vertex.
+	 * @param val the new value.
+	 */
+	@Override
+	public void setAsObject(int x, Object val) {
+		this.set(x, ((Double) val).doubleValue());
 	}
 	
 	/**

@@ -25,7 +25,7 @@ import se.cbb.jprime.mcmc.TuningParameter;
  * <p/>
  * Currently, the tree is perturbed using NNI, SPR (also superset of NNI), and
  * rerooting. By default, these are selected probability [0.5,0,3,0,2], but
- * this may be substituted using <code>setPerturbationWeights(...)</code>.
+ * this may be substituted using <code>setOperationWeights(...)</code>.
  * 
  * @author Lars Arvestad.
  * @author Örjan Åkerborg.
@@ -211,7 +211,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param spr SPR tuning parameter.
 	 * @param rerooting rerooting tuning parameter.
 	 */
-	public void setMoveWeight(double nni, double spr, double rerooting) {
+	public void setOperationWeights(double nni, double spr, double rerooting) {
 		if (nni < 0.0 || spr < 0.0 || rerooting < 0.0) {
 			throw new IllegalArgumentException("Must set non-negative operation weight in branch-swapper.");
 		}
@@ -223,7 +223,7 @@ public class RBTreeBranchSwapper implements Proposer {
 
 	/**
 	 * Disconnects the subtrees rooted at input vertices and reconnects them at each other's parents.
-	 * Assumptions: Neither argument is root. Arguments are distinct.
+	 * Prerequisites: Neither argument is root. Arguments are distinct.
 	 * <pre>
 	 *             .                           .
 	 *            / \                         / \
@@ -314,375 +314,268 @@ public class RBTreeBranchSwapper implements Proposer {
 		return null;
 	}
 
+	/**
+	 * Changes the rooting of the tree, for example, <code>(a,(b,c)) => ((a,b),c)</code>.
+	 * Currently, the root node is not just moved, instead we 
+	 * scramble the nodes round the root, this might not be optimal, 
+	 * see rotate-methods.
+	 */
+	private void doReroot() {
+		int treeSize = this.T.getNoOfVertices();
+		if (treeSize <= 3) {
+			throw new UnsupportedOperationException("Cannot perform re-rooting on tree topology with 2 leaves or less.");
+		}
+
+		// Loop until valid node is found.
+		int v = this.prng.nextInt(treeSize);
+		while (this.T.isRoot(v) || this.T.isRoot(this.T.getParent(v))) {
+			v = this.prng.nextInt(treeSize);
+		}
+
+		// We will now let v's parent's parent act as a new root.
+		// Execute rotations until that is the case.
+		int parent = this.T.getParent(this.T.getParent(v));
+		if (this.times != null) {
+			// This can be reduced to rotate(parent, v, withLengths, withTimes)
+			this.rotate(parent, v, this.lengths != null, true);
+		} else if (this.lengths != null) {
+			this.rotate(parent, v, true, false);
+		} else {
+			this.rotate(parent, v, false, false);
+		}
+	}
+
+	/**
+	 * Nearest neighbour interchange (NNI) on a random node of the tree, and a random neighbour.
+	 * For example, <code>((a,b),(c,d)) => ((a,d),(b,c))</code> somewhere in the tree.
+	 * Precondition: if the number of leaves is 4, input tree must not be symmetric.
+	 */
+	private void doNNI() {
+		// Disallow symmetric 4-leaf trees.
+		if (this.T.getNoOfLeaves() == 4 && this.T.isLeaf(this.T.getLeftChild(this.T.getRoot())) && this.T.isLeaf(this.T.getRightChild(this.T.getRoot()))) {
+			throw new UnsupportedOperationException("Cannot perform NNI on symmetric tree topology with 4 leaves.");
+		}
+		
+		// Pick a vertex and choose its parent's sibling to swap with.
+		// Make sure the parent is not the root!
+		int treeSize = T.getNoOfVertices();
+		int v;
+		do {
+			// Loop until valid node is found
+			v = this.prng.nextInt(treeSize);
+		} while (this.T.isRoot(v) || this.T.isRoot(this.T.getParent(v)) || this.T.isRoot(this.T.getParent(this.T.getParent(v))));
+
+		// Determine relations.
+		int w = this.T.getSibling(this.T.getParent(v));
+		int vs = this.T.getSibling(v);
+		int vp = this.T.getParent(v);
+		int wp = this.T.getParent(w);
+		int wpp = this.T.getParent(wp);
+
+		// Time heuristics stuff.
+		double intervalMax = Double.NaN;
+		double kvp = Double.NaN;
+		double kwp = Double.NaN;
+		// if (lengths != null) {
+		// 	double vp_rate = 1.0;
+		// 	double wp_rate = 1.0;
+		// }
+		
+		if (this.times != null) {
+			// Check sanity.
+			assert(this.times.getVertexTime(v) < this.times.getVertexTime(vp));
+			assert(this.times.getVertexTime(vs) < this.times.getVertexTime(vp));
+			assert(this.times.getVertexTime(w) < this.times.getVertexTime(wp));
+			assert(this.times.getVertexTime(wp) < this.times.getVertexTime(wpp));
+			
+			// IMPORTANT: Joel: I don't see why the below should be applied only
+			// when BOTH times and lengths are present, so now only times matter.
+			
+			intervalMax = this.times.getVertexTime(wpp);
+			double intervalMinBefore = Math.max(this.times.getVertexTime(v), this.times.getVertexTime(vs));
+			assert(intervalMinBefore > 0);
+			kvp = this.times.getArcTime(vp) / (intervalMax - intervalMinBefore);
+			kwp = this.times.getArcTime(wp) / (intervalMax - intervalMinBefore);
+			
+			// if (lengths != null) {
+			// vp_rate = this.lengths.get(vp) / this.times.getArcTime(vp);
+			// wp_rate = this.lengths.get(wp) / this.times.getArcTime(wp);
+			// }
+		}
+		
+		// Perform the actual NNI swap.
+		this.swap(v, w);
+
+		// Carry out some time-length heuristics in accordance with the swap.
+		if (this.times != null) {
+			
+			// IMPORTANT: Joel: Corresponds to my comment before the swap.
+			// Now only times considered.
+			
+			double intervalMinAfter = Math.max(Math.max(this.times.getVertexTime(w), this.times.getVertexTime(vs)), this.times.getVertexTime(v));
+			assert(intervalMinAfter > 0);
+
+			double vp_time = kvp * (intervalMax - intervalMinAfter);
+			double wp_time = kwp * (intervalMax - intervalMinAfter);
+
+			double[] vts = this.times.getVertexTimes();
+			double[] ats = this.times.getArcTimes();
+			vts[wp] = intervalMax - wp_time;
+			vts[vp] = intervalMax - wp_time - vp_time;
+			ats[wp] = vts[wpp] - vts[wp];
+			ats[vp] = vts[wp] - vts[vp];
+			ats[v] = vts[wp] - vts[v];
+			ats[w] = vts[vp] - vts[w];
+			ats[vs] = vts[vp] - vts[vs];
+			
+			// if (lengths != null) {
+			//  this.lengths.set(vp, this.times.getArcTime(vp) * vp_rate);
+			// 	this.lengths.set(wp, this.times.getArcTime(wp) * wp_rate);	
+			// }    
+		
+			// Check sanity.
+			assert(this.times.getVertexTime(v) < this.times.getVertexTime(vp));
+			assert(this.times.getVertexTime(vs) < this.times.getVertexTime(vp));
+			assert(this.times.getVertexTime(w) < this.times.getVertexTime(wp));
+			assert(this.times.getVertexTime(wp) < this.times.getVertexTime(wpp));	// This assert has triggered for me! /arve 2009-09-25.
+		}
+	}
+
 	
-//
-//
-//	//----------------------------------------------------------------------
-//	//
-//	// Interface
-//	//
-//	//----------------------------------------------------------------------
-//
-//	// Change the rooting of the tree
-//	// For example, (a, (b, c)) => ((a,b),c)
-//	// Currently, the root node is not just moved, instead we 
-//	// scramble the nodes round the root, this might not be optimal, 
-//	// see rotate-functions
-//	//----------------------------------------------------------------------
-//	TreePerturbationEvent*
-//	BranchSwapping::doReRoot(Tree &T, bool withLengths, bool withTimes, bool returnInfo)
-//	{
-//		if ((T.hasTimes() == false) && (withTimes == true))
-//		{
-//			PROGRAMMING_ERROR("doReRoot() - Times are not modeled !");
-//		}
-//		else if ((T.hasLengths() == false) && (withLengths == true))
-//		{
-//			PROGRAMMING_ERROR("doReRoot() - Lengths are not modeled !");
-//		}
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//		cout << "doReRoot with ";
-//		if (withTimes)
-//			cout << "times and ";
-//		if (withLengths)
-//			cout << "lengths\n";
-//	#endif
-//
-//		unsigned treeSize = T.getNumberOfNodes();
-//		unsigned node_no = R.genrand_modulo(treeSize - 1);
-//		Node *v = T.getNode(node_no);
-//
-//		// Loop until valid node is found
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//		cout << "Node " << v->getNumber () << " is chosen\n";
-//	#endif
-//		while (v->isRoot() || v->getParent()->isRoot())
-//		{
-//	#ifdef DEBUG_BRANCHSWAPPING
-//			cout << "No reRoot because v->isRoot()= " << v->isRoot () << " and v->getParent()->isRoot()= " << v->getParent()->isRoot() << "\n";
-//	#endif
-//			node_no = R.genrand_modulo(treeSize-1);
-//			v = T.getNode(node_no);	
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//			cout << "Node " << v->getNumber () << " is chosen\n";
-//	#endif
-//		}
-//
-//		// If specified, store info (before perturbing!).
-//		TreePerturbationEvent* info = returnInfo ?
-//				TreePerturbationEvent::createReRootInfo(v) : NULL;
-//				
-//		// We will now let v's parent's parent act as a new root.
-//		// Execute rotations until that is the case.
-//		Node *parent = v->getParent();
-//		if(withTimes) // This can be reduced to rotate(parent, v, withLengths, withTimes)
-//		{
-//	#ifdef DEBUG_BRANCHSWAPPING
-//			cout << "do rotate with times\n";
-//	#endif	
-//			rotate(parent, v, withLengths, true);
-//		}
-//		else if(withLengths)
-//		{
-//	#ifdef DEBUG_BRANCHSWAPPING
-//			cout << "do rotate with lengths\n";
-//	#endif	
-//			rotate(parent, v, true, false);
-//		}
-//		else
-//		{
-//	#ifdef DEBUG_BRANCHSWAPPING
-//			cout << "do rotate without lengths\n";
-//	#endif	
-//			rotate(parent, v, false, false);
-//		}
-//		
-//		return info;
-//	}
-//
-//	// Nearest neighbour interchange on two random nodes of the tree.
-//	// For example, ((a,b),(c,d)) => ((a,d),(b,c)) somewhere in the tree.
-//	// Precondition: if number of leaves is 4, input tree must not be
-//	// symmetric.
-//	//----------------------------------------------------------------------
-//	TreePerturbationEvent*
-//	BranchSwapping::doNNI(Tree &T, bool withLengths, bool withTimes, bool returnInfo)
-//	{
-//		// Disallow symmetric 4-leaf trees.
-//		assert(T.getNumberOfLeaves() != 4 || (T.getRootNode()->getLeftChild()->isLeaf()
-//				|| T.getRootNode()->getRightChild()->isLeaf()));
-//		
-//		if ((T.hasTimes() == false) && (withTimes == true))
-//		{
-//			cerr << "BranchSwapping::doNNI() - Times are not modeled !\n";
-//			exit(1);
-//		}
-//		else if ((T.hasLengths() == false) && (withLengths == true))
-//		{
-//			cerr << "BranchSwapping::doNNI() - Lengths are not modeled !\n";
-//			exit(1);
-//		}
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//		cout << "doNNI with ";
-//		if (withTimes)
-//			cout << "times and ";
-//		if (withLengths)
-//			cout << "lengths\n";
-//	#endif
-//
-//		// Pick a node and choose its parent's sibling to swap with.
-//		// Make sure the parent is not the root!
-//		unsigned treeSize = T.getNumberOfNodes();
-//		Node *v;
-//		do // Loop until valid node is found
-//		{
-//			v = T.getNode(R.genrand_modulo(treeSize));
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//			cout << "Node " << v->getNumber () << " is chosen\n";
-//	#endif
-//		}
-//		while (v->isRoot() || 
-//				v->getParent()->isRoot() || 
-//				v->getParent()->getParent()->isRoot());
-//
-//		// If specified, store perturbation info (before perturbing!).
-//		TreePerturbationEvent* info = returnInfo ?
-//				TreePerturbationEvent::createNNIInfo(v) : NULL;
-//		
-//		// Determine relations
-//		Node *w = v->getParent()->getSibling();
-//		Node *vs = v->getSibling();
-//		Node *vp = v->getParent();
-//		Node *wp = w->getParent();
-//		Node *wpp = wp->getParent();
-//
-//		if (withTimes)
-//		{
-//			// Check sanity
-//			assert(T.getTime(*v) < T.getTime(*vp));
-//			assert(T.getTime(*vs) < T.getTime(*vp));
-//			assert(T.getTime(*w) < T.getTime(*wp));
-//			assert(T.getTime(*wp) < T.getTime(*wpp));
-//		}
-//
-//		//     Real vp_rate = 1.0;
-//		//     Real wp_rate = 1.0;
-//
-//		Real intervalMax = wpp->getNodeTime();
-//		Real kvp = 1.0;
-//		Real kwp = 1.0;
-//
-//		if ((withTimes) && (withLengths))
-//		{	
-//			// 	vp_rate = vp->getLength()/vp->getTime();
-//			// 	wp_rate = wp->getLength()/wp->getTime();
-//
-//			Real intervalMinBefore = max(v->getNodeTime(),vs->getNodeTime());
-//			assert(intervalMinBefore > 0);
-//			kvp = vp->getTime()/(intervalMax - intervalMinBefore);
-//			kwp = wp->getTime()/(intervalMax - intervalMinBefore);
-//		}
-//		
-//		// Perform the swap
-//		swap(v, w);
-//
-//		if ((withTimes) && (withLengths))
-//		{
-//			Real intervalMinAfter = max(max(w->getNodeTime(),
-//					vs->getNodeTime()),v->getNodeTime());
-//			assert(intervalMinAfter > 0);
-//
-//			Real vp_time = kvp*(intervalMax - intervalMinAfter);
-//			Real wp_time = kwp*(intervalMax - intervalMinAfter);
-//
-//			wp->setNodeTime(intervalMax - wp_time);
-//			vp->setNodeTime(intervalMax - wp_time - vp_time);
-//
-//			// 	if(T.hasLengths())
-//			// 	  {
-//			// 	    vp->setLength(vp->getTime()*vp_rate);
-//			// 	    wp->setLength(wp->getTime()*wp_rate);	
-//			// 	  }    
-//		}
-//		
-//		if (withTimes)
-//		{
-//			// Check sanity
-//			assert(T.getTime(*v) < T.getTime(*vp));
-//			assert(T.getTime(*vs) < T.getTime(*vp));
-//			assert(T.getTime(*w) < T.getTime(*wp));
-//			assert(T.getTime(*wp) != T.getTime(*wpp));
-//			assert(T.getTime(*wp) < T.getTime(*wpp)); // This assert has triggered for me! /arve 090925
-//		}
-//		
-//		return info;
-//	}
-//
-//	// SPR with times (and lengths)                              .
-////	                                                          . 
-////	            .up                      .                    .
-////	           / \                      / \                   . 
-////	         a/   \                    /   \                  . 
-////	         /     \                  /     \ u_c_new_p        .
-////	        /       \                /     / \                .
-////	       /         \              /     /   \a'             .
-////	      /u          \ u_s        /     /     \              .
-////	     / \          /\          /     /     u/\             .
-//	// b-a/   \        /  \b'      /     /      /  \b'-a'       .
-//	//   /u_oc \ u_c  /    \      /     /      /    \ u_c_new    .
-//	//  /1\   /2\    /3\  /4\    /1\   /3\    /2\  /4\          .
-//	// /___\ /___\  /___\/___\  /___\ /___\  /___\/___\         .
-//	//-----------------------------------------------------------
-//	TreePerturbationEvent*
-//	BranchSwapping::doSPR(Tree &T, bool withLengths, bool withTimes, bool returnInfo)
-//	{
-//		if ((T.hasTimes() == false) && (withTimes == true))
-//		{
-//			cerr << "BranchSwapping::doSPR() - Times are not modeled !\n";
-//			exit(1);
-//		}
-//		else if ((T.hasLengths() == false) && (withLengths == true))
-//		{
-//			cerr << "BranchSwapping::doSPR() - Lengths are not modeled !\n";
-//			exit(1);
-//		}
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//		cout << "doSPR with ";
-//		if (withTimes)
-//			cout << "times and ";
-//		if (withLengths)
-//			cout << "lengths\n";
-//	#endif
-//
-//		unsigned treeSize = T.getNumberOfNodes();
-//		
-//		// Determine which Node (subtree) to move
-//		unsigned node_no_u_c = R.genrand_modulo(treeSize);
-//		Node *u_c = T.getNode(node_no_u_c); // Node to hang off
-//		
-//		// Loop until valid node is found
-//		while (u_c->isRoot() || u_c->getParent()->isRoot())
-//		{
-//			node_no_u_c = R.genrand_modulo(treeSize);
-//			u_c = T.getNode(node_no_u_c);	
-//		}
-//		
-//		Node *u = u_c->getParent();
-//		Node *u_s = u->getSibling();
-//		Node *u_oc = u_c->getSibling();
-//		Node *u_p = u->getParent();
-//
-//		if (withTimes)
-//		{
-//			// check sanity
-//			assert(T.getTime(*u_oc) < T.getTime(*u));
-//			assert(T.getTime(*u_c) < T.getTime(*u));
-//			assert(T.getTime(*u) < T.getTime(*u_p));
-//			assert(T.getTime(*u_s) < T.getTime(*u_p));
-//		}
-//
-//		unsigned u_c_new_number = R.genrand_modulo(treeSize);
-//		Node *u_c_new = T.getNode(u_c_new_number); // Hang on u to the edge above this node
-//
-//		while (u_c_new->isRoot() || u_c_new->getNumber()==u->getNumber() || isInSubtree(u_c_new,u) == true) // u must not be hung to a node in its own subtree !
-//		{
-//			u_c_new_number = R.genrand_modulo(treeSize);
-//			u_c_new = T.getNode(u_c_new_number);	
-//		}
-//
-//	#ifdef DEBUG_BRANCHSWAPPING
-//		cout << "The edge leading to node " << u_c->getNumber () << " will be hung on the edge above: " << u_c_new->getNumber () << "\n";
-//	#endif
-//
-//		// If specified, store perturbation info (before perturbing!).
-//		TreePerturbationEvent* info = returnInfo ?
-//				TreePerturbationEvent::createSPRInfo(u_c, u_c_new) : NULL;
-//		
-//		Real u_nodeTimeBefore = u->getNodeTime();
-//
-//		Real b = u_oc->getTime()+u->getTime();
-//		Real a = u->getTime();
-//		Real k = b/a;		
-//
-//		Real b_prime = u_c_new->getTime();
-//		Real a_prime = b_prime/k;
-//
-//		u_p->setChildren(u_oc,u_s);
-//
-//		Node *u_c_new_p = u_c_new->getParent();
-//		Node *u_c_new_s = u_c_new->getSibling();
-//		u->setChildren(u_c,u_c_new);
-//		u_c_new_p->setChildren(u_c_new_s,u);
-//
-//		if (withTimes)
-//		{	
-//			Real u_nodeTimeAfter = u_c_new->getNodeTime() + b_prime - a_prime;
-//			//u->setNodeTime(u_nodeTimeAfter);
-//			u->getTree()->setTimeNoAssert(*u,u_nodeTimeAfter);
-//
-//			Real k_height = u_nodeTimeAfter/u_nodeTimeBefore;
-//			recursiveEdgeTimeScaling(u_c,k_height);
-//			
-//			assert(T.getTime(*u_oc) < T.getTime(*u_p));
-//			assert(T.getTime(*u_s) < T.getTime(*u_p));
-//			assert(T.getTime(*u_c) < T.getTime(*u));
-//			assert(T.getTime(*u_c_new) < T.getTime(*u));
-//			assert(T.getTime(*u_c_new_s) < T.getTime(*u_c_new_p));
-//			assert(T.getTime(*u) < T.getTime(*u_c_new_p));
-//		}
-//		
-//		// joelgs: This part proved to generate problems when only lengths were modeled,
-//		// why I added '&& withTimes'. I can't say anything about the behaviour when both
-//		// lengths and times are included.
-//		if (withLengths && withTimes)
-//		{
-//			Real a = u->getLength();
-//			Real b = u_oc->getLength();
-//			Real c = u_c_new->getLength();
-//			Real x = a*c / (a+b);
-//			u->setLength(x);
-//			u_oc->setLength(a+b);
-//			u_c_new->setLength(c-x);
-//		}
-//		
-//		return info;
-//	}
-//
-//	// Place root such that the leaves in outgroup froms a 
-//	// monophyletic group
-//	//----------------------------------------------------------------------
-//	void
-//	BranchSwapping::rootAtOutgroup(Tree& T, vector<string> outgroup)
-//	{
-//		assert(outgroup.size() > 0); //Check precondition
-//
-//		Node* LCA = T.findLeaf(outgroup[0]);
-//		for(unsigned i = 1; i < outgroup.size(); i++)
-//		{
-//			Node *l =  T.findLeaf(outgroup[i]);
-//			LCA = T.mostRecentCommonAncestor(LCA, l);
-//		}
-//
-//		if(LCA->isRoot() || LCA->getParent()->isRoot())
-//		{
-//			return;
-//		}
-//		else
-//		{
-//			Node* parent = LCA->getParent();
-//			rotate(parent, LCA, false, false);
-//			//! \todo{Check that outgroup is monophyletic, else warn /bens}
-//
-//			return;
-//		}
-//	}
-//
+	/**
+	 * Performs subtree pruning and regrafting (SPR). That is:
+	 * <pre>
+	 *              .up                      .                    .
+	 *             / \                      / \                   . 
+	 *           a/   \                    /   \                  . 
+	 *           /     \                  /     \ u_c_new_p       .
+	 *          /       \                /     / \                .
+	 *         /         \              /     /   \a'             .
+	 *        /u          \ u_s        /     /     \              .
+	 *       / \          /\          /     /     u/\             .
+	 *   b-a/   \        /  \b'      /     /      /  \b'-a'       .
+	 *     /u_oc \ u_c  /    \      /     /      /    \ u_c_new   .
+	 *    /1\   /2\    /3\  /4\    /1\   /3\    /2\  /4\          .
+	 *   /___\ /___\  /___\/___\  /___\ /___\  /___\/___\         .
+	 * </pre>
+	 */
+	@SuppressWarnings("unused")
+	private void doSPR() {
+
+		int treeSize = this.T.getNoOfVertices();
+		
+		// Determine which vertex (subtree) to move.
+		int u_c = this.prng.nextInt(treeSize);	// Node to hang off.
+		
+		// Loop until valid vertex is found.
+		while (this.T.isRoot(u_c) || this.T.isRoot(this.T.getParent(u_c))) {
+			u_c = this.prng.nextInt(treeSize);
+		}
+
+		int u = this.T.getParent(u_c);
+		int u_s = this.T.getSibling(u);
+		int u_oc = this.T.getSibling(u_c);
+		int u_p = this.T.getParent(u);
+
+		if (this.times != null) {
+			// Check sanity.
+			assert(this.times.getVertexTime(u_oc) < this.times.getVertexTime(u));
+			assert(this.times.getVertexTime(u_c) < this.times.getVertexTime(u));
+			assert(this.times.getVertexTime(u) < this.times.getVertexTime(u_p));
+			assert(this.times.getVertexTime(u_s) < this.times.getVertexTime(u_p));
+		}
+
+		int u_c_new = this.prng.nextInt(treeSize);	// Hang on u to the arc above this vertex.
+
+		// Loop until valid.
+		// u must not be hung to a vertex in its own subtree!
+		while (this.T.isRoot(u_c_new) || u_c_new == u || this.isInSubtree(u_c_new, u)) {
+			u_c_new = this.prng.nextInt(treeSize);
+		}
+
+		// Time heuristics stuff.
+		double u_nodeTimeBefore = Double.NaN;
+		double b_prime = Double.NaN;
+		double a_prime = Double.NaN;
+		if (this.times != null) {
+			u_nodeTimeBefore = this.times.getVertexTime(u);
+			double b = this.times.getArcTime(u_oc) + this.times.getArcTime(u);
+			double a = this.times.getArcTime(u);
+			double k = b / a;		
+	
+			b_prime = this.times.getArcTime(u_c_new);
+			a_prime = b_prime / k;
+		}
+
+		// Do the SPR move.
+		this.T.setChildren(u_p, u_oc, u_s);
+		int u_c_new_p = this.T.getParent(u_c_new);
+		int u_c_new_s = this.T.getSibling(u_c_new);
+		this.T.setChildren(u, u_c, u_c_new);
+		this.T.setChildren(u_c_new_p, u_c_new_s, u);
+
+		// Time heuristics.
+		if (this.times != null) {	
+			double u_nodeTimeAfter = this.times.getVertexTime(u_c_new) + b_prime - a_prime;
+			//this.times.setVertexTime(u, u_nodeTimeAfter);
+			double[] vts = this.times.getVertexTimes();
+			double[] ats = this.times.getArcTimes();
+			vts[u] = u_nodeTimeAfter;
+			ats[u] = vts[u_c_new_p] - vts[u];
+			ats[u_c] = u_nodeTimeAfter - vts[u_c];
+			ats[u_c_new] = u_nodeTimeAfter - vts[u_c_new];
+
+			double k_height = u_nodeTimeAfter / u_nodeTimeBefore;
+			this.recursiveEdgeTimeScaling(u_c, k_height);
+			
+			assert(this.times.getVertexTime(u_oc) < this.times.getVertexTime(u_p));
+			assert(this.times.getVertexTime(u_s) < this.times.getVertexTime(u_p));
+			assert(this.times.getVertexTime(u_c) < this.times.getVertexTime(u));
+			assert(this.times.getVertexTime(u_c_new) < this.times.getVertexTime(u));
+			assert(this.times.getVertexTime(u_c_new_s) < this.times.getVertexTime(u_c_new_p));
+			assert(this.times.getVertexTime(u) < this.times.getVertexTime(u_c_new_p));
+		}
+		
+		// Length heuristics.
+		if (lengths != null) {
+			double a = this.lengths.get(u);
+			double b = this.lengths.get(u_oc);
+			double c = this.lengths.get(u_c_new);
+			double x = a * c / (a + b);
+			this.lengths.set(u, x);
+			this.lengths.set(u_oc, a + b);
+			this.lengths.set(u_c_new, c - x);
+		}	
+
+	}
+	
+	
+	/** 
+	 * Reroots a tree so that the leaves in the outgroup forms a 
+	 * monophyletic group.
+	 * @param T the topology to reroot.
+	 * @param names the names of the leaves.
+	 * @param outgroup the subset of names of the outgroup.
+	 */
+	private static void rootAtOutgroup(RBTree T, NamesMap names, List<String> outgroup) {
+		assert(outgroup.size() > 0);
+
+		int lca = names.getVertex(outgroup.get(0));
+		for (int i = 1; i < outgroup.size(); ++i) {
+			int l =  names.getVertex(outgroup.get(i));
+			lca = T.getLCA(lca, l);
+		}
+
+		if (T.isRoot(lca) || T.isRoot(T.getParent(lca))) {
+			return;
+		} else {
+			int parent = T.getParent(lca);
+			RBTreeBranchSwapper.rotate(parent, lca, null, null);
+			// TODO: Check that outgroup is monophyletic, else warn /bens.
+			return;
+		}
+	}
+
 
 //
 //
@@ -761,16 +654,16 @@ public class RBTreeBranchSwapper implements Proposer {
 //		Node *v_sibling    = v->getSibling();
 //
 //		//a,b,c from figure above
-//		Real a = v_child->getLength();
-//		Real b = v->getLength();
-//		Real c = v_sibling->getLength();
+//		double a = v_child this.lengths.get();
+//		double b = v this.lengths.get();
+//		double c = v_sibling this.lengths.get();
 //
-//		Real root_time = v->getParent()->getNodeTime();
+//		double root_time = v->getParent()->getVertexTime();
 //		// Lower limit of the interval to be split
-//		Real lowerLimit = max(v->getLeftChild()->getNodeTime(),
-//				v->getRightChild()->getNodeTime());
+//		double lowerLimit = max(v->getLeftChild()->getVertexTime(),
+//				v->getRightChild()->getVertexTime());
 //		// Relative position of v in the interval
-//		Real k = v->getTime() / (root_time-lowerLimit);
+//		double k = v->getTime() / (root_time-lowerLimit);
 //
 //		// Move v
 //		v->setChildren(v_otherChild, v_sibling); 
@@ -781,11 +674,11 @@ public class RBTreeBranchSwapper implements Proposer {
 //			// Fix branchTime for v, v:s new child (former v_sibling) and 
 //			// for v:s moved child. No length change here.
 //			// The relative position of v should be kept in its new place
-//			lowerLimit = max(v->getLeftChild()->getNodeTime(),
-//					v->getRightChild()->getNodeTime());
-//			Real v_time = k*(root_time - lowerLimit);
+//			lowerLimit = max(v->getLeftChild()->getVertexTime(),
+//					v->getRightChild()->getVertexTime());
+//			double v_time = k*(root_time - lowerLimit);
 //			assert(v_time > 0);
-//			Real v_nodeTime = root_time - v_time;
+//			double v_nodeTime = root_time - v_time;
 //
 //			v->setNodeTime(v_nodeTime);
 //			
@@ -798,13 +691,13 @@ public class RBTreeBranchSwapper implements Proposer {
 //		if (withLengths)
 //		{
 //			// Fix branchLengths, a,b,c from figure above
-//			// 	Real split_point = R.genrand_real3();
+//			// 	double split_point = R.genrand_real3();
 //			//  	v_child->setLength((1-split_point) * a);
 //			//  	v->setLength(split_point * a);
 //			// 	v_sibling->setLength(b+c);
 //
 //			// Fix branchLengths, Jens deterministic version
-//			Real split_point = b/(b+c);
+//			double split_point = b/(b+c);
 //			v_child->setLength((1-split_point) * a);
 //			v->setLength(split_point * a);
 //			v_sibling->setLength(b+c);
@@ -813,15 +706,15 @@ public class RBTreeBranchSwapper implements Proposer {
 //	}
 //
 //	void
-//	BranchSwapping::recursiveEdgeTimeScaling(Node* v, Real scaleFactor)
+//	BranchSwapping::recursiveEdgeTimeScaling(Node* v, double scaleFactor)
 //	{
 //		assert(v->getTree()->hasTimes()); // Assert that we model times in this tree
 //
-//		//Real v_time = v->getTime()*scaleFactor;
-//		//Real vp_nodeTime = v->getParent()->getNodeTime();
+//		//double v_time = v->getTime()*scaleFactor;
+//		//double vp_nodeTime = v->getParent()->getVertexTime();
 //		//v->setNodeTime(max(0.0,vp_nodeTime-v_time));
 //
-//		Real v_nodeTime = v->getNodeTime()*scaleFactor; 
+//		double v_nodeTime = v->getVertexTime()*scaleFactor; 
 //		//    cout << "v: " << v->getNumber() << " and v_nodeTime: " << v_nodeTime << "\n";  
 //		//v->setNodeTime(max(0.0,v_nodeTime));
 //		v->getTree()->setTimeNoAssert(*v,max(0.0,v_nodeTime));
@@ -830,7 +723,7 @@ public class RBTreeBranchSwapper implements Proposer {
 //
 //		if (!v->isLeaf())
 //		{
-//			//	v->setNodeTime(v->getParent()->getNodeTime()-v_time);
+//			//	v->setNodeTime(v->getParent()->getVertexTime()-v_time);
 //			recursiveEdgeTimeScaling(v->getLeftChild(),scaleFactor);
 //			recursiveEdgeTimeScaling(v->getRightChild(),scaleFactor);
 //		}
