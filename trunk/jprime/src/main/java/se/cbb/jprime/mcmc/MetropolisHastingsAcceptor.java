@@ -14,17 +14,27 @@ import se.cbb.jprime.math.PRNG;
  */
 public class MetropolisHastingsAcceptor implements ProposalAcceptor {
 
+	/** Pseudo-random number generator. */
+	private PRNG prng;
+
+	/**
+	 * Constructor.
+	 * @param prng pseudo-random number generator.
+	 */
+	public MetropolisHastingsAcceptor(PRNG prng) {
+		this.prng = prng;
+	}
+	
 	/**
 	 * Returns true if a proposed state x' should be accepted according to the Metropolis-Hastings sampling scheme.
 	 * @param proposedStateLikelihood the likelihood P(x') of the proposed state x'.
 	 * @param oldStateLikelihood the likelihood P(x) of the old state x.
 	 * @param proposals details the proposals made for going from x to x'. Elements must be of type <code>MetropolisHastingsProposal</code>.
-	 * @param prng pseudo-random number generator.
 	 * @return true if suggested state accepted; false if rejected.
 	 */
 	@Override
 	public boolean acceptProposedState(LogDouble proposedStateLikelihood,
-			LogDouble oldStateLikelihood, List<Proposal> proposals, PRNG prng) {
+			LogDouble oldStateLikelihood, List<Proposal> proposals) {
 		LogDouble a = proposedStateLikelihood.divToNew(oldStateLikelihood);
 		if (proposals != null) {
 			for (Proposal prop : proposals) {

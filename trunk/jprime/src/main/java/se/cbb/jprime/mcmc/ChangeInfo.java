@@ -1,5 +1,7 @@
 package se.cbb.jprime.mcmc;
 
+import java.util.HashSet;
+
 /**
  * Base class for storing information on changes of state
  * parameters and other data structures. This enables e.g. optimised
@@ -48,6 +50,25 @@ public class ChangeInfo {
 		this.changed = changed;
 		this.info = info;
 		this.affectedElements = affectedElements;
+	}
+	
+	/**
+	 * Helper. Returns the union of (possibly overlapping) arrays of indices. If any input array is
+	 * null, null is returned.
+	 * The returned elements have been "uniqified" however.
+	 * @param elements lists of indices.
+	 * @return the union of the lists.
+	 */
+	public static int[] getUnion(int[][] indices) {
+		HashSet<Integer> unionhs = new HashSet<Integer>();
+		for (int[] arr : indices) {
+			if (arr == null) { return null; }
+			for (int x : arr) { unionhs.add(x); }
+		}
+		int[] union = new int[unionhs.size()];
+		int i = 0;
+		for (int x : unionhs) { union[i++] = x; }
+		return union;
 	}
 	
 	/**

@@ -1,6 +1,7 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.ArrayList;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import se.cbb.jprime.misc.Pair;
 
@@ -28,8 +29,8 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	/** The current window (i.e. "bucket"). */
 	protected int currentWindow;
 	
-	/** Number of accepted and rejected proposals per number of parameters. */
-	protected ArrayList<Pair<Integer,Integer>> noOfAccRejByNoOfParams;
+	/** Number of accepted and rejected proposals indexed by number of parameters. */
+	protected TreeMap<Integer, Pair<Integer,Integer>> noOfAccRejByNoOfParams;
 	
 	/**
 	 * Constructor.
@@ -45,7 +46,7 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 		this.noOfAcceptedPerWindow = new int[noOfWindows];
 		this.noOfRejectedPerWindow = new int[noOfWindows];
 		this.currentWindow = 0;
-		this.noOfAccRejByNoOfParams = new ArrayList<Pair<Integer,Integer>>(8);
+		this.noOfAccRejByNoOfParams = new TreeMap<Integer, Pair<Integer,Integer>>();
 		this.iter.addIterationListener(this);
 	}
 	
@@ -64,12 +65,9 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 			this.noOfRejectedPerWindow[this.currentWindow]++;
 		}
 		int noOfParams = proposal.getNoOfPerturbedParameters();
-		while (noOfParams >= this.noOfAccRejByNoOfParams.size()) {
-			this.noOfAccRejByNoOfParams.add(new Pair<Integer,Integer>(0,0));
-		}
 		Pair<Integer,Integer> ar = this.noOfAccRejByNoOfParams.get(noOfParams);
 		ar = (wasAccepted ? new Pair<Integer,Integer>(ar.first + 1, ar.second) : new Pair<Integer, Integer>(ar.first, ar.second + 1));
-		this.noOfAccRejByNoOfParams.set(noOfParams, ar);
+		this.noOfAccRejByNoOfParams.put(noOfParams, ar);
 	}
 	
 	/**
@@ -159,9 +157,9 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 		}
 		if (this.noOfAccRejByNoOfParams.size() > 1) {
 			sb.append(prefix).append("Acceptance ratio per number of perturbed parameters:\n");
-			for (int i = 0; i < this.noOfAccRejByNoOfParams.size(); ++i) {
-				Pair<Integer,Integer> p = this.noOfAccRejByNoOfParams.get(i);
-				sb.append(prefixt).append(i).append('\t').append(p.first).append(" / ").append(p.first + p.second).append(" = ").append(p.first / (double) (p.first + p.second)).append("\n");
+			for (Entry<Integer, Pair<Integer, Integer>> p : this.noOfAccRejByNoOfParams.entrySet()) {
+				sb.append(prefixt).append(p.getKey()).append('\t').append(p.getValue().first).append(" / ").append(p.getValue().first + p.getValue().second)
+				.append(" = ").append(p.getValue().first / (double) (p.getValue().first + p.getValue().second)).append("\n");
 			}
 		}
 		return sb.toString();

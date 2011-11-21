@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.PriorityQueue;
 import java.util.Set;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.io.Sampler;
@@ -18,7 +17,7 @@ import se.cbb.jprime.math.PRNG;
  * <li>a set of state parameters S1,..., Sk.</li>
  * <li>a set of proposers P1,...,Pl, which perturb the state parameters. A single
  *     proposer Pi may perturb more than one of the parameters, and a single parameter Sj may be perturbed
- *     by more than one proposer (but never at the same time).</li>
+ *     by more than one proposer (but never at the same time). These are accessed via L (see below).</li>
  * <li>a list of models M1,...,Mn which usually correspond to the chain of conditional probabilities
  *     of the overall model.</li>
  * <li>an acyclic digraph (DAG) of dependencies D1,...,Dm of the state parameters. These constitute
@@ -40,16 +39,17 @@ import se.cbb.jprime.math.PRNG;
  * <li>Listeners of I are implicitly updated.</li>
  * <li>L is used to select a (possibly singleton) set Pa1,...,Paq so that the state parameters
  *     Sb1,...,Sbr perturbed by these only appear in one Paj.</li>
- * <li>Sb1,...,Sbr are cached and perturbed by Pa1,...,Paq, and proposal densities from/to the new state are noted</li>
+ * <li>Pa1,...,Paq are asked to cache the parts of Sb1,...,Sbr they will affect, and carry out the perturbations.
+ *     Proposal densities from/to the new state are noted</li>
  * <li>The dependencies Dc1,...,Dcs relying on Sb1,...,Sbr are asked to cache and update in topological order.
- *     This is then recursively repeated until all dependencies up to and including the models are up-to-date.</li>
+ *     This is recursively repeated until all dependencies up to and including the models are up-to-date.</li>
  * <li>The likelihood of the proposed state is collected from M1,...,Mn.</li>
  * <li>A is used to decide whether to accept or reject the new state:</li>
  * <li>
  *   <ul>
- *     <li>Accepted: Sb1,...,Sbr and induced dependencies are asked to clear their cache.
+ *     <li>Accepted: Pa1,...,Paq and induced dependencies are asked to clear their cache.
  *         The current likelihood is updated.</li>
- *     <li>Rejected: Sb1,...,Sbr and induced dependencies are asked to restore their cache.</li>
+ *     <li>Rejected: Pa1,...,Paq and induced dependencies are asked to restore their cache.</li>
  *   </ul>
  * </li>
  * <li>Go to 1 or finish.</li>
@@ -58,25 +58,6 @@ import se.cbb.jprime.math.PRNG;
  * @author Joel Sjöstrand.
  */
 public class MCMCManager {
-	
-	/**
-	 * Holder of dependent and topological ordering index in the dependency DAG,
-	 * from sources to sinks (although the sources==state parameters are actually excluded).
-	 */
-	class OrderedDependent implements Comparable<OrderedDependent> {
-		ProperDependent dependent;
-		Integer order;
-		
-		public OrderedDependent(ProperDependent dependent, int order) {
-			this.dependent = dependent;
-			this.order = order;
-		}
-
-		@Override
-		public int compareTo(OrderedDependent o) {
-			return this.order.compareTo(o.order);
-		}
-	}
 	
 	/** Iteration of MCMC chain. */
 	protected Iteration iteration;
@@ -96,17 +77,14 @@ public class MCMCManager {
 	/** Pseudo-random number generator. */
 	protected PRNG prng;
 	
-	/**
-	 * Map in which all dependents (state parameters, models, remaining "proper dependents") are
-	 * keys, and their respective children are values.
-	 */
-	protected HashMap<Dependent, ArrayList<OrderedDependent>> dependents;
+	/** State parameters. */
+	protected ArrayList<StateParameter> parameters;
+	
+	/** Proper dependents (in topological order after sorting). */
+	protected ArrayList<ProperDependent> properDependents;
 	
 	/** The models of the overall model. */
 	protected ArrayList<Model> models;
-	
-	/** The proposers which perturb the state parameters. */
-	protected ArrayList<Proposer> proposers;
 	
 	/** The fields included in each sampling-tuple. */
 	protected ArrayList<Sampleable> sampleables;
@@ -128,9 +106,9 @@ public class MCMCManager {
 		this.proposalAcceptor = proposalAcceptor;
 		this.sampler = sampler;
 		this.prng = prng;
-		this.dependents = new HashMap<Dependent, ArrayList<OrderedDependent>>(32);
-		this.models = new ArrayList<Model>(8);
-		this.proposers = new ArrayList<Proposer>(16);
+		this.parameters = new ArrayList<StateParameter>(16);
+		this.properDependents = new ArrayList<ProperDependent>(16);
+		this.models = new ArrayList<Model>(16);
 		this.sampleables = new ArrayList<Sampleable>(16);
 	}
 	
@@ -149,23 +127,20 @@ public class MCMCManager {
 	 * @param dependent the dependent.
 	 */
 	private void addDependent(Dependent dependent) {
-		if (!this.dependents.containsKey(dependent)) {
-			this.dependents.put(dependent, new ArrayList<OrderedDependent>(8));    // Null for the moment.
-		}
-		Dependent parents[] = dependent.getParentDependents();
-		if (parents != null) {
-			for (Dependent par : parents) {
-				this.addDependent(par);
+		if (dependent instanceof StateParameter && !this.parameters.contains(dependent)) {
+			// State parameter, i.e. DAG source.
+			StateParameter sp = (StateParameter) dependent;
+			this.parameters.add(sp);
+		} else {
+			// Proper dependent.
+			ProperDependent pd = (ProperDependent) dependent;
+			if (!this.properDependents.contains(pd)) {
+				this.properDependents.add(pd);
+				for (Dependent par : pd.getParentDependents()) {
+					this.addDependent(par);
+				}
 			}
 		}
-	}
-	
-	/**
-	 * Adds a proposer acting on one or more of the state parameters.
-	 * @param proposer the proposer.
-	 */
-	public void addProposer(Proposer proposer) {
-		this.proposers.add(proposer);
 	}
 	
 	/**
@@ -183,52 +158,35 @@ public class MCMCManager {
 	 * be invoked when all dependents have been added.
 	 */
 	private void updateDependencyStructure() {
-		Set<Dependent> all = this.dependents.keySet();
-		
-		// First, create ordered dependents.
-		HashMap<ProperDependent, OrderedDependent> ordered = new HashMap<ProperDependent, OrderedDependent>(this.dependents.size());
-		for (Dependent dep : all) {
-			if (dep.getParentDependents() != null) {
-				ProperDependent pd = (ProperDependent) dep;
-				ordered.put(pd, new OrderedDependent(pd, -1));
-			}
-		}
-		
-		// We've got arcs from children->parent. Now compute parent->children arcs.
-		for (Dependent child : all) {
-			Dependent[] parents = child.getParentDependents();
-			if (parents != null) {
-				for (Dependent parent : parents) {
-					this.dependents.get(parent).add(ordered.get(child));
-				}
-			}
-		}
-		
-		// Compute topological sorting.
-		HashSet<Dependent> visited = new HashSet<Dependent>(all.size());
-		ArrayList<Dependent> sorted = new ArrayList<Dependent>(all.size());
+				
+		// Compute topological sorting using Tarjan's BFS technique.
+		HashSet<Dependent> visited = new HashSet<Dependent>(this.parameters.size() + this.properDependents.size());
+		ArrayList<Dependent> sorted = new ArrayList<Dependent>(visited.size());
 		for (Model model : this.models) {
 			this.visit(model, visited, sorted);
 		}
 		
-		// Store the topological index.
-		for (int i = all.size() - ordered.size(); i < sorted.size(); ++i) {
-			ordered.get(sorted.get(i)).order = i;
+		// Store the proper dependents, now sorted.
+		this.properDependents.clear();
+		for (Dependent dep : sorted) {
+			if (dep instanceof ProperDependent) {
+				this.properDependents.add((ProperDependent) dep);
+			}
 		}
 	}
 	
 	/**
-	 * Recursive helper for computing topological ordering of dependencies.
-	 * @param dependent dependent.
+	 * Recursive helper for computing topological ordering of dependencies according to Tarjan's algorithm (1976).
+	 * @param dependent currently visited dependent.
 	 * @param visited set of visited dependents.
 	 * @param sorted topological ordering of dependents, from sources to sinks.
 	 */
 	private void visit(Dependent dependent, HashSet<Dependent> visited, ArrayList<Dependent> sorted) {
 		if (!visited.contains(dependent)) {
 			visited.add(dependent);
-			Dependent[] parents = dependent.getParentDependents();
-			if (parents != null) {
-				for (Dependent parent : parents) {
+			if (dependent instanceof ProperDependent) {
+				ProperDependent pd = (ProperDependent) dependent;
+				for (Dependent parent : pd.getParentDependents()) {
 					this.visit(parent, visited, sorted);
 				}
 			}
@@ -258,41 +216,33 @@ public class MCMCManager {
 		}
 		
 		// Iterate.
-		ArrayList<Proposal> proposals = new ArrayList<Proposal>(8);
-		PriorityQueue<OrderedDependent> toBeUpdated = new PriorityQueue<OrderedDependent>(16);
-		ArrayList<ProperDependent> affected = new ArrayList<ProperDependent>(16);
+		HashMap<Dependent, ChangeInfo> changeInfos = new HashMap<Dependent, ChangeInfo>(16);
+		ArrayList<Proposal> proposals = new ArrayList<Proposal>(16);
 		while (this.iteration.increment()) {
 			
 			// Clear lists.
+			changeInfos.clear();
 			proposals.clear();
-			toBeUpdated.clear();
-			affected.clear();
 			
 			// Query whether this is a sample iteration or not.
 			willSample = this.thinner.doSample();
 			
 			// Get proposer(s) to use.
-			Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers(proposers);
+			Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
 			
 			// Perturb state parameters.
 			for (Proposer proposer : shakeItBaby) {
-				Proposal proposal = proposer.cacheAndPerturbAndSetChangeInfo();
+				Proposal proposal = proposer.cacheAndPerturb(changeInfos);
 				proposals.add(proposal);
-				for (StateParameter param : proposal.getPerturbedParameters()) {
-					// Register children for pending updates.
-					if (param.getChangeInfo() != null) {
-						toBeUpdated.addAll(this.dependents.get(param));
-					}
-				}
 			}
 			
-			// Update in topological order.
-			while (!toBeUpdated.isEmpty()) {
-				ProperDependent dep = toBeUpdated.poll().dependent;
-				dep.cacheAndUpdateAndSetChangeInfo(willSample);
-				affected.add(dep);
-				if (dep.getChangeInfo() != null) {
-					toBeUpdated.addAll(this.dependents.get(dep));
+			// Update in topological order, but only if deemed necessary.
+			for (ProperDependent dep : this.properDependents) {
+				for (Dependent parent : dep.getParentDependents()) {
+					if (changeInfos.get(parent) != null) {
+						dep.cacheAndUpdate(changeInfos, willSample);
+						break;
+					}
 				}
 			}
 			
@@ -303,21 +253,25 @@ public class MCMCManager {
 			}
 			
 			// Finally, decide whether to accept or reject.
-			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, oldLikelihood, proposals, this.prng);
+			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, oldLikelihood, proposals);
 			if (doAccept) {
 				for (Proposer proposer : shakeItBaby) {
-					proposer.clearCacheAndClearChangeInfo();
+					proposer.clearCache();
 				}
-				for (ProperDependent dep : affected) {
-					dep.clearCacheAndClearChangeInfo(willSample);
+				for (ProperDependent dep : this.properDependents) {
+					if (changeInfos.get(dep) != null) {
+						dep.clearCache(willSample);
+					}
 				}
 				oldLikelihood = newLikelihood;
 			} else {
 				for (Proposer proposer : shakeItBaby) {
-					proposer.restoreCacheAndClearChangeInfo();
+					proposer.restoreCache();
 				}
-				for (ProperDependent dep: affected) {
-					dep.restoreCacheAndClearChangeInfo(willSample);
+				for (ProperDependent dep: this.properDependents) {
+					if (changeInfos.get(dep) != null) {
+						dep.restoreCache(willSample);
+					}
 				}
 			}
 			

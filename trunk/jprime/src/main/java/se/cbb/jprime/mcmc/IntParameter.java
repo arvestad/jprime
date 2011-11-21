@@ -77,9 +77,4 @@ public class IntParameter implements StateParameter {
 		return SampleInt.class;
 	}
 
-	@Override
-	public Dependent[] getParentDependents() {
-		return null;
-	}
-
 }

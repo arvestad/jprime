@@ -1,8 +1,7 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
-import java.util.TreeSet;
-
+import java.util.Arrays;
+import java.util.List;
 import se.cbb.jprime.math.LogDouble;
 
 /**
@@ -23,7 +22,7 @@ public class MetropolisHastingsProposal implements Proposal {
 	private LogDouble backwardDensity;
 
 	/** Perturbed parameters. */
-	private Set<StateParameter> params;
+	private List<StateParameter> params;
 	
 	/** Number of perturbed sub-parameters. */
 	private int noOfSubParams;
@@ -36,7 +35,7 @@ public class MetropolisHastingsProposal implements Proposal {
 	 * @param perturbedParams the actually changed parameters from old state to new state.
 	 * @param noOfPerturbedSubParams the total number of actually changed sub-parameters of the above.
 	 */
-	public MetropolisHastingsProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, Set<StateParameter> perturbedParams,
+	public MetropolisHastingsProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, List<StateParameter> perturbedParams,
 			int noOfPerturbedSubParams) {
 		this.proposer = proposer;
 		this.forwardDensity = forwardDensity;
@@ -55,8 +54,7 @@ public class MetropolisHastingsProposal implements Proposal {
 	 */
 	public MetropolisHastingsProposal(Proposer proposer, LogDouble forwardDensity, LogDouble backwardDensity, StateParameter perturbedParam,
 			int noOfPerturbedSubParams) {
-		this(proposer, forwardDensity, backwardDensity, new TreeSet<StateParameter>(), noOfPerturbedSubParams);
-		this.params.add(perturbedParam);
+		this(proposer, forwardDensity, backwardDensity, Arrays.asList(new StateParameter[] {perturbedParam}), noOfPerturbedSubParams);
 	}
 
 	/**
@@ -66,7 +64,7 @@ public class MetropolisHastingsProposal implements Proposal {
 	 * @param proposer the proposer which generated this object.
 	 * @param attemptedParams the parameters which failed to be perturbed.
 	 */
-	public MetropolisHastingsProposal(Proposer proposer, Set<StateParameter> attemptedParams) {
+	public MetropolisHastingsProposal(Proposer proposer, List<StateParameter> attemptedParams) {
 		this.proposer = proposer;
 		this.params = attemptedParams;
 		this.forwardDensity = new LogDouble(1.0);
@@ -82,8 +80,7 @@ public class MetropolisHastingsProposal implements Proposal {
 	 * @param attemptedParam the parameter which failed to be perturbed.
 	 */
 	public MetropolisHastingsProposal(Proposer proposer, StateParameter attemptedParam) {
-		this(proposer, new TreeSet<StateParameter>());
-		this.params.add(attemptedParam);
+		this(proposer, Arrays.asList(new StateParameter[] {attemptedParam}));
 	}
 	
 	/**
@@ -120,7 +117,7 @@ public class MetropolisHastingsProposal implements Proposal {
 	}
 
 	@Override
-	public Set<StateParameter> getPerturbedParameters() {
+	public List<StateParameter> getPerturbedParameters() {
 		return this.params;
 	}
 

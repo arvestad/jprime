@@ -1,6 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,8 +25,7 @@ public interface ProposerSelector extends InfoProvider {
 	 * decide whether they e.g. return only a single object or multiple
 	 * objects. Furthermore, <b>the returned proposers must be guaranteed to
 	 * be acting on disjoint sets of state parameters</b>.
-	 * @param proposers the set of proposers to choose among.
 	 * @return a subset of proposers, no pairs acting on the same state parameter.
 	 */
-	public Set<Proposer> getDisjointProposers(List<Proposer> proposers);
+	public Set<Proposer> getDisjointProposers();
 }

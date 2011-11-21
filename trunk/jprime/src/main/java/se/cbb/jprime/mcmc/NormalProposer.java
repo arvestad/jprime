@@ -51,9 +51,6 @@ public class NormalProposer implements Proposer {
 	/** Second tuning parameter. Governs probability of staying in +-(1+t1)*old value. */
 	private TuningParameter t2;
 
-	/** Weight. */
-	private ProposerWeight weight;
-
 	/** Statistics. */
 	private ProposerStatistics stats;
 	
@@ -72,12 +69,11 @@ public class NormalProposer implements Proposer {
 	 * @param interval domain of state parameter and proposal distribution.
 	 * @param t1 tuning parameter governing factor from old state.
 	 * @param t2 tuning parameter governing probability of staying within +-(1+t1)*old state.
-	 * @param weight proposer weight.
 	 * @param stats proposer statistics.
 	 * @param prng pseudo-random number generator.
 	 */
 	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter t1,
-			TuningParameter t2, ProposerWeight weight, ProposerStatistics stats, PRNG prng) {
+			TuningParameter t2, ProposerStatistics stats, PRNG prng) {
 		if (t1.getMinValue() <= 0) {
 			throw new IllegalArgumentException("First tuning parameter for normal proposer must be in (0,inf).");
 		}
@@ -92,7 +88,6 @@ public class NormalProposer implements Proposer {
 		this.interval = interval;
 		this.t1 = t1;
 		this.t2 = t2;
-		this.weight = weight;
 		this.stats = stats;
 		this.prng = prng;
 		this.cumSubParamWeights = new double[] { 1.0 };
@@ -104,13 +99,12 @@ public class NormalProposer implements Proposer {
 	 * @param param state parameter perturbed by this proposer.
 	 * @param t1 tuning parameter governing factor from old state.
 	 * @param t2 tuning parameter governing probability of staying within +-(1+t1)*old state.
-	 * @param weight proposer weight.
 	 * @param stats proposer statistics.
 	 * @param prng random number generator.
 	 */
 	public NormalProposer(RealParameter param, TuningParameter t1, TuningParameter t2,
-			ProposerWeight weight, ProposerStatistics stats, PRNG prng) {
-		this(param, new RealInterval(), t1, t2, weight, stats, prng);
+			ProposerStatistics stats, PRNG prng) {
+		this(param, new RealInterval(), t1, t2, stats, prng);
 	}
 	
 	@Override
@@ -128,16 +122,6 @@ public class NormalProposer implements Proposer {
 	@Override
 	public int getNoOfSubParameters() {
 		return 1;
-	}
-
-	@Override
-	public ProposerWeight getProposerWeight() {
-		return this.weight;
-	}
-
-	@Override
-	public double getWeight() {
-		return this.weight.getValue();
 	}
 
 	/**
@@ -294,13 +278,12 @@ public class NormalProposer implements Proposer {
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("NORMAL DISTRIBUTED PROPOSER\n");
-		sb.append("Perturbed parameter: ").append(this.param.getName()).append('\n');
-		sb.append("Is active: ").append(this.isEnabled).append("\n");
-		sb.append("Domain: ").append(this.interval.toString()).append('\n');
-		sb.append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
-		sb.append("Tuning parameter 1:\n").append(this.t1.getPreInfo(prefix + '\t'));
-		sb.append("Tuning parameter 2:\n").append(this.t2.getPreInfo(prefix + '\t'));
-		sb.append("Weight:\n").append(this.weight.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Is active: ").append(this.isEnabled).append("\n");
+		sb.append(prefix).append("Perturbed parameter: ").append(this.param.getName()).append('\n');
+		sb.append(prefix).append("Domain: ").append(this.interval.toString()).append('\n');
+		sb.append(prefix).append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
+		sb.append(prefix).append("Tuning parameter 1:\n").append(this.t1.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Tuning parameter 2:\n").append(this.t2.getPreInfo(prefix + '\t'));
 		return sb.toString();
 	}
 
@@ -308,7 +291,7 @@ public class NormalProposer implements Proposer {
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("NORMAL DISTRIBUTED PROPOSER\n");
-		sb.append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));
 		return sb.toString();
 	}
 

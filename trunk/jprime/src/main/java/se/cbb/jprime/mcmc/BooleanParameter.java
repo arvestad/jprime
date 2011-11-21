@@ -77,9 +77,4 @@ public class BooleanParameter implements StateParameter {
 		return SampleBoolean.class;
 	}
 
-	@Override
-	public Dependent[] getParentDependents() {
-		return null;
-	}
-
 }

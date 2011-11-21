@@ -28,9 +28,6 @@ public class DupLossProbs implements Dependent {
 	/** Loss (death) rate. */
 	protected DoubleParameter mu;
 	
-	/** Child dependents. */
-	protected TreeSet<Dependent> dependents;
-	
 	public DupLossProbs(RBTree s, /** XXX sDiscTimes,*/ DoubleParameter lambda, DoubleParameter mu) {
 		s.addChildDependent(this);
 		//s.DiscTimes.addChildDependent(this);
