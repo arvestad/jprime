@@ -119,9 +119,4 @@ public class DoubleParameter implements RealParameter {
 		this.value = value;
 	}
 
-	@Override
-	public Dependent[] getParentDependents() {
-		return null;
-	}
-
 }

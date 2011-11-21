@@ -1,5 +1,6 @@
 package se.cbb.jprime.mcmc;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,12 @@ public class MultiProposerSelector implements ProposerSelector {
 	/** The maximum number of attempts at trying to add another proposer when selecting. */
 	public static final int MAX_NO_OF_ATTEMPTS = 100;
 	
+	/** All proposers to choose from. */
+	private ArrayList<Proposer> proposers;
+	
+	/** Weight for each proposer. */
+	private ArrayList<ProposerWeight> weights;
+	
 	/** PRNG. */
 	private PRNG prng;
 	
@@ -34,6 +41,8 @@ public class MultiProposerSelector implements ProposerSelector {
 	 * @param prng the PRNG used for random selection.
 	 */
 	public MultiProposerSelector(PRNG prng) {
+		this.proposers = new ArrayList<Proposer>(16);
+		this.weights = new ArrayList<ProposerWeight>(16);
 		this.prng = prng;
 		this.cumNoWeights = new double[] { 1.0 };
 	}
@@ -50,6 +59,8 @@ public class MultiProposerSelector implements ProposerSelector {
 		if (noWeights == null || noWeights.length == 0) {
 			throw new IllegalArgumentException("Invalid weights in multi proposer selector.");
 		}
+		this.proposers = new ArrayList<Proposer>(16);
+		this.weights = new ArrayList<ProposerWeight>(16);
 		this.prng = prng;
 		this.cumNoWeights = new double[noWeights.length];
 		double tot = 0.0;
@@ -66,19 +77,28 @@ public class MultiProposerSelector implements ProposerSelector {
 		this.cumNoWeights[this.cumNoWeights.length - 1] = 1.0;   // For numeric safety.
 	}
 	
+	/**
+	 * Adds a proposer to the available set to draw from.
+	 * @param proposer the proposer to add.
+	 */
+	public void add(Proposer proposer, ProposerWeight weight) {
+		this.proposers.add(proposer);
+		this.weights.add(weight);
+	}
+	
 	@Override
-	public Set<Proposer> getDisjointProposers(List<Proposer> proposers) {
-		if (proposers == null || proposers.isEmpty()) {
+	public Set<Proposer> getDisjointProposers() {
+		if (this.proposers == null || this.proposers.isEmpty()) {
 			throw new IllegalArgumentException("Cannot select proposer from empty list.");
 		}
 		
 		// Special cases for speed.
-		if (proposers.size() == 1) {
-			return new TreeSet<Proposer>(proposers);
+		if (this.proposers.size() == 1) {
+			return new TreeSet<Proposer>(this.proposers);
 		}
 		if (this.cumNoWeights.length == 1) {
 			TreeSet<Proposer> ts = new TreeSet<Proposer>();
-			ts.add(proposers.get(this.prng.nextInt(proposers.size())));
+			ts.add(this.proposers.get(this.prng.nextInt(this.proposers.size())));
 			return ts;
 		}
 		
@@ -88,10 +108,10 @@ public class MultiProposerSelector implements ProposerSelector {
 		while (d > this.cumNoWeights[noOfProps-1]) { ++noOfProps; }
 		
 		// Compute an accumulated weight array for the current proposer weights.
-		double[] accWeights = new double[proposers.size()];
+		double[] accWeights = new double[this.proposers.size()];
 		double tot = 0.0;
 		for (int i = 0; i< accWeights.length; ++i) {
-			tot += proposers.get(i).getWeight();
+			tot += this.weights.get(i).getValue();
 			accWeights[i] = tot;
 		}
 		for (int i = 0; i < accWeights.length; ++i) {
@@ -104,7 +124,7 @@ public class MultiProposerSelector implements ProposerSelector {
 		TreeSet<StateParameter> selParams = new TreeSet<StateParameter>();
 		int attempts = 0;
 		while (attempts < MAX_NO_OF_ATTEMPTS && selProps.size() < noOfProps) {
-			addProposer(selProps, selParams, proposers, accWeights);
+			addProposer(selProps, selParams, this.proposers, accWeights);
 			++attempts;
 		}
 		assert !selProps.isEmpty();
@@ -150,12 +170,24 @@ public class MultiProposerSelector implements ProposerSelector {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("MULTI-PROPOSER SELECTOR\n");
 		sb.append(prefix).append("Cumulative no.-of-proposer weights: ").append(Arrays.toString(this.cumNoWeights)).append('\n');
+		for (int i = 0; i < this.proposers.size(); ++i) {
+			sb.append(prefix).append("Proposer ").append(i+1).append(":\n");
+			sb.append(prefix).append(this.proposers.get(i).getPreInfo(prefix + '\t'));
+			sb.append(prefix).append("Proposer ").append(i+1).append("'s weight:\n");
+			sb.append(prefix).append(this.weights.get(i).getPreInfo(prefix + '\t'));
+		}
 		return sb.toString();
 	}
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("MULTI-PROPOSER SELECTOR\n");
+		for (int i = 0; i < this.proposers.size(); ++i) {
+			sb.append(prefix).append("Proposer ").append(i+1).append(":\n");
+			sb.append(prefix).append(this.proposers.get(i).getPostInfo(prefix + '\t'));
+		}
+		return sb.toString();
 	}
 	
 }

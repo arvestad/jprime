@@ -1,7 +1,6 @@
 package se.cbb.jprime.topology;
 
 import se.cbb.jprime.io.SampleIntArrayArray;
-import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
@@ -190,11 +189,6 @@ public class IntArrayMap implements GraphMap, StateParameter {
 	@Override
 	public int getSize() {
 		return this.values.length;
-	}
-
-	@Override
-	public Dependent[] getParentDependents() {
-		return null;
 	}
 
 }

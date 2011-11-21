@@ -3,7 +3,6 @@ package se.cbb.jprime.mcmc;
 import java.util.List;
 
 import se.cbb.jprime.math.LogDouble;
-import se.cbb.jprime.math.PRNG;
 
 /**
  * Interface for probabilistic techniques of determining whether a suggested
@@ -22,9 +21,8 @@ public interface ProposalAcceptor extends InfoProvider {
 	 * @param proposedStateLikelihood the likelihood P(x').
 	 * @param oldStateLikelihood the likelihood P(x).
 	 * @param proposals details the proposals made for going from x to x'. May be null for certain implementations (e.g. hill-climbing).
-	 * @param prng pseudo-random number generator. May be null for certain implementations (e.g. hill-climbing).
 	 * @return true if suggested state accepted; false if rejected.
 	 */
 	public boolean acceptProposedState(LogDouble proposedStateLikelihood, LogDouble oldStateLikelihood,
-			List<Proposal> proposals, PRNG prng);
+			List<Proposal> proposals);
 }

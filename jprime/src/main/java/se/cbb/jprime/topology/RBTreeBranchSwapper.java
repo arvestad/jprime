@@ -1,19 +1,20 @@
 package se.cbb.jprime.topology;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.ChangeInfo;
-import se.cbb.jprime.mcmc.ConstantTuningParameter;
 import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.MetropolisHastingsProposal;
 import se.cbb.jprime.mcmc.Proposal;
 import se.cbb.jprime.mcmc.Proposer;
 import se.cbb.jprime.mcmc.ProposerStatistics;
-import se.cbb.jprime.mcmc.ProposerWeight;
 import se.cbb.jprime.mcmc.StateParameter;
 import se.cbb.jprime.mcmc.TuningParameter;
 
@@ -42,9 +43,6 @@ public class RBTreeBranchSwapper implements Proposer {
 	/** Times. Null if not used. */
 	private TimesMap times;
 	
-	/** Weight. */
-	private ProposerWeight weight;
-	
 	/** Statistics. */
 	private ProposerStatistics statistics;
 	
@@ -60,39 +58,35 @@ public class RBTreeBranchSwapper implements Proposer {
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
-	 * @param weight weight of this proposer.
 	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, ProposerWeight weight,
-			ProposerStatistics stats, PRNG prng) {
-		this(T, null, null, weight, stats, prng);
+	public RBTreeBranchSwapper(RBTree T, ProposerStatistics stats, PRNG prng) {
+		this(T, null, null, stats, prng);
 	}
 	
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
 	 * @param times times of T. May be null.
-	 * @param weight weight of this proposer.
 	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, TimesMap times, ProposerWeight weight,
+	public RBTreeBranchSwapper(RBTree T, TimesMap times,
 			ProposerStatistics stats, PRNG prng) {
-		this(T, null, times, weight, stats, prng);
+		this(T, null, times, stats, prng);
 	}
 	
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
 	 * @param lengths lengths of T. May be null.
-	 * @param weight weight of this proposer.
 	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, ProposerWeight weight,
+	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths,
 			ProposerStatistics stats, PRNG prng) {
-		this(T, lengths, null, weight, stats, prng);
+		this(T, lengths, null, stats, prng);
 	}
 	
 	/**
@@ -100,19 +94,17 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param T tree topology to perturb.
 	 * @param lengths lengths of T. May be null.
 	 * @param times times of T. May be null.
-	 * @param weight weight of this proposer.
 	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
 	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, TimesMap times,
-			ProposerWeight weight, ProposerStatistics stats, PRNG prng) {
+			ProposerStatistics stats, PRNG prng) {
 		this.T = T;
 		this.lengths = lengths;
 		this.times = times;
-		this.weight = weight;
 		this.statistics = stats;
 		this.prng = prng;
-		this.operationWeights = new double[] { 0.5, 0.3, 0.2};
+		this.operationWeights = new double[] {0.5, 0.3, 0.2};
 	}
 	
 	@Override
@@ -141,16 +133,6 @@ public class RBTreeBranchSwapper implements Proposer {
 	}
 
 	@Override
-	public ProposerWeight getProposerWeight() {
-		return this.weight;
-	}
-
-	@Override
-	public double getWeight() {
-		return this.weight.getValue();
-	}
-
-	@Override
 	public ProposerStatistics getStatistics() {
 		return this.statistics;
 	}
@@ -174,23 +156,33 @@ public class RBTreeBranchSwapper implements Proposer {
 			this.times.cache(null);
 		}
 		
+		// Perturb!
 		if (w < this.operationWeights[0]) {
-			//this.doNNI();
+			this.doNNI();
 		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
-			// this.doSPR();
+			this.doSPR();
 		} else {
-			// this.doRerooting();
+			this.doReroot();
 		}
 		
+		// Note changes. Just say that all sub-parameters have changed.
+		ArrayList<StateParameter> affected = new ArrayList<StateParameter>(3);
 		changeInfos.put(this.T, new ChangeInfo(this.T));
+		int no = this.T.getNoOfSubParameters();
+		affected.add(this.T);
 		if (this.lengths != null) {
 			changeInfos.put(this.lengths, new ChangeInfo(this.lengths));
+			affected.add(this.lengths);
+			no += this.lengths.getNoOfSubParameters();
 		}
 		if (this.times != null) {
 			changeInfos.put(this.times, new ChangeInfo(this.times));
+			affected.add(this.times);
+			no += this.getNoOfSubParameters();
 		}
-		// TODO Implement!
-		return null;
+		
+		// Right now, we consider forward-backward probabilities as equal.
+		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), this.times, no);
 	}
 
 	@Override
@@ -279,6 +271,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * root and iteratively rotating the tree at the top.
 	 * @param v the sink.
 	 */
+	@SuppressWarnings("unused")
 	private void setRootOn(int v) {
 		if (T.isRoot(v)) {
 			return;
@@ -295,23 +288,27 @@ public class RBTreeBranchSwapper implements Proposer {
 		assert(this.T.isRoot(this.T.getParent(p)));
 		
 		// This should be our final rotation
-		this.rotate(p, v);
-	}
-
-	private void rotate(int p, int v) {
-		// TODO Auto-generated method stub
+		RBTreeBranchSwapper.rotate(this.T, p, v, this.lengths, this.times);
 	}
 
 	@Override
 	public String getPreInfo(String prefix) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder(128);
+		sb.append(prefix).append("BRANCH SWAPPER PROPOSER\n");
+		sb.append(prefix).append("Is active: ").append(this.isActive).append("\n");
+		sb.append(prefix).append("Perturbed tree parameter: ").append(this.T.getName()).append('\n');
+		sb.append(prefix).append("Perturbed times parameter: ").append(this.times == null ? "None" : this.times.getName()).append('\n');
+		sb.append(prefix).append("Perturbed lengths parameter: ").append(this.lengths == null ? "None" : this.lengths.getName()).append('\n');
+		sb.append(prefix).append("Operation weights (NNI, SPR, rerooting): ").append(Arrays.toString(this.operationWeights)).append('\n');
+		return sb.toString();
 	}
 
 	@Override
 	public String getPostInfo(String prefix) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append("BRANCH SWAPPER PROPOSER\n");
+		sb.append(prefix).append("Statistics:\n").append(this.statistics.getPreInfo(prefix + '\t'));
+		return sb.toString();
 	}
 
 	/**
@@ -335,14 +332,7 @@ public class RBTreeBranchSwapper implements Proposer {
 		// We will now let v's parent's parent act as a new root.
 		// Execute rotations until that is the case.
 		int parent = this.T.getParent(this.T.getParent(v));
-		if (this.times != null) {
-			// This can be reduced to rotate(parent, v, withLengths, withTimes)
-			this.rotate(parent, v, this.lengths != null, true);
-		} else if (this.lengths != null) {
-			this.rotate(parent, v, true, false);
-		} else {
-			this.rotate(parent, v, false, false);
-		}
+		RBTreeBranchSwapper.rotate(this.T, parent, v, this.lengths, this.times);
 	}
 
 	/**
@@ -459,7 +449,6 @@ public class RBTreeBranchSwapper implements Proposer {
 	 *   /___\ /___\  /___\/___\  /___\ /___\  /___\/___\         .
 	 * </pre>
 	 */
-	@SuppressWarnings("unused")
 	private void doSPR() {
 
 		int treeSize = this.T.getNoOfVertices();
@@ -526,7 +515,7 @@ public class RBTreeBranchSwapper implements Proposer {
 			ats[u_c_new] = u_nodeTimeAfter - vts[u_c_new];
 
 			double k_height = u_nodeTimeAfter / u_nodeTimeBefore;
-			this.recursiveEdgeTimeScaling(u_c, k_height);
+			RBTreeBranchSwapper.recursiveEdgeTimeScaling(this.T, times, u_c, k_height);
 			
 			assert(this.times.getVertexTime(u_oc) < this.times.getVertexTime(u_p));
 			assert(this.times.getVertexTime(u_s) < this.times.getVertexTime(u_p));
@@ -557,7 +546,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param names the names of the leaves.
 	 * @param outgroup the subset of names of the outgroup.
 	 */
-	private static void rootAtOutgroup(RBTree T, NamesMap names, List<String> outgroup) {
+	public static void rootAtOutgroup(RBTree T, NamesMap names, List<String> outgroup) {
 		assert(outgroup.size() > 0);
 
 		int lca = names.getVertex(outgroup.get(0));
@@ -570,164 +559,194 @@ public class RBTreeBranchSwapper implements Proposer {
 			return;
 		} else {
 			int parent = T.getParent(lca);
-			RBTreeBranchSwapper.rotate(parent, lca, null, null);
+			RBTreeBranchSwapper.rotate(T, parent, lca, null, null);
 			// TODO: Check that outgroup is monophyletic, else warn /bens.
 			return;
 		}
 	}
 
 
-//
-//
-//	// Recursively move root to <v,v_child> and update edge lengths.
-//	// Notice that the same node will be root node.
-//	//
-//	// Here is the OLD basic move.
-//	//
-////	            .vp            .vp                               .
-////	           / \c        a+b/ \x                               .
-////	         b/   \          /vc \                               . 
-////	         /   /3\        /1\   \                              .
-////	        /v  /___\      /___\   \v                            .
-////	       / \         to         / \                            . 
-////	     a/   \                  /   \c-x                        .
-////	     /vc   \                /     \    v          (argument 1)
-////	    /1\   /2\              /2\   /3\   vc=v_child (argument 2)
-//	//   /___\ /___\            /___\ /___\  vp=v_parent  
-//	//----------------------------------------------------------------------
-//	// Recursively move root to <v,v_child> and update edge lengths.
-//	// Notice that the same node will be root node.
-//	//
-//	// Here is the NEW basic move.
-//	//
-////	            .vp            .vp                               .
-////	           / \c        a-x/ \x                               .
-////	         b/   \          /vc \                               . 
-////	         /   /3\        /1\   \                              .
-////	        /v  /___\      /___\   \v                            .
-////	       / \         to         / \                            . 
-////	     a/   \                  /   \b+c                        .
-////	     /vc   \                /     \    v          (argument 1)
-////	    /1\   /2\              /2\   /3\   vc=v_child (argument 2)
-//	//   /___\ /___\            /___\ /___\  vp=v_parent  
-//	//
-//	// PRE: t_vp > t_v && t_vp > t_3
-//	// PRE: t_vp > t_v && t_vp > t_1
-//	//----------------------------------------------------------------------
-//	void
-//	BranchSwapping::rotate(Node* v, Node *v_child, 
-//			bool withLengths, bool withTimes)
-//	{
-//		assert(v != NULL);
-//		assert(v_child != NULL);
-//
-//	#ifndef NDEBUG
-//		Tree* T = v->getTree();
-//	#endif
-//		
-//		if(withTimes)
-//		{
-//			// Check sanity
-//			assert(T->getTime(*v) < T->getTime(*v->getParent()));
-//			assert(T->getTime(*v_child) < T->getTime(*v));
-//			assert(T->getTime(*v_child->getSibling()) < T->getTime(*v));
-//		}
-//
-//		Node *v_parent = v->getParent();
-//		if(v_parent == 0)
-//		{
-//			cerr << v->getTree()<< endl;
-//			cerr << v->getNumber() << "'s parent is NULL" << endl;
-//		}
-//
-//		if (v_parent->isRoot() == false)
-//		{
-//			//
-//			// Rotate nodes above our current position, 
-//			// then rotate here. (Could probably write this more neatly!)
-//			//
-//			rotate(v_parent, v, withLengths, withTimes);
-//			v_parent = v->getParent();
-//		}
-//
-//		Node *v_otherChild = v_child->getSibling();
-//		Node *v_sibling    = v->getSibling();
-//
-//		//a,b,c from figure above
-//		double a = v_child this.lengths.get();
-//		double b = v this.lengths.get();
-//		double c = v_sibling this.lengths.get();
-//
-//		double root_time = v->getParent()->getVertexTime();
-//		// Lower limit of the interval to be split
-//		double lowerLimit = max(v->getLeftChild()->getVertexTime(),
-//				v->getRightChild()->getVertexTime());
-//		// Relative position of v in the interval
-//		double k = v->getTime() / (root_time-lowerLimit);
-//
-//		// Move v
-//		v->setChildren(v_otherChild, v_sibling); 
-//		v_parent->setChildren(v_child, v);
-//
-//		if (withTimes)
-//		{
-//			// Fix branchTime for v, v:s new child (former v_sibling) and 
-//			// for v:s moved child. No length change here.
-//			// The relative position of v should be kept in its new place
-//			lowerLimit = max(v->getLeftChild()->getVertexTime(),
-//					v->getRightChild()->getVertexTime());
-//			double v_time = k*(root_time - lowerLimit);
-//			assert(v_time > 0);
-//			double v_nodeTime = root_time - v_time;
-//
-//			v->setNodeTime(v_nodeTime);
-//			
-//			// Check sanity.
-//			assert(T->getTime(*v) < T->getTime(*v->getParent()));
-//			assert(T->getTime(*v_child) < T->getTime(*v_child->getParent()));
-//			assert(T->getTime(*v_child->getSibling()) < T->getTime(*v_child->getParent()));
-//		}
-//
-//		if (withLengths)
-//		{
-//			// Fix branchLengths, a,b,c from figure above
-//			// 	double split_point = R.genrand_real3();
-//			//  	v_child->setLength((1-split_point) * a);
-//			//  	v->setLength(split_point * a);
-//			// 	v_sibling->setLength(b+c);
-//
-//			// Fix branchLengths, Jens deterministic version
-//			double split_point = b/(b+c);
-//			v_child->setLength((1-split_point) * a);
-//			v->setLength(split_point * a);
-//			v_sibling->setLength(b+c);
-//	                // TODO: What happens when lengths falls outside the allowed range in the MCMC?
-//		}
-//	}
-//
-//	void
-//	BranchSwapping::recursiveEdgeTimeScaling(Node* v, double scaleFactor)
-//	{
-//		assert(v->getTree()->hasTimes()); // Assert that we model times in this tree
-//
-//		//double v_time = v->getTime()*scaleFactor;
-//		//double vp_nodeTime = v->getParent()->getVertexTime();
-//		//v->setNodeTime(max(0.0,vp_nodeTime-v_time));
-//
-//		double v_nodeTime = v->getVertexTime()*scaleFactor; 
-//		//    cout << "v: " << v->getNumber() << " and v_nodeTime: " << v_nodeTime << "\n";  
-//		//v->setNodeTime(max(0.0,v_nodeTime));
-//		v->getTree()->setTimeNoAssert(*v,max(0.0,v_nodeTime));
-//
-//		//     v->setTime(v_time);
-//
-//		if (!v->isLeaf())
-//		{
-//			//	v->setNodeTime(v->getParent()->getVertexTime()-v_time);
-//			recursiveEdgeTimeScaling(v->getLeftChild(),scaleFactor);
-//			recursiveEdgeTimeScaling(v->getRightChild(),scaleFactor);
-//		}
-//	}
-//
+	/**
+	 * Recursively moves root to <v,v_child> and updates arc lengths.
+	 * Notice that the same node will be root node.
+	 * <p/>
+	 * Here is the OLD basic move:
+	 * <pre>
+	 *           .vp            .vp                               .
+	 *          / \c        a+b/ \x                               .
+	 *        b/   \          /vc \                               . 
+	 *        /   /3\        /1\   \                              .
+	 *       /v  /___\      /___\   \v                            .
+	 *      / \         to         / \                            . 
+	 *    a/   \                  /   \c-x                        .
+	 *    /vc   \                /     \    v          (argument 1)
+	 *   /1\   /2\              /2\   /3\   vc=v_child (argument 2)
+	 *  /___\ /___\            /___\ /___\  vp=v_parent
+	 * </pre>
+	 * <p/>
+	 * Here is the NEW basic move:
+	 * <pre>
+	 *          .vp            .vp                               .
+	 *         / \c        a-x/ \x                               .
+	 *       b/   \          /vc \                               . 
+	 *       /   /3\        /1\   \                              .
+	 *      /v  /___\      /___\   \v                            .
+	 *     / \         to         / \                            . 
+	 *   a/   \                  /   \b+c                        .
+	 *   /vc   \                /     \    v          (argument 1)
+	 *  /1\   /2\              /2\   /3\   vc=v_child (argument 2)
+	 * /___\ /___\            /___\ /___\  vp=v_parent
+	 * </pre>
+	 * <p/>
+	 * Prerequisites:
+	 * t_vp > t_v && t_vp > t_3<br/>
+	 * t_vp > t_v && t_vp > t_1.
+	 * 
+	 * @param T the tree.
+	 * @param v see illustration above.
+	 * @param v_child see illustration above.
+	 * @param lengths the lengths of the tree (if any).
+	 * @param times the times of the tree (if any).
+	 */
+	private static void rotate(RBTree T, int v, int v_child, DoubleMap lengths, TimesMap times) {
+		assert(v != RBTree.NULL);
+		assert(v_child != RBTree.NULL);
+	
+		if (times != null) {
+			// Check sanity
+			assert(times.getVertexTime(v) < times.getVertexTime(T.getParent(v)));
+			assert(times.getVertexTime(v_child) < times.getVertexTime(v));
+			assert(times.getVertexTime(T.getSibling(v_child)) < times.getVertexTime(v));
+		}
+		
+		int v_parent = T.getParent(v);
+		if (v_parent == RBTree.NULL) {
+			throw new IllegalArgumentException("In rotating branch-swapping, vertex v must not be the root.");
+		}
+
+		if (!T.isRoot(v_parent)) {
+			// Rotate nodes above our current position, 
+			// then rotate here. (Could probably write this more neatly!)
+			RBTreeBranchSwapper.rotate(T, v_parent, v, lengths, times);
+			v_parent = T.getParent(v);
+		}
+
+		int v_otherChild = T.getSibling(v_child);
+		int v_sibling    = T.getSibling(v);
+
+		// Pre-move times heuristics.
+		double root_time = Double.NaN;
+		double lowerLimit = Double.NaN;
+		double k = Double.NaN;
+		if (times != null) {
+			root_time = times.getVertexTime(T.getParent(v));
+			
+			// Lower limit of the interval to be split
+			lowerLimit = Math.max(times.getVertexTime(T.getLeftChild(v)),
+					times.getVertexTime(T.getRightChild(v)));
+			
+			// Relative position of v in the interval.
+			k = times.getArcTime(v) / (root_time - lowerLimit);
+		}
+		
+		// Pre-move length heuristics.
+		double a = Double.NaN;
+		double b = Double.NaN;
+		double c = Double.NaN;
+		if (lengths != null) {
+			// a,b,c from figure above
+			a = lengths.get(v_child);
+			b = lengths.get(v);
+			c = lengths.get(v_sibling);
+		}
+
+		// Move v.
+		T.setChildren(v, v_otherChild, v_sibling); 
+		T.setChildren(v_parent, v_child, v);
+
+		// Post-move times heuristics.
+		if (times != null) {
+			// Fix branch times for v, v:s new child (v:s_former sibling) and 
+			// for v:s moved child. No length change here.
+			// The relative position of v should be kept in its new place.
+			lowerLimit = Math.max(times.getVertexTime(T.getLeftChild(v)),
+					times.getVertexTime(T.getRightChild(v)));
+			double v_time = k * (root_time - lowerLimit);
+			assert(v_time > 0);
+			double v_nodeTime = root_time - v_time;
+
+			// Update the times.
+			double[] vts = times.getVertexTimes();
+			double[] ats = times.getArcTimes();
+			vts[v] = v_nodeTime;
+			ats[v] = vts[v_parent] - vts[v];
+			ats[v_otherChild] = vts[v] - vts[v_otherChild];
+			ats[v_sibling] = vts[v] - vts[v_sibling];
+			
+			// Check sanity.
+			assert(times.getVertexTime(v) < times.getVertexTime(T.getParent(v)));
+			assert(times.getVertexTime(v_child) < times.getVertexTime(T.getParent(v_child)));
+			assert(times.getVertexTime(T.getSibling(v_child)) < times.getVertexTime(T.getParent(v_child)));
+		}
+
+		// Length heuristics.
+		if (lengths != null) {
+			// Old stuff:
+			// Fix branch lengths, a,b,c from figure above.
+			// double split_point = R.genrand_real3();
+			// v_child->setLength((1-split_point) * a);
+			// v->setLength(split_point * a);
+			// v_sibling->setLength(b+c);
+
+			// Fix branch lengths, Jens's deterministic version.
+			double split_point = b / (b + c);
+			lengths.set(v_child, (1 - split_point) * a);
+			lengths.set(v, split_point * a);
+			lengths.set(v_sibling, b + c);
+			// TODO: What happens when lengths fall outside the allowed range in the MCMC?
+		}
+	}
+
+	/**
+	 * Recursively scales a subtree.
+	 * @param T the tree.
+	 * @param times the times of T.
+	 * @param v the subtree root.
+	 * @param scaleFactor the scale factor which all times of T_u are rescaled with.
+	 */
+	private static void recursiveEdgeTimeScaling(RBTree T, TimesMap times, int v, double scaleFactor) {
+		assert(times != null);
+
+		double[] vts = times.getVertexTimes();
+		double[] ats = times.getArcTimes();
+		double v_nodeTime = vts[v] * scaleFactor;
+		vts[v] = Math.max(0.0, v_nodeTime);
+		ats[v] = vts[T.getParent(v)] - vts[v];
+
+		// v->setTime(v_time);
+
+		if (!T.isLeaf(v)) {
+			int lc = T.getLeftChild(v);
+			int rc = T.getRightChild(v);
+			ats[lc] = vts[v] - vts[lc];
+			ats[rc] = vts[v] - vts[rc];
+			//	v->setNodeTime(v->getParent()->getVertexTime()-v_time);
+			recursiveEdgeTimeScaling(T, times, lc, scaleFactor);
+			recursiveEdgeTimeScaling(T, times, rc, scaleFactor);
+		}
+	}
+
+	@Override
+	public void clearCache() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void restoreCache() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

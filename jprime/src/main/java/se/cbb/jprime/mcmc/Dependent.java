@@ -16,11 +16,4 @@ package se.cbb.jprime.mcmc;
  */
 public abstract interface Dependent {
 	
-	/**
-	 * Returns all dependents on which this object relies, i.e. the
-	 * parents of this vertex in the corresponding DAG.
-	 * @return all parent dependents (if any).
-	 */
-	public Dependent[] getParentDependents();
-	
 }

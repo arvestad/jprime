@@ -8,17 +8,17 @@ import java.util.Set;
  * Interface for objects perturbing the values of one or more <code>StateParameter</code> objects,
  * e.g. MCMC parameters. This is closely connected to what is sometimes referred to as <i>operators</i> or
  * <i>kernels</i> in an MCMC context.
+ * <p/>
  * Each <code>Proposer</code> is also associated with:
  * <ul>
- * <li>a <code>ProposerWeight</code> which dictates how often it will in
- *     fact be invoked to perform a perturbation (the weight may e.g. change over time).</li>
  * <li>a <code>ProposerStatistics</code> which keeps track of how the often proposed states
  *     have been accepted or rejected (possibly including more detailed info).</li>
- * <li>a set of <code>TuningParameter</code> objects, possibly empty, which typically governs the
- *     "size" of state changes suggested. These parameters may also change over time.</li>
+ * <li>a set of <code>TuningParameter</code> objects (possibly none), which typically governs the
+ *     "reach" of a suggested state change. These parameters may also change over time.</li>
  * </ul>
  * Generally, for optimisation reasons, the <code>Proposer</code> is responsible for caching and
- * possibly restoring the state parameter values rather than the parameters themselves.
+ * possibly restoring the state parameter values rather than the parameters themselves. This is
+ * because the <code>Proposer</code> perhaps only alters but a small part of them.
  * <p/>
  * A <code>Proposer</code> may be turned off/on with method <code>setEnabled(...)</code>.
  * 
@@ -47,20 +47,6 @@ public interface Proposer extends InfoProvider {
 	 * @return the total number of sub-parameters.
 	 */
 	public int getNoOfSubParameters();
-	
-	/**
-	 * Returns the weight object associated with this object.
-	 * See also <code>getWeight()</code>.
-	 * @return the weight object.
-	 */
-	public ProposerWeight getProposerWeight();
-	
-	/**
-	 * Shorthand for retrieving the current weight of the
-	 * <code>ProposerWeight</code> associated with this object.
-	 * @return the current weight.
-	 */
-	public double getWeight();
 	
 	/**
 	 * Returns the proposal statistics of this object.

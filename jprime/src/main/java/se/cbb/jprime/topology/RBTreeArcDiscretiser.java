@@ -1,6 +1,5 @@
 package se.cbb.jprime.topology;
 
-import java.util.HashSet;
 import java.util.Map;
 
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -162,17 +161,7 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 		} else if (timesInfo == null) {
 			this.vertexCache = sInfo.getAffectedElements();
 		} else {
-			// Compute union of affected vertices.
-			int[] a = sInfo.getAffectedElements();
-			int[] b = timesInfo.getAffectedElements();
-			if (a != null && b != null) {
-				HashSet<Integer> union = new HashSet<Integer>(a.length + b.length);
-				for (int x : a) { union.add(x); }
-				for (int x : b) { union.add(x); }
-				this.vertexCache = new int[union.size()];
-				int i = 0;
-				for (int x : union) { this.vertexCache[i++] = x; }
-			}
+			this.vertexCache = ChangeInfo.getUnion(new int[][]{sInfo.getAffectedElements(), timesInfo.getAffectedElements()});
 		}
 		if (this.vertexCache == null) {
 			// All elements may need update.

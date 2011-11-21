@@ -1,6 +1,6 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Interface for detailing a state parameter change initiated by a single <code>Proposer</code>.
@@ -21,7 +21,7 @@ public interface Proposal {
 	 * by the responsible <code>Proposer</code> for this state change.
 	 * @return the perturbed parameters.
 	 */
-	public Set<StateParameter> getPerturbedParameters();
+	public List<StateParameter> getPerturbedParameters();
 	
 	/**
 	 * Returns the number of parameters which were in fact perturbed (or at least attempted to be perturbed)
