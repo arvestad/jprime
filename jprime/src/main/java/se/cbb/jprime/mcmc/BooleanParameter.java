@@ -16,7 +16,7 @@ public class BooleanParameter implements StateParameter {
 	protected boolean value;
 	
 	/** Cache. */
-	protected Boolean cache;
+	protected boolean cache;
 	
 	/**
 	 * Constructor.
@@ -26,21 +26,21 @@ public class BooleanParameter implements StateParameter {
 	public BooleanParameter(String name, boolean initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.cache = null;
+		this.cache = false;
 	}
 
 	/**
 	 * Caches the current value. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void cache() {
-		this.cache = new Boolean(this.value);
+		this.cache = this.value;
 	}
 
 	/**
 	 * Clears the cached value. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
-		this.cache = null;
+		this.cache = false;
 	}
 
 	/**
@@ -48,8 +48,8 @@ public class BooleanParameter implements StateParameter {
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache() {
-		this.value = this.cache.booleanValue();
-		this.cache = null;
+		this.value = this.cache;
+		this.cache = false;
 	}
 
 	@Override
