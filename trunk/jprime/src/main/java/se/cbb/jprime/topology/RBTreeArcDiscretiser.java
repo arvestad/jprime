@@ -61,7 +61,8 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	 * @param nroot overriding exact number of slices for arc leading into root.
 	 */
 	public RBTreeArcDiscretiser(RBTree S, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
-		if (nmin < 1 || nmax < nmin) {
+		if (nmin <= 1 || nmax < nmin) {
+			// We must have least two points for other classes to work safely...
 			throw new IllegalArgumentException("Invalid discretisation bounds for RBTreeDiscretiser.");
 		}
 		if (nmin != nmax && deltat <= 0) {
@@ -227,6 +228,15 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	 */
 	public double getMidpointTime(int x, int xx) {
 		return this.discTimes[x][xx];
+	}
+	
+	/**
+	 * Returns the discretization interval time of an arc.
+	 * @param x the head vertex of the arc.
+	 * @return the discretization interval time.
+	 */
+	public double getIntervalTime(int x) {
+		return (this.times.getArcTime(x) / this.getNoOfPts(x));
 	}
 
 }

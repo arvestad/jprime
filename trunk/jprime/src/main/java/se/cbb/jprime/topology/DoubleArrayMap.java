@@ -78,7 +78,7 @@ public class DoubleArrayMap implements GraphMap, StateParameter {
 	/**
 	 * Returns the element of a vertex.
 	 * @param x the vertex.
-	 * @return the value.
+	 * @return the values.
 	 */
 	public double[] get(int x) {
 		return this.values[x];
@@ -98,10 +98,10 @@ public class DoubleArrayMap implements GraphMap, StateParameter {
 	/**
 	 * Sets the element of a vertex.
 	 * @param x the vertex.
-	 * @param val the value.
+	 * @param vals the values.
 	 */
-	public void set(int x, double[] val) {
-		this.values[x] = val;
+	public void set(int x, double[] vals) {
+		this.values[x] = vals;
 	}
 	
 	/**

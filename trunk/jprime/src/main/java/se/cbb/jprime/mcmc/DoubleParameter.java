@@ -17,7 +17,7 @@ public class DoubleParameter implements RealParameter {
 	protected double value;
 	
 	/** Cache. */
-	protected Double cache;
+	protected double cache;
 	
 	/** Scale according to which internal value as been transformed. Null if not used. */
 	protected ScaleTransformation scale;
@@ -30,7 +30,7 @@ public class DoubleParameter implements RealParameter {
 	public DoubleParameter(String name, double initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.cache = null;
+		this.cache = Double.NaN;
 	}
 	
 	/**
@@ -51,18 +51,18 @@ public class DoubleParameter implements RealParameter {
 	 */
 	@Override
 	public void cache(int[] indices) {
-		this.cache = new Double(this.value);
+		this.cache = this.value;
 	}
 
 	@Override
 	public void clearCache() {
-		this.cache = null;
+		this.cache = Double.NaN;
 	}
 
 	@Override
 	public void restoreCache() {
-		this.value = this.cache.doubleValue();
-		this.cache = null;
+		this.value = this.cache;
+		this.cache = Double.NaN;
 	}
 
 	@Override

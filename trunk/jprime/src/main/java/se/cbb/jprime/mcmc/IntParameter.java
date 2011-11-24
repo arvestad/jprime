@@ -16,7 +16,7 @@ public class IntParameter implements StateParameter {
 	protected int value;
 	
 	/** Cache. */
-	protected Integer cache;
+	protected int cache;
 	
 	/**
 	 * Constructor.
@@ -26,21 +26,21 @@ public class IntParameter implements StateParameter {
 	public IntParameter(String name, int initVal) {
 		this.name = name;
 		this.value = initVal;
-		this.cache = null;
+		this.cache = -1;
 	}
 
 	/**
 	 * Caches the current value. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void cache() {
-		this.cache = new Integer(this.value);
+		this.cache = this.value;
 	}
 
 	/**
 	 * Clears the cached value. May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void clearCache() {
-		this.cache = null;
+		this.cache = -1;
 	}
 
 	/**
@@ -48,8 +48,8 @@ public class IntParameter implements StateParameter {
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache(boolean willSample) {
-		this.value = this.cache.intValue();
-		this.cache = null;
+		this.value = this.cache;
+		this.cache = -1;
 	}
 
 	@Override
