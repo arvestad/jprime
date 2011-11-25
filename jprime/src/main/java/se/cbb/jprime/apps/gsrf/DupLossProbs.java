@@ -88,6 +88,7 @@ public class DupLossProbs implements ProperDependent {
 	 * Partial update. Not implemented.
 	 * @param affectedElements.
 	 */
+	@SuppressWarnings("unused")
 	private void partialUpdate(int[] affectedElements) {
 		// TODO: Implement.
 	}
@@ -139,7 +140,7 @@ public class DupLossProbs implements ProperDependent {
 	/**
 	 * Retrieves p11 between two points on the discretized host tree.
 	 * Indexing as follows. Index 0 is the speciation of an arc,
-	 * index 1,...,k are the k pure discretization points, and index k+1
+	 * index 1,...,k are the k pure discretisation points, and index k+1
 	 * is the speciation of the parent arc (or tip of the stem arc).
 	 * @param x the ancestral arc (equalling the arc's head vertex).
 	 * @param y the descendant arc (equalling the arc's head vertex).
@@ -148,7 +149,7 @@ public class DupLossProbs implements ProperDependent {
 	 * @return p11 between point x_i and point y_j.
 	 */
 	public double getP11Probability(int x, int y, int i, int j) {
-		return this.p11.get(x, y, (this.times.getNoOfPts(y) + 2) * i + j);
+		return this.p11.get(x, y, this.times.getDiscretisationTimes(y).length * i + j);
 	}
 
 	/**
@@ -166,7 +167,7 @@ public class DupLossProbs implements ProperDependent {
 
 		// Compute Pt and ut for separately for inner segment and end segments
 		// because of different time spans (dt and dt/2 respectively).
-		double dt = this.times.getIntervalTime(x);
+		double dt = this.times.getSliceTime(x);
 		double[] Ptut = computePtAndUt(dt);
 		double[] PtutEnd = computePtAndUt(dt / 2.0);
 
@@ -176,8 +177,8 @@ public class DupLossProbs implements ProperDependent {
 		double D = this.s.isLeaf(x) ? 0.0 :
 			this.extinction.get(this.s.getLeftChild(x)) * this.extinction.get(this.s.getRightChild(x));
 
-		// No. of points is the no. of pure discretization points + the two endpoints.
-		int sz = this.times.getNoOfPts(x) + 2;
+		// No. of points is the no. of pure discretisation points + the two endpoints.
+		int sz = this.times.getDiscretisationTimes(x).length;
 		
 		// Treat first segment separately since shorter time.
 		double[] arcp11 = new double[sz * sz];
@@ -237,7 +238,7 @@ public class DupLossProbs implements ProperDependent {
 		if (!this.s.isRoot(y)) {
 			
 			// No. of points on y, including speciation endpoints.
-			int ySz = this.times.getNoOfPts(y) + 2;
+			int ySz = this.times.getDiscretisationTimes(y).length;
 
 			// Arc x refers to the ancestral arc. We are calculating p11 from
 			// points on x to points on y.
@@ -256,7 +257,7 @@ public class DupLossProbs implements ProperDependent {
 			while (true) {
 				
 				// No. of points on x, including speciation endpoints.
-				int xSz = this.times.getNoOfPts(x) + 2;
+				int xSz = this.times.getDiscretisationTimes(x).length;
 				
 				// p11 for points within ancestral arc y.
 				double[] xp11 = this.p11.get(x, x);
