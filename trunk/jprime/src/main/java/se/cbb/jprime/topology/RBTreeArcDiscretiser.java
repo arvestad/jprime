@@ -22,7 +22,7 @@ import se.cbb.jprime.mcmc.ProperDependent;
  * 
  * @author Joel Sjöstrand.
  */
-public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
+public class RBTreeArcDiscretiser implements ProperDependent {
 
 	/** Tree. */
 	private RBTree S;
@@ -42,7 +42,14 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	/** Number of slices for the arc leading into the root. -1 if not overridden. */
 	private int nroot;
 	
-	/** Times of discretisation slice mid-points for each arc. */
+	/**
+	 * For each arc, times of discretisation times thus:
+	 * <ul>
+	 * <li>Index 0: head of arc.</li>
+	 * <li>Index 1,..,k: discretisation slice midpoints from head to arc.</li>
+	 * <li>Index k+1: tail of arc (or "tip", if stem arc).</li>
+	 * </ul>
+	 */
 	private double[][] discTimes;
 	
 	/** Currently affected vertices. */
@@ -94,9 +101,14 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 		this(S, times, nmin, nmax, deltat, -1);
 	}
 
-	@Override
-	public int getNoOfPts(int x) {
-		return this.discTimes[x].length;
+	/**
+	 * Returns the number of discretisation slices for some entity x,
+	 * e.g. an arc in a DAG.
+	 * @param x the entity.
+	 * @return the number of discretisation slices.
+	 */
+	public int getNoOfSlices(int x) {
+		return (this.discTimes[x].length - 2);
 	}
 
 	/**
@@ -119,11 +131,13 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 			double vt = this.times.getVertexTime(x);
 			double at = this.times.getArcTime(x);
 			int no = Math.min(Math.max(this.nmin, (int) Math.ceil(this.times.getArcTime(x) / this.deltat)), this.nmax);
-			this.discTimes[x] = new double[no];
+			this.discTimes[x] = new double[no + 2];		// Endpoints also included.
 			double timestep = at / no;
-			for (int xx = 0; xx < no; ++xx) {
+			this.discTimes[x][0] = vt;		// Head of arc at first index.
+			for (int xx = 1; xx <= no; ++xx) {
 				this.discTimes[x][xx] = vt + timestep * (0.5 + xx);
 			}
+			this.discTimes[x][no+1] = vt + at;	// Tail of arc at last index.
 		}
 			
 		// Override root arc if specified. Never mind if it hasn't changed.
@@ -131,11 +145,13 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 		double vt = this.times.getVertexTime(root);
 		double at = this.times.getArcTime(root);
 		if (this.nroot > 0 && !Double.isNaN(at) && at > 1e-8) {
-			this.discTimes[root] = new double[this.nroot];
+			this.discTimes[root] = new double[this.nroot + 2];		// Endpoints also included.
 			double timestep = at / this.nroot;
-			for (int xx = 0; xx < this.nroot; ++xx) {
+			this.discTimes[root][0] = vt;		// Head of arc at first index.
+			for (int xx = 1; xx <= this.nroot; ++xx) {
 				this.discTimes[root][xx] = vt + timestep * (0.5 + xx);
 			}
+			this.discTimes[root][nroot+1] = vt + at;	// Tail of arc at last index.
 		}
 	}
 	
@@ -220,23 +236,26 @@ public class RBTreeArcDiscretiser implements Discretiser, ProperDependent {
 	}
 	
 	/**
-	 * Returns the midpoint time for a discretisation interval of an arc.
+	 * Returns the discretisation times for an arc, thus:
+	 * <ul>
+	 * <li>Index 0: head of arc.</li>
+	 * <li>Index 1,..,k: discretisation slice midpoints from head to arc.</li>
+	 * <li>Index k+1: tail of arc (or "tip", if stem arc).</li>
+	 * </ul>
 	 * @param x the head vertex of the arc.
-	 * @param xx the index of the discretisation interval (0,...,k in the
-	 * direction from head to tail, i.e., from leaves to root).
-	 * @return the midpoint time.
+	 * @return the discretisation times.
 	 */
-	public double getMidpointTime(int x, int xx) {
-		return this.discTimes[x][xx];
+	public double[] getDiscretisationTimes(int x) {
+		return this.discTimes[x];
 	}
 	
 	/**
-	 * Returns the discretization interval time of an arc.
+	 * Returns the discretisation time of an arc slice.
 	 * @param x the head vertex of the arc.
-	 * @return the discretization interval time.
+	 * @return the discretisation interval time.
 	 */
-	public double getIntervalTime(int x) {
-		return (this.times.getArcTime(x) / this.getNoOfPts(x));
+	public double getSliceTime(int x) {
+		return (this.times.getArcTime(x) / this.getNoOfSlices(x));
 	}
 
 }
