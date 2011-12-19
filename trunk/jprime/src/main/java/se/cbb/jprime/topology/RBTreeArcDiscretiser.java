@@ -1,5 +1,6 @@
 package se.cbb.jprime.topology;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -127,7 +128,7 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 		}
 		
 		// Update arc midpoint times.
-		for (int x : this.vertexCache) {
+		for (int x : vertices) {
 			double vt = this.times.getVertexTime(x);
 			double at = this.times.getArcTime(x);
 			int no = Math.min(Math.max(this.nmin, (int) Math.ceil(this.times.getArcTime(x) / this.deltat)), this.nmax);
@@ -135,7 +136,7 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 			double timestep = at / no;
 			this.discTimes[x][0] = vt;		// Head of arc at first index.
 			for (int xx = 1; xx <= no; ++xx) {
-				this.discTimes[x][xx] = vt + timestep * (0.5 + xx);
+				this.discTimes[x][xx] = vt + timestep * (xx - 0.5);
 			}
 			this.discTimes[x][no+1] = vt + at;	// Tail of arc at last index.
 		}
@@ -149,7 +150,7 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 			double timestep = at / this.nroot;
 			this.discTimes[root][0] = vt;		// Head of arc at first index.
 			for (int xx = 1; xx <= this.nroot; ++xx) {
-				this.discTimes[root][xx] = vt + timestep * (0.5 + xx);
+				this.discTimes[root][xx] = vt + timestep * (xx - 0.5);
 			}
 			this.discTimes[root][nroot+1] = vt + at;	// Tail of arc at last index.
 		}
@@ -250,12 +251,23 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 	}
 	
 	/**
-	 * Returns the discretisation time of an arc slice.
+	 * Returns the discretisation interval time span of an arc slice.
 	 * @param x the head vertex of the arc.
-	 * @return the discretisation interval time.
+	 * @return the discretisation interval time span.
 	 */
 	public double getSliceTime(int x) {
 		return (this.times.getArcTime(x) / this.getNoOfSlices(x));
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(this.S.getNoOfVertices() * 1024);
+		sb.append("Pre-order times of RBTreeDiscretizer on tree parameter ").append(this.S.getName()).append(" and times parameter ").append(this.times.getName()).append(":\n");
+		sb.append("Arc:\tNo. of slices:\tTimes:\n");
+		for (int x : this.S.getTopologicalOrdering()) {
+			sb.append(x).append('\t').append(this.getNoOfSlices(x)).append('\t').append(Arrays.toString(this.discTimes[x])).append('\n');
+		}
+		return sb.toString();
+	}
+	
 }
