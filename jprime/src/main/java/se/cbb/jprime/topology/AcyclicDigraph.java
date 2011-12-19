@@ -125,7 +125,18 @@ public interface AcyclicDigraph extends Graph {
 	/**
 	 * Returns a topologically sorted list of all vertices, i.e., a list
 	 * such that x will appear before y whenever there is an arc (x,y).
+	 * See also <code>getTopologicalOrdering(x)</code>.
 	 * @return a topological sort with a source at index 0.
 	 */
 	public List<Integer> getTopologicalOrdering();
+	
+	/**
+	 * Returns a topologically sorted list of vertices emanating
+	 * from a specific vertex, i.e., a list
+	 * such that x will appear before y whenever there is an arc (x,y).
+	 * See also <code>getTopologicalOrdering()</code>.
+	 * @param the source of the sub-graph.
+	 * @return a topological sort with a source at index 0.
+	 */
+	public List<Integer> getTopologicalOrdering(int source);
 }

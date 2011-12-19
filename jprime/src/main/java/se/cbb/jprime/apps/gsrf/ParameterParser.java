@@ -213,7 +213,7 @@ public class ParameterParser {
 		DoubleParameter dr = new DoubleParameter("DuplicationRate", dups / totTime + 1e-3);
 		DoubleParameter lr = new DoubleParameter("LossRate", dups / totTime + 1e-3);
 		// TODO: Implement.
-		DupLossProbs dlProbs = new DupLossProbs(s, dr, lr);
+		DupLossProbs dlProbs = null; //new DupLossProbs(s, dr, lr);
 		return new Triple<DoubleParameter, DoubleParameter, DupLossProbs>(dr, lr, dlProbs);
 	}
 	

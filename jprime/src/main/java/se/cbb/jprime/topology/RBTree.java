@@ -499,10 +499,15 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	
 	@Override
 	public List<Integer> getTopologicalOrdering() {
+		return this.getTopologicalOrdering(this.root);
+	}
+	
+	@Override
+	public List<Integer> getTopologicalOrdering(int source) {
 		ArrayList<Integer> l = new ArrayList<Integer>(this.parents.length);
 		IntQueue q = new IntQueue();
-		q.put(this.root);
-		while (q.isEmpty()) {
+		q.put(source);
+		while (!q.isEmpty()) {
 			int x = q.get();
 			l.add(x);
 			if (!this.isLeaf(x)) {

@@ -50,8 +50,10 @@ public class IntArrayMap implements GraphMap, StateParameter {
 		this.name = map.name;
 		this.values = new int[map.values.length][];
 		for (int i = 0; i < this.values.length; ++i) {
-			this.values[i] = new int[map.values[i].length];
-			System.arraycopy(map.values[i], 0, this.values[i], 0, this.values[i].length);
+			if (map.values[i] != null) {
+				this.values[i] = new int[map.values[i].length];
+				System.arraycopy(map.values[i], 0, this.values[i], 0, this.values[i].length);
+			}
 		}
 	}
 
@@ -132,16 +134,20 @@ public class IntArrayMap implements GraphMap, StateParameter {
 		if (vertices == null) {
 			this.cacheValues = new int[this.values.length][];
 			for (int i = 0; i < this.values.length; ++i) {
-				this.cacheValues[i] = new int[this.values[i].length];
-				System.arraycopy(this.values[i], 0, this.cacheValues[i], 0, this.values[i].length);
+				if (this.values[i] != null) {
+					this.cacheValues[i] = new int[this.values[i].length];
+					System.arraycopy(this.values[i], 0, this.cacheValues[i], 0, this.values[i].length);
+				}
 			}
 		} else {
 			this.cacheVertices = new int[vertices.length];
 			System.arraycopy(vertices, 0, this.cacheVertices, 0, vertices.length);
 			this.cacheValues = new int[vertices.length][];
 			for (int i = 0; i < vertices.length; ++i) {
-				this.cacheValues[i] = new int[this.values[vertices[i]].length];
-				System.arraycopy(this.values[vertices[i]], 0, this.cacheValues[i], 0, this.cacheValues[i].length);
+				if (this.values[vertices[i]] != null) {
+					this.cacheValues[i] = new int[this.values[vertices[i]].length];
+					System.arraycopy(this.values[vertices[i]], 0, this.cacheValues[i], 0, this.cacheValues[i].length);
+				}
 			}
 		}
 	}
