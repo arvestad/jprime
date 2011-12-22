@@ -50,6 +50,7 @@ public class DupLossProbs implements ProperDependent {
 		this.mu = mu;
 		this.p11 = new DoubleArrayMatrixMap(s.getNoOfVertices());
 		this.extinction = new DoubleMap("extinction", s.getNoOfVertices());
+		this.fullUpdate();
 	}
 
 	@Override
@@ -90,7 +91,7 @@ public class DupLossProbs implements ProperDependent {
 	 */
 	@SuppressWarnings("unused")
 	private void partialUpdate(int[] affectedElements) {
-		// TODO: Implement.
+		// TODO: Implement. Probably mostly useful if tree and/or discretisation has changed.
 	}
 	
 	/**
@@ -151,6 +152,15 @@ public class DupLossProbs implements ProperDependent {
 	public double getP11Probability(int x, int y, int i, int j) {
 		return this.p11.get(x, y, this.times.getDiscretisationTimes(y).length * i + j);
 	}
+	
+	/**
+	 * Retrieves p11 for an entire arc of the host tree.
+	 * @param x the arc (equalling the arc's head vertex).
+	 * @return p11 between the tail and head of the arc.
+	 */
+	public double getP11Probability(int x) {
+		return this.p11.get(x, x, this.times.getDiscretisationTimes(x).length * (this.times.getDiscretisationTimes(x).length - 1) + 0);
+	}
 
 	/**
 	 * Computes and stores p11 and extinction probabilities for points within an arc.
@@ -159,8 +169,7 @@ public class DupLossProbs implements ProperDependent {
 	 */
 	private void computeP11AndExtinctionForArc(int x, boolean doRecurse) {
 		// Children must be updated first.
-		if (doRecurse && !this.s.isLeaf(x))
-		{
+		if (doRecurse && !this.s.isLeaf(x)) {
 			computeP11AndExtinctionForArc(this.s.getLeftChild(x), true);
 			computeP11AndExtinctionForArc(this.s.getRightChild(x), true);
 		}
@@ -300,5 +309,33 @@ public class DupLossProbs implements ProperDependent {
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("DupLoss probabilities for lambda = ").append(this.lambda.getValue()).append(" and mu = ").append(this.mu.getValue()).append(":\n");
+		sb.append("Arc:\tArc p11:\tArc extinction:\n");
+		for (int x : this.s.getTopologicalOrdering()) {
+				sb.append(x).append('\t').append(this.getP11Probability(x)).append('\t').append(this.getExtinctionProbability(x)).append('\n');
+		}
+//		cout << "For each disc pt y, partial one-to-one probs from ancestral points x:" << endl;
+//		RealEdgeDiscPtMapIterator xend = DS->endPlus();
+//		for (Tree::const_iterator it = S.begin(); it != S.end(); ++it)
+//		{
+//			RealEdgeDiscPtMapIterator yend = DS->endPlus(*it);
+//			for (RealEdgeDiscPtMapIterator y = DS->begin(*it); y != yend; ++y)
+//			{
+//				cout << "y=(" << y.getPt().first->getNumber() << ',' << y.getPt().second << "):  ";
+//				for (RealEdgeDiscPtMapIterator x = DS->begin(y); x != xend; ++x)
+//				{
+//					cout << p.getOneToOneProb(x, y) << ", ";
+//				}
+//				cout << endl;
+//			}
+//		} 
+		return sb.toString();
+	}
+	
+	
 
 }
