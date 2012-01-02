@@ -139,17 +139,17 @@ public class DupLossProbs implements ProperDependent {
 	}
 	
 	/**
-	 * Retrieves p11 between two points on the discretized host tree.
-	 * Indexing as follows. Index 0 is the speciation of an arc,
+	 * Retrieves p11 between two points on the discretised host tree.
+	 * Indexing as follows. Index 0 is the head vertex of an arc (i.e., closest to the leaves),
 	 * index 1,...,k are the k pure discretisation points, and index k+1
-	 * is the speciation of the parent arc (or tip of the stem arc).
+	 * is the tail vertex of the arc (or tip of the stem arc).
 	 * @param x the ancestral arc (equalling the arc's head vertex).
-	 * @param y the descendant arc (equalling the arc's head vertex).
 	 * @param i the point on the ancestral arc.
+	 * @param y the descendant arc (equalling the arc's head vertex).
 	 * @param j the point on the descendant arc.
 	 * @return p11 between point x_i and point y_j.
 	 */
-	public double getP11Probability(int x, int y, int i, int j) {
+	public double getP11Probability(int x, int i, int y, int j) {
 		return this.p11.get(x, y, this.times.getDiscretisationTimes(y).length * i + j);
 	}
 	
@@ -164,8 +164,8 @@ public class DupLossProbs implements ProperDependent {
 
 	/**
 	 * Computes and stores p11 and extinction probabilities for points within an arc.
-	 * @param x
-	 * @param doRecurse
+	 * @param x head vertex of arc.
+	 * @param doRecurse true to process subtree rooted at x.
 	 */
 	private void computeP11AndExtinctionForArc(int x, boolean doRecurse) {
 		// Children must be updated first.
@@ -191,7 +191,7 @@ public class DupLossProbs implements ProperDependent {
 		
 		// Treat first segment separately since shorter time.
 		double[] arcp11 = new double[sz * sz];
-		arcp11[0] = 1.0;
+		arcp11[0 * sz + 0] = 1.0;
 		double p11 = (PtutEnd[0] * (1.0 - PtutEnd[1]) / ((1.0 - PtutEnd[1] * D) * (1.0 - PtutEnd[1] * D)));
 		D = 1.0 - PtutEnd[0] * (1.0 - D) / (1.0 - PtutEnd[1] * D);
 		arcp11[1 * sz + 0] = p11;
@@ -220,7 +220,7 @@ public class DupLossProbs implements ProperDependent {
 				if (j == i) {
 					arcp11[sz * i + j] = 1.0;
 				} else {
-					arcp11[sz * i + j] = arcp11[sz * i + 0] / arcp11[sz * 0 + j];
+					arcp11[sz * i + j] = arcp11[sz * i + 0] / arcp11[sz * j + 0];
 				}
 			}
 		}
@@ -313,12 +313,30 @@ public class DupLossProbs implements ProperDependent {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("DupLoss probabilities for lambda = ").append(this.lambda.getValue()).append(" and mu = ").append(this.mu.getValue()).append(":\n");
+		sb.append("Duplication-loss probabilities for lambda = ").append(this.lambda.getValue()).append(" and mu = ").append(this.mu.getValue()).append(":\n");
 		sb.append("Arc:\tArc p11:\tArc extinction:\n");
 		for (int x : this.s.getTopologicalOrdering()) {
 				sb.append(x).append('\t').append(this.getP11Probability(x)).append('\t').append(this.getExtinctionProbability(x)).append('\n');
 		}
-//		cout << "For each disc pt y, partial one-to-one probs from ancestral points x:" << endl;
+		sb.append("Ancestral point x:\tDescendant point y:\tp11 from x to y:\n");
+		for (int y = 0; y < this.s.getNoOfVertices(); ++y) {
+			for (int yPt = 0; yPt <= this.times.getNoOfSlices(y) + 1; ++yPt) {
+				int x = y;
+				int xPt = yPt;
+				while (x != this.s.NULL) {
+					sb.append(x).append('_').append(xPt).append('\t');
+					sb.append(y).append('_').append(yPt).append('\t');
+					sb.append(this.getP11Probability(x, xPt, y, yPt)).append('\n');
+					if (xPt == this.times.getNoOfSlices(x) + 1) {
+						x = this.s.getParent(x);
+						xPt = 0;
+					} else {
+						++xPt;
+					}
+				}
+			}
+		}
+		
 //		RealEdgeDiscPtMapIterator xend = DS->endPlus();
 //		for (Tree::const_iterator it = S.begin(); it != S.end(); ++it)
 //		{
