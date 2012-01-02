@@ -29,9 +29,14 @@ public class TestDupLossProbs {
 		PrIMENewickTree rawTree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		RBTree s = new RBTree(rawTree, "S");
 		TimesMap pureTimes = rawTree.getTimesMap("Times");
-		RBTreeArcDiscretiser times = new RBTreeArcDiscretiser(s, pureTimes, 3, 5, 0.05, 5);
+		RBTreeArcDiscretiser times = new RBTreeArcDiscretiser(s, pureTimes, 3, 3, 0.05, 4);
 		DupLossProbs dupLoss = new DupLossProbs(s, times, new DoubleParameter("Lambda", 0.5), new DoubleParameter("Mu", 0.4));
-		System.out.println(dupLoss.toString());
+		//System.out.println(dupLoss.toString());
+		assertEquals(dupLoss.getP11Probability(0, 4, 0, 0), dupLoss.getP11Probability(2, 0, 0, 0), 1e-6);
+		assertEquals(dupLoss.getP11Probability(8, 0, 7, 0), dupLoss.getP11Probability(7), 1e-6);
+		assertEquals(dupLoss.getP11Probability(8, 5, 8, 2) * dupLoss.getP11Probability(8, 2, 7, 3)
+				* dupLoss.getP11Probability(7, 3, 7, 3) * dupLoss.getP11Probability(7, 3, 7, 0),
+				dupLoss.getP11Probability(8) * dupLoss.getP11Probability(7) * dupLoss.getExtinctionProbability(6), 1e-6);
 	}
 	
 }
