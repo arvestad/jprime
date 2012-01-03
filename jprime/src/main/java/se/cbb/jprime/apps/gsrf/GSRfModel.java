@@ -61,10 +61,18 @@ public class GSRfModel implements Model {
 	 */
 	protected DoubleArrayMap belows;
 	
-	/**  */
+	/**
+	 * For each vertex u of G, the lowermost placement x_i in S where u can be placed.
+	 * HACK: Right now we store the tuple x_i as a single int, with x in the rightmost
+	 * bits, and i shifted 16 bits to the left.
+	 */
 	protected IntMap loLims;
 	
-	/**  */
+	/**
+	 * For each vertex u of G, the uppermost placement x_i in S where u can be placed.
+	 * HACK: Right now we store the tuple x_i as a single int, with x in the rightmost
+	 * bits, and i shifted 16 bits to the left.
+	 */
 	protected IntMap upLims;
 	
 	public GSRfModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, MPRMap gsMap,
@@ -76,6 +84,12 @@ public class GSRfModel implements Model {
 		this.times = times;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
+		this.loLims = new IntMap("G.lolims", g.getNoOfVertices());
+		this.upLims = new IntMap("G.uplims", g.getNoOfVertices());
+				
+		// TODO: write properly.
+		this.updateLoLims(this.g.getRoot());
+		this.updateUpLims(this.g.getRoot());
 	}
 	
 	@Override
@@ -358,14 +372,19 @@ public class GSRfModel implements Model {
 			int rc = this.g.getRightChild(u);
 
 			// Update children first.
-			updateLoLims(lc);
-			updateLoLims(rc);
+			this.updateLoLims(lc);
+			this.updateLoLims(rc);
 
 			int lcLo = this.loLims.get(lc);
 			int rcLo = this.loLims.get(rc);
 
-			// Set the lowest point at the left child to begin with.
+			// Set the lowest point above the left child to begin with.
 			IntPair lo = new IntPair((lcLo << 16) >>> 16, (lcLo >>> 16) + 1);
+			
+			int rcVx = ((rcLo << 16) >>> 16);
+			int rcPt = (rcLo >>> 16);
+			int lcVx = ((lcLo << 16) >>> 16);
+			int lcPt = (lcLo >>> 16);
 
 			// Start at the left child.
 			int curr = lo.first;
@@ -384,15 +403,17 @@ public class GSRfModel implements Model {
 					if (lo.first == curr) {
 						// u also has this edge as its lowest point.
 						lo = new IntPair(lo.first, Math.max(lo.second, (rcLo >>> 16) + 1));
+						break;
 					}
 					else {
 						// The right child is higher up in the tree
 						// than the left child.
 						lo = new IntPair((rcLo << 16) >>> 16, (rcLo >>> 16) + 1);
+						break;
 					}
 				}
 
-				curr = this.g.getParent(curr);
+				curr = this.s.getParent(curr);
 			}
 
 			// If we have moved outside edge's points, choose next pure disc. pt.
@@ -460,6 +481,22 @@ public class GSRfModel implements Model {
 			updateUpLims(this.g.getRightChild(u));
 		}
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(65536);
+		sb.append("Guest tree vertex:\tLower limit:\tUpper limit:\tType:\n");
+		for (int u = 0; u < this.g.getNoOfVertices(); ++u) {
+			sb.append(u).append('\t');
+			sb.append((this.loLims.get(u) << 16) >>> 16).append('_').append(this.loLims.get(u) >>> 16).append('\t');
+			sb.append((this.upLims.get(u) << 16) >>> 16).append('_').append(this.upLims.get(u) >>> 16).append('\t');
+			sb.append(this.g.isLeaf(u) ? "Leaf" : (this.gsMap.isDuplication(u) ? "Duplication" : "Speciation/duplication")).append('\n');
+		}
+		return sb.toString();
+	}
+	
+	
+	
 //
 //
 //	Probability

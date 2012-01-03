@@ -323,7 +323,7 @@ public class DupLossProbs implements ProperDependent {
 			for (int yPt = 0; yPt <= this.times.getNoOfSlices(y) + 1; ++yPt) {
 				int x = y;
 				int xPt = yPt;
-				while (x != this.s.NULL) {
+				while (x != RBTree.NULL) {
 					sb.append(x).append('_').append(xPt).append('\t');
 					sb.append(y).append('_').append(yPt).append('\t');
 					sb.append(this.getP11Probability(x, xPt, y, yPt)).append('\n');
@@ -336,21 +336,6 @@ public class DupLossProbs implements ProperDependent {
 				}
 			}
 		}
-		
-//		RealEdgeDiscPtMapIterator xend = DS->endPlus();
-//		for (Tree::const_iterator it = S.begin(); it != S.end(); ++it)
-//		{
-//			RealEdgeDiscPtMapIterator yend = DS->endPlus(*it);
-//			for (RealEdgeDiscPtMapIterator y = DS->begin(*it); y != yend; ++y)
-//			{
-//				cout << "y=(" << y.getPt().first->getNumber() << ',' << y.getPt().second << "):  ";
-//				for (RealEdgeDiscPtMapIterator x = DS->begin(y); x != xend; ++x)
-//				{
-//					cout << p.getOneToOneProb(x, y) << ", ";
-//				}
-//				cout << endl;
-//			}
-//		} 
 		return sb.toString();
 	}
 	
