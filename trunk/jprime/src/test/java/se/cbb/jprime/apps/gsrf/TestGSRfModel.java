@@ -15,7 +15,6 @@ import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.GammaDistribution.ParameterSetup;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.topology.DoubleMap;
-import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
