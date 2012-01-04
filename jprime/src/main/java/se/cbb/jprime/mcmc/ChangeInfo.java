@@ -1,5 +1,6 @@
 package se.cbb.jprime.mcmc;
 
+import java.util.Collection;
 import java.util.HashSet;
 
 /**
@@ -27,7 +28,8 @@ public class ChangeInfo {
 	 * @param changed the object which changed.
 	 */
 	public ChangeInfo(Dependent changed) {
-		this(changed, null, null);
+		this(changed, "", null);
+		this.info = null;
 	}
 	
 	/**
@@ -50,6 +52,23 @@ public class ChangeInfo {
 		this.changed = changed;
 		this.info = info;
 		this.affectedElements = affectedElements;
+	}
+	
+	/**
+	 * Constructor for array-based objects, where the indices of affected elements
+	 * can be specified.
+	 * @param changed the object which changed.
+	 * @param affectedElements the indices of affected elements. May be null.
+	 * @param info details or ID for the change. May be null.
+	 */
+	public ChangeInfo(Dependent changed, Collection<Integer> affectedElements, String info) {
+		this.changed = changed;
+		this.info = info;
+		this.affectedElements = new int[affectedElements.size()];
+		int i = 0;
+		for (int x : affectedElements) {
+			this.affectedElements[i++] = x;
+		}
 	}
 	
 	/**
