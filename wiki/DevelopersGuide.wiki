@@ -52,7 +52,7 @@ When there is a need for a new dependency, do the following:
 Unit tests and test suites are handled with JUnit. Tests reside under the {{{src/test/java}}} folder in a package structure  aligned with that of the source code. Maven can be told to run test suites when building.
 
 == Bug tracking ==
-Bug tracking is handled using the Issues page here at Google Code.
+Bug tracking is handled using the Issues page here at Google Code. It is possible to set it up for use with Mylyn in Eclipse (see e.g. [http://alblue.bandlem.com/2009/04/google-code-and-mylyn-redux.html this page], but it doesn't really seem worthwhile... 
 
 == Logging ==
 Logging is not handled with the built-in logger, but with Logback (included using Maven), which is a successor of log4j.
