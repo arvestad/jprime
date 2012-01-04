@@ -1,6 +1,7 @@
 package se.cbb.jprime.topology;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -103,13 +104,27 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 	}
 
 	/**
-	 * Returns the number of discretisation slices for some entity x,
-	 * e.g. an arc in a DAG.
-	 * @param x the entity.
+	 * Returns the number of discretisation slices of an arc.
+	 * @param x the head vertex of the arc.
 	 * @return the number of discretisation slices.
 	 */
 	public int getNoOfSlices(int x) {
 		return (this.discTimes[x].length - 2);
+	}
+	
+	/**
+	 * Returns the number of discretisation slices of a path from a
+	 * vertex to tip of the tree.
+	 * @param x the vertex.
+	 * @return the number of discretisation slices.
+	 */
+	public int getNoOfSlicesForRootPath(int x) {
+		int cnt = 0;
+		while (x != RBTree.NULL) {
+			cnt += (this.discTimes[x].length - 2);
+			x = this.S.getParent(x);
+		}
+		return cnt;
 	}
 
 	/**
@@ -251,6 +266,21 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 	}
 	
 	/**
+	 * Returns the discretisation time thus:
+	 * <ul>
+	 * <li>Index 0: head of arc.</li>
+	 * <li>Index 1,..,k: discretisation slice midpoints from head to arc.</li>
+	 * <li>Index k+1: tail of arc (or "tip", if stem arc).</li>
+	 * </ul>
+	 * @param x the head vertex of the arc.
+	 * @param i the index of the point within the arc.
+	 * @return the discretisation times
+	 */
+	public double getDiscretisationTime(int x, int i) {
+		return this.discTimes[x][i];
+	}
+	
+	/**
 	 * Returns the discretisation interval time span of an arc slice.
 	 * @param x the head vertex of the arc.
 	 * @return the discretisation interval time span.
@@ -259,6 +289,24 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 		return (this.times.getArcTime(x) / this.getNoOfSlices(x));
 	}
 
+	/**
+	 * Returns the maximum number of slices along any tip-to-leaf path in the tree.
+	 * @return the maximum number of slices.
+	 */
+	public int getMaxSliceHeight() {
+		int[] mx = new int[this.S.getNoOfVertices()];
+		List<Integer> vertices = this.S.getTopologicalOrdering();
+		for (int i = vertices.size() - 1; i >= 0; --i) {
+			int x = vertices.get(i);
+			if (this.S.isLeaf(x)) {
+				mx[x] = this.discTimes[x].length - 2;
+			} else {
+				mx[x] = Math.max(mx[this.S.getLeftChild(x)], mx[this.S.getRightChild(x)]) + this.discTimes[x].length - 2;
+			}
+		}
+		return mx[this.S.getRoot()];
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(this.S.getNoOfVertices() * 1024);

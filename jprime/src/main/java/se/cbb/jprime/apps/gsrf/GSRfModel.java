@@ -1,5 +1,6 @@
 package se.cbb.jprime.apps.gsrf;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import se.cbb.jprime.io.SampleLogDouble;
@@ -68,13 +69,16 @@ public class GSRfModel implements Model {
 	 */
 	protected IntMap loLims;
 	
-	/**
-	 * For each vertex u of G, the uppermost placement x_i in S where u can be placed.
-	 * HACK: Right now we store the tuple x_i as a single int, with x in the rightmost
-	 * bits, and i shifted 16 bits to the left.
-	 */
-	protected IntMap upLims;
+//	/**
+//	 * For each vertex u of G, the uppermost placement x_i in S where u can be placed.
+//	 * HACK: Right now we store the tuple x_i as a single int, with x in the rightmost
+//	 * bits, and i shifted 16 bits to the left.
+//	 */
+//	protected IntMap upLims;
 	
+	/**
+	 * 
+	 */
 	public GSRfModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, MPRMap gsMap,
 			DoubleMap lengths, RBTreeArcDiscretiser times, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD) {
 		this.g = g;
@@ -84,12 +88,17 @@ public class GSRfModel implements Model {
 		this.times = times;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
-		this.loLims = new IntMap("G.lolims", g.getNoOfVertices());
-		this.upLims = new IntMap("G.uplims", g.getNoOfVertices());
+		this.loLims = new IntMap("GSRf.lolims", g.getNoOfVertices());
+		//this.upLims = new IntMap("GSRf.uplims", g.getNoOfVertices());
+		this.ats = new DoubleArrayMap("GSRf.ats", g.getNoOfVertices());
+		this.belows = new DoubleArrayMap("GSRf.belows", g.getNoOfVertices());
 				
-		// TODO: write properly.
-		this.updateLoLims(this.g.getRoot());
-		this.updateUpLims(this.g.getRoot());
+		// TODO: Write properly.
+		int r = this.g.getRoot();
+		this.updateLoLims(r);
+		//this.updateUpLims(r);
+		this.clearAtsAndBelows(r, 0);
+		this.updateAtProbs(r, true);
 	}
 	
 	@Override
@@ -98,8 +107,7 @@ public class GSRfModel implements Model {
 	}
 
 	@Override
-	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos,
-			boolean willSample) {
+	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
 		// TODO Auto-generated method stub
 
 	}
@@ -361,8 +369,17 @@ public class GSRfModel implements Model {
 //	}
 //
 //
-	
+	/**
+	 * Recursively computes the lowermost viable placement of each guest tree vertex.
+	 * @param u the subtree of G rooted at u.
+	 */
 	protected void updateLoLims(int u) {
+		
+		// HACK: At the moment we store a point x_i in a single int v by having x in the
+		// rightmost bits, and i shifted 16 bits left.
+		// Insert thus:   v = x + (i << 16);
+		// Extract thus:  x = (v << 16) >>> 16;   i = v >>> 16;
+		
 		int sigma = this.gsMap.getSigma(u);
 
 		if (this.g.isLeaf(u)) {
@@ -380,11 +397,6 @@ public class GSRfModel implements Model {
 
 			// Set the lowest point above the left child to begin with.
 			IntPair lo = new IntPair((lcLo << 16) >>> 16, (lcLo >>> 16) + 1);
-			
-			int rcVx = ((rcLo << 16) >>> 16);
-			int rcPt = (rcLo >>> 16);
-			int lcVx = ((lcLo << 16) >>> 16);
-			int lcPt = (lcLo >>> 16);
 
 			// Start at the left child.
 			int curr = lo.first;
@@ -427,70 +439,107 @@ public class GSRfModel implements Model {
 			this.loLims.set(u, lo.first + (lo.second << 16));
 		}
 	}
-
 	
-	protected void updateUpLims(int u) {
-		int sigma = this.gsMap.getSigma(u);
-
+	/**
+	 * Recursively creates (thus clearing) the DP data structures.
+	 * Precondition: upper limits must be up-to-date.
+	 * @param u the root of the subtree of G.
+	 * @param noOfAncestors the number of ancestors of u.
+	 */
+	protected void clearAtsAndBelows(int u, int noOfAncestors) {
 		if (this.g.isLeaf(u)) {
-			this.upLims.set(u, sigma + (0 << 16));
-		} else if (this.g.isRoot(u)) {         
-			// We disallow placement on very tip of host tree top edge.
-			int r = this.s.getRoot();
-			int p = this.times.getNoOfSlices(r);
-			this.upLims.set(u, sigma + (p << 16));
+			this.ats.set(u, new double[1]);
+			this.belows.set(u, new double[this.ats.get(this.g.getParent(u)).length]);
 		} else {
-			// Normal case: set u's limit just beneath parent's limit.
-			int pVx = (this.upLims.get(this.g.getParent(u)) << 16) >>> 16;
-			int pPt = (this.upLims.get(this.g.getParent(u)) >>> 16);
-			if (pPt >= 2) {
-				// There is a disc point available below the parent.
-				this.upLims.set(u, pVx + ((pPt - 1) << 16));
-			} else if (pPt == 1 && pVx == sigma) {
-				// We place u at speciation since upper and lower limits here coincide with sigma.
-				this.upLims.set(u, pVx + (0 << 16));
+			int x = (this.loLims.get(u) << 16) >>> 16;
+			int i = this.loLims.get(u) >>> 16;
+			int cnt = this.times.getNoOfSlicesForRootPath(x) - i + 1 - noOfAncestors;
+			this.ats.set(u, new double[cnt]);			
+			if (this.g.isRoot(u)) {
+				this.belows.set(u, new double[1]);
 			} else {
-				// We can't place u below its sigma.
-				if (sigma == pVx) {
-					throw new RuntimeException("Insufficient no. of discretization points.\n" +
-	        				       "Try using denser discretization for 1) top edge, 2) remaining vertices.");
-				}
-
-				// No disc point available on this edge; find the edge below.
-				int n = sigma;
-				while (this.s.getParent(n) != pVx) {
-					n = this.s.getParent(n);
-				}
-				this.upLims.set(u, n + (this.times.getNoOfSlices(n) << 16));
+				this.belows.set(u, new double[this.ats.get(this.g.getParent(u)).length]);
 			}
-		}
-
-		// Catch insufficient discretizations.
-		int lVx = (this.loLims.get(u) << 16) >>> 16;
-		int lPt = this.loLims.get(u) >>> 16;
-		int uVx = (this.upLims.get(u) << 16) >>> 16;
-		int uPt = this.upLims.get(u) >>> 16;
-		if ((lVx == uVx && lPt > uPt) || (lVx == this.s.getParent(uVx))) {
-			throw new RuntimeException("Insufficient no. of discretization points.\n" +
-	        		       "Try using denser dicretization for 1) top edge, 2) remaining vertices.");
-		}
-
-		// Update children afterwards.
-		if (!this.g.isLeaf(u)) {
-			updateUpLims(this.g.getLeftChild(u));
-			updateUpLims(this.g.getRightChild(u));
+			this.clearAtsAndBelows(this.g.getLeftChild(u), noOfAncestors + 1);
+			this.clearAtsAndBelows(this.g.getRightChild(u), noOfAncestors + 1);
 		}
 	}
+
+//	/**
+//	 * Recursively computes the uppermost viable placement of each guest tree vertex.
+//	 * @param u the subtree of G rooted at u.
+//	 */
+//	protected void updateUpLims(int u) {
+//		
+//		// HACK: At the moment we store a point x_i in a single int v by having x in the
+//		// rightmost bits, and i shifted 16 bits left.
+//		// Insert thus:   v = x + (i << 16);
+//		// Extract thus:  x = (v << 16) >>> 16;   i = v >>> 16;
+//		
+//		int sigma = this.gsMap.getSigma(u);
+//
+//		if (this.g.isLeaf(u)) {
+//			this.upLims.set(u, sigma + (0 << 16));
+//		} else if (this.g.isRoot(u)) {         
+//			// We disallow placement on very tip of host tree top edge.
+//			int r = this.s.getRoot();
+//			int p = this.times.getNoOfSlices(r);
+//			this.upLims.set(u, sigma + (p << 16));
+//		} else {
+//			// Normal case: set u's limit just beneath parent's limit.
+//			int pVx = (this.upLims.get(this.g.getParent(u)) << 16) >>> 16;
+//			int pPt = (this.upLims.get(this.g.getParent(u)) >>> 16);
+//			if (pPt >= 2) {
+//				// There is a disc point available below the parent.
+//				this.upLims.set(u, pVx + ((pPt - 1) << 16));
+//			} else if (pPt == 1 && pVx == sigma) {
+//				// We place u at speciation since upper and lower limits here coincide with sigma.
+//				this.upLims.set(u, pVx + (0 << 16));
+//			} else {
+//				// We can't place u below its sigma.
+//				if (sigma == pVx) {
+//					throw new RuntimeException("Insufficient no. of discretization points.\n" +
+//	        				       "Try using denser discretization for 1) top edge, 2) remaining vertices.");
+//				}
+//
+//				// No disc point available on this edge; find the edge below.
+//				int n = sigma;
+//				while (this.s.getParent(n) != pVx) {
+//					n = this.s.getParent(n);
+//				}
+//				this.upLims.set(u, n + (this.times.getNoOfSlices(n) << 16));
+//			}
+//		}
+//
+//		// Catch insufficient discretizations.
+//		int lVx = (this.loLims.get(u) << 16) >>> 16;
+//		int lPt = this.loLims.get(u) >>> 16;
+//		int uVx = (this.upLims.get(u) << 16) >>> 16;
+//		int uPt = this.upLims.get(u) >>> 16;
+//		if ((lVx == uVx && lPt > uPt) || (lVx == this.s.getParent(uVx))) {
+//			throw new RuntimeException("Insufficient no. of discretization points.\n" +
+//	        		       "Try using denser dicretization for 1) top edge, 2) remaining vertices.");
+//		}
+//
+//		// Update children afterwards.
+//		if (!this.g.isLeaf(u)) {
+//			updateUpLims(this.g.getLeftChild(u));
+//			updateUpLims(this.g.getRightChild(u));
+//		}
+//	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(65536);
-		sb.append("Guest tree vertex:\tLower limit:\tUpper limit:\tType:\n");
+		sb.append("Guest tree vertex:\tLower limit:\tNo of placements:\tType:\tDP ats:\tDP belows:\n");
 		for (int u = 0; u < this.g.getNoOfVertices(); ++u) {
 			sb.append(u).append('\t');
 			sb.append((this.loLims.get(u) << 16) >>> 16).append('_').append(this.loLims.get(u) >>> 16).append('\t');
-			sb.append((this.upLims.get(u) << 16) >>> 16).append('_').append(this.upLims.get(u) >>> 16).append('\t');
-			sb.append(this.g.isLeaf(u) ? "Leaf" : (this.gsMap.isDuplication(u) ? "Duplication" : "Speciation/duplication")).append('\n');
+			sb.append(this.ats.get(u).length).append('\t');
+			//sb.append((this.upLims.get(u) << 16) >>> 16).append('_').append(this.upLims.get(u) >>> 16).append('\t');
+			sb.append(this.g.isLeaf(u) ? "Leaf" : (this.gsMap.isDuplication(u) ? "Duplication" : "Speciation/duplication")).append('\t');
+			sb.append(Arrays.toString(this.ats.get(u))).append('\t');
+			sb.append(Arrays.toString(this.belows.get(u))).append('\n');
 		}
 		return sb.toString();
 	}
@@ -533,88 +582,118 @@ public class GSRfModel implements Model {
 //	}
 //
 //
-//	void
-//	EdgeDiscGSR::updateAtProbs(const Node* u, bool doRecurse)
-//	{
-//		if (u->isLeaf())
-//		{
-//			m_ats[u](m_loLims[u]) = Probability(1.0);
-//		}
-//		else
-//		{
-//			const Node* lc = u->getLeftChild();
-//			const Node* rc = u->getRightChild();
-//
-//			// Must do children first, if specified.
-//			if (doRecurse)
-//			{
-//				updateAtProbs(lc, true);
-//				updateAtProbs(rc, true);
-//			}
-//
-//			// Retrieve placement bounds. End is here also a valid placement.
-//			EdgeDiscTreeIterator x = m_DS->begin(m_loLims[u]);
-//			EdgeDiscTreeIterator xend = m_DS->begin(m_upLims[u]);
-//
-//			// For each valid placement x.
-//			while (true)
-//			{
-//				EdgeDiscretizer::Point xPt = x.getPt();
-//				m_ats[u](x) = m_belows[lc](x) * m_belows[rc](x) * duplicationFactor(xPt);
-//				if (x == xend) { break; }
-//				x.pp();
-//			}
-//		}
-//
-//		// Update planted tree probs. afterwards.
-//		updateBelowProbs(u);
-//	}
-//
-//
-//	void
-//	EdgeDiscGSR::updateBelowProbs(const Node* u)
-//	{
-//		// x refers to point of tip of planted tree G^u.
-//		// y refers to point where u is placed (strictly below x).
-//
-//		Real l = (*m_lengths)[u];
-//
-//		// Get limits for x (both are valid placements).
-//		EdgeDiscTreeIterator x, xend;
-//		if (u->isRoot())
-//		{
-//			x = xend = m_DS->end();
-//		}
-//		else
-//		{
-//			x = m_DS->begin(m_loLims[u->getParent()]);
-//			xend = m_DS->begin(m_upLims[u->getParent()]);
-//		} 
-//
-//		// Get limits for y (both valid placements).
-//		EdgeDiscTreeIterator y;
-//		EdgeDiscTreeIterator yend = m_DS->begin(m_upLims[u]);
-//
-//		// For each x.
-//		while (true)
-//		{
-//			// For each y strictly below x.
-//			m_belows[u](x) = Probability(0.0);
-//			for (y = m_DS->begin(m_loLims[u]); y < x; y.pp())
-//			{
-//				//Probability rateDens = 1.0;
-//				Probability rateDens = u->isRoot() ?
-//						1.0 : calcRateDensity(l, (*m_DS)(x) - (*m_DS)(y));
-//				m_belows[u](x) += rateDens * m_BDProbs->getOneToOneProb(x, y) * m_ats[u](y);
-//
-//				if (y == yend) { break; }
-//			}
-//			if (x == xend) { break; }
-//			x.pp();
-//		}
-//	}
-//
-//
+	/**
+	 * Dynamic programming method for computing the probability of all realisations of
+	 * rooted tree G_u when u is placed on point x_i. All viable placements x_i are
+	 * tabulated.
+	 * @param u the vertex of G.
+	 * @param doRecurse true to recursively process all descendants of u.
+	 */
+	protected void updateAtProbs(int u, boolean doRecurse) {
+		if (this.g.isLeaf(u)) {
+			this.ats.set(u, 0, 1.0);
+		} else {
+			int lc = this.g.getLeftChild(u);
+			int rc = this.g.getRightChild(u);
+
+			// Must do children first, if specified.
+			if (doRecurse) {
+				this.updateAtProbs(lc, true);
+				this.updateAtProbs(rc, true);
+			}
+
+			// Retrieve placement start.
+			int x = (this.loLims.get(u) << 16) >>> 16;  // Current arc.
+			int xi = this.loLims.get(u) >>> 16;         // Current arc index.
+			int idx = 0;                                // No. of processed viable placements.
+
+			double[] uAts = this.ats.get(u);
+			double[] lcBelows = this.belows.get(lc);
+			double[] rcBelows = this.belows.get(rc);
+			
+			// First placement might correspond to a speciation.
+			if (xi == 0) {
+				uAts[0] = lcBelows[0] * rcBelows[0];
+				++idx;
+				++xi;
+			}
+			
+			// Remaining placements correspond to duplications for sure.
+			for (; idx < uAts.length; ++idx) {
+				uAts[idx] = lcBelows[idx] * rcBelows[idx] *
+					2 * this.dupLossProbs.getDuplicationRate() * this.times.getSliceTime(x);
+				// Move onto next pure discretisation point above.
+				if (xi == this.times.getNoOfSlices(x)) {
+					x = this.s.getParent(x);
+					xi = 1;
+				} else {
+					++xi;
+				}
+			}
+		}
+
+		// Update planted tree probs. afterwards.
+		this.updateBelowProbs(u);
+	}
+
+	/**
+	 * Dynamic programming method for computing the probability of all realisations of
+	 * planted tree G^u when ^the tip of u's parent arc is placed on point x_i.
+	 * All viable placements x_i are tabulated.
+	 * @param u the vertex of G.
+	 */
+	protected void updateBelowProbs(int u) {
+		// x refers to point of tip of planted tree G^u.
+		// y refers to point where u is placed (strictly below x).
+
+		double length = this.lengths.get(u);
+		double[] uAts = this.ats.get(u);
+		double[] uBelows = this.belows.get(u);
+		
+		// Get limits.
+		int x;
+		int xi;
+		if (this.g.isRoot(u)) {
+			// Only very tip of host tree viable.
+			x = this.s.getRoot();
+			xi = this.times.getNoOfSlices(x) + 1;
+		} else {
+			x = (this.loLims.get(this.g.getParent(u)) << 16) >>> 16;
+			xi = this.loLims.get(this.g.getParent(u)) >>> 16;
+		}
+		
+		// For each x_i.
+		for (int xcnt = 0; xcnt < uBelows.length; ++xcnt) {
+			// Clear old value.
+			uBelows[xcnt] = 0.0;
+			// For each y_j strictly below x_i.
+			int y = (this.loLims.get(u) << 16) >>> 16;
+			int yj = this.loLims.get(u) >>> 16;
+			double xt = this.times.getDiscretisationTime(x, xi);
+			for (int ycnt = 0; ycnt < uAts.length; ++ycnt) {
+				double yt = this.times.getDiscretisationTime(y, yj);
+				double rateDens = this.g.isRoot(u) ? 1.0 : this.substPD.getPDF(length / (xt - yt));
+				uBelows[xcnt] += rateDens * this.dupLossProbs.getP11Probability(x, xi, y, yj) * uAts[ycnt];
+				// Move y_j onto next pure discretisation point above.
+				if (yj == this.times.getNoOfSlices(y)) {
+					y = this.s.getParent(y);
+					yj = 1;
+				} else {
+					++yj;
+				}
+				if (y == x && yj >= xi) { break; }
+			}
+			// Move x_i onto next pure discretisation point above.
+			if (xi == this.times.getNoOfSlices(x)) {
+				x = this.s.getParent(x);
+				xi = 1;
+			} else {
+				++xi;
+			}
+		}
+	}
+
+	
 //	void
 //	EdgeDiscGSR::cacheProbs(const Node* rootPath)
 //	{
