@@ -21,8 +21,8 @@ The latest verified version is shown within brackets.
     * Maven Integration for Eclipse {{{[0.10.2]}}}.
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on this wiki.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
-  # Under project settings, set the Java version to 1.6.
-  # Activate Maven by right-clicking the project and clicking "Maven -> Enable Dependency Management" or possibly "Configure -> Convert to Maven Project". You may need to refresh the project afterwards.
+  # Under project settings, just verify that the Java compiler is set to 1.6.
+  # If needed, activate Maven by right-clicking the project and clicking "Maven -> Enable Dependency Management" or possibly "Configure -> Convert to Maven Project". You may need to refresh the project afterwards.
   # Start coding! (...possibly by creating a new branch first!)
 
 == Version control ==
