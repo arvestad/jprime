@@ -37,7 +37,7 @@ The source file structure adheres to the Maven standard directory layout (as a s
   * {{{src/main/resources}}} - where peripheral files for an actual release go.
   * {{{src/main/python}}} - where additional Python source code goes.
   * {{{src/test/java}}} - where Java unit tests and test suites go.
-  * {{{src/test/java}}} - where peripheral files for Java unit tests go.
+  * {{{src/test/resources}}} - where peripheral files for Java unit tests go.
   * {{{target}}} - where local builds are kept (not under version control).
   * {{{lib}}} - where non-Mavenized dependencies are kept, see below.
 Furthermore, non-Java resources kan be maintained in the same manner, e.g. {{{src/main/shellscript}}} and so forth.
