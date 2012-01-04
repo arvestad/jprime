@@ -130,6 +130,22 @@ public class DupLossProbs implements ProperDependent {
 	}
 
 	/**
+	 * Returns the duplication rate.
+	 * @return the duplication rate.
+	 */
+	public double getDuplicationRate() {
+		return this.lambda.getValue();
+	}
+	
+	/**
+	 * Returns the loss rate.
+	 * @return the loss rate.
+	 */
+	public double getLossRate() {
+		return this.mu.getValue();
+	}
+	
+	/**
 	 * Returns the extinction probability of a planted tree S^x.
 	 * @param x the arc of the planted subtree (equalling the arc's head vertex).
 	 * @return the probability of extinction for a single lineage starting the tip of S^x.

@@ -10,7 +10,10 @@ import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
+import se.cbb.jprime.math.GammaDistribution;
+import se.cbb.jprime.math.GammaDistribution.ParameterSetup;
 import se.cbb.jprime.mcmc.DoubleParameter;
+import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
@@ -42,7 +45,10 @@ public class TestGSRfModel {
 		NamesMap gNames = gRaw.getVertexNamesMap(false, "G.names");
 		url = this.getClass().getResource("/phylogenetics/simple.09.to.simple.05.gs");
 		MPRMap gsMap = new MPRMap(GuestHostMapReader.readGuestHostMap(new File(url.getFile())), g, gNames, s, sNames);
-		GSRfModel mod = new GSRfModel(g, s, gsMap, null, times, dupLoss, null);
+		DoubleMap lengths = new DoubleMap("Lengths", g.getNoOfVertices(), 0.1);
+		GammaDistribution pd = new GammaDistribution(new DoubleParameter("m", 0.1),
+				new DoubleParameter("v", 0.05), ParameterSetup.MEAN_AND_STDEV);
+		GSRfModel mod = new GSRfModel(g, s, gsMap, lengths, times, dupLoss, pd);
 		System.out.println(mod);
 	}
 	
