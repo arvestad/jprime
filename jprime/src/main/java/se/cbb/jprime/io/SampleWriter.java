@@ -24,7 +24,7 @@ import java.util.List;
  * ...
  * </pre>
  * This may reduce file size when there are discrete parameters concentrated on
- * a small number of values.
+ * a small number of values (e.g. trees).
  * 
  * @author Joel Sjöstrand.
  */
@@ -139,31 +139,7 @@ public class SampleWriter implements Sampler {
 	
 	@Override
 	public void writeSample(List<Sampleable> sampleables) throws IOException {
-		if (sampleables.size() == 0) { return; }
-		
-		// Retrieve all current parameters.
-		String[] sample = new String[sampleables.size()];
-		for (int i = 0; i < sample.length; ++i) {
-			sample[i] = sampleables.get(i).getSampleValue();
-		}
-		
-		// If desired, exchange unchanged parameters for symbol.
-		if (this.conciseSymbol != null) {
-			if (this.lastSample == null) {
-				this.lastSample = sample;
-			} else {
-				for (int i = 0; i < sample.length; ++i) {
-					if (sample[i].equals(this.lastSample[i])) {
-						this.lastSample[i] = this.conciseSymbol;
-					} else {
-						this.lastSample[i] = sample[i];
-					}
-					String[] tmp = this.lastSample;
-					this.lastSample = sample;    // lastSample now up-to-date and non-abbreviated.
-					sample = tmp;                // sample now abbreviated.
-				}
-			}
-		}
+		String[] sample = this.getValue(sampleables, this.conciseSymbol != null);
 		
 		for (int i = 0; i < sample.length - 1; ++i) {
 			this.out.write(sample[i]);
@@ -179,11 +155,79 @@ public class SampleWriter implements Sampler {
 	}
 	
 	/**
-	 * Closes the underlying output stream.
+	 * Flushes the underlying output stream.
+	 * @throws IOException.
+	 */
+	public void flush() throws IOException {
+		this.out.flush();
+	}
+	
+	/**
+	 * Closes the underlying output stream, flushing it first.
 	 * @throws IOException.
 	 */
 	public void close() throws IOException {
 		this.out.close();
+	}
+	
+	/**
+	 * Retrieves the sample values.
+	 * @param sampleables the sampleable objects.
+	 * @param doConcise true to shorten repeats.
+	 * @return the sample.
+	 */
+	private String[] getValue(List<Sampleable> sampleables, boolean doConcise) {
+		if (sampleables.size() == 0) { return new String[0]; }
+		
+		// Retrieve all current parameters.
+		String[] sample = new String[sampleables.size()];
+		for (int i = 0; i < sample.length; ++i) {
+			sample[i] = sampleables.get(i).getSampleValue();
+		}
+		
+		// If desired, exchange unchanged parameters for symbol.
+		if (doConcise) {
+			if (this.lastSample == null) {
+				this.lastSample = sample;
+			} else {
+				for (int i = 0; i < sample.length; ++i) {
+					if (sample[i].equals(this.lastSample[i])) {
+						this.lastSample[i] = this.conciseSymbol;
+					} else {
+						this.lastSample[i] = sample[i];
+					}
+					String[] tmp = this.lastSample;
+					this.lastSample = sample;    // lastSample now up-to-date and non-abbreviated.
+					sample = tmp;                // sample now abbreviated.
+				}
+			}
+		}
+		return sample;
+	}
+	
+	@Override
+	public String getSampleHeader(List<Sampleable> sampleables) {
+		int sz = sampleables.size();
+		if (sz == 0) { return ""; }
+		StringBuilder sb = new StringBuilder(sz * 32);
+		for (int i = 0; i < sz - 1; ++i) {
+			sb.append(sampleables.get(i).getSampleHeader());
+			sb.append(this.delim);
+		}
+		sb.append(sampleables.get(sz - 1).getSampleHeader());
+		return sb.toString();
+	}
+
+	@Override
+	public String getSample(List<Sampleable> sampleables) {
+		String[] sample = this.getValue(sampleables, false);
+		StringBuilder sb = new StringBuilder(sample.length * 32);
+		for (int i = 0; i < sample.length - 1; ++i) {
+			sb.append(sample[i]);
+			sb.append(this.delim);
+		}
+		sb.append(sample[sample.length - 1]);
+		return sb.toString();
 	}
 
 }
