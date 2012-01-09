@@ -2,8 +2,10 @@
 
 = How to create releases of JPrIME =
 
-Unknown as of yet. Probably, we'll package everything it to a single JAR using [http://maven.apache.org/plugins/maven-jar-plugin/ Maven JAR Plugin].
+Naturally, we use Maven for building and packaging. The pom.xml has been set to JAR packaging, and also to use the Maven Shade plugin. This means that on packaging, two kinds of output should be generated in the target directory:
+  # An ordinary JPrIME JAR file.
+  # An über-JPrIME JAR file, which ideally contains JPrIME bundled with all dependencies.
 
-Perhaps dependencies can be included too, see e.g. [http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven this page] on Stack Overflow.
+In Eclipse, packaging JPrIME should be as easy as to right-click the project root folder and selecting "Run as -> Maven package", or, from the command prompt, {{{mvn package}}}. This will generate a snapshot build, although manually renaming JAR files and keeping track of version numbers should be sufficient for our needs.
 
 A tool for listing all (non-transitive) depencies from the root pom.xml can be found in {{{jprime/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
