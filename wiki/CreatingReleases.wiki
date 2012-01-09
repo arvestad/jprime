@@ -3,8 +3,8 @@
 = How to create releases of JPrIME =
 
 Naturally, we use Maven for building and packaging. The pom.xml has been set to JAR packaging, and also to use the Maven Shade plugin. This means that on packaging, two kinds of output should be generated in the target directory:
-  # An ordinary JPrIME JAR file.
-  # An über-JPrIME JAR file, which ideally contains JPrIME bundled with all dependencies.
+  # An original JPrIME JAR file.
+  # An "über" (or "shaded", if you wish) JAR file, which ideally contains JPrIME bundled with all dependencies.
 
 In Eclipse, packaging JPrIME should be as easy as to right-click the project root folder and selecting "Run as -> Maven package", or, from the command prompt, {{{mvn package}}}. This will generate a snapshot build, although manually renaming JAR files and keeping track of version numbers should be sufficient for our needs.
 
