@@ -8,4 +8,4 @@ Naturally, we use Maven for building and packaging. The pom.xml has been set to 
 
 In Eclipse, packaging JPrIME should be as easy as to right-click the project root folder and selecting "Run as -> Maven package", or, from the command prompt, {{{mvn package}}}. This will generate a snapshot build, although manually renaming JAR files and keeping track of version numbers should be sufficient for our needs.
 
-A tool for listing all (non-transitive) depencies from the root pom.xml can be found in {{{jprime/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
+On a side note: a tool for listing all (non-transitive) depencies from the root pom.xml can be found in {{{jprime/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
