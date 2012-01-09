@@ -1,8 +1,12 @@
 package se.cbb.jprime.math;
 
+import java.util.Arrays;
+
 import org.uncommons.maths.random.MersenneTwisterRNG;
 import org.uncommons.maths.random.SeedException;
 import org.uncommons.maths.random.SeedGenerator;
+
+import se.cbb.jprime.mcmc.InfoProvider;
 
 /**
  * Extension of a Mersenne twister pseudo-random number generator.
@@ -11,7 +15,7 @@ import org.uncommons.maths.random.SeedGenerator;
  * 
  * @author Joel Sjöstrand.
  */
-public class PRNG extends MersenneTwisterRNG {
+public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 
 	/** Eclipse-generated serial version UID. */
 	private static final long serialVersionUID = 310669248550266600L;
@@ -48,5 +52,18 @@ public class PRNG extends MersenneTwisterRNG {
 	 */
 	public PRNG(SeedGenerator seedGenerator) throws SeedException {
 		super(seedGenerator);
+	}
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(256);
+		sb.append(prefix).append("MERSENNE TWISTER PRNG\n");
+		sb.append(prefix).append("Seed: ").append(Arrays.toString(this.getSeed())).append('\n');
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		return null;
 	}
 }

@@ -1,10 +1,13 @@
 package se.cbb.jprime.mcmc;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.io.Sampler;
 import se.cbb.jprime.math.LogDouble;
@@ -57,7 +60,7 @@ import se.cbb.jprime.math.PRNG;
  * 
  * @author Joel Sjöstrand.
  */
-public class MCMCManager {
+public class MCMCManager implements Sampleable {
 	
 	/** Iteration of MCMC chain. */
 	protected Iteration iteration;
@@ -89,6 +92,21 @@ public class MCMCManager {
 	/** The fields included in each sampling-tuple. */
 	protected ArrayList<Sampleable> sampleables;
 	
+	/** Current overall likelihood. */
+	protected LogDouble likelihood;
+	
+	/** Best seen overall likelihood so far. */
+	protected LogDouble bestLikelihood;
+	
+	/** Best seen state so far. */
+	protected String bestState;
+	
+	/** Time at iteration start in ns. */
+	protected long startTime;
+	
+	/** Time at iteration end in ns. */
+	protected long endTime;
+	
 	/**
 	 * Constructor.
 	 * @param iteration iteration object of the chain.
@@ -110,6 +128,11 @@ public class MCMCManager {
 		this.properDependents = new ArrayList<ProperDependent>(16);
 		this.models = new ArrayList<Model>(16);
 		this.sampleables = new ArrayList<Sampleable>(16);
+		this.likelihood = null;
+		this.bestLikelihood = null;
+		this.bestState = null;
+		this.startTime = -1;
+		this.endTime = -1;
 	}
 	
 	/**
@@ -206,16 +229,19 @@ public class MCMCManager {
 		this.sampler.writeSampleHeader(this.sampleables);
 		
 		// First time, assume all objects are up-to-date and compute initial likelihood.
-		LogDouble oldLikelihood = new LogDouble(1.0);
+		this.likelihood = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
 		for (Model m : this.models) {
-			oldLikelihood.mult(m.getLikelihood());
+			this.likelihood.mult(m.getLikelihood());
 		}
 		if (willSample) {
 			this.sampler.writeSample(this.sampleables);
 		}
+		this.bestLikelihood = this.likelihood;
+		this.bestState = this.sampler.getSample(this.sampleables);
 		
 		// Iterate.
+		this.startTime = System.nanoTime();
 		HashMap<Dependent, ChangeInfo> changeInfos = new HashMap<Dependent, ChangeInfo>(16);
 		ArrayList<Proposal> proposals = new ArrayList<Proposal>(16);
 		while (this.iteration.increment()) {
@@ -253,7 +279,7 @@ public class MCMCManager {
 			}
 			
 			// Finally, decide whether to accept or reject.
-			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, oldLikelihood, proposals);
+			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, this.likelihood, proposals);
 			if (doAccept) {
 				for (Proposer proposer : shakeItBaby) {
 					proposer.clearCache();
@@ -263,7 +289,11 @@ public class MCMCManager {
 						dep.clearCache(willSample);
 					}
 				}
-				oldLikelihood = newLikelihood;
+				this.likelihood = newLikelihood;
+				if (this.bestLikelihood.lessThan(newLikelihood)) {
+					this.bestLikelihood = newLikelihood;
+					this.bestState = this.sampler.getSample(this.sampleables);
+				}
 			} else {
 				for (Proposer proposer : shakeItBaby) {
 					proposer.restoreCache();
@@ -280,5 +310,69 @@ public class MCMCManager {
 				this.sampler.writeSample(this.sampleables);
 			}
 		}
+		
+		// Post-run stuff.
+		this.endTime = System.nanoTime();
+	}
+
+	/**
+	 * Writes pre-run info of this object.
+	 * @param buff the stream to which to write.
+	 * @throws IOException.
+	 */
+	public void writePreInfo(BufferedWriter buff, boolean doFlush) throws IOException {
+		buff.append("=======================\nPRE-RUN INFO\n=======================\n");
+		String prefix = "";
+		buff.append(this.iteration.getPreInfo(prefix));
+		buff.append(this.thinner.getPreInfo(prefix));
+		buff.append(this.proposerSelector.getPreInfo(prefix));
+		buff.append(this.proposalAcceptor.getPreInfo(prefix));
+		buff.append(this.prng.getPreInfo(prefix));
+		if (doFlush) {
+			buff.flush();
+		}
+	}
+	
+	/**
+	 * Writes post-run info of this object.
+	 * @param buff the stream to which to write.
+	 */
+	public void writePostInfo(BufferedWriter buff, boolean doFlush) throws IOException {
+		buff.append("\n\n=======================\nPOST-RUN INFO\n=======================\n");
+		buff.append("MCMC MANAGER\n");
+		long ns = this.endTime - this.startTime;
+		double s = (double) ns / 1000000000.0;
+		double h = s / 360.0;
+		DecimalFormat df = new DecimalFormat("#.##");
+		buff.append("Wall time: ")
+			.append(""+ns).append(" ns = ")
+			.append(df.format(s)).append(" s = ")
+			.append(df.format(h)).append(" min\n");
+		buff.append("Best encountered state: ").append(this.sampler.getSampleHeader(this.sampleables)).append('\n');
+		buff.append("                        ").append(this.bestState).append('\n');
+		String prefix = "";
+		buff.append(this.iteration.getPostInfo(prefix));
+		buff.append(this.thinner.getPostInfo(prefix));
+		buff.append(this.proposerSelector.getPostInfo(prefix));
+		buff.append(this.proposalAcceptor.getPostInfo(prefix));
+		buff.append(this.prng.getPostInfo(prefix));
+		if (doFlush) {
+			buff.flush();
+		}
+	}
+	
+	@Override
+	public Class<?> getSampleType() {
+		return SampleLogDouble.class;
+	}
+
+	@Override
+	public String getSampleHeader() {
+		return "Likelihood";
+	}
+
+	@Override
+	public String getSampleValue() {
+		return this.likelihood.toString();
 	}
 }

@@ -25,4 +25,18 @@ public interface Sampler {
 	 * @throws IOException.
 	 */
 	public void writeSample(List<Sampleable> sampleables) throws IOException;
+	
+	/**
+	 * Returns the sample header.
+	 * @param sampleables the objects to sample from (processed in list order).
+	 * @return the sample.
+	 */
+	public String getSampleHeader(List<Sampleable> sampleables);
+	
+	/**
+	 * Returns a sample of the current state.
+	 * @param sampleables the objects to sample from (processed in list order).
+	 * @return the sample.
+	 */
+	public String getSample(List<Sampleable> sampleables);
 }
