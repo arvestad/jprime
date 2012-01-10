@@ -47,7 +47,7 @@ Maven handles all external dependencies (most commonly JAR files). Typically, fo
 When there is a need for a new dependency, do the following:
   # Try searching for it using the interface shown for {{{pom.xml}}} in the source root. If it is found, just add it. Note that current builds (as opposed to proper releases) are often denoted SNAPSHOT.
   # If it does not exist in an open Maven repository, one must use a workaround. Currently, this consists of adding the JAR file to the {{{lib}}} folder in the SVN repository and then adding a system scope mock reference to the JAR in {{{pom.xml}}} (typically without aid of the interface). 
-  # Try to add non-JavaDoc JAR files. If you need JavaDoc or sources, these can be collected without adding them as real project dependencies, e.g. in Eclipse by right clicking the project and selecting "Maven <- Download Javadoc".
+  # Try to add non-Javadoc dependencies. If you need Javadoc or sources, these can be collected without adding them as real project dependencies, e.g. in Eclipse by right clicking the project and selecting "Maven <- Download Javadoc".
 
 == Testing ==
 Unit tests and test suites are handled with JUnit. Tests reside under the {{{src/test/java}}} folder in a package structure  aligned with that of the source code. Maven can be told to run test suites when building.
