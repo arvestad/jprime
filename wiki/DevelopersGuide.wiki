@@ -21,8 +21,8 @@ The latest verified version is shown within brackets.
     * Maven Integration for Eclipse {{{[0.10.2]}}}.
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on this wiki.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
-  # Under project settings, just verify that the Java compiler is set to 1.6.
   # If needed, activate Maven by right-clicking the project and clicking "Maven -> Enable Dependency Management" or possibly "Configure -> Convert to Maven Project". You may need to refresh the project afterwards.
+  # The Java version has been set to 1.6 in Maven but, just to be sure, verify that the Eclipse project settings don't disagree.
   # Start coding! (...possibly by creating a new branch first!)
 
 == Version control ==
@@ -45,8 +45,9 @@ Furthermore, non-Java resources kan be maintained in the same manner, e.g. {{{sr
 == Dependencies ==
 Maven handles all external dependencies (most commonly JAR files). Typically, for a user, true Mavenized dependencies (and sub-dependencies!) are retrieved and stored under the {{{~/.m2}}} folder.
 When there is a need for a new dependency, do the following:
-  # Try searching for it using the interface shown for {{{pom.xml}}} in the source root. If it is found, just add it. Note that work versions (as opposed to proper releases) are often denoted SNAPSHOT.
+  # Try searching for it using the interface shown for {{{pom.xml}}} in the source root. If it is found, just add it. Note that current builds (as opposed to proper releases) are often denoted SNAPSHOT.
   # If it does not exist in an open Maven repository, one must use a workaround. Currently, this consists of adding the JAR file to the {{{lib}}} folder in the SVN repository and then adding a system scope mock reference to the JAR in {{{pom.xml}}} (typically without aid of the interface). 
+  # Try to add non-JavaDoc JAR files. If you need JavaDoc or sources, these can be collected without adding them as real project dependencies, e.g. in Eclipse by right clicking the project and selecting "Maven <- Download Javadoc".
 
 == Testing ==
 Unit tests and test suites are handled with JUnit. Tests reside under the {{{src/test/java}}} folder in a package structure  aligned with that of the source code. Maven can be told to run test suites when building.
