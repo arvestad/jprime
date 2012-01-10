@@ -37,7 +37,6 @@ public class SampleStringArray implements SampleType {
 	 * @return the string array.
 	 */
 	public static String[] toStringArray(String s) {
-		// TODO: Implement.
-		return null;
+		throw new UnsupportedOperationException("SampleStringArray.toStringArray(String s) not implemented yet.");
 	}
 }

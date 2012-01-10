@@ -49,7 +49,7 @@ public class SampleBooleanArray implements SampleType {
 			if (s.equals("[]")) {
 				return new boolean[]{};
 			}
-			String[] sVals = s.substring(1, s.length() - 1).split(", ");
+			String[] sVals = s.substring(1, s.length() - 1).split(",");
 			boolean[] vals = new boolean[sVals.length];
 			for (int i = 0; i < sVals.length; ++i) {
 				vals[i] = Boolean.parseBoolean(sVals[i]);

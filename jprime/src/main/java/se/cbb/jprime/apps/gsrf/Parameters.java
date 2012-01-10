@@ -107,11 +107,11 @@ public class Parameters {
 	public Boolean guestTreeFixed = false;
 	
 	/** Fix guest tree branch lengths. */
-	@Parameter(names = {"-blfix", "--branchlengthsfixed"}, description = "Fix guest tree branch lengths.")
+	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix guest tree branch lengths.")
 	public Boolean lengthsFixed = false;
 	
 	/** Sample (output) branch lengths in additional Newick tree. */
-	@Parameter(names = {"-blout", "--outputbranchlengths"}, description = "When sampling, output branch lengths in " +
+	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output branch lengths in " +
 			"additional Newick guest tree.")
 	public Boolean outputLengths = false;
 	
@@ -135,21 +135,21 @@ public class Parameters {
 	public String tuningEdgeRateCV = "[0.6,0.6,0.5,0.5]";
 	
 	/** Tuning parameter: branch lengths proposal distribution variance. */
-	@Parameter(names = {"-tngbl", "--tuningbranchlengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution variance.")
+	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution variance.")
 	public String tuningLengths = "[0.6,0.6,0.5,0.5]";
 	
 	/** Tuning parameter: guest tree move weights. */
-	@Parameter(names = {"-tnggmw", "--tuningguesttreemoveweights"}, description = "Tuning parameter: Governs how often a particular " +
+	@Parameter(names = {"-tnggw", "--tuningguesttreeweights"}, description = "Tuning parameter: Governs how often a particular " +
 			"branch swap operation is carried out as [NNI,SPR,Rerooting].")
 	public String tuningGuestTreeMoveWeights = "[0.5,0.3,0.2]";
 	
 	/** Tuning parameter: branch lengths selector weights. */
-	@Parameter(names = {"-tngblsw", "--tuningbranchlengthsselectorweights"}, description = "Tuning parameter: Governs how often 1,2,... branch lengths " +
+	@Parameter(names = {"-tnglw", "--tuninglengthsweights"}, description = "Tuning parameter: Governs how often 1,2,... branch lengths " +
 			"will be perturbed simultaneously, e.g., [0.5,0.5] for an equal chance of 1 or 2 branch lengths.")
 	public String tuningLengthsSelectorWeights = "[0.4,0.3,0.2,0.1]";
 	
 	/** Tuning parameter: proposer selector weights. */
-	@Parameter(names = {"-tngpsw", "--tuningproposerselectorweights"}, description = "Tuning parameter: Governs how often 1,2,... simultaneous proposers " +
+	@Parameter(names = {"-tngpw", "--tuningproposerweights"}, description = "Tuning parameter: Governs how often 1,2,... simultaneous proposers " +
 			"(a.k.a. operators or kernels) will be activated for performing a state change, e.g., [0.5,0.5] for an equal chance of 1 or 2 proposers. No more than 4 may be specified.")
 	public String tuningProposerSelectorWeights = "[0.7,0.2,0.1]";
 	
@@ -175,7 +175,7 @@ public class Parameters {
 	public String tuningWeightG = "[1.0,1.0]";
 	
 	/** Tuning parameter: branch lengths. */
-	@Parameter(names = {"-tngwbl", "--tuningweightbranchlengths"}, description = "Tuning parameter: Relative activation weigth for branch lengths proposer.")
+	@Parameter(names = {"-tngwl", "--tuningweightlengths"}, description = "Tuning parameter: Relative activation weigth for branch lengths proposer.")
 	public String tuningWeightLengths = "[1.0,1.0]";
 	
 	/** Debug flag. */

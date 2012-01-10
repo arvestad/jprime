@@ -45,6 +45,6 @@ public class SampleDoubleArrayArray implements SampleType {
 	 */
 	public static double[][] toDoubleArrayArray(String s) {
 		// TODO: Implement.
-		return null;
+		throw new UnsupportedOperationException("SampleDoubleArrayArray.toDoubleArrayArray(String s) not implemented yet.");
 	}
 }
