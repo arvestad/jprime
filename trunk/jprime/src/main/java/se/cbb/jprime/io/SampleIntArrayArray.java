@@ -45,6 +45,6 @@ public class SampleIntArrayArray implements SampleType {
 	 */
 	public static int[][] toIntArrayArray(String s) {
 		// TODO: Implement.
-		return null;
+		throw new UnsupportedOperationException("SampleIntArrayArray.toIntArrayArray(String s) not implemented yet.");
 	}
 }

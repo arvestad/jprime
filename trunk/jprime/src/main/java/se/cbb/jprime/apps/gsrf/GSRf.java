@@ -2,6 +2,7 @@ package se.cbb.jprime.apps.gsrf;
 
 import java.io.BufferedWriter;
 
+import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleWriter;
@@ -46,7 +47,9 @@ public class GSRf {
 			Parameters params = new Parameters();
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
-				jc.usage();
+				StringBuilder sb = new StringBuilder(65536);
+				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
+				System.out.println(sb.toString());
 				return;
 			}
 			
