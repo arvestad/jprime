@@ -324,7 +324,7 @@ public class MCMCManager implements Sampleable {
 	 */
 	public void writePreInfo(BufferedWriter buff, boolean doFlush) throws IOException {
 		buff.append("=======================\nPRE-RUN INFO\n=======================\n");
-		buff.append("MCMC MANAGER\n");
+		buff.append("MCMC MANAGER\n\n");
 		String prefix = "";
 		buff.append(this.prng.getPreInfo(prefix)).append('\n');
 		buff.append(this.iteration.getPreInfo(prefix)).append('\n');

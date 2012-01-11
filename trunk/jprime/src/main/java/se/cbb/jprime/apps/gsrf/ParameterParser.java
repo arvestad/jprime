@@ -354,7 +354,7 @@ public class ParameterParser {
 		LinearTuningParameter t1 = new LinearTuningParameter(iter, tng[0], tng[1]);
 		LinearTuningParameter t2 = new LinearTuningParameter(iter, tng[2], tng[3]);		
 		NormalProposer proposer = new NormalProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), t1, t2, prng);
-		proposer.setStatistics(new FineProposerStatistics(iter, 16));
+		proposer.setStatistics(new FineProposerStatistics(iter, 8));
 		return proposer;
 	}
 	
@@ -368,7 +368,7 @@ public class ParameterParser {
 	 */
 	public static RBTreeBranchSwapper getBranchSwapper(RBTree tree, DoubleMap lengths, Iteration iter, PRNG prng) {
 		RBTreeBranchSwapper mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
-		mrGardener.setStatistics(new FineProposerStatistics(iter, 16));
+		mrGardener.setStatistics(new FineProposerStatistics(iter, 8));
 		return mrGardener;
 	}
 	

@@ -162,7 +162,7 @@ public class NormalProposer implements Proposer {
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
 		
-		int k = this.getNoOfSubParameters();
+		int k = this.param.getNoOfSubParameters();
 		int m = this.cumSubParamWeights.length;
 		
 		// Determine desired number of sub-parameters and select them.

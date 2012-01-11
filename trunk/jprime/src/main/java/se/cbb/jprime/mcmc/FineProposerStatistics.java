@@ -69,7 +69,7 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 			ar = new Pair<Integer, Integer>(0, 0);
 		}
 		ar = (wasAccepted ? new Pair<Integer,Integer>(ar.first + 1, ar.second) : new Pair<Integer, Integer>(ar.first, ar.second + 1));
-		this.noOfAccRejByNoOfParams.put(noOfParams, ar);
+		this.noOfAccRejByNoOfParams.put(new Integer(noOfParams), ar);
 	}
 	
 	/**

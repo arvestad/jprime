@@ -286,7 +286,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(128);
-		sb.append(prefix).append("BRANCH SWAPPER PROPOSER\n");
+		sb.append(prefix).append("BRANCH-SWAPPER PROPOSER\n");
 		sb.append(prefix).append("Perturbed tree parameter: ").append(this.T.getName()).append('\n');
 		sb.append(prefix).append("Perturbed times parameter: ").append(this.times == null ? "None" : this.times.getName()).append('\n');
 		sb.append(prefix).append("Perturbed lengths parameter: ").append(this.lengths == null ? "None" : this.lengths.getName()).append('\n');
@@ -301,7 +301,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	@Override
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(prefix).append("BRANCH SWAPPER PROPOSER\n");
+		sb.append(prefix).append("BRANCH-SWAPPER PROPOSER\n");
 		sb.append(prefix).append("Perturbed tree parameter: ").append(this.T.getName()).append('\n');
 		sb.append(prefix).append("Perturbed times parameter: ").append(this.times == null ? "None" : this.times.getName()).append('\n');
 		sb.append(prefix).append("Perturbed lengths parameter: ").append(this.lengths == null ? "None" : this.lengths.getName()).append('\n');
