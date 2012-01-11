@@ -134,9 +134,13 @@ public class DoubleArrayMatrixMap {
 
 	/**
 	 * Replaces the current map with the cached map, and clears the latter.
+	 * If there is no cache, nothing will happen and the current values remain.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache() {
+		if (this.cacheValues == null) {
+			return;
+		}
 		if (this.cacheVertices == null) {
 			this.values = this.cacheValues;
 			this.cacheValues = null;

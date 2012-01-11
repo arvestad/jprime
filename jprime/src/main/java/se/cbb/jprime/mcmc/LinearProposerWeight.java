@@ -31,7 +31,7 @@ public class LinearProposerWeight extends LinearTuningParameter implements Propo
 	
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "LINEAR PROPOSER WEIGHT\n");
 	}
 
 }

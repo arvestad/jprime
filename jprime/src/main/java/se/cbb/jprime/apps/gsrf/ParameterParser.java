@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import org.biojava3.core.sequence.template.AbstractSequence;
@@ -66,7 +67,7 @@ public class ParameterParser {
 	 */
 	public static Triple<RBTree, NamesMap, TimesMap> getHostTree(Parameters ps) {
 		try {
-			PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(new File(ps.files.get(0)), true, true);
+			PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(new File(ps.files.get(0)), false, true);
 			RBTree s = new RBTree(sRaw, "HostTree");
 			NamesMap sNames = sRaw.getVertexNamesMap(true, "HostTreeNames");
 			TimesMap sTimes = sRaw.getTimesMap("HostTreeRawTimes");
@@ -75,7 +76,7 @@ public class ParameterParser {
 				throw new IllegalArgumentException("Missing time for stem in host tree (i.e., \"arc\" predating root).");
 			}
 			double leafTime = sTimes.get(s.getLeaves().get(0));
-			if (leafTime <= 0.0) {
+			if (Math.abs(leafTime) > 1e-8) {
 				throw new IllegalArgumentException("Absolute leaf times for host tree must be 0.");
 			}
 			// Rescale tree so that root has time 1.0.
@@ -164,7 +165,7 @@ public class ParameterParser {
 	 * @return PRNG.
 	 */
 	public static PRNG getPRNG(Parameters ps) {
-		return (ps.seed == null ? new PRNG() : new PRNG(ps.seed));
+		return (ps.seed == null ? new PRNG() : new PRNG(new BigInteger(ps.seed)));
 	}
 	
 	/**
@@ -286,19 +287,22 @@ public class ParameterParser {
 	 * @param ps parameters.
 	 * @param mpr guest-to-host tree reconciliation info.
 	 * @param s host tree.
+	 * @param g guest tree.
 	 * @param times discretisation times.
 	 * @return duplication rate, loss rate, duplication-loss probabilities.
 	 */
-	public static Triple<DoubleParameter, DoubleParameter, DupLossProbs> getDupLossProbs(Parameters ps, MPRMap mpr, RBTree s, RBTreeArcDiscretiser times) {
+	public static Triple<DoubleParameter, DoubleParameter, DupLossProbs> getDupLossProbs(Parameters ps, MPRMap mpr, RBTree s, RBTree g, RBTreeArcDiscretiser times) {
 						
 		// Set initial duplication rate as number of inferred MPR duplications divided by total time tree span.
 		// Then set loss rate to the same amount.
 		int dups = 0;
-		double totTime = 0.0;
-		for (int x = 0; x < s.getNoOfVertices(); ++x) {
-			if (mpr.isDuplication(x)) {
+		for (int u = 0; u < g.getNoOfVertices(); ++u) {
+			if (mpr.isDuplication(u)) {
 				++dups;
 			}
+		}
+		double totTime = 0.0;
+		for (int x = 0; x < s.getNoOfVertices(); ++x) {
 			totTime += times.getArcTime(x);
 		}
 		
@@ -349,8 +353,8 @@ public class ParameterParser {
 		double[] tng = SampleDoubleArray.toDoubleArray(tuning);
 		LinearTuningParameter t1 = new LinearTuningParameter(iter, tng[0], tng[1]);
 		LinearTuningParameter t2 = new LinearTuningParameter(iter, tng[2], tng[3]);		
-		NormalProposer proposer = new NormalProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true),
-					t1, t2, new FineProposerStatistics(iter, 16), prng);
+		NormalProposer proposer = new NormalProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), t1, t2, prng);
+		proposer.setStatistics(new FineProposerStatistics(iter, 16));
 		return proposer;
 	}
 	
@@ -363,7 +367,9 @@ public class ParameterParser {
 	 * @return branch swapper.
 	 */
 	public static RBTreeBranchSwapper getBranchSwapper(RBTree tree, DoubleMap lengths, Iteration iter, PRNG prng) {
-		return new RBTreeBranchSwapper(tree, lengths, new FineProposerStatistics(iter, 16), prng);
+		RBTreeBranchSwapper mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
+		mrGardener.setStatistics(new FineProposerStatistics(iter, 16));
+		return mrGardener;
 	}
 	
 	/**

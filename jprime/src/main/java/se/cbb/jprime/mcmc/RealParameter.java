@@ -36,6 +36,7 @@ public interface RealParameter extends StateParameter {
 	
 	/**
 	 * Replaces the current parameter with the cached parameter, and clears the latter.
+	 * If there is no cache, nothing will happen and the current values remain.
 	 * May e.g. be used by a <code>Proposer</code>.
 	 */
 	public void restoreCache();

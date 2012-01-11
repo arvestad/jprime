@@ -39,6 +39,6 @@ public class ConstantProposerWeight extends ConstantTuningParameter implements P
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "CONSTANT PROPOSER WEIGHT\n");
 	}
 }

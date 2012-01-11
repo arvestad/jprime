@@ -64,14 +64,14 @@ public class LinearTuningParameter implements TuningParameter, IterationListener
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("LINEAR TUNING PARAMETER\n");
-		sb.append("Value range: ").append(this.startValue).append(" to ").append(this.endValue).append("\n");
+		sb.append(prefix).append("LINEAR TUNING PARAMETER\n");
+		sb.append(prefix).append("Value range: ").append(this.startValue).append(" to ").append(this.endValue).append("\n");
 		return sb.toString();
 	}
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "LINEAR TUNING PARAMETER\n");
 	}
 
 }
