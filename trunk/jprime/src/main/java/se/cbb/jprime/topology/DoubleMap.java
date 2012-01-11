@@ -131,6 +131,9 @@ public class DoubleMap implements GraphMap, RealParameter {
 
 	@Override
 	public void restoreCache() {
+		if (this.cacheValues == null) {
+			return;
+		}
 		if (this.cacheVertices == null) {
 			this.values = this.cacheValues;
 			this.cacheValues = null;

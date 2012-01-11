@@ -35,7 +35,7 @@ public class Parameters {
 	
 	/** PRNG seed. */
 	@Parameter(names = {"-s", "--seed"}, description = "PRNG seed. Default: Random seed.")
-	public Integer seed = null;
+	public String seed = null;
 	
 	/** Iterations. */
 	@Parameter(names = {"-i", "--iterations"}, description = "Number of iterations (attempted state changes).")
@@ -50,9 +50,9 @@ public class Parameters {
 	public String substitutionModel = "JTT";
 	
 	/** Gamma site rate categories. */
-	@Parameter(names = {"-cats", "--siteratecategories"}, description = "Number of categories for discretised Gamma distribution" +
-			" for rate variation across sites.")
-	public Integer gammaCategoriesOverSites = 1;
+	//@Parameter(names = {"-cats", "--siteratecategories"}, description = "Number of categories for discretised Gamma distribution" +
+	//		" for rate variation across sites.")
+	//public Integer gammaCategoriesOverSites = 1;
 
 	/** Edge rate distribution. */
 	@Parameter(names = {"-erpd", "--edgeratepd"}, description = "Probability distribution underlying relaxed molecular clock through IID" +
@@ -154,32 +154,32 @@ public class Parameters {
 	public String tuningProposerSelectorWeights = "[0.7,0.2,0.1]";
 	
 	/** Tuning parameter: duplication rate proposer weight. */
-	@Parameter(names = {"-tngwdup", "--tuningweightduplicationrate"}, description = "Tuning parameter: Relative activation weigth for duplication rate proposer" +
+	@Parameter(names = {"-tngwdup", "--tuningweightduplicationrate"}, description = "Tuning parameter: Relative activation weight for duplication rate proposer" +
 			" as [w_start,w_end], where start and end refer to the first and last iteration respectively.")
 	public String tuningWeightDupRate = "[1.0,1.0]";
 	
 	/** Tuning parameter: loss rate proposer weight. */
-	@Parameter(names = {"-tngwloss", "--tuningweightlossrate"}, description = "Tuning parameter: Relative activation weigth for loss rate proposer.")
+	@Parameter(names = {"-tngwloss", "--tuningweightlossrate"}, description = "Tuning parameter: Relative activation weight for loss rate proposer.")
 	public String tuningWeightLossRate = "[1.0,1.0]";
 	
 	/** Tuning parameter: edge rate mean proposer weight. */
-	@Parameter(names = {"-tngwerm", "--tuningweightedgeratemean"}, description = "Tuning parameter: Relative activation weigth for edge rate mean proposer.")
+	@Parameter(names = {"-tngwerm", "--tuningweightedgeratemean"}, description = "Tuning parameter: Relative activation weight for edge rate mean proposer.")
 	public String tuningWeightEdgeRateMean = "[1.0,1.0]";
 	
 	/** Tuning parameter: edge rate CV proposer weight. */
-	@Parameter(names = {"-tngwercv", "--tuningweightedgeratecv"}, description = "Tuning parameter: Relative activation weigth for edge rate CV proposer.")
+	@Parameter(names = {"-tngwercv", "--tuningweightedgeratecv"}, description = "Tuning parameter: Relative activation weight for edge rate CV proposer.")
 	public String tuningWeightEdgeRateCV = "[1.0,1.0]";
 	
 	/** Tuning parameter: guest tree proposer weight. */
-	@Parameter(names = {"-tngwg", "--tuningweightguesttree"}, description = "Tuning parameter: Relative activation weigth for guest tree topology proposer.")
+	@Parameter(names = {"-tngwg", "--tuningweightguesttree"}, description = "Tuning parameter: Relative activation weight for guest tree topology proposer.")
 	public String tuningWeightG = "[1.0,1.0]";
 	
 	/** Tuning parameter: branch lengths. */
-	@Parameter(names = {"-tngwl", "--tuningweightlengths"}, description = "Tuning parameter: Relative activation weigth for branch lengths proposer.")
+	@Parameter(names = {"-tngwl", "--tuningweightlengths"}, description = "Tuning parameter: Relative activation weight for branch lengths proposer.")
 	public String tuningWeightLengths = "[1.0,1.0]";
 	
 	/** Debug flag. */
-	@Parameter(names = {"-d", "--debug"}, description = "Output debugging info.")
+	@Parameter(names = {"-dbg", "--debug"}, description = "Output debugging info.")
 	public Boolean debug = false;
 	
 }

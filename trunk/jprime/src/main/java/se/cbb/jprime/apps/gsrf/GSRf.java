@@ -1,6 +1,7 @@
 package se.cbb.jprime.apps.gsrf;
 
 import java.io.BufferedWriter;
+import java.util.Arrays;
 
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
@@ -48,6 +49,7 @@ public class GSRf {
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
+				sb.append("Usage: java GSRf [options] ").append(jc.getMainParameterDescription()).append('\n');
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				System.out.println(sb.toString());
 				return;
@@ -85,7 +87,7 @@ public class GSRf {
 			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.third, gNamesLengths.first);
 			
 			// Duplication-loss probabilities over discretised S.
-			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, dtimes);
+			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
 			
@@ -96,12 +98,13 @@ public class GSRf {
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
 			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
 			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
-			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateCV);
+			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
 			RBTreeBranchSwapper guestTreeProposer = ParameterParser.getBranchSwapper(gNamesLengths.first, gNamesLengths.third, iter, prng);
 			double[] moves = SampleDoubleArray.toDoubleArray(params.tuningGuestTreeMoveWeights);
 			guestTreeProposer.setOperationWeights(moves[0], moves[1], moves[2]);
 			NormalProposer lengthsProposer = ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
-			lengthsProposer.setSubParameterWeights(SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights));
+			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
+			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
 			// Proposer selector.
 			MultiProposerSelector selector = ParameterParser.getSelector(params, prng);
@@ -113,12 +116,12 @@ public class GSRf {
 			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
-			if (params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
-			if (params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
-			if (params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
-			if (params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
-			if (params.guestTreeFixed)                              { guestTreeProposer.setEnabled(false); }
-			if (params.lengthsFixed)                                { lengthsProposer.setEnabled(false); }
+			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
+			if (params.lossRate != null       && params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
+			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
+			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
+			if (params.guestTreeFixed)                                                               { guestTreeProposer.setEnabled(false); }
+			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
 			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
@@ -145,11 +148,12 @@ public class GSRf {
 			
 			manager.writePreInfo(info, true);
 			manager.run();
-			sampler.close();
 			manager.writePostInfo(info, true);
+			sampler.close();
+			info.close();
 			
 		} catch (Exception e) {
-			System.err.print(e);
+			e.printStackTrace(System.err);
 			System.err.print("\nUse option -h or --help to show usage.");
 		}
 	}

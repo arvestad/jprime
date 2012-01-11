@@ -17,8 +17,8 @@ import java.util.Set;
  *     "reach" of a suggested state change. These parameters may also change over time.</li>
  * </ul>
  * Generally, for optimisation reasons, the <code>Proposer</code> is responsible for caching and
- * possibly restoring the state parameter values rather than the parameters themselves. This is
- * because the <code>Proposer</code> perhaps only alters but a small part of them.
+ * restoring the state parameter values rather than the parameters themselves. This is
+ * because the <code>Proposer</code> perhaps only alters but a small part of the values.
  * <p/>
  * A <code>Proposer</code> may be turned off/on with method <code>setEnabled(...)</code>.
  * 
@@ -47,6 +47,12 @@ public interface Proposer extends InfoProvider {
 	 * @return the total number of sub-parameters.
 	 */
 	public int getNoOfSubParameters();
+	
+	/**
+	 * Sets the proposal statistics of this object.
+	 * @param stats the statistics.
+	 */
+	public void setStatistics(ProposerStatistics stats);
 	
 	/**
 	 * Returns the proposal statistics of this object.

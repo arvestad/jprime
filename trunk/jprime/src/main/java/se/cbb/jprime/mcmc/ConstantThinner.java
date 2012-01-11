@@ -62,7 +62,7 @@ public class ConstantThinner implements Thinner, IterationListener {
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "CONSTANT THINNER\n");
 	}
 
 }

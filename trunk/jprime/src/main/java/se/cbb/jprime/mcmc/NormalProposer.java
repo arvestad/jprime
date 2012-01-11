@@ -51,8 +51,11 @@ public class NormalProposer implements Proposer {
 	/** Second tuning parameter. Governs probability of staying in +-(1+t1)*old value. */
 	private TuningParameter t2;
 
+	/** Current number of perturbed sub-parameters. */
+	int noPerturbed;
+	
 	/** Statistics. */
-	private ProposerStatistics stats;
+	private ProposerStatistics stats = null;
 	
 	/**
 	 * Cumulative sub-parameter weights. Controls the probability of perturbing
@@ -69,18 +72,16 @@ public class NormalProposer implements Proposer {
 	 * @param interval domain of state parameter and proposal distribution.
 	 * @param t1 tuning parameter governing factor from old state.
 	 * @param t2 tuning parameter governing probability of staying within +-(1+t1)*old state.
-	 * @param stats proposer statistics.
 	 * @param prng pseudo-random number generator.
 	 */
-	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter t1,
-			TuningParameter t2, ProposerStatistics stats, PRNG prng) {
+	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter t1, TuningParameter t2, PRNG prng) {
 		if (t1.getMinValue() <= 0) {
 			throw new IllegalArgumentException("First tuning parameter for normal proposer must be in (0,inf).");
 		}
 		if (t2.getMinValue() <= 0 || t2.getMaxValue() >= 1.0) {
 			throw new IllegalArgumentException("Second tuning parameter for normal proposer must be in (0,1).");
 		}
-		RealInterval.Type t = this.interval.getType();
+		RealInterval.Type t = interval.getType();
 		if (t == Type.DEGENERATE || t == Type.EMPTY) {
 			throw new IllegalArgumentException("Invalid interval for normal proposer.");
 		}
@@ -88,7 +89,7 @@ public class NormalProposer implements Proposer {
 		this.interval = interval;
 		this.t1 = t1;
 		this.t2 = t2;
-		this.stats = stats;
+		this.noPerturbed = 0;
 		this.prng = prng;
 		this.cumSubParamWeights = new double[] { 1.0 };
 		this.isEnabled = true;
@@ -99,12 +100,10 @@ public class NormalProposer implements Proposer {
 	 * @param param state parameter perturbed by this proposer.
 	 * @param t1 tuning parameter governing factor from old state.
 	 * @param t2 tuning parameter governing probability of staying within +-(1+t1)*old state.
-	 * @param stats proposer statistics.
 	 * @param prng random number generator.
 	 */
-	public NormalProposer(RealParameter param, TuningParameter t1, TuningParameter t2,
-			ProposerStatistics stats, PRNG prng) {
-		this(param, new RealInterval(), t1, t2, stats, prng);
+	public NormalProposer(RealParameter param, TuningParameter t1, TuningParameter t2, PRNG prng) {
+		this(param, new RealInterval(), t1, t2, prng);
 	}
 	
 	@Override
@@ -214,6 +213,7 @@ public class NormalProposer implements Proposer {
 			int tries = 0;
 			do {
 				x = pd.sampleValue(this.prng);
+				this.param.setValue(indices[i], x);
 				++tries;
 				if (tries > 100) {
 					// Abort with invalid proposal.
@@ -229,9 +229,9 @@ public class NormalProposer implements Proposer {
 				nonTails -= pd.getCDF(a);
 			}
 			if (!Double.isInfinite(b)) {
-				nonTails -= 1.0 - pd.getCDF(b);
+				nonTails -= (1.0 - pd.getCDF(b));
 			}
-			forward.mult(new LogDouble(pd.getPDF(x) / nonTails));
+			forward.mult(new LogDouble(Math.max(pd.getPDF(x) / nonTails, 0.0)));
 			
 			// Obtain "backward" density.
 			stdev = (x == 0.0 ? 1e-10 : Math.abs(x * this.t1.getValue()) / normFact);
@@ -242,10 +242,11 @@ public class NormalProposer implements Proposer {
 				nonTails -= pd.getCDF(a);
 			}
 			if (!Double.isInfinite(b)) {
-				nonTails -= 1.0 - pd.getCDF(b);
+				nonTails -= (1.0 - pd.getCDF(b));
 			}
-			backward.mult(new LogDouble(pd.getPDF(xOld) / nonTails));
+			backward.mult(new LogDouble(Math.max(pd.getPDF(xOld) / nonTails, 0.0)));
 		}
+		this.noPerturbed = indices.length;
 		
 		// Set change info.
 		changeInfos.put(this.param, new ChangeInfo(this.param, "Perturbed by NormalProposer", indices));
@@ -256,11 +257,17 @@ public class NormalProposer implements Proposer {
 
 	@Override
 	public void clearCache() {
+		if (this.stats != null) {
+			this.stats.increment(true, this.noPerturbed);
+		}
 		this.param.clearCache();
 	}
 
 	@Override
 	public void restoreCache() {
+		if (this.stats != null) {
+			this.stats.increment(false, this.noPerturbed);
+		}
 		this.param.restoreCache();
 	}
 
@@ -277,22 +284,35 @@ public class NormalProposer implements Proposer {
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(prefix).append("NORMAL DISTRIBUTED PROPOSER\n");
-		sb.append(prefix).append("Is active: ").append(this.isEnabled).append("\n");
+		sb.append(prefix).append("NORMAL-DISTRIBUTED PROPOSER\n");
 		sb.append(prefix).append("Perturbed parameter: ").append(this.param.getName()).append('\n');
+		sb.append(prefix).append("Is active: ").append(this.isEnabled).append("\n");
 		sb.append(prefix).append("Domain: ").append(this.interval.toString()).append('\n');
 		sb.append(prefix).append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
 		sb.append(prefix).append("Tuning parameter 1:\n").append(this.t1.getPreInfo(prefix + '\t'));
 		sb.append(prefix).append("Tuning parameter 2:\n").append(this.t2.getPreInfo(prefix + '\t'));
+		if (this.stats != null) {
+			sb.append(prefix).append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));
+		}
 		return sb.toString();
 	}
 
 	@Override
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(prefix).append("NORMAL DISTRIBUTED PROPOSER\n");
-		sb.append(prefix).append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("NORMAL-DISTRIBUTED PROPOSER\n");
+		sb.append(prefix).append("Perturbed parameter: ").append(this.param.getName()).append('\n');
+		sb.append(prefix).append("Tuning parameter 1:\n").append(this.t1.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Tuning parameter 2:\n").append(this.t2.getPostInfo(prefix + '\t'));
+		if (this.stats != null) {
+			sb.append(prefix).append("Statistics:\n").append(this.stats.getPostInfo(prefix + '\t'));
+		}
 		return sb.toString();
+	}
+
+	@Override
+	public void setStatistics(ProposerStatistics stats) {
+		this.stats = stats;
 	}
 
 }

@@ -52,25 +52,9 @@
 	</dependency>
 	<dependency>
 		<groupId>org.biojava</groupId>
-		<artifactId>biojava3-core</artifactId>
-		<version>3.0.1</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.biojava</groupId>
 		<artifactId>biojava3-phylo</artifactId>
 		<version>3.0.1</version>
 		<type>jar</type>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.biojava</groupId>
-		<artifactId>biojava3-phylo</artifactId>
-		<version>3.0.1</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
@@ -81,26 +65,10 @@
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
-		<groupId>org.biojava</groupId>
-		<artifactId>biojava3-alignment</artifactId>
-		<version>3.0.1</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
 		<groupId>com.beust</groupId>
 		<artifactId>jcommander</artifactId>
 		<version>1.18</version>
 		<type>jar</type>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>com.beust</groupId>
-		<artifactId>jcommander</artifactId>
-		<version>1.18</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
@@ -111,26 +79,10 @@
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
-		<groupId>com.googlecode.efficient-java-matrix-library</groupId>
-		<artifactId>ejml</artifactId>
-		<version>0.17</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
 		<groupId>ch.qos.logback</groupId>
 		<artifactId>logback-classic</artifactId>
 		<version>0.9.29</version>
 		<type>jar</type>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>ch.qos.logback</groupId>
-		<artifactId>logback-classic</artifactId>
-		<version>0.9.29</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
@@ -141,32 +93,9 @@
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
-		<groupId>org.uncommons.maths</groupId>
-		<artifactId>uncommons-maths</artifactId>
-		<version>1.2.2</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
 		<groupId>jfree</groupId>
 		<artifactId>jfreechart</artifactId>
 		<version>1.0.8a</version>
-		<type>jar</type>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>jfree</groupId>
-		<artifactId>jfreechart</artifactId>
-		<version>1.0.8a</version>
-		<type>jar</type>
-		<classifier>javadoc</classifier>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.commons</groupId>
-		<artifactId>commons-lang3</artifactId>
-		<version>3.1</version>
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
@@ -175,7 +104,6 @@
 		<artifactId>commons-lang3</artifactId>
 		<version>3.1</version>
 		<type>jar</type>
-		<classifier>javadoc</classifier>
 		<scope>compile</scope>
 	</dependency>
   </dependencies>

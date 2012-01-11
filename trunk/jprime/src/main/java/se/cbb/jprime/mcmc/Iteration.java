@@ -146,7 +146,7 @@ public class Iteration implements Sampleable, InfoProvider {
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix  + "ITERATION\n");
 	}
 	
 }

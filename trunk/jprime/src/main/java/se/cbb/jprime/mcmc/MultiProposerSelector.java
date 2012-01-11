@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 import se.cbb.jprime.math.PRNG;
 
@@ -94,10 +94,10 @@ public class MultiProposerSelector implements ProposerSelector {
 		
 		// Special cases for speed.
 		if (this.proposers.size() == 1) {
-			return new TreeSet<Proposer>(this.proposers);
+			return new HashSet<Proposer>(this.proposers);
 		}
 		if (this.cumNoWeights.length == 1) {
-			TreeSet<Proposer> ts = new TreeSet<Proposer>();
+			HashSet<Proposer> ts = new HashSet<Proposer>(1);
 			ts.add(this.proposers.get(this.prng.nextInt(this.proposers.size())));
 			return ts;
 		}
@@ -110,7 +110,7 @@ public class MultiProposerSelector implements ProposerSelector {
 		// Compute an accumulated weight array for the current proposer weights.
 		double[] accWeights = new double[this.proposers.size()];
 		double tot = 0.0;
-		for (int i = 0; i< accWeights.length; ++i) {
+		for (int i = 0; i < accWeights.length; ++i) {
 			tot += this.weights.get(i).getValue();
 			accWeights[i] = tot;
 		}
@@ -120,8 +120,8 @@ public class MultiProposerSelector implements ProposerSelector {
 		accWeights[accWeights.length - 1] = 1.0;   // For numeric safety.
 		
 		// Try to add proposers.
-		TreeSet<Proposer> selProps = new TreeSet<Proposer>();
-		TreeSet<StateParameter> selParams = new TreeSet<StateParameter>();
+		HashSet<Proposer> selProps = new HashSet<Proposer>(noOfProps);
+		HashSet<StateParameter> selParams = new HashSet<StateParameter>(noOfProps * 2);
 		int attempts = 0;
 		while (attempts < MAX_NO_OF_ATTEMPTS && selProps.size() < noOfProps) {
 			addProposer(selProps, selParams, this.proposers, accWeights);

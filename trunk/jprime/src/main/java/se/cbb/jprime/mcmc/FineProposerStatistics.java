@@ -53,19 +53,21 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	@Override
 	public void incrementPerformed(int iterCurr, int iterTotal) {
 		int sz = noOfAcceptedPerWindow.length;
-		this.currentWindow = Math.min((iterCurr / iterTotal) * sz, sz - 1);
+		this.currentWindow = (int) Math.min((iterCurr / (double) iterTotal) * sz, sz - 1);
 	}
 	
 	@Override
-	public void increment(boolean wasAccepted, Proposal proposal) {
-		super.increment(wasAccepted, proposal);
+	public void increment(boolean wasAccepted, int noOfParams) {
+		super.increment(wasAccepted, noOfParams);
 		if (wasAccepted) {
 			this.noOfAcceptedPerWindow[this.currentWindow]++;
 		} else {
 			this.noOfRejectedPerWindow[this.currentWindow]++;
 		}
-		int noOfParams = proposal.getNoOfPerturbedParameters();
 		Pair<Integer,Integer> ar = this.noOfAccRejByNoOfParams.get(noOfParams);
+		if (ar == null) {
+			ar = new Pair<Integer, Integer>(0, 0);
+		}
 		ar = (wasAccepted ? new Pair<Integer,Integer>(ar.first + 1, ar.second) : new Pair<Integer, Integer>(ar.first, ar.second + 1));
 		this.noOfAccRejByNoOfParams.put(noOfParams, ar);
 	}
@@ -140,7 +142,7 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	
 	@Override
 	public String getPreInfo(String prefix) {
-		return null;
+		return (prefix + "FINE-DETAILED PROPOSER STATISTICS\n");
 	}
 	
 	@Override

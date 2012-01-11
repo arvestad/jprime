@@ -150,10 +150,12 @@ public class MCMCManager implements Sampleable {
 	 * @param dependent the dependent.
 	 */
 	private void addDependent(Dependent dependent) {
-		if (dependent instanceof StateParameter && !this.parameters.contains(dependent)) {
+		if (dependent instanceof StateParameter) {
 			// State parameter, i.e. DAG source.
-			StateParameter sp = (StateParameter) dependent;
-			this.parameters.add(sp);
+			if (!this.parameters.contains(dependent)) {
+				StateParameter sp = (StateParameter) dependent;
+				this.parameters.add(sp);
+			}
 		} else {
 			// Proper dependent.
 			ProperDependent pd = (ProperDependent) dependent;
@@ -322,12 +324,13 @@ public class MCMCManager implements Sampleable {
 	 */
 	public void writePreInfo(BufferedWriter buff, boolean doFlush) throws IOException {
 		buff.append("=======================\nPRE-RUN INFO\n=======================\n");
+		buff.append("MCMC MANAGER\n");
 		String prefix = "";
-		buff.append(this.iteration.getPreInfo(prefix));
-		buff.append(this.thinner.getPreInfo(prefix));
-		buff.append(this.proposerSelector.getPreInfo(prefix));
-		buff.append(this.proposalAcceptor.getPreInfo(prefix));
-		buff.append(this.prng.getPreInfo(prefix));
+		buff.append(this.prng.getPreInfo(prefix)).append('\n');
+		buff.append(this.iteration.getPreInfo(prefix)).append('\n');
+		buff.append(this.thinner.getPreInfo(prefix)).append('\n');
+		buff.append(this.proposerSelector.getPreInfo(prefix)).append('\n');
+		buff.append(this.proposalAcceptor.getPreInfo(prefix)).append('\n');
 		if (doFlush) {
 			buff.flush();
 		}
@@ -349,13 +352,13 @@ public class MCMCManager implements Sampleable {
 			.append(df.format(s)).append(" s = ")
 			.append(df.format(h)).append(" min\n");
 		buff.append("Best encountered state: ").append(this.sampler.getSampleHeader(this.sampleables)).append('\n');
-		buff.append("                        ").append(this.bestState).append('\n');
+		buff.append("                        ").append(this.bestState).append("\n\n");
 		String prefix = "";
-		buff.append(this.iteration.getPostInfo(prefix));
-		buff.append(this.thinner.getPostInfo(prefix));
-		buff.append(this.proposerSelector.getPostInfo(prefix));
-		buff.append(this.proposalAcceptor.getPostInfo(prefix));
-		buff.append(this.prng.getPostInfo(prefix));
+		buff.append(this.prng.getPostInfo(prefix)).append('\n');
+		buff.append(this.iteration.getPostInfo(prefix)).append('\n');
+		buff.append(this.thinner.getPostInfo(prefix)).append('\n');
+		buff.append(this.proposerSelector.getPostInfo(prefix)).append('\n');
+		buff.append(this.proposalAcceptor.getPostInfo(prefix)).append('\n');
 		if (doFlush) {
 			buff.flush();
 		}
@@ -368,7 +371,7 @@ public class MCMCManager implements Sampleable {
 
 	@Override
 	public String getSampleHeader() {
-		return "Likelihood";
+		return "OverallLikelihood";
 	}
 
 	@Override

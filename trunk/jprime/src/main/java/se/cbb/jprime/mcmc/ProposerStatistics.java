@@ -72,9 +72,9 @@ public class ProposerStatistics implements InfoProvider {
 	/**
 	 * Adds a proposal outcome.
 	 * @param wasAccepted true is new state was accepted; false if rejected.
-	 * @param proposal the state change.
+	 * @param noOfParams the number of perturbed parameters or sub-parameters (the choice is up to the parent Proposer).
 	 */
-	public void increment(boolean wasAccepted, Proposal proposal) {
+	public void increment(boolean wasAccepted, int noOfParams) {
 		if (wasAccepted) {
 			++this.noOfAccepted;
 		} else {
@@ -84,7 +84,7 @@ public class ProposerStatistics implements InfoProvider {
 
 	@Override
 	public String getPreInfo(String prefix) {
-		return null;
+		return (prefix + "PROPOSER STATISTICS\n");
 	}
 
 	@Override

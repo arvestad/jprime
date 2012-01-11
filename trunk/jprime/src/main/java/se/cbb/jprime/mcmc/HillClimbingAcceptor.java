@@ -39,7 +39,7 @@ public class HillClimbingAcceptor implements ProposalAcceptor {
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "HILL-CLIMBING ACCEPTOR\n");
 	}
 
 }

@@ -1,5 +1,6 @@
 package se.cbb.jprime.math;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import org.uncommons.maths.random.MersenneTwisterRNG;
@@ -19,7 +20,7 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 
 	/** Eclipse-generated serial version UID. */
 	private static final long serialVersionUID = 310669248550266600L;
-
+	
 	/**
 	 * Constructor. Uses default seeding strategy.
 	 */
@@ -40,8 +41,8 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	 * int to a byte array.
 	 * @param seed the seed data.
 	 */
-	public PRNG(int seed) {
-		super(new byte[] {(byte)(seed >>> 24), (byte)(seed >>> 16), (byte)(seed >>> 8), (byte)seed});
+	public PRNG(BigInteger seed) {
+		super(seed.toByteArray());
 	}
 	
 	/**
@@ -57,13 +58,14 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(256);
-		sb.append(prefix).append("MERSENNE TWISTER PRNG\n");
-		sb.append(prefix).append("Seed: ").append(Arrays.toString(this.getSeed())).append('\n');
+		sb.append(prefix).append("MERSENNE-TWISTER PRNG\n");
+		sb.append(prefix).append("Seed as integer: ").append(new BigInteger(this.getSeed())).append('\n');
+		sb.append(prefix).append("Seed as byte-array: ").append(Arrays.toString(this.getSeed())).append('\n');
 		return sb.toString();
 	}
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "MERSENNE-TWISTER PRNG\n");
 	}
 }

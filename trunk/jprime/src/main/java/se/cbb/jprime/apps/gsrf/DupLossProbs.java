@@ -70,10 +70,12 @@ public class DupLossProbs implements ProperDependent {
 			this.p11.cache(null);
 			this.extinction.cache(null);
 			fullUpdate();
+			changeInfos.put(this, new ChangeInfo(this, "DupLossProbs - full update"));
 		} else {
 			this.p11.cache(null);
 			this.extinction.cache(null);
 			fullUpdate();
+			changeInfos.put(this, new ChangeInfo(this, "DupLossProbs - full update"));
 		}
 	}
 

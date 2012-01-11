@@ -44,7 +44,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	private TimesMap times;
 	
 	/** Statistics. */
-	private ProposerStatistics statistics;
+	private ProposerStatistics statistics = null;
 	
 	/** Pseudo-random number generator. */
 	private PRNG prng;
@@ -58,35 +58,30 @@ public class RBTreeBranchSwapper implements Proposer {
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
-	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, ProposerStatistics stats, PRNG prng) {
-		this(T, null, null, stats, prng);
+	public RBTreeBranchSwapper(RBTree T, PRNG prng) {
+		this(T, null, null, prng);
 	}
 	
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
 	 * @param times times of T. May be null.
-	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, TimesMap times,
-			ProposerStatistics stats, PRNG prng) {
-		this(T, null, times, stats, prng);
+	public RBTreeBranchSwapper(RBTree T, TimesMap times, PRNG prng) {
+		this(T, null, times, prng);
 	}
 	
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
 	 * @param lengths lengths of T. May be null.
-	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths,
-			ProposerStatistics stats, PRNG prng) {
-		this(T, lengths, null, stats, prng);
+	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, PRNG prng) {
+		this(T, lengths, null, prng);
 	}
 	
 	/**
@@ -94,15 +89,12 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param T tree topology to perturb.
 	 * @param lengths lengths of T. May be null.
 	 * @param times times of T. May be null.
-	 * @param stats statistics of this proposer.
 	 * @param prng pseudo-random number generator.
 	 */
-	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, TimesMap times,
-			ProposerStatistics stats, PRNG prng) {
+	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, TimesMap times, PRNG prng) {
 		this.T = T;
 		this.lengths = lengths;
 		this.times = times;
-		this.statistics = stats;
 		this.prng = prng;
 		this.operationWeights = new double[] {0.5, 0.3, 0.2};
 	}
@@ -295,11 +287,14 @@ public class RBTreeBranchSwapper implements Proposer {
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(128);
 		sb.append(prefix).append("BRANCH SWAPPER PROPOSER\n");
-		sb.append(prefix).append("Is active: ").append(this.isActive).append("\n");
 		sb.append(prefix).append("Perturbed tree parameter: ").append(this.T.getName()).append('\n');
 		sb.append(prefix).append("Perturbed times parameter: ").append(this.times == null ? "None" : this.times.getName()).append('\n');
 		sb.append(prefix).append("Perturbed lengths parameter: ").append(this.lengths == null ? "None" : this.lengths.getName()).append('\n');
+		sb.append(prefix).append("Is active: ").append(this.isActive).append("\n");
 		sb.append(prefix).append("Operation weights (NNI, SPR, rerooting): ").append(Arrays.toString(this.operationWeights)).append('\n');
+		if (this.statistics != null) {
+			sb.append(prefix).append("Statistics:\n").append(this.statistics.getPreInfo(prefix + '\t'));
+		}
 		return sb.toString();
 	}
 
@@ -307,7 +302,12 @@ public class RBTreeBranchSwapper implements Proposer {
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("BRANCH SWAPPER PROPOSER\n");
-		sb.append(prefix).append("Statistics:\n").append(this.statistics.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Perturbed tree parameter: ").append(this.T.getName()).append('\n');
+		sb.append(prefix).append("Perturbed times parameter: ").append(this.times == null ? "None" : this.times.getName()).append('\n');
+		sb.append(prefix).append("Perturbed lengths parameter: ").append(this.lengths == null ? "None" : this.lengths.getName()).append('\n');
+		if (this.statistics != null) {
+			sb.append(prefix).append("Statistics:\n").append(this.statistics.getPostInfo(prefix + '\t'));
+		}
 		return sb.toString();
 	}
 
@@ -738,14 +738,37 @@ public class RBTreeBranchSwapper implements Proposer {
 
 	@Override
 	public void clearCache() {
-		// TODO Auto-generated method stub
-		
+		if (this.statistics != null) {
+			int no = 1 + (this.times == null ? 0 : 1) + (this.lengths == null ? 0 : 1);
+			this.statistics.increment(true, no);
+		}
+		this.T.clearCache();
+		if (this.times != null) {
+			this.times.clearCache();
+		}
+		if (this.lengths != null) {
+			this.lengths.clearCache();
+		}
 	}
 
 	@Override
 	public void restoreCache() {
-		// TODO Auto-generated method stub
-		
+		if (this.statistics != null) {
+			int no = 1 + (this.times == null ? 0 : 1) + (this.lengths == null ? 0 : 1);
+			this.statistics.increment(false, no);
+		}
+		this.T.restoreCache();
+		if (this.times != null) {
+			this.times.restoreCache();
+		}
+		if (this.lengths != null) {
+			this.lengths.restoreCache();
+		}
+	}
+
+	@Override
+	public void setStatistics(ProposerStatistics stats) {
+		this.statistics = stats;
 	}
 
 

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.LogDouble;
@@ -132,21 +131,22 @@ public class GSRfModel implements Model {
 			if (lci != null && lci.getAffectedElements() != null) {
 				// Only certain branch lengths have changed. We do a partial update.
 				
-				// First, find all affected vertices of G.
-				HashSet<Integer> vertices = new HashSet<Integer>(64);
-				for (int u : lci.getAffectedElements()) {
-					while (u != RBTree.NULL) {
-						if (!vertices.add(u)) { break; }
-						u = this.g.getParent(u);
-					}
-				}
-				this.partialUpdate(vertices);
-				changeInfos.put(this, new ChangeInfo(this, vertices, "Partial update"));
+				int[] affected = this.getAffectedSubtree(lci.getAffectedElements());
+				this.ats.cache(affected);
+				this.belows.cache(affected);
+				this.partialUpdate(affected);
+				changeInfos.put(this, new ChangeInfo(this, "Partial update", affected));
 			} else if (lci != null) {
+				this.loLims.cache(null);
+				this.ats.cache(null);
+				this.belows.cache(null);
 				this.fullUpdate();
 				changeInfos.put(this, new ChangeInfo(this, "Full update."));
 			}
 		} else {
+			this.loLims.cache(null);
+			this.ats.cache(null);
+			this.belows.cache(null);
 			this.fullUpdate();
 			changeInfos.put(this, new ChangeInfo(this, "Full GSRf update."));
 		}
@@ -296,16 +296,40 @@ public class GSRfModel implements Model {
 	 * Performs a partial DP update.
 	 * It is assumed that lower limits and number of discretisation points
 	 * are up-to-date.
-	 * @param affectedElements all affected vertices, not necessarily sorted.
+	 * @param sortedAffectedVertices all affected vertices, sorted in reverse topological order.
 	 */
-	private void partialUpdate(HashSet<Integer> affectedElements) {
-		List<Integer> vertices = this.g.getTopologicalOrdering();
-		for (int i = vertices.size() - 1; i >= 0; --i) {
-			int u = vertices.get(i);
-			if (affectedElements.contains(u)) {
-				this.updateAtProbs(u, false);
+	private void partialUpdate(int[] sortedAffectedVertices) {
+		for (int u : sortedAffectedVertices) {
+			this.updateAtProbs(u, false);
+		}
+	}
+	
+	/**
+	 * Retrieves the set of vertices of the subtree of G spanned by the input
+	 * vertices. The output vertices are returned in reverse topological order.
+	 * @param affectedElements subset of vertices of G.
+	 * @return vertices sorted.
+	 */
+	private int[] getAffectedSubtree(int[] affectedElements) {
+		// First, find all affected vertices of G.
+		HashSet<Integer> allEffected = new HashSet<Integer>(64);
+		for (int u : affectedElements) {
+			while (u != RBTree.NULL) {
+				if (!allEffected.add(u)) { break; }
+				u = this.g.getParent(u);
 			}
 		}
+		
+		// Now sort them.
+		int[] sorted = new int[allEffected.size()];
+		List<Integer> vertices = this.g.getTopologicalOrdering();
+		for (int i = vertices.size() - 1, j = 0; i >= 0; --i) {
+			int u = vertices.get(i);
+			if (allEffected.contains(u)) {
+				sorted[j++] = u;
+			}
+		}
+		return sorted;
 	}
 
 	/**

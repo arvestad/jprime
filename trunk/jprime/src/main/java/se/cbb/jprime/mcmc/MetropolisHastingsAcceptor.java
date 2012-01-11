@@ -54,7 +54,7 @@ public class MetropolisHastingsAcceptor implements ProposalAcceptor {
 
 	@Override
 	public String getPostInfo(String prefix) {
-		return null;
+		return (prefix + "METROPOLIS-HASTINGS ACCEPTOR\n");
 	}
 
 }

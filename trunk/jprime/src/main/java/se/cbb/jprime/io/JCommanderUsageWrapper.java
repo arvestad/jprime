@@ -24,7 +24,6 @@ public class JCommanderUsageWrapper {
 	 * @return the usage.
 	 */
 	public static void getUnsortedUsage(JCommander jc, Object jcParams, StringBuilder out) {
-		out.append("Usage:\n");
 		// Special treatment of main parameter.
 		ParameterDescription mainParam = jc.getMainParameter();
 		if (mainParam != null) {
@@ -37,7 +36,7 @@ public class JCommanderUsageWrapper {
 			for (ParameterDescription p : params) {
 				if (f.getName().equals(p.getField().getName())) {
 					out.append(p.getNames()).append('\n');
-					String def = (p.getDefault() == null ? "" : " Default: " + p.getDefault().toString());
+					String def = (p.getDefault() == null ? "" : " Default: " + p.getDefault().toString() + '.');
 					String desc = WordUtils.wrap(p.getDescription() + def, 75);
 					desc = "     " + desc;
 					desc = desc.replaceAll("\n", "\n     ") + '\n';

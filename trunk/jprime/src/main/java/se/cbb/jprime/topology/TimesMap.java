@@ -8,7 +8,11 @@ package se.cbb.jprime.topology;
  */
 public class TimesMap extends DoubleMap {
 	
-	double[] arcTimes;
+	/** Arc times, as opposed to absolute vertex times. */
+	protected double[] arcTimes;
+	
+	/** Cache values for affected arc times. */
+	protected double[] cacheArcTimes = null;
 	
 	/**
 	 * Constructor. Takes as input a list of absolute times (vertex times) and
@@ -99,4 +103,40 @@ public class TimesMap extends DoubleMap {
 	public double[] getArcTimes() {
 		return this.arcTimes;
 	}
+	
+	@Override
+	public void cache(int[] vertices) {
+		super.cache(vertices);
+		if (vertices == null) {
+			this.cacheArcTimes = new double[this.arcTimes.length];
+			System.arraycopy(this.arcTimes, 0, this.cacheArcTimes, 0, this.arcTimes.length);
+		} else {
+			this.cacheArcTimes = new double[vertices.length];
+			for (int i = 0; i < vertices.length; ++i) {
+				this.cacheArcTimes[i] = this.arcTimes[vertices[i]];
+			}
+		}
+	}
+
+	@Override
+	public void clearCache() {
+		super.clearCache();
+		this.cacheArcTimes = null;
+	}
+
+	@Override
+	public void restoreCache() {
+		if (this.cacheArcTimes == null) {
+		} else if (this.cacheVertices == null) {
+			this.arcTimes = this.cacheArcTimes;
+			this.cacheArcTimes = null;
+		} else {
+			for (int i = 0; i < this.cacheVertices.length; ++i) {
+				this.arcTimes[this.cacheVertices[i]] = this.cacheArcTimes[i];
+			}
+			this.cacheArcTimes = null;
+		}
+		super.restoreCache();
+	}
+	
 }
