@@ -2,11 +2,10 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -97,11 +96,12 @@ public class RBTreeBranchSwapper implements Proposer {
 		this.times = times;
 		this.prng = prng;
 		this.operationWeights = new double[] {0.5, 0.3, 0.2};
+		this.isActive = true;
 	}
 	
 	@Override
 	public Set<StateParameter> getParameters() {
-		TreeSet<StateParameter> ps = new TreeSet<StateParameter>();
+		HashSet<StateParameter> ps = new HashSet<StateParameter>();
 		ps.add(this.T);
 		if (this.lengths != null) { ps.add(this.lengths); }
 		if (this.times != null) { ps.add(this.times); }
@@ -149,6 +149,7 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 		
 		// Perturb!
+		//System.out.println("\n" + this.T.getSampleValue());
 		if (w < this.operationWeights[0]) {
 			this.doNNI();
 		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
@@ -156,6 +157,7 @@ public class RBTreeBranchSwapper implements Proposer {
 		} else {
 			this.doReroot();
 		}
+		//System.out.println("\n" + this.T.getSampleValue());
 		
 		// Note changes. Just say that all sub-parameters have changed.
 		ArrayList<StateParameter> affected = new ArrayList<StateParameter>(3);
@@ -240,7 +242,11 @@ public class RBTreeBranchSwapper implements Proposer {
 		// Swap children. It is OK if we accidentally swap children from left to 
 		// right while we are at it!
 		this.T.setChildren(vp, vs, w);
+		//this.T.setParent(vs, vp);      // Not necessary.
+		this.T.setParent(w, vp);
 		this.T.setChildren(wp, ws, v);
+		//this.T.setParent(ws, wp);      // Not necessary.
+		this.T.setParent(v, wp);
 	}
 
 	/**
@@ -331,7 +337,7 @@ public class RBTreeBranchSwapper implements Proposer {
 
 		// We will now let v's parent's parent act as a new root.
 		// Execute rotations until that is the case.
-		int parent = this.T.getParent(this.T.getParent(v));
+		int parent = this.T.getParent(v);
 		RBTreeBranchSwapper.rotate(this.T, parent, v, this.lengths, this.times);
 	}
 
@@ -478,7 +484,7 @@ public class RBTreeBranchSwapper implements Proposer {
 
 		// Loop until valid.
 		// u must not be hung to a vertex in its own subtree!
-		while (this.T.isRoot(u_c_new) || u_c_new == u || this.isInSubtree(u_c_new, u)) {
+		while (this.T.isRoot(u_c_new) || this.isInSubtree(u_c_new, u)) {
 			u_c_new = this.prng.nextInt(treeSize);
 		}
 
@@ -495,13 +501,19 @@ public class RBTreeBranchSwapper implements Proposer {
 			b_prime = this.times.getArcTime(u_c_new);
 			a_prime = b_prime / k;
 		}
-
+		
 		// Do the SPR move.
-		this.T.setChildren(u_p, u_oc, u_s);
 		int u_c_new_p = this.T.getParent(u_c_new);
-		int u_c_new_s = this.T.getSibling(u_c_new);
+		int u_c_new_s = this.T.getSibling(u_c_new);		
+		this.T.setChildren(u_p, u_oc, u_s);
+		this.T.setParent(u_oc, u_p);
+		this.T.setParent(u_s, u_p);
 		this.T.setChildren(u, u_c, u_c_new);
+		this.T.setParent(u_c, u);
+		this.T.setParent(u_c_new, u);
 		this.T.setChildren(u_c_new_p, u_c_new_s, u);
+		this.T.setParent(u_c_new_s, u_c_new_p);
+		this.T.setParent(u, u_c_new_p);
 
 		// Time heuristics.
 		if (this.times != null) {	
@@ -661,8 +673,12 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 
 		// Move v.
-		T.setChildren(v, v_otherChild, v_sibling); 
+		T.setChildren(v, v_otherChild, v_sibling);
+		T.setParent(v_otherChild, v);
+		T.setParent(v_sibling, v);
 		T.setChildren(v_parent, v_child, v);
+		T.setParent(v_child, v_parent);
+		T.setParent(v, v_parent);
 
 		// Post-move times heuristics.
 		if (times != null) {
@@ -769,6 +785,14 @@ public class RBTreeBranchSwapper implements Proposer {
 	@Override
 	public void setStatistics(ProposerStatistics stats) {
 		this.statistics = stats;
+	}
+	
+	@Override
+	public String toString() {
+		return "RBTreeBranchSwapper perturbing [" + this.T.getName() + 
+			(this.times != null ? ", " + this.times.getName() : "") +
+			(this.lengths != null ? ", " + this.lengths.getName() : "") +
+			"]";
 	}
 
 

@@ -230,4 +230,14 @@ public class SampleWriter implements Sampler {
 		return sb.toString();
 	}
 
+	@Override
+	public void writeString(String str) throws IOException {
+		this.out.write(str);
+		
+		// Flush if desired.
+		if (this.flushAfterSampling) {
+			this.out.flush();
+		}
+	}
+
 }

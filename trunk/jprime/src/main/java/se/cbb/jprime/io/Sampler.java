@@ -25,6 +25,13 @@ public interface Sampler {
 	 * @throws IOException.
 	 */
 	public void writeSample(List<Sampleable> sampleables) throws IOException;
+
+	/**
+	 * Writes a specified string. May be used e.g. for outputting debugging info.
+	 * @param str the string.
+	 * @throws IOException.
+	 */
+	public void writeString(String str) throws IOException;
 	
 	/**
 	 * Returns the sample header.

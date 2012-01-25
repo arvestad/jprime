@@ -247,7 +247,7 @@ public class GSRfModel implements Model {
 
 			// If we have moved outside edge's points, choose next pure disc. pt.
 			if (lo.second > this.times.getNoOfSlices(lo.first)) {
-				lo = new IntPair(this.g.getParent(lo.first), 1);
+				lo = new IntPair(this.s.getParent(lo.first), 1);
 				if (lo.first == RootedBifurcatingTreeParameter.NULL) {
 					throw new RuntimeException("Insufficient no. of discretization points.\n" +
 	        				      "Try using denser discretization for 1) top edge, 2) remaining vertices.");
