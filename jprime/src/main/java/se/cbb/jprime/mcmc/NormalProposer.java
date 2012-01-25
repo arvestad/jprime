@@ -315,4 +315,9 @@ public class NormalProposer implements Proposer {
 		this.stats = stats;
 	}
 
+	@Override
+	public String toString() {
+		return "NormalProposer perturbing " + this.param.getName();
+	}
+	
 }

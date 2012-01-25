@@ -61,11 +61,11 @@ public class Parameters {
 	
 	/** Edge rate distribution parameter 1. */
 	@Parameter(names = {"-erpdm", "--edgeratepdmean"}, description = "Mean for relaxed clock probability distribution. If UNIFORM," +
-			"refers to lower bound (a,...) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: 0.1 or 0 if UNIFORM.")
+			"refers to lower bound (a,...) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: 0.4 or 0 if UNIFORM.")
 	public String edgeRatePDMean = null;
 	
 	/** Edge rate distribution parameter 2. */
-	@Parameter(names = {"-erpdvc", "--edgeratepdcv"}, description = "Coefficient of variation (CV) for relaxed clock probability distribution. If UNIFORM," +
+	@Parameter(names = {"-erpdcv", "--edgeratepdcv"}, description = "Coefficient of variation (CV) for relaxed clock probability distribution. If UNIFORM," +
 			"refers to upper bound (...,b) instead. Append with FIXED for no perturbation, e.g. 1.2FIXED. Default: 0.7, or 5.0 if UNIFORM.")
 	public String edgeRatePDCV = null;
 	

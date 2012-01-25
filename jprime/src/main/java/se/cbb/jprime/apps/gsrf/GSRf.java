@@ -129,6 +129,7 @@ public class GSRf {
 			// ================ SETUP MCMC HIERARCHY ================
 			
 			MCMCManager manager = new MCMCManager(iter, thinner, selector, acceptor, sampler, prng);
+			manager.setDebugMode(params.debug);
 			
 			manager.addModel(gsrf);
 			

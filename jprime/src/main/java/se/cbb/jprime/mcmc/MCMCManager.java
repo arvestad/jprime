@@ -107,6 +107,9 @@ public class MCMCManager implements Sampleable {
 	/** Time at iteration end in ns. */
 	protected long endTime;
 	
+	/** Debug flag. */
+	protected boolean doDebug = false;
+	
 	/**
 	 * Constructor.
 	 * @param iteration iteration object of the chain.
@@ -218,12 +221,21 @@ public class MCMCManager implements Sampleable {
         	sorted.add(dependent);
 		}
 	}
+	
+	/**
+	 * Turns on/off debugging output information.
+	 * @param isOn true to enable debug mode; false to disable.
+	 */
+	public void setDebugMode(boolean isOn) {
+		this.doDebug = isOn;
+	}
 
 	/**
 	 * Starts and executes the MCMC chain.
 	 * @throws IOException if unable to produce sampling output.
 	 */
 	public void run() throws IOException {
+		
 		// Update the topological ordering of the dependency DAG.
 		this.updateDependencyStructure();
 		
@@ -258,6 +270,17 @@ public class MCMCManager implements Sampleable {
 			// Get proposer(s) to use.
 			Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
 			
+			// Debug info.
+			if (this.doDebug) {
+				StringBuilder dbg = new StringBuilder(512);
+				dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", Log-likelihood: ").append(this.likelihood.toString())
+					.append(", about to use: ");
+				for (Proposer p : shakeItBaby) {
+					dbg.append(p.toString()).append(", ");
+				}
+				this.sampler.writeString(dbg.toString());
+			}
+			
 			// Perturb state parameters.
 			for (Proposer proposer : shakeItBaby) {
 				Proposal proposal = proposer.cacheAndPerturb(changeInfos);
@@ -282,6 +305,13 @@ public class MCMCManager implements Sampleable {
 			
 			// Finally, decide whether to accept or reject.
 			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, this.likelihood, proposals);
+			
+			// Debug info.
+			if (this.doDebug) {
+				this.sampler.writeString(doAccept ? " ...state accepted," : " ...state rejected,");
+			}
+			
+			// Update accordingly.
 			if (doAccept) {
 				for (Proposer proposer : shakeItBaby) {
 					proposer.clearCache();
@@ -305,6 +335,11 @@ public class MCMCManager implements Sampleable {
 						dep.restoreCache(willSample);
 					}
 				}
+			}
+			
+			// Debug info.
+			if (this.doDebug) {
+				this.sampler.writeString(doAccept ? " ...cached state deleted.\n" : " ...cached state reinstated.\n");
 			}
 			
 			// Sample, if desired.
