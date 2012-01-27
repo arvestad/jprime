@@ -23,6 +23,7 @@ The latest verified version is shown within brackets.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
   # If needed, activate Maven by right-clicking the project and clicking "Maven -> Enable Dependency Management" or possibly "Configure -> Convert to Maven Project". You may need to refresh the project afterwards.
   # The Java version has been set to 1.6 in Maven but, just to be sure, verify that the Eclipse project settings don't disagree.
+  # Just to be sure, right-click the project and select "Maven -> Download JavaDoc" to make sure dependencies can be used more easily.
   # Start coding! (...possibly by creating a new branch first!)
 
 == Version control ==
