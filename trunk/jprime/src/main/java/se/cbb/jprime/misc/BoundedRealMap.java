@@ -1,6 +1,8 @@
 package se.cbb.jprime.misc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents a map where values of some type K are mapped using real-values, i.e.,
@@ -12,6 +14,7 @@ import java.util.HashMap;
  * Most operations such as put, get and contains should be constant in time.
  * <p/>
  * TODO: Make this implement <code>Map&lt;K,V&gt;</code>, etc.
+ * Maybe this should be implemented with a <code>LinkedHashMap</code> instead? Oh well. /Joel.
  * 
  * @author Joel Sjöstrand.
  */
@@ -24,10 +27,10 @@ public class BoundedRealMap<K> {
 	class Holder {
 		Long key;
 		K value;
-		Holder nextOlder;
-		Holder nextNewer;
+		BoundedRealMap<K>.Holder nextOlder;
+		BoundedRealMap<K>.Holder nextNewer;
 		
-		Holder(Long key, K value, Holder nextOlder) {
+		Holder(Long key, K value, BoundedRealMap<K>.Holder nextOlder) {
 			this.key = key;
 			this.value = value;
 			this.nextOlder = nextOlder;
@@ -43,13 +46,13 @@ public class BoundedRealMap<K> {
 	private int maxSz;
 	
 	/** The values sorted by key. */
-	private HashMap<Long, Holder> values;
+	private HashMap<Long, BoundedRealMap<K>.Holder> values;
 
 	/** Oldest element. */
-	private Holder oldest;
+	private BoundedRealMap<K>.Holder oldest;
 	
 	/** Newest element. */
-	private Holder newest;
+	private BoundedRealMap<K>.Holder newest;
 	
 	/**
 	 * Constructor.
@@ -61,7 +64,7 @@ public class BoundedRealMap<K> {
 			throw new IllegalArgumentException("Cannot create RealMap with zero capacity.");
 		}
 		this.maxSz = maxNoOfElements;
-		this.values = new HashMap<Long, Holder>(maxSz);
+		this.values = new HashMap<Long, BoundedRealMap<K>.Holder>(maxSz);
 		this.oldest = null;
 		this.newest = null;
 	}
@@ -75,11 +78,12 @@ public class BoundedRealMap<K> {
 	 */
 	public K put(double key, K value) {
 		Long intKey = Math.round(key * PRECISION);  // Compute safe key.
-		Holder h = this.values.get(intKey);
+		BoundedRealMap<K>.Holder h = this.values.get(intKey);
 		if (h == null) {
 			if (this.values.size() >= this.maxSz) {
 				// Remove oldest element.
-				this.oldest = this.oldest.nextOlder;
+				this.values.remove(this.oldest.key);
+				this.oldest = this.oldest.nextNewer;
 				if (this.oldest != null) {
 					this.oldest.nextOlder = null;
 				}
@@ -111,7 +115,7 @@ public class BoundedRealMap<K> {
 	 */
 	public K get(double key) {
 		Long intKey = Math.round(key * PRECISION);  // Compute safe key.
-		Holder h = this.values.get(intKey);
+		BoundedRealMap<K>.Holder h = this.values.get(intKey);
 		if (h != null) {
 			this.moveToEndOfList(h);
 			return h.value;
@@ -134,6 +138,7 @@ public class BoundedRealMap<K> {
 		}
 		if (h != this.newest) {
 			h.nextOlder = this.newest;
+			this.newest.nextNewer = h;
 		}
 		h.nextNewer = null;
 		this.newest = h;
@@ -163,7 +168,7 @@ public class BoundedRealMap<K> {
 	 * @return true if contained; false if not contained.
 	 */
 	public boolean containsValue(K value) {
-		for (Holder h : this.values.values()) {
+		for (BoundedRealMap<K>.Holder h : this.values.values()) {
 			if (h.value.equals(value)) {
 				return true;
 			}
@@ -178,7 +183,7 @@ public class BoundedRealMap<K> {
 	 */
 	public K remove(double key) {
 		Long intKey = Math.round(key * PRECISION);  // Compute safe key.
-		Holder h = this.values.remove(intKey);
+		BoundedRealMap<K>.Holder h = this.values.remove(intKey);
 		if (h != null) {
 			if (h.nextOlder != null) {
 				h.nextOlder.nextNewer = h.nextNewer;
@@ -212,6 +217,30 @@ public class BoundedRealMap<K> {
 		this.values.clear();
 		this.oldest = null;
 		this.newest = null;
+	}
+	
+	/**
+	 * Returns the values of the map ordered by access time.
+	 * @param newestToOldest true for newest element at index 0; false for oldest element at index 0.
+	 * @return the values.
+	 */
+	public List<K> getValuesChronologically(boolean newestToOldest) {
+		ArrayList<K> al = new ArrayList<K>(this.values.size());
+		BoundedRealMap<K>.Holder h;
+		if (newestToOldest) {
+			h = this.newest;
+			while (h != null) {
+				al.add(h.value);
+				h = h.nextOlder;
+			}
+		} else {
+			h = this.oldest;
+			while (h != null) {
+				al.add(h.value);
+				h = h.nextNewer;
+			}
+		}
+		return al;
 	}
 
 }
