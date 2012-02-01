@@ -107,6 +107,15 @@ public enum SequenceType {
 		return this.type;
 	}
 	
+	/**
+	 * Returns the integer equivalent of a character.
+	 * @param state the character.
+	 * @return the corresponding integer.
+	 */
+	public int get(char state) {
+		return this.char2int(state);
+	}
+	
 	/** 
 	 * The number of states in the alphabet. E.g., for DNA this is 4.
 	 * @return the length.
@@ -326,7 +335,7 @@ public enum SequenceType {
 	 * Returns the integer value of a codon triplet.
 	 * Codon needs to override default conversion 
 	 * due to the 3 letter coding.
-	 * @param codon_str triplet.
+	 * @param codon_str triplet, case insensitive.
 	 * @return int state.
 	 */
 	public int codonStr2int(String codon_str) {
@@ -370,7 +379,7 @@ public enum SequenceType {
 	 * Codon needs to override default conversion 
 	 * due to the 3 letter coding.
 	 * @param codon state.
-	 * @return triplet.
+	 * @return triplet in upper case.
 	 */
 	public String codonInt2str(int codon) {
 		if (codon > 61) {
