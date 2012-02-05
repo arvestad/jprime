@@ -233,6 +233,14 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 	}
 	
 	/**
+	 * For convenience, returns the root of the host tree.
+	 * @return the root vertex of the host tree.
+	 */
+	public int getRoot() {
+		return this.S.getRoot();
+	}
+	
+	/**
 	 * Returns the absolute time (vertex time) of a vertex.
 	 * @param x the vertex.
 	 * @return the vertex time.

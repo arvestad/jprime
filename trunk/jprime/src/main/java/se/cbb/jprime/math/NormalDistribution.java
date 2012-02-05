@@ -18,32 +18,19 @@ import se.cbb.jprime.mcmc.ChangeInfo;
  */
 public class NormalDistribution implements Continuous1DPDDependent {
 	
-	/**
-	 * When the distribution depends on state parameters, defines
-	 * what the latter represent.
-	 */
-	public enum ParameterSetup {
-		/** Mean and variance. */                  MEAN_AND_VAR,
-		/** Mean and standard deviation. */        MEAN_AND_STDEV,
-		/** Mean and coefficient of variation. */  MEAN_AND_CV
-	}
+	/** Mean parameter. Null if not used. */
+	protected DoubleParameter meanParam;
 	
-	/** First state parameter. Null if not used. */
-	protected DoubleParameter p1;
+	/** CV parameter. Null if not used. */
+	protected DoubleParameter cvParam;
 	
-	/** Second state parameter. Null if not used. */
-	protected DoubleParameter p2;
-	
-	/** State parameter representation. Null if not used. */
-	protected ParameterSetup setup;
-	
-	/** Mean value. Should reflect p1's value. */
+	/** Mean value. Should reflect parameter's value. */
 	protected double mean;
 	
-	/** Variance. Should reflect p2's value. */
+	/** Variance. Should reflect parameter's value. */
 	protected double var;
 	
-	/** Standard deviation. Should reflect p2's value. */
+	/** Standard deviation. Should reflect parameter's value. */
 	protected double stdev;
 	
 	/** Constant term, given the variance, in the log density function: -0.5 * ln(2 * PI * var). */
@@ -58,9 +45,8 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		if (var <= 0.0) {
 			throw new IllegalArgumentException("Cannot have non-positive variance for normal distribution.");
 		}
-		this.p1 = null;
-		this.p2 = null;
-		this.setup = null;
+		this.meanParam = null;
+		this.cvParam = null;
 		this.mean = mean;
 		this.var = var;
 		this.stdev = Math.sqrt(var);
@@ -70,14 +56,13 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	/**
 	 * Constructor for when the distribution relies on state parameters.
 	 * The distribution will add itself as a child dependent of the parameters.
-	 * @param p1 the first parameter.
-	 * @param p2 the second parameter.
-	 * @param setup what p1 and p2 represents.
+	 * For MCMC mixing purposes, mean and CV has been selected as parameterisation.
+	 * @param mean the mean parameter.
+	 * @param cv the CV parameter.
 	 */
-	public NormalDistribution(DoubleParameter p1, DoubleParameter p2, ParameterSetup setup) {
-		this.p1 = p1;
-		this.p2 = p2;
-		this.setup = setup;
+	public NormalDistribution(DoubleParameter mean, DoubleParameter cv) {
+		this.meanParam = mean;
+		this.cvParam = cv;
 		this.update();
 	}
 	
@@ -144,7 +129,7 @@ public class NormalDistribution implements Continuous1DPDDependent {
 
 	@Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
-		if (changeInfos.get(this.p1) != null || changeInfos.get(this.p2) != null) {
+		if (changeInfos.get(this.meanParam) != null || changeInfos.get(this.cvParam) != null) {
 			String s = this.toString();
 			this.update();
 			changeInfos.put(this, new ChangeInfo(this, s + " was perturbed into " + this.toString()));
@@ -166,8 +151,8 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	
 	@Override
 	public Dependent[] getParentDependents() {
-		if (this.p1 != null) {
-			return new Dependent[] { p1, p2 };
+		if (this.meanParam != null) {
+			return new Dependent[] { meanParam, cvParam };
 		}
 		return null;
 	}
@@ -176,26 +161,10 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	 * Updates the distribution.
 	 */
 	public void update() {
-		if (this.p1 != null) {
-			switch (this.setup) {
-			case MEAN_AND_VAR:
-				this.mean = this.p1.getValue();
-				this.var = this.p2.getValue();
-				this.stdev = Math.sqrt(this.var);
-				break;
-			case MEAN_AND_STDEV:
-				this.mean = this.p1.getValue();
-				this.stdev = this.p2.getValue();
-				this.var = Math.pow(this.stdev, 2);
-				break;
-			case MEAN_AND_CV:
-				this.mean = this.p1.getValue();
-				this.stdev = this.p2.getValue() * this.mean;
-				this.var = Math.pow(this.stdev, 2);
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
-			}
+		if (this.meanParam != null) {
+			this.mean = this.meanParam.getValue();
+			this.stdev = this.cvParam.getValue() * this.mean;
+			this.var = Math.pow(this.stdev, 2);
 		}
 		this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 	}
@@ -208,16 +177,8 @@ public class NormalDistribution implements Continuous1DPDDependent {
 	@Override
 	public void setMean(double mean) {
 		this.mean = mean;
-		if (this.p1 != null) {
-			switch (this.setup) {
-			case MEAN_AND_VAR:
-			case MEAN_AND_STDEV:
-			case MEAN_AND_CV:
-				this.p1.setValue(mean);
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
-			}
+		if (this.meanParam != null) {
+			this.meanParam.setValue(mean);
 		}
 	}
 	
@@ -228,19 +189,8 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		}
 		this.stdev = stdev;
 		this.var = Math.pow(stdev, 2);
-		if (this.p2 != null) {
-			switch (this.setup) {
-			case MEAN_AND_VAR:
-				this.p2.setValue(this.var);
-				break;
-			case MEAN_AND_STDEV:
-				this.p2.setValue(stdev);
-			case MEAN_AND_CV:
-				this.p2.setValue(stdev / Math.abs(this.mean));
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
-			}
+		if (this.cvParam != null) {
+			this.cvParam.setValue(stdev / Math.abs(this.mean));
 		}
 		this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 	}
@@ -252,19 +202,8 @@ public class NormalDistribution implements Continuous1DPDDependent {
 		}
 		this.var = var;
 		this.stdev = Math.sqrt(var);
-		if (this.p2 != null) {
-			switch (this.setup) {
-			case MEAN_AND_VAR:
-				this.p2.setValue(var);
-				break;
-			case MEAN_AND_STDEV:
-				this.p2.setValue(this.stdev);
-			case MEAN_AND_CV:
-				this.p2.setValue(this.stdev / Math.abs(this.mean));
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
-			}
+		if (this.cvParam != null) {
+				this.cvParam.setValue(this.stdev / Math.abs(this.mean));
 		}
 		this.logDensFact = -0.5 * Math.log(2 * Math.PI * this.var);
 	}

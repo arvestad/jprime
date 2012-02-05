@@ -249,12 +249,12 @@ public class ParameterParser {
 		
 		Continuous1DPDDependent pd = null;
 		if (ps.edgeRatePD.equalsIgnoreCase("GAMMA")) {
-			pd = new GammaDistribution(p1, p2, GammaDistribution.ParameterSetup.MEAN_AND_CV);
+			pd = new GammaDistribution(p1, p2);
 		/*
 		} else if (ps.edgeRatePD.equalsIgnoreCase("INVGAMMA")) {
-			//pd = new InvGammaDistribution(p1, p2, InvGammaDistribution.ParameterSetup.MEAN_AND_CV);
+			//pd = new InvGammaDistribution(p1, p2);
 		} else if (ps.edgeRatePD.equalsIgnoreCase("LOGN")) {
-			//pd = new LogNDistribution(p1, p2, LogNDistribution.ParameterSetup.MEAN_AND_CV);
+			//pd = new LogNDistribution(p1, p2);
 		*/
 		} else if (ps.edgeRatePD.equalsIgnoreCase("UNIFORM")) {
 			pd = new UniformDistribution(p1, p2, true, true);

@@ -6,6 +6,9 @@ package se.cbb.jprime.math;
  * double for e.g. very small probabilities 0 <= p << 1, although it can be used for values greater
  * than 1 and negative values as well. This class is called <code>Probability</code>
  * in the original PrIME C++ package.
+ * <p/>
+ * NOTE: "log" here only refers to the internal representation;
+ * one should think of a <code>LogDouble</code> instance as a floating point number like any other.
  * 
  * @author Bengt Sennblad.
  * @author Joel Sjöstrand.
@@ -165,12 +168,32 @@ public final class LogDouble implements Comparable<LogDouble> {
 	}
 	
 	/**
+	 * Adds a double to this LogDouble. Does not yield a new instance; for that purpose,
+	 * see <code>addToNew()</code>.
+	 * @param q the double to add.
+	 * @return this LogDouble, not a new instance.
+	 */
+	public LogDouble add(double q) {
+		return this.add(new LogDouble(q));
+	}
+	
+	/**
 	 * Produces a new LogDouble instance as the sum of this LogDouble and another.
 	 * See also <code>add()</code>.
 	 * @param q the LogDouble to add.
 	 * @return a new LogDouble.
 	 */
 	public LogDouble addToNew(LogDouble q) {
+		return (new LogDouble(this)).add(q);
+	}
+	
+	/**
+	 * Produces a new LogDouble instance as the sum of this LogDouble and a double.
+	 * See also <code>add()</code>.
+	 * @param q the double to add.
+	 * @return a new LogDouble.
+	 */
+	public LogDouble addToNew(double q) {
 		return (new LogDouble(this)).add(q);
 	}
 	
@@ -202,12 +225,32 @@ public final class LogDouble implements Comparable<LogDouble> {
 	}
 	
 	/**
+	 * Adds a double to this LogDouble. Does not yield a new instance; for that purpose,
+	 * see <code>subToNew()</code>.
+	 * @param q the double to subtract.
+	 * @return this LogDouble, not a new instance.
+	 */
+	public LogDouble sub(double q) {
+		return this.sub(new LogDouble(q));
+	}
+	
+	/**
 	 * Produces a new LogDouble instance as this LogDouble minus another.
 	 * See also <code>sub()</code>.
 	 * @param q the LogDouble to subtract.
 	 * @return a new LogDouble.
 	 */
 	public LogDouble subToNew(LogDouble q) {
+		return (new LogDouble(this)).sub(q);
+	}
+	
+	/**
+	 * Produces a new LogDouble instance as this LogDouble minus a double.
+	 * See also <code>sub()</code>.
+	 * @param q the double to subtract.
+	 * @return a new LogDouble.
+	 */
+	public LogDouble subToNew(double q) {
 		return (new LogDouble(this)).sub(q);
 	}
 	
@@ -226,12 +269,32 @@ public final class LogDouble implements Comparable<LogDouble> {
 	}
 	
 	/**
+	 * Multiplies this LogDouble with a double. Does not yield a new instance; for that purpose,
+	 * see the <code>multToNew()</code> method.
+	 * @param q double to multiply with.
+	 * @return this LogDouble, not a new instance.
+	 */
+	public LogDouble mult(double q) {
+		return this.mult(new LogDouble(q));
+	}
+	
+	/**
 	 * Produces a new LogDouble instance as this LogDouble times another.
 	 * See also <code>mult()</code>.
 	 * @param q the LogDouble to multiply with.
 	 * @return a new LogDouble.
 	 */
 	public LogDouble multToNew(LogDouble q) {
+		return (new LogDouble(this)).mult(q);
+	}
+	
+	/**
+	 * Produces a new LogDouble instance as this LogDouble times a double.
+	 * See also <code>mult()</code>.
+	 * @param q the double to multiply with.
+	 * @return a new LogDouble.
+	 */
+	public LogDouble multToNew(double q) {
 		return (new LogDouble(this)).mult(q);
 	}
 
@@ -253,12 +316,32 @@ public final class LogDouble implements Comparable<LogDouble> {
 	}
 	
 	/**
+	 * Divides this LogDouble with a double. Does not yield a new instance; for that purpose,
+	 * see the <code>divToNew()</code> method.
+	 * @param q double to divide with.
+	 * @return this LogDouble, not a new instance.
+	 */
+	public LogDouble div(double q) {
+		return this.div(new LogDouble(q));
+	}
+	
+	/**
 	 * Produces a new LogDouble instance as this LogDouble divided by another.
 	 * See also <code>div()</code>.
 	 * @param q the LogDouble to divide by.
 	 * @return a new LogDouble.
 	 */
 	public LogDouble divToNew(LogDouble q) {
+		return (new LogDouble(this)).div(q);
+	}
+	
+	/**
+	 * Produces a new LogDouble instance as this LogDouble divided by a double.
+	 * See also <code>div()</code>.
+	 * @param q the double to divide by.
+	 * @return a new LogDouble.
+	 */
+	public LogDouble divToNew(double q) {
 		return (new LogDouble(this)).div(q);
 	}
 
@@ -446,6 +529,15 @@ public final class LogDouble implements Comparable<LogDouble> {
 	}
 	
 	/**
+	 * Returns true if this LogDouble is greater than a double q.
+	 * @param q the double to compare with.
+	 * @return true if greater than q.
+	 */
+	public boolean greaterThan(double q) {
+		return this.greaterThan(new LogDouble(q));
+	}
+	
+	/**
 	 * Returns true if this LogDouble is greater than or equals another LogDouble q.
 	 * @param q the LogDouble to compare with.
 	 * @return true if greater than or equals q.
@@ -460,6 +552,15 @@ public final class LogDouble implements Comparable<LogDouble> {
 			}
 		}
 		return (this.sign > q.sign);
+	}
+	
+	/**
+	 * Returns true if this LogDouble is greater than or equals a double q.
+	 * @param q the double to compare with.
+	 * @return true if greater than or equals q.
+	 */
+	public boolean greaterThanOrEquals(double q) {
+		return this.greaterThanOrEquals(new LogDouble(q));
 	}
 	
 	/**
@@ -480,6 +581,15 @@ public final class LogDouble implements Comparable<LogDouble> {
 	}
 	
 	/**
+	 * Returns true if this LogDouble is less than a double q.
+	 * @param q the double to compare with.
+	 * @return true if less than q.
+	 */
+	public boolean lessThan(double q) {
+		return this.lessThan(new LogDouble(q));
+	}
+	
+	/**
 	 * Returns true if this LogDouble is less than or equals another LogDouble q.
 	 * @param q the LogDouble to compare with.
 	 * @return true if less than or equals q.
@@ -494,6 +604,15 @@ public final class LogDouble implements Comparable<LogDouble> {
 			}
 		}
 		return (this.sign < q.sign);
+	}
+	
+	/**
+	 * Returns true if this LogDouble is less than or equals a double q.
+	 * @param q the double to compare with.
+	 * @return true if less than or equals q.
+	 */
+	public boolean lessThanOrEquals(double q) {
+		return this.lessThanOrEquals(new LogDouble(q));
 	}
 
 	/**
@@ -515,10 +634,10 @@ public final class LogDouble implements Comparable<LogDouble> {
 
 	/**
 	 * Overridden equality method. Two LogDouble instances are considered equal if they represent
-	 * the same number.
+	 * the same number. Beware, though, floating point equality comparisons are always dangerous...
 	 * @see java.lang.Object#equals(java.lang.Object).
 	 * @param obj the object to compare with.
-	 * @return true if represinting the same number, otherwise false.
+	 * @return true if representing the same number, otherwise false.
 	 */
 	@Override
 	public boolean equals(Object obj) {
