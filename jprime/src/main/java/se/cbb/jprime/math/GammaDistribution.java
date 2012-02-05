@@ -19,30 +19,17 @@ import se.cbb.jprime.mcmc.DoubleParameter;
  * @author Joel Sjöstrand.
  */
 public class GammaDistribution implements Continuous1DPDDependent {
-
-	/**
-	 * When the distribution depends on state parameters, defines
-	 * what the latter represent.
-	 */
-	public enum ParameterSetup {
-		/** Shape and scale. */                    K_AND_THETA,
-		/** Mean and standard deviation. */        MEAN_AND_STDEV,
-		/** Mean and coefficient of variation. */  MEAN_AND_CV
-	}
 	
-	/** First state parameter. Null if not used. */
-	protected DoubleParameter p1;
+	/** Mean state parameter. Null if not used. */
+	protected DoubleParameter mean;
 	
-	/** Second state parameter. Null if not used. */
-	protected DoubleParameter p2;
+	/** CV state parameter. Null if not used. */
+	protected DoubleParameter cv;
 	
-	/** State parameter representation. Null if not used. */
-	protected ParameterSetup setup;
-	
-	/** Shape parameter. Should reflect p1 and p2's values. */
+	/** Shape parameter. Should reflect DoubleParameters' values. */
 	protected double k;
 	
-	/** Scale parameter. Should reflect p1 and p2's values. */
+	/** Scale parameter. Should reflect DoubleParameters' values. */
 	protected double theta;
 	
 	/** For speed, holds -ln(G(k)*theta^k), where G() is the gamma function. */
@@ -67,9 +54,8 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		if (k <= 0.0 || theta <= 0.0) {
 			throw new IllegalArgumentException("Cannot have non-positive shape or scale for gamma distribution.");
 		}
-		this.p1 = null;
-		this.p2 = null;
-		this.setup = null;
+		this.mean = null;
+		this.cv = null;
 		this.k = k;
 		this.theta = theta;
 		this.update();
@@ -78,14 +64,13 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	/**
 	 * Constructor for when the distribution relies on state parameters.
 	 * The distribution will add itself as a child dependent of the parameters.
-	 * @param p1 the first parameter.
-	 * @param p2 the second parameter.
-	 * @param setup what p1 and p2 represents.
+	 * For MCMC mixing purposes, mean and CV has been selected as parameterisation.
+	 * @param mean the mean.
+	 * @param cv the CV.
 	 */
-	public GammaDistribution(DoubleParameter p1, DoubleParameter p2, ParameterSetup setup) {
-		this.p1 = p1;
-		this.p2 = p2;
-		this.setup = setup;
+	public GammaDistribution(DoubleParameter mean, DoubleParameter cv) {
+		this.mean = mean;
+		this.cv = cv;
 		this.update();
 	}
 	
@@ -106,8 +91,8 @@ public class GammaDistribution implements Continuous1DPDDependent {
 
 	@Override
 	public Dependent[] getParentDependents() {
-		if (this.p1 != null) {
-			return new Dependent[] { p1, p2 };
+		if (this.mean != null) {
+			return new Dependent[] { mean, cv };
 		}
 		return null;
 	}
@@ -116,32 +101,16 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	 * Updates the distribution.
 	 */
 	public void update() {
-		if (this.p1 != null) {
-			switch (this.setup) {
-			case K_AND_THETA:
-				this.k = this.p1.getValue();
-				this.theta = this.p2.getValue();
-				break;
-			case MEAN_AND_STDEV:
-				this.k = Math.pow(this.p1.getValue() / this.p2.getValue(), 2);
-				this.theta = Math.pow(this.p2.getValue(), 2) / this.p1.getValue();
-				break;
-			case MEAN_AND_CV:
-				this.k = 1.0 / Math.pow(this.p1.getValue(), 2);
-				this.theta = this.p1.getValue() * Math.pow(this.p2.getValue(), 2);
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown parameter setup for gamma distribution.");
-			}
-			this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
-		} else {
-			this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
+		if (this.mean != null) {
+			this.k = 1.0 / Math.pow(this.mean.getValue(), 2);
+			this.theta = this.mean.getValue() * Math.pow(this.cv.getValue(), 2);
 		}
+		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 	}
 
 	@Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
-		if (changeInfos.get(this.p1) != null || changeInfos.get(this.p2) != null) {
+		if (changeInfos.get(this.mean) != null || changeInfos.get(this.cv) != null) {
 			String s = this.toString();
 			this.kCache = this.k;
 			this.thetaCache = this.theta;
@@ -214,7 +183,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		if (mean <= 0.0) { throw new IllegalArgumentException("Cannot set non-positive mean on gamma distribution."); }
 		this.k = mean / this.theta;
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
-		if (this.p1 != null) {
+		if (this.mean != null) {
 			synchP1AndP2();
 		}
 	}
@@ -238,7 +207,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		if (stdev <= 0.0) { throw new IllegalArgumentException("Cannot set non-positive variance on gamma distribution."); }
 		this.k = Math.pow(stdev / this.theta, 2);
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
-		if (this.p1 != null) {
+		if (this.mean != null) {
 			synchP1AndP2();
 		}
 	}
@@ -257,31 +226,18 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		if (var <= 0.0) { throw new IllegalArgumentException("Cannot set non-positive variance on gamma distribution."); }
 		this.k = var / (this.theta * this.theta);
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
-		if (this.p1 != null) {
+		if (this.mean != null) {
 			synchP1AndP2();
 		}
 	}
 
 	/**
-	 * Adjusts p1 and p2 in accordance with the current internal values
+	 * Adjusts DoubleParameters' values accordance with the current internal values
 	 * following a change of the shape parameter.
 	 */
 	private void synchP1AndP2() {
-		switch (this.setup) {
-		case K_AND_THETA:
-			this.p1.setValue(this.k);
-			break;
-		case MEAN_AND_STDEV:
-			this.p1.setValue(this.k * this.theta);
-			this.p2.setValue(Math.sqrt(this.k) * this.theta);
-			break;
-		case MEAN_AND_CV:
-			this.p1.setValue(this.k * this.theta);
-			this.p2.setValue(1.0 / Math.sqrt(this.k));
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown parameter setup for normal distribution.");
-		}
+		this.mean.setValue(this.k * this.theta);
+		this.cv.setValue(1.0 / Math.sqrt(this.k));
 	}
 	
 	@Override

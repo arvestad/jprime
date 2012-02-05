@@ -68,4 +68,12 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	public String getPostInfo(String prefix) {
 		return (prefix + "MERSENNE-TWISTER PRNG\n");
 	}
+	
+	/**
+	 * Returns the seed as a big integer.
+	 * @return the seed.
+	 */
+	public BigInteger getSeedAsBigInteger() {
+		return new BigInteger(super.getSeed());
+	}
 }

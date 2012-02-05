@@ -8,7 +8,7 @@ import java.util.List;
  * Represents a map where values of some type K are mapped using real-values, i.e.,
  * with &lt;double,K&gt; key-value pairs.
  * Since the keys are represented by doubles, key k' will return the value of
- * stored key k if abs(k'-k) &lt; eps.
+ * stored key k if abs(k'-k) &lt; eps, where eps is in the order of 5e-8.
  * The cache also implements a "garbage collection" by holding a maximum number of values,
  * where the most recently accessed ones are kept.
  * Most operations such as put, get and contains should be constant in time.
@@ -40,7 +40,7 @@ public class BoundedRealMap<K> {
 	}
 	
 	/** Precision for key value k in that actually used key k'=(long)(k*PRECISION). */
-	public static final int PRECISION = 1000000;
+	public static final int PRECISION = 10000000;
 	
 	/** Maximum no. of values. */
 	private int maxSz;
@@ -54,12 +54,16 @@ public class BoundedRealMap<K> {
 	/** Newest element. */
 	private BoundedRealMap<K>.Holder newest;
 	
+	/** If to disallow very small keys. */
+	private boolean disallowEpsKeys;
+	
 	/**
 	 * Constructor.
 	 * @param maxNoOfElements maximum number of elements in map. Oldest element w.r.t. access is
 	 * removed when adding an element that would cause this size to be exceeded.
+	 * @param disallowEpsKeys if true, will throw an exception on <code>put(key,val)</code> if abs(key) is very small.
 	 */
-	public BoundedRealMap(int maxNoOfElements) {
+	public BoundedRealMap(int maxNoOfElements, boolean disallowEpsKeys) {
 		if (maxNoOfElements <= 0) {
 			throw new IllegalArgumentException("Cannot create RealMap with zero capacity.");
 		}
@@ -67,6 +71,7 @@ public class BoundedRealMap<K> {
 		this.values = new HashMap<Long, BoundedRealMap<K>.Holder>(maxSz);
 		this.oldest = null;
 		this.newest = null;
+		this.disallowEpsKeys = disallowEpsKeys;
 	}
 	
 	/**
@@ -78,6 +83,9 @@ public class BoundedRealMap<K> {
 	 */
 	public K put(double key, K value) {
 		Long intKey = Math.round(key * PRECISION);  // Compute safe key.
+		if (intKey == 0 && disallowEpsKeys) {
+			throw new IllegalArgumentException("Cannot hash on floating point key " + key + "; |key| is too small.");
+		}
 		BoundedRealMap<K>.Holder h = this.values.get(intKey);
 		if (h == null) {
 			if (this.values.size() >= this.maxSz) {
@@ -106,6 +114,14 @@ public class BoundedRealMap<K> {
 			this.moveToEndOfList(h);
 			return oldVal;
 		}
+	}
+	
+	/**
+	 * Returns the maximum number of simultaneous elements that are kept.
+	 * @return the max size.
+	 */
+	public int getMaxNoOfElements() {
+		return this.maxSz;
 	}
 	
 	/**

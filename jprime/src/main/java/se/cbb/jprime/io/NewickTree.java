@@ -10,7 +10,7 @@ import se.cbb.jprime.topology.NamesMap;
  * Holds a "pure" Newick tree. Essentially, this only consists of a tree
  * rooted at a <code>NewickNode</code>, but with tree-specific meta info added, as well as
  * some convenience methods. See <code>NewickNode</code> for more details, and <code>PrIMENewickTree</code>
- * for an extenension.
+ * for an extension.
  * <p/>
  * One may invoke renumber() to renumber a tree post-order (Newick-style),
  * starting with 0 at the first leaf. Be advised that this property may

@@ -22,4 +22,5 @@ public interface SampleType {
 	 * @param sb the buffer to append to.
 	 */
 	public void appendType(StringBuilder sb);
+	
 }
