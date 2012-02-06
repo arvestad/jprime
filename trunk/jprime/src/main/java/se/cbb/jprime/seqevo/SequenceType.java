@@ -169,7 +169,7 @@ public enum SequenceType {
 	public int[] stringTranslate(String s) {
 		int[] vec = new int[s.length()];
 		for (int i = 0; i < s.length(); i++) {
-			vec[i] = char2int(s.charAt(i));
+			vec[i] = this.char2int(s.charAt(i));
 		}
 		return vec;
 	}
@@ -183,7 +183,19 @@ public enum SequenceType {
 	 * @return likelihood.
 	 */
 	public DenseMatrix64F getLeafLikelihood(char state) {
-		return this.leafLike[char2int(state)];
+		return this.leafLike[this.char2int(state)];
+	}
+	
+	/**
+	 * Returns a vector of likelihoods for a leaf with a character. 
+	 * The size of the vector equals the alphabet size and the 
+	 * likelihood is the probability that the leaf is in a specific
+	 * state.
+	 * @param i character index.
+	 * @return likelihood.
+	 */
+	public DenseMatrix64F getLeafLikelihood(int i) {
+		return this.leafLike[i];
 	}
 	
 	/** 

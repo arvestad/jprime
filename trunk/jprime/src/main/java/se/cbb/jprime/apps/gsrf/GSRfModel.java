@@ -18,6 +18,7 @@ import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
+import se.cbb.jprime.topology.TreeAlgorithms;
 
 /**
  * Implements the GSRf model.
@@ -131,7 +132,7 @@ public class GSRfModel implements Model {
 			if (lci != null && lci.getAffectedElements() != null) {
 				// Only certain branch lengths have changed. We do a partial update.
 				
-				int[] affected = this.getAffectedSubtree(lci.getAffectedElements());
+				int[] affected = TreeAlgorithms.getSpanningRootSubtree(this.g, lci.getAffectedElements());
 				this.ats.cache(affected);
 				this.belows.cache(affected);
 				this.partialUpdate(affected);
@@ -302,34 +303,6 @@ public class GSRfModel implements Model {
 		for (int u : sortedAffectedVertices) {
 			this.updateAtProbs(u, false);
 		}
-	}
-	
-	/**
-	 * Retrieves the set of vertices of the subtree of G spanned by the input
-	 * vertices. The output vertices are returned in reverse topological order.
-	 * @param affectedElements subset of vertices of G.
-	 * @return vertices sorted.
-	 */
-	private int[] getAffectedSubtree(int[] affectedElements) {
-		// First, find all affected vertices of G.
-		HashSet<Integer> allEffected = new HashSet<Integer>(64);
-		for (int u : affectedElements) {
-			while (u != RBTree.NULL) {
-				if (!allEffected.add(u)) { break; }
-				u = this.g.getParent(u);
-			}
-		}
-		
-		// Now sort them.
-		int[] sorted = new int[allEffected.size()];
-		List<Integer> vertices = this.g.getTopologicalOrdering();
-		for (int i = vertices.size() - 1, j = 0; i >= 0; --i) {
-			int u = vertices.get(i);
-			if (allEffected.contains(u)) {
-				sorted[j++] = u;
-			}
-		}
-		return sorted;
 	}
 
 	/**
