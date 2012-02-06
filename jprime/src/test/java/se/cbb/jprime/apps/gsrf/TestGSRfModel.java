@@ -12,7 +12,6 @@ import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
 import se.cbb.jprime.math.GammaDistribution;
 import se.cbb.jprime.math.LogDouble;
-import se.cbb.jprime.math.GammaDistribution.ParameterSetup;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.MPRMap;
@@ -47,7 +46,7 @@ public class TestGSRfModel {
 		MPRMap gsMap = new MPRMap(GuestHostMapReader.readGuestHostMap(new File(url.getFile())), g, gNames, s, sNames);
 		DoubleMap lengths = new DoubleMap("Lengths", g.getNoOfVertices(), 0.1);
 		GammaDistribution pd = new GammaDistribution(new DoubleParameter("m", 0.1),
-				new DoubleParameter("v", 0.05), ParameterSetup.MEAN_AND_STDEV);
+				new DoubleParameter("v", 0.05));
 		GSRfModel mod = new GSRfModel(g, s, gsMap, lengths, times, dupLoss, pd);
 		//System.out.println(mod);
 		assertTrue(mod.getLikelihood().greaterThan(new LogDouble(0.0)));

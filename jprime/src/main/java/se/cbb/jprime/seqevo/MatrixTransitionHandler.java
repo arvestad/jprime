@@ -1,5 +1,7 @@
 package se.cbb.jprime.seqevo;
 
+import java.util.HashMap;
+
 import org.ejml.alg.dense.decomposition.DecompositionFactory;
 import org.ejml.alg.dense.decomposition.EigenDecomposition;
 import org.ejml.data.DenseMatrix64F;
@@ -10,14 +12,17 @@ import se.cbb.jprime.misc.BoundedRealMap;
 
 /**
  * Handles transition probabilities of a Markov process for molecular sequence evolution.
- * Assumes time reversibility, that is, pi_i*mu_ij=pi_j*mu_ji for stationary frequencies pi_x
- * and transition probabilities mu_xy.
+ * As such, it can be viewed as a representing a transition probability matrix P.
  * <p/>
- * The transition rate matrix Q can be decomposed into a symmetric <i>exchangeability</i> matrix R and the vector of 
+ * The momentary transition rate matrix Q can be decomposed into a
+ * symmetric <i>exchangeability</i> matrix R and the vector of 
  * stationary frequencies Pi. The transition probability
  * matrix P over a given (Markov) time interval w is given by 
  * P=exp(Qw). Note that w often is measured in the expected 
  * number of events per site occurring over the interval.
+ * <p/>
+ * Assumes time reversibility, that is, pi_i*mu_ij=pi_j*mu_ji for stationary frequencies pi_x
+ * and transition probabilities mu_xy.
  * 
  * @author Bengt Sennblad.
  * @author Lars Arvestad.
@@ -47,7 +52,7 @@ public class MatrixTransitionHandler {
 	/** The stationary frequencies of the model formulated as a diagonal matrix. Only diagonal stored as matrix of size (dim,1). */
 	private DenseMatrix64F Pi;
 	
-	/** The transition rate matrix Q, normalised to have one expected event over branch length one. */
+	/** The transition rate matrix Q, normalised to have 1 expected event over branch length 1. */
 	private DenseMatrix64F Q;
 
 	/** Eigenvalues of the transition rate matrix. Only diagonal, stored as matrix of size (dim,1). */
@@ -59,7 +64,7 @@ public class MatrixTransitionHandler {
 	/** Inverse of V. Size (dim,dim). */
 	private DenseMatrix64F iV;
 
-	/** Transition probability matrix (needs to be set for particular (Markov) times. Size (dim,dim). */
+	/** Transition probability matrix (needs to be set for particular Markov time). Size (dim,dim). */
 	private DenseMatrix64F P;
 
 	/** Temporary storage matrix. Size (dim,dim). */
@@ -68,8 +73,11 @@ public class MatrixTransitionHandler {
 	/** Temporary storage vector. */
 	private DenseMatrix64F tmp_diagonal;
 
-	/** A cache for saving instances of P to avoid recalculations. */
+	/** A cache for saving instances of P for varying times w to avoid recalculations. */
 	private BoundedRealMap<DenseMatrix64F> PCache;
+	
+	/** Small cache for ambiguity leaf likelihoods. */
+	private HashMap<Integer, DenseMatrix64F> ambigCache;
 
 	/**
 	 * Constructor.
@@ -94,7 +102,8 @@ public class MatrixTransitionHandler {
 		this.P = new DenseMatrix64F(alphabetSize, alphabetSize);
 		this.tmp_matrix = new DenseMatrix64F(alphabetSize, alphabetSize);
 		this.tmp_diagonal = new DenseMatrix64F(alphabetSize, 1);
-		this.PCache = new BoundedRealMap<DenseMatrix64F>(cacheSize);
+		this.PCache = new BoundedRealMap<DenseMatrix64F>(cacheSize, true);
+		this.ambigCache = new HashMap<Integer, DenseMatrix64F>(32);
 		this.update();
 	}
 
@@ -136,10 +145,12 @@ public class MatrixTransitionHandler {
 	/**
 	 * Updates Q and the eigensystem to new values of R and Pi.
 	 */
-	public void update() {
+	private void update() {
 		// Creates Q by means of R and Pi.
 		// The diagonal values of Q = -the sum of other values of row, by definition.
 		// R in this implementation holds upper triangle of symmetric matrix, excluding diagonal.
+		this.PCache.clear();
+		this.ambigCache.clear();
 		this.Q.zero();
 		int R_i = 0;
 		double val;
@@ -177,9 +188,9 @@ public class MatrixTransitionHandler {
 	 * Sets up P=exp(Qw), the transition probability matrix for the Markov
 	 * process over 'time' w (where 'time' is not necessarily temporal).
 	 * Precondition: w <= 1000.
-	 * @param w the "time" over which Q acts.
+	 * @param w the "time" (or branch length) over which Q acts.
 	 */
-	public void computeTransitionMatrix(double w) {
+	public void updateTransitionMatrix(double w) {
 		// C++ comment which may still apply...  /joelgs
 		// If w is too big, the precision of LAPACK seem to get warped!
 		// The choice of max value of 1000 is arbitrary and well below the 
@@ -188,6 +199,9 @@ public class MatrixTransitionHandler {
 		if (w > MAX_MARKOV_TIME) {
 			w = MAX_MARKOV_TIME;
 		}
+		
+		// Clear ambiguity cache.
+		this.ambigCache.clear();
 
 		// Check in cache if result already exists.
 		this.P = this.PCache.get(w);
@@ -202,7 +216,7 @@ public class MatrixTransitionHandler {
 	}
 
 	/**
-	 * Performs matrix multiplication Y=P*X.
+	 * Performs matrix multiplication Y=P*X for the current P.
 	 * @param X operand matrix (typically vector) of size (dim,ncol).
 	 * @param Y resulting matrix Y=P*X. Should have size (dim,ncol).
 	 */
@@ -211,13 +225,28 @@ public class MatrixTransitionHandler {
 	}
 
 	/**
-	 * Returns a column from P.
-	 * @param colum the column index.
+	 * Returns the likelihood for a certain leaf state for the current P.
+	 * This corresponds to the state's column in P (and analogously for
+	 * ambiguity characters.
+	 * @param state the state's integer index.
 	 * @param result the column values. Should have size (dim,1).
 	 */
-	public void getColumnFromP(int column, DenseMatrix64F result) {
-		for (int i = 0; i < this.alphabetSize; ++i) {
-			result.set(i, this.P.get(i, column));
+	public void getLeafLikelihood(int state, DenseMatrix64F result) {
+		if (state < this.alphabetSize) {
+			for (int i = 0; i < this.alphabetSize; ++i) {
+				result.set(i, this.P.get(i, state));
+			}
+		} else {
+			// Ambiguity state.
+			DenseMatrix64F res = this.ambigCache.get(state);
+			if (res == null) {
+				// Not computed before.
+				this.multiplyWithP(this.sequenceType.getLeafLikelihood(state), result);
+				this.ambigCache.put(state, new DenseMatrix64F(result));
+			} else {
+				// Computed before.
+				result.set(res);
+			}
 		}
 	}
 
