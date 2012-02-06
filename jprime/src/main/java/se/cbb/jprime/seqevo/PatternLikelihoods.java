@@ -75,4 +75,20 @@ public class PatternLikelihoods  implements PublicCloneable {
 		return new PatternLikelihoods(this);
 	}
 	
+	/**
+	 * Returns the number of patterns.
+	 * @return the number of patterns.
+	 */
+	public int getNoOfPatterns() {
+		return this.likelihoods.length;
+	}
+	
+	/**
+	 * Returns the number of site rates.
+	 * @return the number of site rates.
+	 */
+	public int getNoOfSiteRateCategories() {
+		return this.likelihoods[0].length;
+	}
+	
 }

@@ -16,6 +16,7 @@ import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
+import se.cbb.jprime.topology.TreeAlgorithms;
 
 /**
  * Implements the standard (probabilistic) Markov model for
@@ -59,6 +60,9 @@ public class SubstitutionModel implements Model {
     /** Branch lengths, i.e., Markov model "time". */
     private DoubleMap branchLengths;
     
+    /** Decides if root arc should be included. */
+    private boolean useRootArc;
+    
     /** Likelihoods for each gene tree vertex. */
     private GenericMap<PatternLikelihoods> likes;
     
@@ -80,8 +84,11 @@ public class SubstitutionModel implements Model {
      * @param T tree.
      * @param names leaf names of T.
      * @param branchLengths branch lengths of T.
+     * @param useRootArc if true, utilises the root arc ("stem") branch length when computing model
+     *        likelihood; if false, discards the root arc.
      */
-    public SubstitutionModel(String name, SequenceData D, SiteRateHandler siteRates, MatrixTransitionHandler Q, RBTree T, NamesMap names, DoubleMap branchLengths) {
+    public SubstitutionModel(String name, SequenceData D, SiteRateHandler siteRates, MatrixTransitionHandler Q,
+    		RBTree T, NamesMap names, DoubleMap branchLengths, boolean useRootArc) {
     	this.name = name;
     	this.D = D;
     	this.siteRates = siteRates;
@@ -89,11 +96,12 @@ public class SubstitutionModel implements Model {
     	this.T = T;
     	this.names = names;
     	this.branchLengths = branchLengths;
+    	this.useRootArc = useRootArc;
     	int noOfVertices = T.getNoOfVertices();
     	int noOfPatterns = D.getPatterns().size();
     	int noOfSiteRates = siteRates.nCat();
     	int alphabetSize = Q.getAlphabetSize();
-    	this.likes = new GenericMap<PatternLikelihoods>("SubstitutionModelLikelihoods", noOfVertices);
+    	this.likes = new GenericMap<PatternLikelihoods>(names + "Likelihoods", noOfVertices);
     	this.like = new LogDouble(0.0);
     	this.tmp = new DenseMatrix64F(alphabetSize, 1);
     	for (int n = 0; n < T.getNoOfVertices(); ++n) {
@@ -103,178 +111,156 @@ public class SubstitutionModel implements Model {
 
     @Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
+    	
+    	// Find out which parents have changed.
     	ChangeInfo tInfo = changeInfos.get(this.T);
     	ChangeInfo blInfo = changeInfos.get(this.branchLengths);
 		ChangeInfo siteRateInfo = changeInfos.get(this.siteRates);
 		if (tInfo != null || siteRateInfo != null || (blInfo != null && blInfo.getAffectedElements() == null)) {
 			// Full update if tree or site rates have changed, or if undisclosed
 			// branch lengths changes.
-			
+			this.fullUpdate();
+			changeInfos.put(this, new ChangeInfo(this, "SubstitutionModel - full update"));
 		} else if (blInfo != null && blInfo.getAffectedElements() != null) {
 			// Partial update if disclosed branch length changes.
-			
-			// For the root vertex r, perturbations in some classes may affect both children
-			// of r. Therefore we add the sibling.
+			// Get reverse-topological-ordered affected vertices.
+			int[] allAffected = TreeAlgorithms.getSpanningRootSubtree(this.T, blInfo.getAffectedElements());
+			this.partialUpdate(allAffected);
+			changeInfos.put(this, new ChangeInfo(this, "SubstitutionModel - partial update", allAffected));
 		}
 	}
     
-
     /**
-     * Likelihood calculation - interface to MCMCModels
+     * Performs a full update.
      */
-    private LogDouble calculateDataProbability() {
-    	int left = this.T.getLeftChild(this.T.getRoot());
-    	int right = this.T.getRightChild(this.T.getRoot());
-
-    	// Reset return value.
-    	this.like = new LogDouble(1.0);
-    	
-		// First recurse down to initiate likelihoods.
-		this.recursiveLikelihood(left);
-		this.recursiveLikelihood(right);
-
-		this.like.mult(this.rootLikelihood());
-
-		//this.T.perturbedNode(0);
-    	return this.like;
+    private void fullUpdate() {
+		this.cacheModelLikelihood = new LogDouble(this.like);
+		try {
+			this.likes.cache(null);
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+		this.updateLikelihood(this.T.getRoot(), true);
+		this.computeModelLikelihood();
+    }
+    
+    /**
+     * Performs a partial update.
+     * @param affectedVertices vertices to update, in reverse topological order.
+     */
+    private void partialUpdate(int[] affectedVertices) {
+    	this.cacheModelLikelihood = new LogDouble(this.like);
+		try {
+			this.likes.cache(affectedVertices);
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+		for (int n : affectedVertices) {
+			this.updateLikelihood(n, false);
+		}
+		this.computeModelLikelihood();
     }
 
-    
-    /**
-     * Partial likelihood calculation - for use with perturbedNode.
-     */
-	private LogDouble calculateDataProbability(int n) {
-		assert (n != RBTree.NULL);
-		
-		// Reset overall likelihood value.
-		this.like = new LogDouble(1.0);
-	
-		// For the root vertex r, perturbations in some classes may affect both children
-		// of r. Therefore we start by descending one step.
-		if (!this.T.isLeaf(n)) {
-			this.updateLikelihood(this.T.getLeftChild(n));
-			this.updateLikelihood(this.T.getRightChild(n));
-		}
-		
-		// Then we just ascend up to root.
-		while (!this.T.isRoot(n)) {
-			this.updateLikelihood(n);
-			n = this.T.getParent(n);
-			assert (n != RBTree.NULL);
-		}
-		this.like.mult(this.rootLikelihood());
-		
-		assert (this.like.greaterThan(0.0));
-		return this.like;
-	}
-
 	
 	/**
-	 * Helper functions for likelihood calculation.
-	 * Recurse down to leaves and then updates Likelihoods for each node on
-	 * the way up.
-	 * \f$ \{ Pr[D_{i,\cdot}|T_n, w, r, p], r\in siteRates, p \in partitions[partition]\}\f$
+	 * Computes the overall model likelihood by consulting the root likelihood
+	 * and the stationary state frequencies. The likelihood data structures must be up-to-date.
 	 */
-	private LogDouble rootLikelihood() {
+	private void computeModelLikelihood() {
+		
+		// Get root likelihood and patterns.
+		LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
 		int n = this.T.getRoot();
-		if (this.T.isLeaf(n)) {
-			return new LogDouble(1.0);
-		} else {
-			// Initiate return value.
-			LogDouble returnL = new LogDouble(1.0);
-	
-			// Set up data and likelihood storage.
-			LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
-			PatternLikelihoods pl = this.likes.get(n);
+		PatternLikelihoods pl = this.likes.get(n);
+		
+		// Reset model likelihood.
+		this.like = new LogDouble(1.0);
+		
+		// For each unique pattern i.
+		int i = 0;
+		for (Entry<String, int[]> pattern : patterns.entrySet()) {
 			
-			// Get nested likelihoods.
-			PatternLikelihoods pl_l = this.likes.get(this.T.getLeftChild(n));
-			PatternLikelihoods pl_r = this.likes.get(this.T.getRightChild(n));
-	
-			// Lastly, loop over each unique pattern in patterns.
-			int i = 0;
-			for (Entry<String, int[]> pattern : patterns.entrySet()) {
-				LogDouble patternL = new LogDouble(0.0);
-	
-				// Compute Pr[Dk | T, ew, r(j)] for each site rate category j.
-				for (int j = 0; j < this.siteRates.nCat(); j++) {
-					DenseMatrix64F left = pl_l.get(i, j);
-					DenseMatrix64F right = pl_r.get(i, j);
-					
-					// Element-wise multiplication, tmp = left .* right.
-					CommonOps.elementMult(left, right, this.tmp);
-					
-					// Pi * tmp, store result in current.
-					DenseMatrix64F curr = pl.get(i, j);
-					this.Q.multiplyWithPi(this.tmp, curr);
-					patternL.add(CommonOps.elementSum(curr));
-				}
+			// For each site rate category j.
+			LogDouble patternL = new LogDouble(0.0);
+			for (int j = 0; j < pl.getNoOfSiteRateCategories(); ++j) {
+				DenseMatrix64F curr = pl.get(i, j);
 				
-				// # of occurrences of pattern.
-				int noOfOccs = pattern.getValue()[1];
-				
-				// Pr[rate cat] = 1 / nCat.
-				returnL.mult(patternL.div((double)this.siteRates.nCat()).pow(noOfOccs));
+				// Multiply with stationary frequencies (that's our assumption for evolution start).
+				this.Q.multiplyWithPi(curr, this.tmp);
+				patternL.add(CommonOps.elementSum(this.tmp));
 			}
-			return returnL;
+			
+			// Pr[site rate category] = 1 / # of categories.
+			patternL.div((double) this.siteRates.nCat());
+			
+			// # of actual columns of pattern.
+			int noOfOccs = pattern.getValue()[1];
+			
+			// Multiply with overall likelihood.
+			this.like.mult(patternL.pow(noOfOccs));
+			i++;
 		}
 	}
 
 	/**
-	 * 
-	 * @param n
+	 * DP method which updates the likelihood column vectors for a vertex.
+	 * @param n vertex.
+	 * @param doRecurse true to process entire subtree rooted at n; false to only do n.
 	 */
-	private void recursiveLikelihood(int n) {
-		if (!this.T.isLeaf(n)) {
-			this.recursiveLikelihood(this.T.getLeftChild(n));
-			this.recursiveLikelihood(this.T.getRightChild(n));
-		}
-		this.updateLikelihood(n);
-	}
-
-	/**
-	 * 
-	 * @param n
-	 */
-	private void updateLikelihood(int n) {
+	private void updateLikelihood(int n, boolean doRecurse) {
 		if (this.T.isLeaf(n)) {
-			this.leafLikelihood(n);
+			this.updateLeafLikelihood(n);
 		} else {
+			
+			// Process kids first.
+			if (doRecurse) {
+				this.updateLikelihood(this.T.getLeftChild(n), true);
+				this.updateLikelihood(this.T.getRightChild(n), true);
+			}
+			
 			// Get data and likelihood storage.
-			LinkedHashMap<String, int[]> pv = this.D.getPatterns();
+			LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
 			PatternLikelihoods pl = this.likes.get(n);
 			
 			// Get nested Likelihoods
 			PatternLikelihoods pl_l = this.likes.get(this.T.getLeftChild(n));
 			PatternLikelihoods pl_r = this.likes.get(this.T.getRightChild(n));
 			
-			// Compute Pr[Dk | T, ew, r(j)] for each site rate category j.
+			// Just a special case: we discard evolution over the stem arc if desired (when doUseP = false).
+			boolean doUseP = (this.useRootArc || !this.T.isRoot(n));
+			
+			// Compute Pr[Dk | T, l, r(j)] for each site rate category j.
 			for (int j = 0; j < this.siteRates.nCat(); j++) {
 				
-				// Set up site rate-specific P matrix.
-				assert this.branchLengths.get(n) > 0;
-				double w = this.branchLengths.get(n) * this.siteRates.getRate(j);
-				this.Q.updateTransitionMatrix(w);
+				if (doUseP) {
+					// Set up site rate-specific P matrix.
+					double w = this.branchLengths.get(n) * this.siteRates.getRate(j);
+					this.Q.updateTransitionMatrix(w);
+				}
 				
 				// Lastly, loop over each unique pattern in patterns.
-				for (int i = 0; i < pv.size(); i++) {
+				for (int i = 0; i < patterns.size(); i++) {
 					DenseMatrix64F left = pl_l.get(i, j);
 					DenseMatrix64F right = pl_r.get(i, j);
 					
 					// Element-wise multiplication, tmp = left .* right.
 					CommonOps.elementMult(left, right, this.tmp);
 					DenseMatrix64F curr = pl.get(i, j);
-					this.Q.multiplyWithP(this.tmp, curr);
+					if (doUseP) {
+						this.Q.multiplyWithP(this.tmp, curr);
+					} else {
+						curr.set(this.tmp);
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * Updates the likelihoods for a leaf vertex.
+	 * DP method which updates the likelihoods column vector for a leaf vertex.
 	 * @param n leaf vertex.
 	 */
-	private void leafLikelihood(int n) {
+	private void updateLeafLikelihood(int n) {
 		
 		// Set up data and likelihood storage.
 		LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
@@ -286,7 +272,7 @@ public class SubstitutionModel implements Model {
 		// Loop over rate categories.
 		for (int j = 0; j < this.siteRates.nCat(); j++) {
 			
-			// Initiate transition matrix P.
+			// Set up site rate-specific P matrix.
 			double w = this.branchLengths.get(n) * this.siteRates.getRate(j);
 			this.Q.updateTransitionMatrix(w);
 	
@@ -299,7 +285,8 @@ public class SubstitutionModel implements Model {
 				
 				// Compute likelihood.
 				DenseMatrix64F curr = pl.get(i, j);
-				this.Q.getLeafLikelihood(this.D.get(seqIdx, pos), curr);
+				int state = this.D.get(seqIdx, pos);
+				this.Q.getLeafLikelihood(state, curr);
 				i++;
 			}
 		}

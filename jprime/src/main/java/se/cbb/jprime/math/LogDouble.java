@@ -66,7 +66,7 @@ public final class LogDouble implements Comparable<LogDouble> {
 	 * Copy constructor.
 	 * @param prob the LogDouble object to copy.
 	 */
-	LogDouble(LogDouble prob) {
+	public LogDouble(LogDouble prob) {
 		assert !Double.isNaN(prob.p);
 		//assert !Double.isInfinite(prob.p);
 		this.p = prob.p;
