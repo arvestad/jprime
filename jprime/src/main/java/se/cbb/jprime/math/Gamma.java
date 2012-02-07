@@ -203,4 +203,49 @@ public class Gamma {
 		}
 	}
 
+	/**
+	 * Discretises a continuous gamma distribution into n "categories",
+	 * each holding an equal part of the probability mass, 1/n,
+	 * then returns the mean value r_i for each category i.
+	 * Note: The mean is returned, not the mean density!
+     * @param n number of discrete categories that the gamma distribution will be represented by.
+     * @param k gamma distribution shape parameter.
+     * @param theta gamma distribution scale parameter.
+     * @return the mean for each category.
+     */
+	public static double[] getDiscreteGammaCategories(int n, double k, double theta) {
+		// Method: Described in Yang (1994).
+	    //         First we calculate the n-1 internal quantile points for the chi2
+	    //         distribution using the function ChiSquared.quantile(). Then, utilising
+	    //         the fact that Chi2(2*k) equals Gamma(k,2) and that
+	    //         X~Gamma(k,theta) <=> cX~Gamma(k,c*theta), we can
+	    //         calculate the corresponding quantile point of the gamma distribution.
+	    //         We can then obtain the mean value of each category through the
+	    //         following formula:
+	    //         r_i = k*theta*[I(b/theta,k+1) - I(a/theta,k+1)]*n,
+	    //         where a and b are the quantile points that cut category
+	    //         i, and I(z,k) is the incomplete gamma ratio which is
+	    //         calculated with the function Gamma.incGammaRatio().
+		if (n == 1) {
+			return new double[] { 1.0 };
+		} else {
+			double[] means = new double[n];
+			double albet = k * theta;
+			double v = k * 2;
+			double alP = k + 1;
+			double b2 = 2.0 / theta;
+
+			double ig1 = 0.0;
+			for (int i = 0; i < n - 1; i++) {
+				double p = (i + 1) / (double) n;
+				double chi2 = ChiSquared.quantile(p, v) / b2; 
+				double ig2 = Gamma.incGammaRatio(chi2 / theta, alP);
+				means[i] = albet * (ig2 - ig1) * n;
+				ig1 = ig2;
+			}
+			means[n-1] = albet * (1 - ig1) * n;
+			return means;
+		}
+	}
+	
 }

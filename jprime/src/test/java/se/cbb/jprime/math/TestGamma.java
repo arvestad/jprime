@@ -56,4 +56,25 @@ public class TestGamma {
 		assertEquals(1.966058e-15, Gamma.gammaCDF(0.1, 9.876, 0.6789), 1e-10);
 		assertEquals(1.802166e-06, Gamma.gammaCDF(0.9, 9.876, 0.6789), 1e-10);
 	}
+	
+	@Test
+	public void testGetDiscreteGammaDensities() {
+		double rates[];
+		// Multiple categories.
+		rates = Gamma.getDiscreteGammaCategories(4, 1.5, 1/1.5);
+		assertEquals(0.2252171, rates[0], 1e-3);
+		assertEquals(2.135653, rates[3], 1e-3);
+		rates = Gamma.getDiscreteGammaCategories(2, 1.0, 2.0);
+		assertEquals(0.613932, rates[0], 1e-2);
+		assertEquals(3.387487, rates[1], 1e-2);
+		rates = Gamma.getDiscreteGammaCategories(4, 3.0, 2.0);
+		assertEquals(2.336258, rates[0], 1e-3);
+		assertEquals(10.78414, rates[3], 1e-2);
+		rates = Gamma.getDiscreteGammaCategories(20, 9.0, 0.5);
+		assertEquals(1.986476, rates[0], 1e-4);
+		assertEquals(8.132877, rates[19], 1e-4);
+		// Single category.
+		rates = Gamma.getDiscreteGammaCategories(1, 1.0, 2.0);
+		assertEquals(1.0, rates[0], 1e-7);
+	}
 }
