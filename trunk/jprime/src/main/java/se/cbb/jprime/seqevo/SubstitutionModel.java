@@ -23,7 +23,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * the substitution process of sequence evolution for any type 
  * of aligned sequence data, see e.g., Felsenstein 1981.
  * <p/>
- * Sequence positions with identical patterns of states over leaves are identified and counted.
+ * Sequence positions with identical state patterns over leaves are identified and counted.
  * Rate variation across sites over discrete classes, e.g., Yang 1993,
  * can be modelled.
  * <p/>
@@ -31,7 +31,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * (domains, codon positions, etc.). NOTE: This class is derived from the C++ class
  * <code>CacheSubstitutionModel</code> and not <code>FastCacheSubstitutionModel</code>
  * since the latter was stated unsuitable for tree topology changes in the C++ CMake
- * default settings.
+ * default settings /Joel.
  * 
  * @author Bengt Sennblad.
  * @author Lars Arvestad.
@@ -46,7 +46,7 @@ public class SubstitutionModel implements Model {
 	private SequenceData D;
 	
 	/** Rate variation across sites. */
-	private SiteRateHandler siteRates;
+	private GammaSiteRateHandler siteRates;
 	
 	/** Transition rate matrix Q and, with it, P. */
 	private MatrixTransitionHandler Q;
@@ -67,7 +67,7 @@ public class SubstitutionModel implements Model {
     private GenericMap<PatternLikelihoods> likes;
     
     /** Model likelihood. */
-    private LogDouble like;
+    private LogDouble modelLikelihood;
     
     /** Cached likelihood. */
     private LogDouble cacheModelLikelihood = null;
@@ -87,7 +87,7 @@ public class SubstitutionModel implements Model {
      * @param useRootArc if true, utilises the root arc ("stem") branch length when computing model
      *        likelihood; if false, discards the root arc.
      */
-    public SubstitutionModel(String name, SequenceData D, SiteRateHandler siteRates, MatrixTransitionHandler Q,
+    public SubstitutionModel(String name, SequenceData D, GammaSiteRateHandler siteRates, MatrixTransitionHandler Q,
     		RBTree T, NamesMap names, DoubleMap branchLengths, boolean useRootArc) {
     	this.name = name;
     	this.D = D;
@@ -99,10 +99,10 @@ public class SubstitutionModel implements Model {
     	this.useRootArc = useRootArc;
     	int noOfVertices = T.getNoOfVertices();
     	int noOfPatterns = D.getPatterns().size();
-    	int noOfSiteRates = siteRates.nCat();
+    	int noOfSiteRates = siteRates.getNoOfCategories();
     	int alphabetSize = Q.getAlphabetSize();
     	this.likes = new GenericMap<PatternLikelihoods>(names + "Likelihoods", noOfVertices);
-    	this.like = new LogDouble(0.0);
+    	this.modelLikelihood = new LogDouble(0.0);
     	this.tmp = new DenseMatrix64F(alphabetSize, 1);
     	for (int n = 0; n < T.getNoOfVertices(); ++n) {
     		this.likes.set(n, new PatternLikelihoods(noOfPatterns, noOfSiteRates, alphabetSize));
@@ -111,7 +111,6 @@ public class SubstitutionModel implements Model {
 
     @Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
-    	
     	// Find out which parents have changed.
     	ChangeInfo tInfo = changeInfos.get(this.T);
     	ChangeInfo blInfo = changeInfos.get(this.branchLengths);
@@ -134,7 +133,7 @@ public class SubstitutionModel implements Model {
      * Performs a full update.
      */
     private void fullUpdate() {
-		this.cacheModelLikelihood = new LogDouble(this.like);
+		this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
 		try {
 			this.likes.cache(null);
 		} catch (CloneNotSupportedException e) {
@@ -149,7 +148,7 @@ public class SubstitutionModel implements Model {
      * @param affectedVertices vertices to update, in reverse topological order.
      */
     private void partialUpdate(int[] affectedVertices) {
-    	this.cacheModelLikelihood = new LogDouble(this.like);
+    	this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
 		try {
 			this.likes.cache(affectedVertices);
 		} catch (CloneNotSupportedException e) {
@@ -174,7 +173,7 @@ public class SubstitutionModel implements Model {
 		PatternLikelihoods pl = this.likes.get(n);
 		
 		// Reset model likelihood.
-		this.like = new LogDouble(1.0);
+		this.modelLikelihood = new LogDouble(1.0);
 		
 		// For each unique pattern i.
 		int i = 0;
@@ -191,13 +190,13 @@ public class SubstitutionModel implements Model {
 			}
 			
 			// Pr[site rate category] = 1 / # of categories.
-			patternL.div((double) this.siteRates.nCat());
+			patternL.div((double) this.siteRates.getNoOfCategories());
 			
 			// # of actual columns of pattern.
 			int noOfOccs = pattern.getValue()[1];
 			
 			// Multiply with overall likelihood.
-			this.like.mult(patternL.pow(noOfOccs));
+			this.modelLikelihood.mult(patternL.pow(noOfOccs));
 			i++;
 		}
 	}
@@ -230,7 +229,7 @@ public class SubstitutionModel implements Model {
 			boolean doUseP = (this.useRootArc || !this.T.isRoot(n));
 			
 			// Compute Pr[Dk | T, l, r(j)] for each site rate category j.
-			for (int j = 0; j < this.siteRates.nCat(); j++) {
+			for (int j = 0; j < this.siteRates.getNoOfCategories(); j++) {
 				
 				if (doUseP) {
 					// Set up site rate-specific P matrix.
@@ -270,7 +269,7 @@ public class SubstitutionModel implements Model {
 		int seqIdx = this.D.getIndex(this.names.get(n));
 		
 		// Loop over rate categories.
-		for (int j = 0; j < this.siteRates.nCat(); j++) {
+		for (int j = 0; j < this.siteRates.getNoOfCategories(); j++) {
 			
 			// Set up site rate-specific P matrix.
 			double w = this.branchLengths.get(n) * this.siteRates.getRate(j);
@@ -310,7 +309,7 @@ public class SubstitutionModel implements Model {
 	@Override
 	public void restoreCache(boolean willSample) {
 		this.likes.restoreCache();
-		this.like = this.cacheModelLikelihood;
+		this.modelLikelihood = this.cacheModelLikelihood;
 		this.cacheModelLikelihood = null;
 	}
 
@@ -326,12 +325,12 @@ public class SubstitutionModel implements Model {
 
 	@Override
 	public String getSampleValue() {
-		return SampleLogDouble.toString(this.like);
+		return SampleLogDouble.toString(this.modelLikelihood);
 	}
 
 	@Override
 	public LogDouble getLikelihood() {
-		return this.like;
+		return this.modelLikelihood;
 	}
     
 }
