@@ -654,8 +654,8 @@ public class MatrixTransitionHandlerFactory {
 	/**
 	 * Returns a user-defined model type.
 	 * @param seqType sequence type identifier ("DNA", "AA", "Codon").
-	 * @param pi stationary frequencies.
-	 * @param r values of rate matrix as if R was flattened and triangular.
+	 * @param pi stationary frequencies (alphabet size n).
+	 * @param r values of time-reversible rate matrix as if row-major, symmetric and lacking diagonal (size n*(n-1)/2).
 	 * @return the model type.
 	 */
 	public static MatrixTransitionHandler userDefined(String seqType, double[] pi, double[] r) {
@@ -665,7 +665,7 @@ public class MatrixTransitionHandlerFactory {
 		if (pi.length != dim) {
 			throw new IllegalArgumentException("Invalid size of stationary frequencies Pi: " + dim);
 		} else if (r.length != r_dim) {
-			throw new IllegalArgumentException("Invalid size of flattened triangular rate matrix R: " + r_dim);
+			throw new IllegalArgumentException("Invalid size of row-major time-reversible rate matrix R: " + r_dim);
 		}
 		return new MatrixTransitionHandler("USER-DEFINED", st, r, pi, 1000);
 	}

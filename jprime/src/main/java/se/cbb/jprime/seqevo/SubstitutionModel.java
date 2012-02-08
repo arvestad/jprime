@@ -31,7 +31,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * (domains, codon positions, etc.). NOTE: This class is derived from the C++ class
  * <code>CacheSubstitutionModel</code> and not <code>FastCacheSubstitutionModel</code>
  * since the latter was stated unsuitable for tree topology changes in the C++ CMake
- * default settings /Joel.
+ * default settings. /Joel
  * 
  * @author Bengt Sennblad.
  * @author Lars Arvestad.
@@ -60,11 +60,15 @@ public class SubstitutionModel implements Model {
     /** Branch lengths, i.e., Markov model "time". */
     private DoubleMap branchLengths;
     
-    /** Decides if root arc should be included. */
+    /** Decides if root arc should be included in computations. */
     private boolean useRootArc;
     
-    /** Likelihoods for each gene tree vertex. */
-    private GenericMap<PatternLikelihoods> likes;
+    /**
+     * For each vertex n of V(T), holds the likelihoods for the planted subtree
+     * T^n. Each such element is an array with rows corresponding to unique patterns and
+     * columns corresponding to site rate categories. Each element in such an array holds a
+     * vector with likelihoods corresponding to the states of the sequence type alphabet. */
+    private GenericMap<PatternLikelihoods> likelihoods;
     
     /** Model likelihood. */
     private LogDouble modelLikelihood;
@@ -101,11 +105,11 @@ public class SubstitutionModel implements Model {
     	int noOfPatterns = D.getPatterns().size();
     	int noOfSiteRates = siteRates.getNoOfCategories();
     	int alphabetSize = Q.getAlphabetSize();
-    	this.likes = new GenericMap<PatternLikelihoods>(names + "Likelihoods", noOfVertices);
+    	this.likelihoods = new GenericMap<PatternLikelihoods>(names + "Likelihoods", noOfVertices);
     	this.modelLikelihood = new LogDouble(0.0);
     	this.tmp = new DenseMatrix64F(alphabetSize, 1);
     	for (int n = 0; n < T.getNoOfVertices(); ++n) {
-    		this.likes.set(n, new PatternLikelihoods(noOfPatterns, noOfSiteRates, alphabetSize));
+    		this.likelihoods.set(n, new PatternLikelihoods(noOfPatterns, noOfSiteRates, alphabetSize));
     	}
     }
 
@@ -135,7 +139,7 @@ public class SubstitutionModel implements Model {
     private void fullUpdate() {
 		this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
 		try {
-			this.likes.cache(null);
+			this.likelihoods.cache(null);
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
@@ -145,12 +149,12 @@ public class SubstitutionModel implements Model {
     
     /**
      * Performs a partial update.
-     * @param affectedVertices vertices to update, in reverse topological order.
+     * @param affectedVertices vertices to update, in reverse topological order (leaves to root).
      */
     private void partialUpdate(int[] affectedVertices) {
     	this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
 		try {
-			this.likes.cache(affectedVertices);
+			this.likelihoods.cache(affectedVertices);
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
@@ -170,7 +174,7 @@ public class SubstitutionModel implements Model {
 		// Get root likelihood and patterns.
 		LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
 		int n = this.T.getRoot();
-		PatternLikelihoods pl = this.likes.get(n);
+		PatternLikelihoods pl = this.likelihoods.get(n);
 		
 		// Reset model likelihood.
 		this.modelLikelihood = new LogDouble(1.0);
@@ -202,8 +206,8 @@ public class SubstitutionModel implements Model {
 	}
 
 	/**
-	 * DP method which updates the likelihood column vectors for a vertex.
-	 * @param n vertex.
+	 * DP method which updates the likelihood column vectors for a subtree.
+	 * @param n vertex root of subtree.
 	 * @param doRecurse true to process entire subtree rooted at n; false to only do n.
 	 */
 	private void updateLikelihood(int n, boolean doRecurse) {
@@ -219,11 +223,11 @@ public class SubstitutionModel implements Model {
 			
 			// Get data and likelihood storage.
 			LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
-			PatternLikelihoods pl = this.likes.get(n);
+			PatternLikelihoods pl = this.likelihoods.get(n);
 			
-			// Get nested Likelihoods
-			PatternLikelihoods pl_l = this.likes.get(this.T.getLeftChild(n));
-			PatternLikelihoods pl_r = this.likes.get(this.T.getRightChild(n));
+			// Get child likelihoods.
+			PatternLikelihoods pl_l = this.likelihoods.get(this.T.getLeftChild(n));
+			PatternLikelihoods pl_r = this.likelihoods.get(this.T.getRightChild(n));
 			
 			// Just a special case: we discard evolution over the stem arc if desired (when doUseP = false).
 			boolean doUseP = (this.useRootArc || !this.T.isRoot(n));
@@ -263,10 +267,10 @@ public class SubstitutionModel implements Model {
 		
 		// Set up data and likelihood storage.
 		LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
-		PatternLikelihoods pl = this.likes.get(n);
+		PatternLikelihoods pl = this.likelihoods.get(n);
 	
 		// Get sequence index for this vertex.
-		int seqIdx = this.D.getIndex(this.names.get(n));
+		int seqIdx = this.D.getSequenceIndex(this.names.get(n));
 		
 		// Loop over rate categories.
 		for (int j = 0; j < this.siteRates.getNoOfCategories(); j++) {
@@ -284,7 +288,7 @@ public class SubstitutionModel implements Model {
 				
 				// Compute likelihood.
 				DenseMatrix64F curr = pl.get(i, j);
-				int state = this.D.get(seqIdx, pos);
+				int state = this.D.getState(seqIdx, pos);
 				this.Q.getLeafLikelihood(state, curr);
 				i++;
 			}
@@ -301,14 +305,14 @@ public class SubstitutionModel implements Model {
 
 	@Override
 	public void clearCache(boolean willSample) {
-		this.likes.clearCache();
+		this.likelihoods.clearCache();
 		this.cacheModelLikelihood = null;
 	}
 
 
 	@Override
 	public void restoreCache(boolean willSample) {
-		this.likes.restoreCache();
+		this.likelihoods.restoreCache();
 		this.modelLikelihood = this.cacheModelLikelihood;
 		this.cacheModelLikelihood = null;
 	}

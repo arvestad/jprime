@@ -46,9 +46,9 @@ public class AdditionalEJMLOps {
 	}
 	
 	/**
-	 * Computes c=a*b where a is a (compacted) diagonal matrix and b a (typically) dense matrix.
+	 * Computes c=a*b where a is a (compacted) diagonal matrix and b is a (typically) dense matrix.
 	 * @param dim size of b is (dim,dim).
-	 * @param a diagonal matrix in compacted form. Should have size (dim,1).
+	 * @param a diagonal matrix in 'compacted' form. Should have size (dim,1).
 	 * @param b dense matrix. Should have size (dim,dim).
 	 * @param c output matrix. Should have size (dim,dim).
 	 */

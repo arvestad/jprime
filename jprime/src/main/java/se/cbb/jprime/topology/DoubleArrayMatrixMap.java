@@ -3,6 +3,7 @@ package se.cbb.jprime.topology;
 /**
  * Holds a double array for each pair (x,y) of vertices of a graph.
  * No generics for the sake of speed.
+ * See also <code>GenericMap</code>.
  * 
  * @author Joel Sjöstrand.
  */

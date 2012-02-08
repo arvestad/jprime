@@ -5,6 +5,7 @@ import se.cbb.jprime.mcmc.RealParameter;
 
 /**
  * Holds a double for each vertex of a graph. No generics for the sake of speed.
+ * See also <code>GenericMap</code>.
  * 
  * @author Joel Sjöstrand.
  */
