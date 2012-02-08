@@ -5,6 +5,7 @@ import se.cbb.jprime.mcmc.StateParameter;
 
 /**
  * Holds a string for each vertex of a graph. No generics for the sake of speed.
+ * See also <code>GenericMap</code>.
  * 
  * @author Joel Sjöstrand.
  */

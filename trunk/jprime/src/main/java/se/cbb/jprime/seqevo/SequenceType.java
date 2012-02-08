@@ -5,7 +5,9 @@ import org.ejml.data.DenseMatrix64F;
 
 /**
  * The various sequence types. These are used for substitution models,
- * and stems from C++ PrIME, although BioJava has similar stuff.
+ * and stems from C++ PrIME, although BioJava has similar stuff. In general,
+ * each state has both a character representation and an integer representation
+ * (the latter being the character's index in the alphabet).
  * 
  * @author Bengt Sennblad.
  * @author Lars Arvestad.
@@ -191,7 +193,7 @@ public enum SequenceType {
 	 * The size of the vector equals the alphabet size and the 
 	 * likelihood is the probability that the leaf is in a specific
 	 * state.
-	 * @param i character index.
+	 * @param i character index. May be an ambiguity state as well.
 	 * @return likelihood.
 	 */
 	public DenseMatrix64F getLeafLikelihood(int i) {

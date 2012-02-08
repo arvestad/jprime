@@ -78,7 +78,7 @@ public class GammaSiteRateHandler implements ProperDependent {
 			this.cacheRates = new double[this.rates.length];
 			System.arraycopy(this.rates, 0, this.cacheRates, 0, this.rates.length);
 			this.update();
-			changeInfos.put(this, new ChangeInfo(this, "SiteRateCategories updated."));
+			changeInfos.put(this, new ChangeInfo(this, "Gamma site rate categories updated."));
 		}
 	}
 
@@ -98,7 +98,7 @@ public class GammaSiteRateHandler implements ProperDependent {
 	 */
 	private void update() {
 		double k = this.k.getValue();
-		double theta = 1.0 / k;
+		double theta = 1.0 / k;  // Mean should always be 1.
 		assert k > 0;
 		assert theta > 0;
 		this.rates = Gamma.getDiscreteGammaCategories(this.nCat, k, theta);

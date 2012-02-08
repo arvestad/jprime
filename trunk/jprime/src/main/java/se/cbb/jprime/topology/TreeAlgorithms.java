@@ -12,10 +12,11 @@ public class TreeAlgorithms {
 
 	/**
 	 * Retrieves the set of vertices of the subtree of T spanned by the input
-	 * vertices and the root of T. The output vertices are returned in reverse topological order.
+	 * vertices and the root of T. The output vertices are returned in reverse topological order
+	 * (leaves to root).
 	 * @param T tree.
 	 * @param inputVertices subset of vertices of T (may or may not include the root).
-	 * @return vertices sorted.
+	 * @return vertices sorted in reverse topological order.
 	 */
 	public static int[] getSpanningRootSubtree(RootedTree T, int[] inputVertices) {
 		// First, find all affected vertices of T.

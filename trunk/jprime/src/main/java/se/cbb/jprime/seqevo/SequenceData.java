@@ -10,7 +10,7 @@ import org.ejml.data.DenseMatrix64F;
 import se.cbb.jprime.misc.Pair;
 
 /**
- * This handles a sequence data matrix (multiple sequence alignment)
+ * Handles a sequence data matrix (multiple sequence alignment)
  * of a specified sequence type (see <code>SequenceType</code>).
  * This matrix has rows corresponding to e.g. genes and 
  * columns corresponding to aligned positions of these genes. 
@@ -20,7 +20,7 @@ import se.cbb.jprime.misc.Pair;
  * where a column pattern is the key and the number of occurrences of this
  * pattern is the value.
  * <p/>
- * User defined partitions of data (e.g. different loci) are currently
+ * User defined partitions of data (e.g. independent loci) are currently
  * not supported, see below.
  * TODO: Bens: Add support for disjoint partitions of sequence data. Joel: Perhaps
  * that should be handled at a higher level? Seems reasonable that an
@@ -38,7 +38,10 @@ public class SequenceData {
 	/** Sequences as characters. */
 	private String[] dataAsStrings;
 	
-	/** Sequence alignment matrix coded as ints. [i][j] for position j in sequence i. */
+	/**
+	 * Sequence alignment matrix with states coded as ints. [i][j] for position j in sequence i.
+	 * Ambiguity characters may be represented by states beyond the alphabet size.
+	 */
 	private int[][] data;
 
 	/** Name-to-index mapping for sequences. */
@@ -69,7 +72,8 @@ public class SequenceData {
 		int i = 0;
 		for (Pair<String, String> seq : sequences) {
 			this.nameToKey.put(seq.first, i);
-			this.addData(seq.first, seq.second, i++);
+			this.addData(seq.first, seq.second, i);
+			i++;
 		}
 		this.updatePatterns();
 	}
@@ -114,7 +118,7 @@ public class SequenceData {
 			this.noOfPositions = sz;
 		}
 		
-		// Create integer representation.
+		// Create integer state representation.
 		this.data[seqIdx] = new int[sz];
 		int i = 0;
 		for (char c : this.dataAsStrings[seqIdx].toCharArray()) {
@@ -187,39 +191,41 @@ public class SequenceData {
 	}
 
 	/**
-	 * Returns the index of a sequence. NOTE: This is typically NOT
+	 * Returns the index of a sequence. NOTE: This is NOT necessarily
 	 * the same as the vertex number of a tree leaf corresponding to the sequence.
 	 * @param name sequence identifier.
 	 * @return the index of the sequence.
 	 */
-	public int getIndex(String name) {
+	public int getSequenceIndex(String name) {
 		return this.nameToKey.get(name);
 	}
 	
 	/**
-	 * Returns the integer index of a specific position of a specific sequence.
-	 * @param seqIdx the sequence index.
+	 * Returns the integer state of a specific position of a specific sequence.
+	 * @param seqIdx the sequence index. This is NOT necessarily
+	 * the same as the vertex number of a tree leaf corresponding to the sequence.
 	 * @param pos the position in the sequence.
 	 * @return the integer index of that character.
 	 */
-	public int get(int seqIdx, int pos) {
+	public int getState(int seqIdx, int pos) {
 		return this.data[seqIdx][pos];
 	}
 	
 	/**
-	 * Returns the integer index of a specific position of a specific sequence.
+	 * Returns the integer state of a specific position of a specific sequence.
 	 * @param name the sequence identifier.
 	 * @param pos the position in the sequence.
 	 * @return the integer index of that character.
 	 */
-	public int get(String name, int pos) {
+	public int getState(String name, int pos) {
 		assert this.nameToKey.keySet().contains(name);
 		return this.data[this.nameToKey.get(name)][pos];
 	}
 
 	/**
 	 * Returns the likelihood of a character at a specific index of a specific sequence.
-	 * @param seqIdx the sequence index.
+	 * @param seqIdx the sequence index. This is NOT necessarily
+	 * the same as the vertex number of a tree leaf corresponding to the sequence.
 	 * @param pos the position in the sequence
 	 * @return the likelihood.
 	 */
@@ -239,11 +245,11 @@ public class SequenceData {
 	}
 
 	/**
-	 * Returns a specific sequence. Codons are coded using internal representation.
+	 * Returns a specific sequence. Codons are coded using internal symbol representation.
 	 * @param name the sequence identifier.
 	 * @return sequence.
 	 */
-	public String get(String name) {
+	public String getSequence(String name) {
 		return this.dataAsStrings[this.nameToKey.get(name)];
 	}
 

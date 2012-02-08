@@ -12,7 +12,8 @@ import se.cbb.jprime.misc.BoundedRealMap;
 
 /**
  * Handles transition probabilities of a Markov process for molecular sequence evolution.
- * As such, it can be viewed as a representing a transition probability matrix P.
+ * As such, it can be viewed as a representing a momentary transition rate matrix Q, 
+ * as well as a transition probability matrix P for some user-set Markov time w.
  * <p/>
  * The momentary transition rate matrix Q can be decomposed into a
  * symmetric <i>exchangeability</i> matrix R and the vector of 
@@ -64,19 +65,19 @@ public class MatrixTransitionHandler {
 	/** Inverse of V. Size (dim,dim). */
 	private DenseMatrix64F iV;
 
-	/** Transition probability matrix (needs to be set for particular Markov time). Size (dim,dim). */
+	/** Transition probability matrix (updated frequently for different user times w). Size (dim,dim). */
 	private DenseMatrix64F P;
 
 	/** Temporary storage matrix. Size (dim,dim). */
 	private DenseMatrix64F tmp_matrix;
 
-	/** Temporary storage vector. */
+	/** Temporary storage vector. Size (dim,1). */
 	private DenseMatrix64F tmp_diagonal;
 
 	/** A cache for saving instances of P for varying times w to avoid recalculations. */
 	private BoundedRealMap<DenseMatrix64F> PCache;
 	
-	/** Small cache for ambiguity leaf likelihoods. */
+	/** Small cache for ambiguity leaf likelihoods. Cleared every time P i updated. */
 	private HashMap<Integer, DenseMatrix64F> ambigCache;
 
 	/**
@@ -93,7 +94,6 @@ public class MatrixTransitionHandler {
 		this.sequenceType = sequenceType;
 		this.alphabetSize = sequenceType.getAlphabetSize();
 		this.R = new DenseMatrix64F(alphabetSize * (alphabetSize - 1) / 2, 1, true, R_vec);
-		// TODO: Do we need to save Pi and R? /bens
 		this.Pi = new DenseMatrix64F(alphabetSize, 1, true, Pi_vec);
 		this.Q = new DenseMatrix64F(alphabetSize, alphabetSize);
 		this.E = new DenseMatrix64F(alphabetSize, 1);
@@ -143,7 +143,7 @@ public class MatrixTransitionHandler {
 	}
 
 	/**
-	 * Updates Q and the eigensystem to new values of R and Pi.
+	 * Updates Q and the eigensystem based on R and Pi.
 	 */
 	private void update() {
 		// Creates Q by means of R and Pi.
@@ -166,7 +166,7 @@ public class MatrixTransitionHandler {
 			}
 		}
 		
-		// Perform scaling of Q so that a branch length of 1 yields 1 expected event.
+		// Perform scaling of Q so that a branch length of w=1 yields 1 expected event.
 		double beta = 0;
 		for (int i = 0; i < this.alphabetSize; ++i) {
 			beta -= this.Pi.get(i) * this.Q.get(i, i);
@@ -175,12 +175,17 @@ public class MatrixTransitionHandler {
 		CommonOps.scale(beta, this.Q);
 		
 		// Solve eigensystem. NOTE: It is assumed solutions with imaginary parts will never be encountered.
-		// To avoid checks, we assume non-symmetric Q. Such models (JC69, etc.) are rarely used in practice anyway.
-		EigenDecomposition<DenseMatrix64F> eigFact = DecompositionFactory.eig(this.alphabetSize, true);
-		eigFact.decompose(this.Q);
+		// To avoid checks, we assume non-symmetric Q. Symmetric models (JC69, etc.) are rarely used in practice anyway.
+		EigenDecomposition<DenseMatrix64F> eigFact = DecompositionFactory.eigGeneral(this.alphabetSize, true);
+		if (!eigFact.decompose(this.Q)) {
+			throw new RuntimeException("Unable to decompose eigensystem for substitution model.");
+		}
 		AdditionalEJMLOps.getEigensystemSolution(this.alphabetSize, eigFact, this.E, this.V);
+		
 		// Compute inverse of V.
-		CommonOps.invert(this.V, this.iV);
+		if (!CommonOps.invert(this.V, this.iV)) {
+			throw new RuntimeException("Unable to invert matrix of eigenvectors in substitution model.");
+		}
 	}
 
 
@@ -197,7 +202,7 @@ public class MatrixTransitionHandler {
 		// actual max value. /bens
 		// TODO: Could we precondition on a reasonable MarkovTime?
 		if (w > MAX_MARKOV_TIME) {
-			w = MAX_MARKOV_TIME;
+			throw new IllegalArgumentException("In substitution model, cannot compute transition probability matrix P for too large Markov time w=" + w + ".");
 		}
 		
 		// Clear ambiguity cache.

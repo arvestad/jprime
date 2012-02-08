@@ -6,13 +6,13 @@ import org.jfree.util.PublicCloneable;
 /**
  * Holds the likelihoods of column patterns across one or more site rate categories
  * for a subtree.
- * Used by <code>SubstitutionModel</code> and <code>SiteRateHandler</code>.
+ * Used e.g. by <code>SubstitutionModel</code>.
  * <p/>
- * For each unique pattern i and site rate category j, there is a column-specific rate
- * hypotheses r, stored as a vector. Each element in r corresponds to a state s in the 
+ * For each unique pattern i and site rate category j, there is a vector r.
+ * Each element in r corresponds to a state s in the 
  * Markov substitution model, representing the probability of the Markov process starting
  * with s at the root of the subtree of interest, and yielding the state pattern
- * corresponding to position i at the leaves of the subtree.
+ * corresponding to position i at the leaves of the subtree (under the site rate of category j).
  * 
  * @author Joel Sjöstrand.
  * @author Bengt Sennblad.
