@@ -5,19 +5,21 @@ package se.cbb.jprime.seqevo;
  * TODO: the models JC69, etc. should be moved to another subclass
  * of TransitionHandler that implements analytical solutions of the
  * member functions.
+ * <p/>
+ * Note: Not a proper factory class yet, but maybe eventually.
  * 
  * @author Bengt Sennblad.
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class MatrixTransitionHandlerFactory {
+public class SubstitutionMatrixHandlerFactory {
 
 	/**
 	 * Convenience method for creating a known substitution model from
 	 * its string identifier.
 	 * @param model the identifier.
 	 */
-	public static MatrixTransitionHandler create(String model) {
+	public static SubstitutionMatrixHandler create(String model) {
 		model = model.toUpperCase();
 		if (model == "JC69") {
 			return createJC69();
@@ -38,7 +40,7 @@ public class MatrixTransitionHandlerFactory {
 	 * Returns the DNA model type described by Jukes & Cantor 1969.
 	 * @return the model type.
 	 */
-	public static MatrixTransitionHandler createJC69() {
+	public static SubstitutionMatrixHandler createJC69() {
 		double[] Pi = new double[4];
 		double[] R = new double[6];
 		for (int i = 0; i < 4; i++) {
@@ -49,7 +51,7 @@ public class MatrixTransitionHandlerFactory {
 			R[i] = 1.0;
 		}
 
-		return new MatrixTransitionHandler("JC69", SequenceType.DNA, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("JC69", SequenceType.DNA, R, Pi, 1000);
 	}
 
 	/**
@@ -57,7 +59,7 @@ public class MatrixTransitionHandlerFactory {
 	 * described by Jukes & Cantor 1969 for DNA.
 	 * @return the model type.
 	 */
-	public static MatrixTransitionHandler createUniformAA() {
+	public static SubstitutionMatrixHandler createUniformAA() {
 		double[] Pi = new double[20];
 		double[] R = new double[190];
 		for (int i = 0; i < 20; i++) {
@@ -66,14 +68,14 @@ public class MatrixTransitionHandlerFactory {
 		for (int i = 0; i < 190; i++) {
 			R[i] = 1.0;
 		}
-		return new MatrixTransitionHandler("UniformAA", SequenceType.AMINO_ACID, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("UniformAA", SequenceType.AMINO_ACID, R, Pi, 1000);
 	}
 
 	/**
 	 * Returns the model type described by Jones, Taylor and Thornton.
 	 * @return the model type.
 	 */
-	public static MatrixTransitionHandler createJTT() {
+	public static SubstitutionMatrixHandler createJTT() {
 		double[] Pi = {
 				0.077000, 0.051000, 0.043000, 0.052000, 
 				0.020000, 0.041000, 0.062000, 0.074000, 
@@ -124,7 +126,7 @@ public class MatrixTransitionHandlerFactory {
 				42.000
 		};
 
-		return new MatrixTransitionHandler("JTT", SequenceType.AMINO_ACID, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("JTT", SequenceType.AMINO_ACID, R, Pi, 1000);
 	}
 
 	/**
@@ -132,7 +134,7 @@ public class MatrixTransitionHandlerFactory {
 	 * described by Jukes & Cantor 1969 for DNA.
 	 * @return the model type.
 	 */
-	public static MatrixTransitionHandler createUniformCodon() {
+	public static SubstitutionMatrixHandler createUniformCodon() {
 		double[] Pi = new double[61];
 		double[] R = new double[1830];
 		for (int i = 0; i < 61; ++i) {
@@ -142,7 +144,7 @@ public class MatrixTransitionHandlerFactory {
 		for (int i = 0; i < 1830; ++i) {
 			R[i] = 1.0;
 		}
-		return new MatrixTransitionHandler("UniformCodon", SequenceType.CODON, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("UniformCodon", SequenceType.CODON, R, Pi, 1000);
 	}
 
 	/**
@@ -150,7 +152,7 @@ public class MatrixTransitionHandlerFactory {
 	 * described by Arvestad (unpublished).
 	 * @return the model type.
 	 */
-	public static MatrixTransitionHandler createArveCodon() {
+	public static SubstitutionMatrixHandler createArveCodon() {
 		double[] Pi = {
 				0.029921, 0.020764, 0.025687, 0.021398, 0.013549,
 				0.017641, 0.01023, 0.013274, 0.0107, 0.012081,
@@ -648,7 +650,7 @@ public class MatrixTransitionHandlerFactory {
 				0.00909159, 0.149512,
 				0.0149748
 		};
-		return new MatrixTransitionHandler("ArveCodon", SequenceType.CODON, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("ArveCodon", SequenceType.CODON, R, Pi, 1000);
 	}
 
 	/**
@@ -658,7 +660,7 @@ public class MatrixTransitionHandlerFactory {
 	 * @param r values of time-reversible rate matrix as if row-major, symmetric and lacking diagonal (size n*(n-1)/2).
 	 * @return the model type.
 	 */
-	public static MatrixTransitionHandler userDefined(String seqType, double[] pi, double[] r) {
+	public static SubstitutionMatrixHandler userDefined(String seqType, double[] pi, double[] r) {
 		SequenceType st = SequenceType.getSequenceType(seqType);
 		int dim = st.getAlphabetSize();
 		int r_dim = dim * (dim - 1) / 2;
@@ -667,7 +669,7 @@ public class MatrixTransitionHandlerFactory {
 		} else if (r.length != r_dim) {
 			throw new IllegalArgumentException("Invalid size of row-major time-reversible rate matrix R: " + r_dim);
 		}
-		return new MatrixTransitionHandler("USER-DEFINED", st, r, pi, 1000);
+		return new SubstitutionMatrixHandler("USER-DEFINED", st, r, pi, 1000);
 	}
 
 }

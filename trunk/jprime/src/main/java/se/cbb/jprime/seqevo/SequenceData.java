@@ -1,13 +1,12 @@
 package se.cbb.jprime.seqevo;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.biojava3.core.sequence.template.Compound;
+import org.biojava3.core.sequence.template.Sequence;
 import org.ejml.data.DenseMatrix64F;
-
-import se.cbb.jprime.misc.Pair;
 
 /**
  * Handles a sequence data matrix (multiple sequence alignment)
@@ -57,22 +56,31 @@ public class SequenceData {
 	private LinkedHashMap<String, int[]> patterns;
 	
 	/**
-	 * Constructor.
+	 * Private constructor.
 	 * @param seqType sequence type.
-	 * @param sequences sequences, name followed by sequence data.
+	 * @param sz number of sequences.
 	 */
-	public SequenceData(SequenceType seqType, List<Pair<String, String>> sequences) {
-		if (sequences.isEmpty()) {
+	private SequenceData(SequenceType seqType, int sz) {
+		if (sz <= 0) {
 			throw new IllegalArgumentException("Cannot create sequence data without any sequences.");
 		}
 		this.seqType = seqType;
-		this.nameToKey = new LinkedHashMap<String, Integer>(sequences.size());
-		this.dataAsStrings = new String[sequences.size()];
-		this.data = new int[sequences.size()][];
+		this.nameToKey = new LinkedHashMap<String, Integer>(sz);
+		this.dataAsStrings = new String[sz];
+		this.data = new int[sz][];
+	}
+	
+	/**
+	 * Constructor.
+	 * @param seqType sequence type.
+	 * @param sequences sequences.
+	 */
+	public SequenceData(SequenceType seqType, LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences) {
+		this(seqType, sequences.size());
 		int i = 0;
-		for (Pair<String, String> seq : sequences) {
-			this.nameToKey.put(seq.first, i);
-			this.addData(seq.first, seq.second, i);
+		for (Entry<String, ? extends Sequence<? extends Compound>> seq : sequences.entrySet()) {
+			String name = seq.getKey();
+			this.addData(name, seq.getValue().getSequenceAsString(), i);
 			i++;
 		}
 		this.updatePatterns();
@@ -91,6 +99,7 @@ public class SequenceData {
 	 * @param seqIdx the integer key of the sequence.
 	 */
 	private void addData(String name, String sequence, int seqIdx) {
+		this.nameToKey.put(name, seqIdx);
 		// Lower case internally.
 		sequence = sequence.toLowerCase();
 		int sz = -1;
@@ -163,7 +172,7 @@ public class SequenceData {
 	 * A codon triplet counts as 1 position.
 	 * @return no. of positions.
 	 */
-	public int getNumberOfPositions() {
+	public int getNoOfPositions() {
 		return this.noOfPositions;
 	}
 
@@ -171,7 +180,7 @@ public class SequenceData {
 	 * Returns the number of sequences.
 	 * @return no. of sequences.
 	 */
-	public int getNumberOfSequences() {
+	public int getNoOfSequences() {
 		return this.data.length;
 	}
 
@@ -207,7 +216,7 @@ public class SequenceData {
 	 * @param pos the position in the sequence.
 	 * @return the integer index of that character.
 	 */
-	public int getState(int seqIdx, int pos) {
+	public int getIntState(int seqIdx, int pos) {
 		return this.data[seqIdx][pos];
 	}
 	
@@ -217,11 +226,33 @@ public class SequenceData {
 	 * @param pos the position in the sequence.
 	 * @return the integer index of that character.
 	 */
-	public int getState(String name, int pos) {
+	public int getIntState(String name, int pos) {
 		assert this.nameToKey.keySet().contains(name);
 		return this.data[this.nameToKey.get(name)][pos];
 	}
 
+	/**
+	 * Returns the character state of a specific position of a specific sequence.
+	 * @param seqIdx the sequence index. This is NOT necessarily
+	 * the same as the vertex number of a tree leaf corresponding to the sequence.
+	 * @param pos the position in the sequence.
+	 * @return the character.
+	 */
+	public char getCharState(int seqIdx, int pos) {
+		return this.dataAsStrings[seqIdx].charAt(pos);
+	}
+	
+	/**
+	 * Returns the char state of a specific position of a specific sequence.
+	 * @param name the sequence identifier.
+	 * @param pos the position in the sequence.
+	 * @return the character.
+	 */
+	public char getCharState(String name, int pos) {
+		assert this.nameToKey.keySet().contains(name);
+		return this.dataAsStrings[this.nameToKey.get(name)].charAt(pos);
+	}
+	
 	/**
 	 * Returns the likelihood of a character at a specific index of a specific sequence.
 	 * @param seqIdx the sequence index. This is NOT necessarily

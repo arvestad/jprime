@@ -29,7 +29,7 @@ import se.cbb.jprime.misc.BoundedRealMap;
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class MatrixTransitionHandler {
+public class SubstitutionMatrixHandler {
 	
 	/** The maximum allowed time w on which transition rate matrix Q can act. */
 	public static final double MAX_MARKOV_TIME = 1000.0;
@@ -89,7 +89,7 @@ public class MatrixTransitionHandler {
 	 * @param Pi_vec stationary frequencies. Should have length dim, where dim is the alphabet length.
 	 * @param cacheSize number of P matrices to store in cache, e.g., 1000.
 	 */
-	public MatrixTransitionHandler(String modelName, SequenceType sequenceType, double[] R_vec, double[] Pi_vec, int cacheSize) {
+	public SubstitutionMatrixHandler(String modelName, SequenceType sequenceType, double[] R_vec, double[] Pi_vec, int cacheSize) {
 		this.modelName = modelName;
 		this.sequenceType = sequenceType;
 		this.alphabetSize = sequenceType.getAlphabetSize();
@@ -261,7 +261,7 @@ public class MatrixTransitionHandler {
 	 * @param Y resulting matrix Y=Pi*X. Should have size (dim,ncol).
 	 */
 	public void multiplyWithPi(DenseMatrix64F X, DenseMatrix64F Y) {
-		CommonOps.mult(this.Pi, X, Y);
+		AdditionalEJMLOps.multDiagA(this.alphabetSize, this.Pi, X, Y);
 	}
 
 

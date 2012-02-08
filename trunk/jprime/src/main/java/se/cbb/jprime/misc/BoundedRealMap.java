@@ -20,6 +20,28 @@ import java.util.List;
  */
 public class BoundedRealMap<K> {
 	
+	/** Precomputed prime numbers used for hashmap sizes. */ 
+	public static final int[] CENTERED_SQUARE_PRIMES = {
+		5, 13, 41, 61, 113, 181, 313, 421, 613, 761, 1013, 1201, 1301,
+		1741, 1861, 2113, 2381, 2521, 3121, 3613, 4513, 5101, 7321, 8581, 9661,
+		9941, 10513, 12641, 13613, 14281, 14621, 15313, 16381, 19013, 19801,
+		20201, 21013, 21841, 23981, 24421, 26681 };
+	
+	/**
+	 * Returns the next prime number larger than the input from
+	 * a list of precomputed values.
+	 * @param val the value.
+	 * @return the smallest prime number larger than or equal to val, or val itself if larger
+	 * than any precomputed value.
+	 */
+	private static int getNextPrime(int val) {
+		// Just linear search.
+		for (int prime : CENTERED_SQUARE_PRIMES) {
+			if (prime >= val) { return prime; }
+		}
+		return val;
+	}
+	
 	/**
 	 * Wrapper. Holds a key-value pair along with references
 	 * to previous and next element w.r.t. access.
@@ -68,7 +90,7 @@ public class BoundedRealMap<K> {
 			throw new IllegalArgumentException("Cannot create RealMap with zero capacity.");
 		}
 		this.maxSz = maxNoOfElements;
-		this.values = new HashMap<Long, BoundedRealMap<K>.Holder>(maxSz);
+		this.values = new HashMap<Long, BoundedRealMap<K>.Holder>(getNextPrime(maxNoOfElements));
 		this.oldest = null;
 		this.newest = null;
 		this.disallowEpsKeys = disallowEpsKeys;
