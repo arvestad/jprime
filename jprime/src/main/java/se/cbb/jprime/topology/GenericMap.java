@@ -41,19 +41,30 @@ public class GenericMap<T extends PublicCloneable> implements GraphMap, StatePar
 	public GenericMap(String name, int size) {
 		this.name = name;
 		this.values = new ArrayList<T>(size);
+		for (int i = 0; i < size; ++i) {
+			this.values.add(null);
+		}
 	}
 	
 	/**
 	 * Constructor.
 	 * @param name the map's name.
 	 * @param size the size of the map.
-	 * @param defaultVal default value for all elements.
+	 * @param defaultVal default value for all elements. The input object is cloned. May be null.
+	 * @throws CloneNotSupportedException.
 	 */
-	public GenericMap(String name, int size, T defaultVal) {
+	@SuppressWarnings("unchecked")
+	public GenericMap(String name, int size, T defaultVal) throws CloneNotSupportedException {
 		this.name = name;
 		this.values = new ArrayList<T>(size);
-		for (int i = 0; i < size; ++i) {
-			this.values.set(i, defaultVal);
+		if (defaultVal == null) {
+			for (int i = 0; i < size; ++i) {
+				this.values.add(null);
+			}
+		} else {
+			for (int i = 0; i < size; ++i) {
+				this.values.add((T) defaultVal.clone());
+			}
 		}
 	}
 	
@@ -61,7 +72,7 @@ public class GenericMap<T extends PublicCloneable> implements GraphMap, StatePar
 	 * Constructor.
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
-	 *             The internal list is copied element-wise from input.
+	 *             The internal list is copied element-wise from input. No cloning.
 	 */
 	public GenericMap(String name, List<T> vals) {
 		this.name = name;
@@ -69,7 +80,7 @@ public class GenericMap<T extends PublicCloneable> implements GraphMap, StatePar
 	}
 	
 	/**
-	 * Copy constructor.
+	 * Copy constructor. No cloning of the copied map's objects.
 	 * @param map the map to be copied.
 	 */
 	public GenericMap(GenericMap<T> map) {

@@ -49,7 +49,7 @@ public class SubstitutionModel implements Model {
 	private GammaSiteRateHandler siteRates;
 	
 	/** Transition rate matrix Q and, with it, P. */
-	private MatrixTransitionHandler Q;
+	private SubstitutionMatrixHandler Q;
 	
 	/** Tree. */
 	private RBTree T;
@@ -91,7 +91,7 @@ public class SubstitutionModel implements Model {
      * @param useRootArc if true, utilises the root arc ("stem") branch length when computing model
      *        likelihood; if false, discards the root arc.
      */
-    public SubstitutionModel(String name, SequenceData D, GammaSiteRateHandler siteRates, MatrixTransitionHandler Q,
+    public SubstitutionModel(String name, SequenceData D, GammaSiteRateHandler siteRates, SubstitutionMatrixHandler Q,
     		RBTree T, NamesMap names, DoubleMap branchLengths, boolean useRootArc) {
     	this.name = name;
     	this.D = D;
@@ -111,6 +111,8 @@ public class SubstitutionModel implements Model {
     	for (int n = 0; n < T.getNoOfVertices(); ++n) {
     		this.likelihoods.set(n, new PatternLikelihoods(noOfPatterns, noOfSiteRates, alphabetSize));
     	}
+    	this.updateLikelihood(this.T.getRoot(), true);
+		this.computeModelLikelihood();
     }
 
     @Override
@@ -288,7 +290,7 @@ public class SubstitutionModel implements Model {
 				
 				// Compute likelihood.
 				DenseMatrix64F curr = pl.get(i, j);
-				int state = this.D.getState(seqIdx, pos);
+				int state = this.D.getIntState(seqIdx, pos);
 				this.Q.getLeafLikelihood(state, curr);
 				i++;
 			}

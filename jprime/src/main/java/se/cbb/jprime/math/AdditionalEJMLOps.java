@@ -47,15 +47,15 @@ public class AdditionalEJMLOps {
 	
 	/**
 	 * Computes c=a*b where a is a (compacted) diagonal matrix and b is a (typically) dense matrix.
-	 * @param dim size of b is (dim,dim).
+	 * @param dim size of uncompacted a is (dim,dim).
 	 * @param a diagonal matrix in 'compacted' form. Should have size (dim,1).
-	 * @param b dense matrix. Should have size (dim,dim).
-	 * @param c output matrix. Should have size (dim,dim).
+	 * @param b dense matrix. Should have size (dim,k).
+	 * @param c output matrix. Should have size (dim,k).
 	 */
 	public static void multDiagA(int dim, DenseMatrix64F a, DenseMatrix64F b, DenseMatrix64F c) {
 		for (int i = 0; i < dim; ++i) {
 			double sc = a.get(i);
-			for (int j = 0; j < dim; ++j) {
+			for (int j = 0; j < b.numCols; ++j) {
 				c.set(i, j, sc * b.get(i, j));
 			}
 		}

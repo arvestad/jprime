@@ -5,6 +5,7 @@ import java.util.List;
 import org.biojava3.alignment.Alignments;
 import org.biojava3.alignment.template.Profile;
 import org.biojava3.core.sequence.DNASequence;
+import org.biojava3.core.sequence.MultipleSequenceAlignment;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.RNASequence;
 import org.biojava3.core.sequence.compound.AminoAcidCompound;
@@ -23,10 +24,11 @@ import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.seqevo.MultiAlignment;
 
 /**
- * Tree generator which computes a bifurcating Neighbour Joining (NJ) tree
- * based on sequence identity (not more fancy than that!).
+ * Tree generator which computes an (arbitrarily rooted) bifurcating Neighbour Joining (NJ) tree
+ * based on sequence identity (not more fancy sequence evolution than that!).
  * <p/>
  * Note: Heavy code reusage not using generics; just couldn't cope with sorting out the type mess...
+ * TODO: This class should be improved when BioJava is more stable.
  * 
  * @author Joel Sjöstrand.
  */
@@ -42,8 +44,16 @@ public class NeighbourJoiningTreeGenerator {
 	 * @return an inferred Newick tree with lengths.
 	 * @throws Exception.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(List<S> unalignedSeqs) throws Exception {
+	public static <S extends Sequence<C>, C extends Compound> String createNewickTreeString(List<S> unalignedSeqs) throws Exception {	
+		for (S seq : unalignedSeqs) {
+			if (seq.getAccession().getID().length() > 10) {
+				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~10 characters.");
+			}
+		}
+		
 		Profile<S, C> profile = Alignments.getMultipleSequenceAlignment(unalignedSeqs);
+		
+		// TODO: Should this really be here? /Joel.
 		ConcurrencyTools.shutdown();
 		
 		// Copy-paste...
@@ -85,6 +95,33 @@ public class NeighbourJoiningTreeGenerator {
 	 * @throws Exception.
 	 */
 	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(MultiAlignment<S, C> alignedSeqs) throws Exception {
+		for (S seq : alignedSeqs.getAlignedSequences()) {
+			if (seq.getAccession().getID().length() > 10) {
+				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~10 characters.");
+			}
+		}
+		TreeConstructor<S, C> treeConstructor =
+			new TreeConstructor<S, C>(alignedSeqs, TreeType.NJ, TreeConstructionAlgorithm.PID, new ProgessListenerStub());
+	    treeConstructor.process();
+	    return treeConstructor.getNewickString(true, true);
+	}
+	
+	/**
+	 * Creates a NJ Newick tree on string format (with some sort of lengths) using a list corresponding to an existing multialignment.
+	 * Based on sequence identity only. If you run into problems using this, try method where input is a <code>MultiAlignment</code>
+	 * rather than a <code>MultipleSequenceAlignment</code>.
+	 * @param <S> sequence type.
+	 * @param <C> compound type.
+	 * @param unalignedSeqs unaligned sequences.
+	 * @return an inferred Newick tree with lengths.
+	 * @throws Exception.
+	 */
+	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(MultipleSequenceAlignment<S, C> alignedSeqs) throws Exception {
+		for (S seq : alignedSeqs.getAlignedSequences()) {
+			if (seq.getAccession().getID().length() > 10) {
+				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~10 characters.");
+			}
+		}
 		TreeConstructor<S, C> treeConstructor =
 			new TreeConstructor<S, C>(alignedSeqs, TreeType.NJ, TreeConstructionAlgorithm.PID, new ProgessListenerStub());
 	    treeConstructor.process();
@@ -101,9 +138,8 @@ public class NeighbourJoiningTreeGenerator {
 	 * @return an inferred tree.
 	 * @throws Exception.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> NewickTree
-	createNewickTree(List<S> unalignedSeqs) throws Exception {
-		// HACK: Go detour via Newick string.
+	public static <S extends Sequence<C>, C extends Compound> NewickTree createNewickTree(List<S> unalignedSeqs) throws Exception {
+		// HACK: Go detour via Newick string format.
 		String nw = createNewickTreeString(unalignedSeqs);
 		return NewickTreeReader.readTree(nw, false);
 	}
@@ -119,6 +155,24 @@ public class NeighbourJoiningTreeGenerator {
 	 */
 	public static <S extends AbstractSequence<C>, C extends Compound> NewickTree
 	createNewickTree(MultiAlignment<S, C> alignedSeqs) throws Exception {
+		// HACK: Go detour via Newick string.
+		String nw = createNewickTreeString(alignedSeqs);
+		return NewickTreeReader.readTree(nw, false);
+	}
+	
+	/**
+	 * Creates a NJ tree using an existing multialignment.
+	 * Based on sequence identity only. If you run into problems using this,
+	 * try method where input is a <code>MultiAlignment</code>
+	 * rather than a <code>MultipleSequenceAlignment</code>.
+	 * @param <S> sequence type.
+	 * @param <C> compound type.
+	 * @param unalignedSeqs unaligned sequences.
+	 * @return an inferred tree.
+	 * @throws Exception.
+	 */
+	public static <S extends AbstractSequence<C>, C extends Compound> NewickTree
+	createNewickTree(MultipleSequenceAlignment<S, C> alignedSeqs) throws Exception {
 		// HACK: Go detour via Newick string.
 		String nw = createNewickTreeString(alignedSeqs);
 		return NewickTreeReader.readTree(nw, false);
