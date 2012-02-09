@@ -134,6 +134,25 @@ public class RBTreeBranchSwapper implements Proposer {
 		return null;
 	}
 	
+	/**
+	 * Asserts that all vertices are present and unique.
+	 * @return true if all presents
+	 */
+	private boolean verticesAreUnique() {
+		String nw = this.T.toString().replace(")", ",").replace("(", "").replace(";", "");
+		String[] vertices = nw.split(",");
+		if (vertices.length != this.T.getNoOfVertices()) {
+			return false;
+		}
+		HashSet<String> visited = new HashSet<String>(vertices.length);
+		for (String x : vertices) {
+			if (!visited.add(x)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
 		// First determine move to make.
@@ -158,6 +177,7 @@ public class RBTreeBranchSwapper implements Proposer {
 			this.doReroot();
 		}
 		//System.out.println("\n" + this.T.getSampleValue());
+		assert this.verticesAreUnique();
 		
 		// Note changes. Just say that all sub-parameters have changed.
 		ArrayList<StateParameter> affected = new ArrayList<StateParameter>(3);
@@ -480,14 +500,15 @@ public class RBTreeBranchSwapper implements Proposer {
 			assert(this.times.getVertexTime(u_s) < this.times.getVertexTime(u_p));
 		}
 
-		int u_c_new = this.prng.nextInt(treeSize);	// Hang on u to the arc above this vertex.
+		// Hang on u to the arc above this vertex.
+		int u_c_new = this.prng.nextInt(treeSize);
 
 		// Loop until valid.
 		// u must not be hung to a vertex in its own subtree!
 		while (this.T.isRoot(u_c_new) || this.isInSubtree(u_c_new, u)) {
 			u_c_new = this.prng.nextInt(treeSize);
 		}
-
+		
 		// Time heuristics stuff.
 		double u_nodeTimeBefore = Double.NaN;
 		double b_prime = Double.NaN;
@@ -503,11 +524,11 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 		
 		// Do the SPR move.
-		int u_c_new_p = this.T.getParent(u_c_new);
-		int u_c_new_s = this.T.getSibling(u_c_new);		
 		this.T.setChildren(u_p, u_oc, u_s);
 		this.T.setParent(u_oc, u_p);
 		this.T.setParent(u_s, u_p);
+		int u_c_new_p = this.T.getParent(u_c_new);   // Order seems to matter when u_s=u_c_new:
+		int u_c_new_s = this.T.getSibling(u_c_new);  // must make above move first! / Joel
 		this.T.setChildren(u, u_c, u_c_new);
 		this.T.setParent(u_c, u);
 		this.T.setParent(u_c_new, u);

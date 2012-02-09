@@ -25,8 +25,9 @@ import se.cbb.jprime.math.RealInterval.Type;
  * <p/>
  * The proposer relies on two user-defined tuning parameters, t1 and t2, which define the variance v of
  * the proposal distribution: v is chosen so that for m > 0, Pr[(1-t1)*m < Y < (1+t1)*m] = t2. For instance, with
- * t1 = 0.5 and t2 = 0.6, the proposed value Y will in 60% of the cases be at most 50% greater or smaller
- * than the previous value m. For m < 0, the case is analogous, whereas for m = 0, a small epsilon proposal variance
+ * t1 = 0.5 and t2 = 0.6, the proposed value Y will be at most 50% greater or smaller
+ * than the previous value m in 60% of the cases. For m < 0, the case is analogous, whereas for m = 0, a
+ * small epsilon proposal variance
  * is used. For bounded domains, v is chosen as if not truncated and sampling is repeated until within the domain. 
  * 
  * @author Joel Sjöstrand.

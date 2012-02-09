@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import org.biojava3.core.sequence.io.FastaReaderHelper;
-import org.biojava3.core.sequence.template.AbstractSequence;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
@@ -218,7 +217,7 @@ public class ParameterParser {
 				NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(new MultiAlignment(seqs, false));
 				g = new RBTree(gRaw, "GuestTree");
 				gNames = gRaw.getVertexNamesMap(true, "GuestTreeNames");
-				gLengths = new DoubleMap("branchlengths", g.getNoOfVertices(), 0.1);
+				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
 			} else if (ps.guestTree.equalsIgnoreCase("UNIFORM")) {
 				// Uniformly drawn tree.
 				Pair<RBTree, NamesMap> gn = UniformRBTreeGenerator.createUniformTree("GuestTree", new ArrayList<String>(gsMap.getAllGuestLeafNames()), prng);
@@ -270,8 +269,8 @@ public class ParameterParser {
 		// TODO: Implement more PDs.
 		
 		boolean isUni = ps.edgeRatePD.equalsIgnoreCase("UNIFORM");
-		double d1 = (ps.edgeRatePDMean != null ? Double.parseDouble(ps.edgeRatePDMean.replaceFirst("FIXED|Fixed|fixed", "")) : (isUni ? 0.0 : 0.4));
-		double d2 = (ps.edgeRatePDCV != null ? Double.parseDouble(ps.edgeRatePDCV.replaceFirst("FIXED|Fixed|fixed", "")) : (isUni ? 5.0 : 0.7));
+		double d1 = (ps.edgeRatePDMean != null ? Double.parseDouble(ps.edgeRatePDMean.replaceFirst("FIXED|Fixed|fixed", "")) : (isUni ? 0.0 : 0.5));
+		double d2 = (ps.edgeRatePDCV != null ? Double.parseDouble(ps.edgeRatePDCV.replaceFirst("FIXED|Fixed|fixed", "")) : (isUni ? 5.0 : 0.5));
 		DoubleParameter p1 = new DoubleParameter(isUni ? "EdgeRateLowerBound" : "EdgeRateMean", d1);
 		DoubleParameter p2 = new DoubleParameter(isUni ? "EdgeRateUpperBound" : "EdgeRateCV", d2);
 		
