@@ -386,8 +386,9 @@ public class MCMCManager implements Sampleable {
 			.append(""+ns).append(" ns = ")
 			.append(df.format(s)).append(" s = ")
 			.append(df.format(h)).append(" min\n");
-		buff.append("Best encountered state: ").append(this.sampler.getSampleHeader(this.sampleables)).append('\n');
-		buff.append("                        ").append(this.bestState).append("\n\n");
+		buff.append("Best encountered state:\n")
+			.append('\t').append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
+			.append('\t').append(this.bestState).append("\n\n");
 		String prefix = "";
 		buff.append(this.prng.getPostInfo(prefix)).append('\n');
 		buff.append(this.iteration.getPostInfo(prefix)).append('\n');

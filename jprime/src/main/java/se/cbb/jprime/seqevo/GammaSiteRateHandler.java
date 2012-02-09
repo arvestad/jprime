@@ -44,6 +44,9 @@ public class GammaSiteRateHandler implements ProperDependent {
 	 * @param noOfCats the number of categories.
 	 */
 	public GammaSiteRateHandler(DoubleParameter k, int noOfCats) {
+		if (noOfCats < 1) {
+			throw new IllegalArgumentException("Invalid number of discrete gamma site rate categories: " + noOfCats + ".");
+		}
 		this.k = k;
 		this.nCat = noOfCats;
 		this.rates = new double[noOfCats];

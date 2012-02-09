@@ -23,7 +23,7 @@ public class TestSequenceData {
 		// Read FASTA file.
 		URL url = this.getClass().getResource("/phylogenetics/56.pep.align");
 		LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs = FastaReaderHelper.readFastaProteinSequence(new File(url.getFile()));
-		SequenceData D = new SequenceData(SequenceType.AMINO_ACID, seqs);
+		MSAData D = new MSAData(SequenceType.AMINO_ACID, seqs);
 		int sz = D.getNoOfSequences();
 		assertEquals(9, sz);
 		int i;

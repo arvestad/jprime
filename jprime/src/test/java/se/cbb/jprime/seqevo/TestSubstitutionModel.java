@@ -1,10 +1,11 @@
 package se.cbb.jprime.seqevo;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 
-import org.biojava3.core.sequence.MultipleSequenceAlignment;
 import org.biojava3.core.sequence.ProteinSequence;
 import org.biojava3.core.sequence.compound.AminoAcidCompound;
 import org.biojava3.core.sequence.io.FastaReaderHelper;
@@ -30,7 +31,7 @@ public class TestSubstitutionModel {
 		// Read FASTA file.
 		URL url = this.getClass().getResource("/phylogenetics/56.pep.align");
 		LinkedHashMap<String, ProteinSequence> seqs = FastaReaderHelper.readFastaProteinSequence(new File(url.getFile()));
-		SequenceData D = new SequenceData(SequenceType.AMINO_ACID, seqs);
+		MSAData D = new MSAData(SequenceType.AMINO_ACID, seqs);
 		
 		// Site rates and matrix.
 		GammaSiteRateHandler siteRates = new GammaSiteRateHandler(new DoubleParameter("k", 3.0), 4);
@@ -40,8 +41,8 @@ public class TestSubstitutionModel {
 		MultiAlignment<ProteinSequence, AminoAcidCompound> msa = new MultiAlignment<ProteinSequence, AminoAcidCompound>(false);
 		for (ProteinSequence seq : seqs.values()) {
 			msa.addAlignedSequence(seq);
-			String name = seq.getOriginalHeader();
-			System.out.println(name);
+			//String name = seq.getOriginalHeader();
+			//System.out.println(name);
 		}
 		NewickTree rawT = NeighbourJoiningTreeGenerator.createNewickTree(msa);
 		RBTree T = new RBTree(rawT, "T");
@@ -51,7 +52,8 @@ public class TestSubstitutionModel {
 		// Model.
 		SubstitutionModel sm = new SubstitutionModel("JTT", D, siteRates, Q, T, names, bls, true);
 		LogDouble L = sm.getLikelihood();
-		System.out.println(L);
+		assertTrue(L.greaterThan(0.0));
+		assertTrue(L.lessThan(1.0));
 	}
 }
 

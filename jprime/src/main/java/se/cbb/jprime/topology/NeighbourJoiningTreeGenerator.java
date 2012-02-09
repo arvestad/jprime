@@ -34,6 +34,9 @@ import se.cbb.jprime.seqevo.MultiAlignment;
  */
 public class NeighbourJoiningTreeGenerator {
 
+	/** Stupid limit beyond which it seems external NJ routine cuts off names. */
+	public static final int MAX_ACCESSION_LENGTH = 14;
+	
 	/**
 	 * Creates a NJ Newick tree on string format (with some sort of lengths) using a list of unaligned sequences.
 	 * Based on sequence identity only.
@@ -46,8 +49,8 @@ public class NeighbourJoiningTreeGenerator {
 	 */
 	public static <S extends Sequence<C>, C extends Compound> String createNewickTreeString(List<S> unalignedSeqs) throws Exception {	
 		for (S seq : unalignedSeqs) {
-			if (seq.getAccession().getID().length() > 10) {
-				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~10 characters.");
+			if (seq.getAccession().getID().length() > MAX_ACCESSION_LENGTH) {
+				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~" + MAX_ACCESSION_LENGTH + " characters.");
 			}
 		}
 		
@@ -96,8 +99,8 @@ public class NeighbourJoiningTreeGenerator {
 	 */
 	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(MultiAlignment<S, C> alignedSeqs) throws Exception {
 		for (S seq : alignedSeqs.getAlignedSequences()) {
-			if (seq.getAccession().getID().length() > 10) {
-				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~10 characters.");
+			if (seq.getAccession().getID().length() > MAX_ACCESSION_LENGTH) {
+				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~" + MAX_ACCESSION_LENGTH + " characters.");
 			}
 		}
 		TreeConstructor<S, C> treeConstructor =
@@ -118,8 +121,8 @@ public class NeighbourJoiningTreeGenerator {
 	 */
 	public static <S extends AbstractSequence<C>, C extends Compound> String createNewickTreeString(MultipleSequenceAlignment<S, C> alignedSeqs) throws Exception {
 		for (S seq : alignedSeqs.getAlignedSequences()) {
-			if (seq.getAccession().getID().length() > 10) {
-				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~10 characters.");
+			if (seq.getAccession().getID().length() > MAX_ACCESSION_LENGTH) {
+				throw new IllegalArgumentException("Cannot create NJ tree from sequences: Stupid NJ routine won't accept accession IDs longer than ~" + MAX_ACCESSION_LENGTH + " characters.");
 			}
 		}
 		TreeConstructor<S, C> treeConstructor =

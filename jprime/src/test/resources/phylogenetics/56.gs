@@ -1,9 +1,9 @@
-dwil_GLEAN_17706	dwil
-dmoj_GLEAN_21035	dmoj
-dgri_GLEAN_20980	dgri
-dvir_GLEAN_03818	dvir
-dpse_GLEAN_13408	dpse
-dana_GLEAN_11018	dana
-dyak_GLEAN_20149	dyak
-dere_GLEAN_03260	dere
+dwil_GLEAN	dwil
+dmoj_GLEAN	dmoj
+dgri_GLEAN	dgri
+dvir_GLEAN	dvir
+dpse_GLEAN	dpse
+dana_GLEAN	dana
+dyak_GLEAN	dyak
+dere_GLEAN	dere
 CG9675-PA	dmel

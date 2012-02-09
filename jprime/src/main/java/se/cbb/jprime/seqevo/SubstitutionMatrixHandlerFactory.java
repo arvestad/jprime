@@ -1,5 +1,7 @@
 package se.cbb.jprime.seqevo;
 
+import se.cbb.jprime.io.SampleDoubleArray;
+
 /**
  * Creates matrix handlers corresponding to various substitution models.
  * TODO: the models JC69, etc. should be moved to another subclass
@@ -20,7 +22,7 @@ public class SubstitutionMatrixHandlerFactory {
 	 * @param model the identifier.
 	 */
 	public static SubstitutionMatrixHandler create(String model) {
-		model = model.toUpperCase();
+		model = model.trim().toUpperCase();
 		if (model == "JC69") {
 			return createJC69();
 		} else if (model == "UNIFORMAA") {
@@ -31,6 +33,14 @@ public class SubstitutionMatrixHandlerFactory {
 			return createUniformCodon();
 		} else if (model == "ARVECODON") {
 			return createArveCodon();
+		} else if (model.startsWith("USERDEFINED")) {
+			// TODO: Clean-up.
+			// HACK! Assumes string like "USERDEFINED=DNA;[pi1,...,pik];[r1,...,rj]".
+			String seqType = model.substring(model.indexOf("=")+1, model.indexOf(";"));
+			String pi = model.substring(model.indexOf(";")+1, model.indexOf(";", 22));
+			String r = model.substring(model.indexOf(";", 22)+1);
+			return createUserDefined(seqType,
+					SampleDoubleArray.toDoubleArray(pi), SampleDoubleArray.toDoubleArray(r));
 		} else {
 			throw new IllegalArgumentException("Cannot create unknown substitution model: " + model);
 		}
@@ -660,7 +670,7 @@ public class SubstitutionMatrixHandlerFactory {
 	 * @param r values of time-reversible rate matrix as if row-major, symmetric and lacking diagonal (size n*(n-1)/2).
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler userDefined(String seqType, double[] pi, double[] r) {
+	public static SubstitutionMatrixHandler createUserDefined(String seqType, double[] pi, double[] r) {
 		SequenceType st = SequenceType.getSequenceType(seqType);
 		int dim = st.getAlphabetSize();
 		int r_dim = dim * (dim - 1) / 2;

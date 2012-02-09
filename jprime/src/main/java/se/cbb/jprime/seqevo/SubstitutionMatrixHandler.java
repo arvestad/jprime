@@ -103,7 +103,7 @@ public class SubstitutionMatrixHandler {
 		this.tmp_matrix = new DenseMatrix64F(alphabetSize, alphabetSize);
 		this.tmp_diagonal = new DenseMatrix64F(alphabetSize, 1);
 		this.PCache = new BoundedRealMap<DenseMatrix64F>(cacheSize, true);
-		this.ambigCache = new HashMap<Integer, DenseMatrix64F>(32);
+		this.ambigCache = new HashMap<Integer, DenseMatrix64F>(14);  // Not more than at most ~14 different ambiguity characters.
 		this.update();
 	}
 
@@ -114,7 +114,7 @@ public class SubstitutionMatrixHandler {
 	 * @param sd sequence data.
 	 * @return true if compatible; false if incompatible.
 	 */
-	public boolean isCompatible(SequenceData sd) {
+	public boolean isCompatible(MSAData sd) {
 		return (this.sequenceType == sd.getSequenceType());
 	}
 

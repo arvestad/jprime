@@ -1,7 +1,10 @@
 package se.cbb.jprime.apps.gsrf;
 
 import java.io.BufferedWriter;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
+
+import org.biojava3.core.sequence.template.Compound;
+import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
@@ -16,7 +19,13 @@ import se.cbb.jprime.mcmc.MultiProposerSelector;
 import se.cbb.jprime.mcmc.NormalProposer;
 import se.cbb.jprime.mcmc.ProposalAcceptor;
 import se.cbb.jprime.mcmc.Thinner;
+import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.misc.Triple;
+import se.cbb.jprime.seqevo.GammaSiteRateHandler;
+import se.cbb.jprime.seqevo.MSAData;
+import se.cbb.jprime.seqevo.SubstitutionMatrixHandler;
+import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
+import se.cbb.jprime.seqevo.SubstitutionModel;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.MPRMap;
@@ -60,6 +69,12 @@ public class GSRf {
 			// Read S and t.
 			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params);
 			
+			// Substitution model first, then sequence alignment D and site rates.
+			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel);
+			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
+			MSAData D = new MSAData(Q.getSequenceType(), sequences);
+			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
+			
 			// Read guest-to-host leaf map.
 			GuestHostMap gsMap = ParameterParser.getGSMap(params);
 			
@@ -71,7 +86,7 @@ public class GSRf {
 			PRNG prng = ParameterParser.getPRNG(params);
 			
 			// Read/create G and l.
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, null);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences);
 			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
@@ -91,6 +106,9 @@ public class GSRf {
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
 			
+			// Substitution model. NOTE: Root arc is turned on!!!!
+			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true);
+			
 			// GSRf model.
 			GSRfModel gsrf = new GSRfModel(gNamesLengths.first, sNamesTimes.first, mprMap, gNamesLengths.third, dtimes, dupLoss.third, edgeRatePD.third);
 			
@@ -99,6 +117,7 @@ public class GSRf {
 			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
 			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
 			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
+			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
 			RBTreeBranchSwapper guestTreeProposer = ParameterParser.getBranchSwapper(gNamesLengths.first, gNamesLengths.third, iter, prng);
 			double[] moves = SampleDoubleArray.toDoubleArray(params.tuningGuestTreeMoveWeights);
 			guestTreeProposer.setOperationWeights(moves[0], moves[1], moves[2]);
@@ -112,6 +131,7 @@ public class GSRf {
 			selector.add(lossRateProposer, ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
 			selector.add(edgeRateMeanProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
 			selector.add(edgeRateCVProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
+			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
 			selector.add(guestTreeProposer, ParameterParser.getProposerWeight(params.tuningWeightG, iter));
 			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
@@ -120,6 +140,7 @@ public class GSRf {
 			if (params.lossRate != null       && params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
 			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
 			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
+			if (params.siteRateCats == 1      || params.siteRateShape.matches("FIXED|Fixed|fixed"))  { siteRateShapeProposer.setEnabled(false); }
 			if (params.guestTreeFixed)                                                               { guestTreeProposer.setEnabled(false); }
 			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
 			
@@ -131,15 +152,20 @@ public class GSRf {
 			MCMCManager manager = new MCMCManager(iter, thinner, selector, acceptor, sampler, prng);
 			manager.setDebugMode(params.debug);
 			
+			manager.addModel(sm);
 			manager.addModel(gsrf);
 			
 			manager.addSampleable(iter);
 			manager.addSampleable(manager);			// Overall likelihood.
+			manager.addSampleable(sm);
 			manager.addSampleable(gsrf);
 			manager.addSampleable(dupLoss.first);
 			manager.addSampleable(dupLoss.second);
 			manager.addSampleable(edgeRatePD.first);
 			manager.addSampleable(edgeRatePD.second);
+			if (siteRateShapeProposer.isEnabled()) {
+				manager.addSampleable(siteRates.first);
+			}
 			manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second));
 			if (params.outputLengths) {
 				manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second, gNamesLengths.third));

@@ -6,9 +6,12 @@ import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
+import org.biojava3.core.sequence.io.FastaReaderHelper;
 import org.biojava3.core.sequence.template.AbstractSequence;
 import org.biojava3.core.sequence.template.Compound;
+import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.NewickTree;
@@ -37,7 +40,9 @@ import se.cbb.jprime.mcmc.RealParameter;
 import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.misc.Triple;
+import se.cbb.jprime.seqevo.GammaSiteRateHandler;
 import se.cbb.jprime.seqevo.MultiAlignment;
+import se.cbb.jprime.seqevo.SequenceType;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.MPRMap;
@@ -95,9 +100,20 @@ public class ParameterParser {
 		}
 	}
 	
-	public static String getMultialignment(Parameters ps) {
-		// TODO: Implement.
-		return null;
+	/**
+	 * Reads the MSA.
+	 * @param ps parameters.
+	 * @param seqType sequence type.
+	 * @return MSA.
+	 * @throws Exception.
+	 */
+	public static LinkedHashMap<String, ? extends Sequence<? extends Compound>> getMultialignment(Parameters ps, SequenceType seqType) throws Exception {
+		File f = new File(ps.files.get(1));
+		if (seqType == SequenceType.DNA || seqType == SequenceType.CODON) {
+			return FastaReaderHelper.readFastaDNASequence(f);
+		} else {
+			return FastaReaderHelper.readFastaProteinSequence(f);
+		}
 	}
 	
 	/**
@@ -111,6 +127,17 @@ public class ParameterParser {
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid guest-to-host leaf map.", e);
 		}
+	}
+	
+	/**
+	 * Returns site rates.
+	 * @param ps parameters.
+	 * @return site rates.
+	 */
+	public static Pair<DoubleParameter, GammaSiteRateHandler> getSiteRates(Parameters ps) {
+		DoubleParameter k = new DoubleParameter("SiteRateShape", Double.parseDouble(ps.siteRateShape));
+		GammaSiteRateHandler sr = new GammaSiteRateHandler(k, ps.siteRateCats);
+		return new Pair<DoubleParameter, GammaSiteRateHandler>(k, sr);
 	}
 	
 	/**
@@ -179,15 +206,16 @@ public class ParameterParser {
 	 * @param alignment alignment of sequances.
 	 * @return guest tree, names and branch lengths.
 	 */
-	public static <S extends AbstractSequence<C>, C extends Compound> Triple<RBTree, NamesMap, DoubleMap>
-		getGuestTreeAndLengths(Parameters ps, GuestHostMap gsMap, PRNG prng, MultiAlignment<S, C> alignment) {
+	public static Triple<RBTree, NamesMap, DoubleMap>
+		getGuestTreeAndLengths(Parameters ps, GuestHostMap gsMap, PRNG prng, LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs) {
 		try {
 			RBTree g;
 			NamesMap gNames;
 			DoubleMap gLengths;
 			if (ps.guestTree == null || ps.guestTree.equalsIgnoreCase("NJ")) {
 				// "Randomly rooted" NJ tree. Produced lengths seem suspicious, so we won't use'em.
-				NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(alignment);
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(new MultiAlignment(seqs, false));
 				g = new RBTree(gRaw, "GuestTree");
 				gNames = gRaw.getVertexNamesMap(true, "GuestTreeNames");
 				gLengths = new DoubleMap("branchlengths", g.getNoOfVertices(), 0.1);
@@ -277,7 +305,7 @@ public class ParameterParser {
 			// Try to find a small but sufficient number of stem points to accommodate all
 			// duplications in the stem during G perturbation.
 			int h = (int) Math.round(Math.log((double) G.getNoOfLeaves()) / Math.log(2.0));
-			ps.discStem = Math.min(h + 5, 30);
+			ps.discStem = Math.min(h + 8, 30);
 		}
 		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, ps.discTimestep, ps.discStem);
 	}

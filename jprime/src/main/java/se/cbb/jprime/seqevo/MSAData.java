@@ -9,9 +9,9 @@ import org.biojava3.core.sequence.template.Sequence;
 import org.ejml.data.DenseMatrix64F;
 
 /**
- * Handles a sequence data matrix (multiple sequence alignment)
+ * Handles multiple sequence alignment (MSA) data
  * of a specified sequence type (see <code>SequenceType</code>).
- * This matrix has rows corresponding to e.g. genes and 
+ * The data is kept in a matrix with rows corresponding to e.g. genes and 
  * columns corresponding to aligned positions of these genes. 
  * <p/>
  * The class provides methods for accessing the data and 
@@ -29,7 +29,7 @@ import org.ejml.data.DenseMatrix64F;
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class SequenceData {
+public class MSAData {
 
 	/** Underlying sequence type. */
 	private SequenceType seqType;
@@ -60,7 +60,7 @@ public class SequenceData {
 	 * @param seqType sequence type.
 	 * @param sz number of sequences.
 	 */
-	private SequenceData(SequenceType seqType, int sz) {
+	private MSAData(SequenceType seqType, int sz) {
 		if (sz <= 0) {
 			throw new IllegalArgumentException("Cannot create sequence data without any sequences.");
 		}
@@ -75,7 +75,7 @@ public class SequenceData {
 	 * @param seqType sequence type.
 	 * @param sequences sequences.
 	 */
-	public SequenceData(SequenceType seqType, LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences) {
+	public MSAData(SequenceType seqType, LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences) {
 		this(seqType, sequences.size());
 		int i = 0;
 		for (Entry<String, ? extends Sequence<? extends Compound>> seq : sequences.entrySet()) {

@@ -43,7 +43,7 @@ public class SubstitutionModel implements Model {
 	private String name;
 	
 	/** Sequence data (MSA). */
-	private SequenceData D;
+	private MSAData D;
 	
 	/** Rate variation across sites. */
 	private GammaSiteRateHandler siteRates;
@@ -91,7 +91,7 @@ public class SubstitutionModel implements Model {
      * @param useRootArc if true, utilises the root arc ("stem") branch length when computing model
      *        likelihood; if false, discards the root arc.
      */
-    public SubstitutionModel(String name, SequenceData D, GammaSiteRateHandler siteRates, SubstitutionMatrixHandler Q,
+    public SubstitutionModel(String name, MSAData D, GammaSiteRateHandler siteRates, SubstitutionMatrixHandler Q,
     		RBTree T, NamesMap names, DoubleMap branchLengths, boolean useRootArc) {
     	this.name = name;
     	this.D = D;
@@ -108,7 +108,7 @@ public class SubstitutionModel implements Model {
     	this.likelihoods = new GenericMap<PatternLikelihoods>(names + "Likelihoods", noOfVertices);
     	this.modelLikelihood = new LogDouble(0.0);
     	this.tmp = new DenseMatrix64F(alphabetSize, 1);
-    	for (int n = 0; n < T.getNoOfVertices(); ++n) {
+    	for (int n = 0; n < noOfVertices; ++n) {
     		this.likelihoods.set(n, new PatternLikelihoods(noOfPatterns, noOfSiteRates, alphabetSize));
     	}
     	this.updateLikelihood(this.T.getRoot(), true);
