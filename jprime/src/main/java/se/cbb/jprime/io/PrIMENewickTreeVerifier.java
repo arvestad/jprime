@@ -17,7 +17,7 @@ import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
 public class PrIMENewickTreeVerifier {
 
 	/** Max time discrepancy allowed for two vertex times to be considered equal. */
-	public static double MAX_TIME_DIFF = 1e-4;
+	public static double MAX_TIME_DIFF = 5e-3;
 	
 	/** The tree instance to perform sanity checks on. */
 	private PrIMENewickTree tree;
@@ -232,7 +232,8 @@ public class PrIMENewickTreeVerifier {
 				if (Double.isNaN(times[anc])) {
 					times[anc] = t;
 				} else if (Math.abs(times[anc] - t) > MAX_TIME_DIFF) {
-					throw new NewickIOException("Incompatible arc times in children of vertex " + anc +'.');
+					throw new NewickIOException("Incompatible arc times in children of vertex " + anc
+							+ ". Time diff is " + Math.abs(times[anc] - t) + ".");
 				}
 			}
 		}

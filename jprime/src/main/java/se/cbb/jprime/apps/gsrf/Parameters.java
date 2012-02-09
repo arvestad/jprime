@@ -69,12 +69,12 @@ public class Parameters {
 	
 	/** Edge rate distribution parameter 1. */
 	@Parameter(names = {"-erpdm", "--edgeratepdmean"}, description = "Mean for relaxed clock probability distribution. If UNIFORM," +
-			"refers to lower bound (a,...) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: 0.4 or 0 if UNIFORM.")
+			"refers to lower bound (a,...) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: 0.5 or 0 if UNIFORM.")
 	public String edgeRatePDMean = null;
 	
 	/** Edge rate distribution parameter 2. */
 	@Parameter(names = {"-erpdcv", "--edgeratepdcv"}, description = "Coefficient of variation (CV) for relaxed clock probability distribution. If UNIFORM," +
-			"refers to upper bound (...,b) instead. Append with FIXED for no perturbation, e.g. 1.2FIXED. Default: 0.7, or 5.0 if UNIFORM.")
+			"refers to upper bound (...,b) instead. Append with FIXED for no perturbation, e.g. 1.2FIXED. Default: 0.5, or 5.0 if UNIFORM.")
 	public String edgeRatePDCV = null;
 	
 	/** Gamma site rate categories. */
@@ -85,7 +85,7 @@ public class Parameters {
 	/** Edge rate distribution parameter 1. */
 	@Parameter(names = {"-srshape", "--siterateshape"}, description = "Shape parameter for discretised gamma distribution" +
 			" for rate variation across sites. Only applicable if number of categories > 1. Append with FIXED for no perturbation, e.g. 3.0FIXED.")
-	public String siteRateShape = "3.0";
+	public String siteRateShape = "1.0";
 	
 	/** Discretisation timestep. */
 	@Parameter(names = {"-dts", "--discretisationtimestep"}, description = "Discretisation timestep upper bound. E.g. 0.02 yields" +
@@ -125,29 +125,29 @@ public class Parameters {
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution variance:" +
 		" [t1_start,t1_end,t2_start,t2_end], with e.g. t1=0.5 and t2=0.6" +
-		" meaning roughly that the proposed value will in 60% of the cases be at most 50% greater or smaller than the previous value. Start and end refer" +
+		" meaning roughly that the proposed value will be at most 50% greater or smaller than the previous value in 60% of the cases. Start and end refer" +
 		" to values at first and last iteration respectively.")
-	public String tuningDupRate = "[0.6,0.6,0.5,0.5]";
+	public String tuningDupRate = "[0.5,0.5,0.5,0.5]";
 	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngloss", "--tuninglossrate"}, description = "Tuning parameter: Governs loss rate proposal distribution variance.")
-	public String tuningLossRate = "[0.6,0.6,0.5,0.5]";
+	public String tuningLossRate = "[0.5,0.5,0.5,0.5]";
 	
 	/** Tuning parameter: edge rate mean proposal distribution variance. */
 	@Parameter(names = {"-tngerm", "--tuningedgeratemean"}, description = "Tuning parameter: Governs edge rate mean proposal distribution variance.")
-	public String tuningEdgeRateMean = "[0.6,0.6,0.5,0.5]";
+	public String tuningEdgeRateMean = "[0.4,0.4,0.9,0.9]";
 	
 	/** Tuning parameter: edge rate CV proposal distribution variance. */
 	@Parameter(names = {"-tngercv", "--tuningedgeratecv"}, description = "Tuning parameter: Governs edge rate CV proposal distribution variance.")
-	public String tuningEdgeRateCV = "[0.6,0.6,0.5,0.5]";
+	public String tuningEdgeRateCV = "[0.4,0.4,0.9,0.9]";
 	
 	/** Tuning parameter: site rate shape proposal distribution variance. */
 	@Parameter(names = {"-tngsrshape", "--tuningsiterateshape"}, description = "Tuning parameter: Governs site rate shape proposal distribution variance.")
-	public String tuningSiteRateShape = "[0.6,0.6,0.5,0.5]";
+	public String tuningSiteRateShape = "[0.4,0.4,0.9,0.9]";
 	
 	/** Tuning parameter: branch lengths proposal distribution variance. */
 	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution variance.")
-	public String tuningLengths = "[0.6,0.6,0.5,0.5]";
+	public String tuningLengths = "[0.5,0.5,0.6,0.6]";
 	
 	/** Tuning parameter: guest tree move weights. */
 	@Parameter(names = {"-tnggw", "--tuningguesttreeweights"}, description = "Tuning parameter: Governs how often a particular " +
