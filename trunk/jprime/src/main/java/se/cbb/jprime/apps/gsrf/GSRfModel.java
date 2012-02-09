@@ -1,8 +1,6 @@
 package se.cbb.jprime.apps.gsrf;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.math.Continuous1DPDDependent;
@@ -15,7 +13,6 @@ import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.MPRMap;
-import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;

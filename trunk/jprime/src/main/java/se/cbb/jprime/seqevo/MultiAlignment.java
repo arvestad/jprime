@@ -1,5 +1,7 @@
 package se.cbb.jprime.seqevo;
 
+import java.util.LinkedHashMap;
+
 import org.biojava3.core.sequence.MultipleSequenceAlignment;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
@@ -19,6 +21,20 @@ public class MultiAlignment<S extends Sequence<C>, C extends Compound> extends M
 	/** True to index sequences from 1 (a.k.a "bioIndex"); false to index from 0. */
 	protected boolean indexFromOne;
 
+	/**
+	 * Constructor.
+	 * @param seqs sequences. Assumed to be aligned already.
+	 * @param indexFromOne true to index sequences from 1 (a.k.a "bioIndex"); false to index from 0.
+	 */
+	@SuppressWarnings("unchecked")
+	public MultiAlignment(LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs, boolean indexFromOne) {
+		super();
+		this.indexFromOne = indexFromOne;
+		for (Sequence<? extends Compound> seq : seqs.values()) {
+			this.addAlignedSequence((S) seq);
+		}
+	}
+	
 	/**
 	 * Constructor.
 	 * @param indexFromOne true to index sequences from 1 (a.k.a "bioIndex"); false to index from 0.

@@ -20,28 +20,6 @@ import java.util.List;
  */
 public class BoundedRealMap<K> {
 	
-	/** Precomputed prime numbers used for hashmap sizes. */ 
-	public static final int[] CENTERED_SQUARE_PRIMES = {
-		5, 13, 41, 61, 113, 181, 313, 421, 613, 761, 1013, 1201, 1301,
-		1741, 1861, 2113, 2381, 2521, 3121, 3613, 4513, 5101, 7321, 8581, 9661,
-		9941, 10513, 12641, 13613, 14281, 14621, 15313, 16381, 19013, 19801,
-		20201, 21013, 21841, 23981, 24421, 26681 };
-	
-	/**
-	 * Returns the next prime number larger than the input from
-	 * a list of precomputed values.
-	 * @param val the value.
-	 * @return the smallest prime number larger than or equal to val, or val itself if larger
-	 * than any precomputed value.
-	 */
-	private static int getNextPrime(int val) {
-		// Just linear search.
-		for (int prime : CENTERED_SQUARE_PRIMES) {
-			if (prime >= val) { return prime; }
-		}
-		return val;
-	}
-	
 	/**
 	 * Wrapper. Holds a key-value pair along with references
 	 * to previous and next element w.r.t. access.
@@ -83,14 +61,14 @@ public class BoundedRealMap<K> {
 	 * Constructor.
 	 * @param maxNoOfElements maximum number of elements in map. Oldest element w.r.t. access is
 	 * removed when adding an element that would cause this size to be exceeded.
-	 * @param disallowEpsKeys if true, will throw an exception on <code>put(key,val)</code> if abs(key) is very small.
+	 * @param disallowEpsKeys if true, will not insert an element on <code>put(key,val)</code> if abs(key) is very small.
 	 */
 	public BoundedRealMap(int maxNoOfElements, boolean disallowEpsKeys) {
 		if (maxNoOfElements <= 0) {
 			throw new IllegalArgumentException("Cannot create RealMap with zero capacity.");
 		}
 		this.maxSz = maxNoOfElements;
-		this.values = new HashMap<Long, BoundedRealMap<K>.Holder>(getNextPrime(maxNoOfElements));
+		this.values = new HashMap<Long, BoundedRealMap<K>.Holder>(Math.min(maxNoOfElements, 8000));
 		this.oldest = null;
 		this.newest = null;
 		this.disallowEpsKeys = disallowEpsKeys;
@@ -98,7 +76,8 @@ public class BoundedRealMap<K> {
 	
 	/**
 	 * Inserts an element into the map. If the max size is reached, the oldest element
-	 * w.r.t. access will be removed.
+	 * w.r.t. access will be removed. If very small keys have been disallowed, put(k,v) on abs(k)<eps
+	 * will simply return null, even though the element was not inserted.
 	 * @param key the key.
 	 * @param value the value.
 	 * @return null if the key did not exist; the old value if the key did exist.
@@ -106,7 +85,8 @@ public class BoundedRealMap<K> {
 	public K put(double key, K value) {
 		Long intKey = Math.round(key * PRECISION);  // Compute safe key.
 		if (intKey == 0 && disallowEpsKeys) {
-			throw new IllegalArgumentException("Cannot hash on floating point key " + key + "; |key| is too small.");
+			// We simply don't insert it.
+			return null;
 		}
 		BoundedRealMap<K>.Holder h = this.values.get(intKey);
 		if (h == null) {
@@ -136,6 +116,22 @@ public class BoundedRealMap<K> {
 			this.moveToEndOfList(h);
 			return oldVal;
 		}
+	}
+	
+	/**
+	 * Returns if small keys abs(k)<eps are disallowed in the map.
+	 * @return true if small keys disallowed; false if allowed.
+	 */
+	public boolean epsKeysAreDisallowed() {
+		return this.disallowEpsKeys;
+	}
+	
+	/**
+	 * Sets whether small keys abs(k)<eps should be disallowed in the map.
+	 * @param areDisallowed true if small keys should be disallowed; false if allowed.
+	 */
+	public void setEpsKeysAreDisallowed(boolean areDisallowed) {
+		this.disallowEpsKeys = areDisallowed;
 	}
 	
 	/**

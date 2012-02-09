@@ -46,14 +46,22 @@ public class Parameters {
 	public Integer thinning = 100;
 	
 	/** Substitution model. */
-	@Parameter(names = {"-sm", "--substitutionmodel"}, description = "Substitution model. Only JTT supported at the moment.")
+	@Parameter(names = {"-sm", "--substitutionmodel"}, description = "Substitution model. May be JC69, UNIFORMAA, JTT, " +
+			"UNIFORMCODON, ARVECODON or USERDEFINED=type;[pi1,...,pik];[r1,...,rj], where type is DNA/AA/CODON, pi holds " +
+			"the k stationary frequencies of the model, and r holds the j=k*(k-1)/2 time-reversible exchangeability rates of the model " +
+			"in row-major format. Base ordering is 'acgt' for DNA and 'arndcqeghilkmfpstwyv' for AA.")
 	public String substitutionModel = "JTT";
-	
-	/** Gamma site rate categories. */
-	//@Parameter(names = {"-cats", "--siteratecategories"}, description = "Number of categories for discretised Gamma distribution" +
-	//		" for rate variation across sites.")
-	//public Integer gammaCategoriesOverSites = 1;
 
+	/** Duplication rate. */
+	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no" +
+			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
+	public String dupRate = null;
+	
+	/** Loss rate. */
+	@Parameter(names = {"-loss", "--lossrate"}, description = "Initial loss rate. Append with FIXED for no" +
+			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
+	public String lossRate = null;
+	
 	/** Edge rate distribution. */
 	@Parameter(names = {"-erpd", "--edgeratepd"}, description = "Probability distribution underlying relaxed molecular clock through IID" +
 			" substitution rates over guest tree edges. Valid values are currently GAMMA and UNIFORM.")
@@ -69,15 +77,15 @@ public class Parameters {
 			"refers to upper bound (...,b) instead. Append with FIXED for no perturbation, e.g. 1.2FIXED. Default: 0.7, or 5.0 if UNIFORM.")
 	public String edgeRatePDCV = null;
 	
-	/** Duplication rate. */
-	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no" +
-			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
-	public String dupRate = null;
+	/** Gamma site rate categories. */
+	@Parameter(names = {"-srcats", "--siteratecategories"}, description = "Number of categories for discretised gamma distribution" +
+			" for rate variation across sites, e.g., 4.")
+	public Integer siteRateCats = 1;
 	
-	/** Loss rate. */
-	@Parameter(names = {"-loss", "--lossrate"}, description = "Initial loss rate. Append with FIXED for no" +
-			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
-	public String lossRate = null;
+	/** Edge rate distribution parameter 1. */
+	@Parameter(names = {"-srshape", "--siterateshape"}, description = "Shape parameter for discretised gamma distribution" +
+			" for rate variation across sites. Only applicable if number of categories > 1. Append with FIXED for no perturbation, e.g. 3.0FIXED.")
+	public String siteRateShape = "3.0";
 	
 	/** Discretisation timestep. */
 	@Parameter(names = {"-dts", "--discretisationtimestep"}, description = "Discretisation timestep upper bound. E.g. 0.02 yields" +
@@ -103,16 +111,15 @@ public class Parameters {
 	public String guestTree = "NJ";
 	
 	/** Fix guest tree. */
-	@Parameter(names = {"-gfix", "--guesttreefixed"}, description = "Fix guest tree topology.")
+	@Parameter(names = {"-gfix", "--guesttreefixed"}, description = "Fix topology of guest tree.")
 	public Boolean guestTreeFixed = false;
 	
 	/** Fix guest tree branch lengths. */
-	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix guest tree branch lengths.")
+	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix branch lengths of guest tree.")
 	public Boolean lengthsFixed = false;
 	
 	/** Sample (output) branch lengths in additional Newick tree. */
-	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output branch lengths in " +
-			"additional Newick guest tree.")
+	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output an additional Newick guest tree with branch lengths.")
 	public Boolean outputLengths = false;
 	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
@@ -133,6 +140,10 @@ public class Parameters {
 	/** Tuning parameter: edge rate CV proposal distribution variance. */
 	@Parameter(names = {"-tngercv", "--tuningedgeratecv"}, description = "Tuning parameter: Governs edge rate CV proposal distribution variance.")
 	public String tuningEdgeRateCV = "[0.6,0.6,0.5,0.5]";
+	
+	/** Tuning parameter: site rate shape proposal distribution variance. */
+	@Parameter(names = {"-tngsrshape", "--tuningsiterateshape"}, description = "Tuning parameter: Governs site rate shape proposal distribution variance.")
+	public String tuningSiteRateShape = "[0.6,0.6,0.5,0.5]";
 	
 	/** Tuning parameter: branch lengths proposal distribution variance. */
 	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution variance.")
@@ -156,11 +167,11 @@ public class Parameters {
 	/** Tuning parameter: duplication rate proposer weight. */
 	@Parameter(names = {"-tngwdup", "--tuningweightduplicationrate"}, description = "Tuning parameter: Relative activation weight for duplication rate proposer" +
 			" as [w_start,w_end], where start and end refer to the first and last iteration respectively.")
-	public String tuningWeightDupRate = "[1.0,1.0]";
+	public String tuningWeightDupRate = "[2.0,1.0]";
 	
 	/** Tuning parameter: loss rate proposer weight. */
 	@Parameter(names = {"-tngwloss", "--tuningweightlossrate"}, description = "Tuning parameter: Relative activation weight for loss rate proposer.")
-	public String tuningWeightLossRate = "[1.0,1.0]";
+	public String tuningWeightLossRate = "[2.0,1.0]";
 	
 	/** Tuning parameter: edge rate mean proposer weight. */
 	@Parameter(names = {"-tngwerm", "--tuningweightedgeratemean"}, description = "Tuning parameter: Relative activation weight for edge rate mean proposer.")
@@ -168,7 +179,11 @@ public class Parameters {
 	
 	/** Tuning parameter: edge rate CV proposer weight. */
 	@Parameter(names = {"-tngwercv", "--tuningweightedgeratecv"}, description = "Tuning parameter: Relative activation weight for edge rate CV proposer.")
-	public String tuningWeightEdgeRateCV = "[1.0,1.0]";
+	public String tuningWeightEdgeRateCV = "[2.0,2.0]";
+	
+	/** Tuning parameter: site rate shape proposer weight. */
+	@Parameter(names = {"-tngwsrshape", "--tuningweightsiterateshape"}, description = "Tuning parameter: Relative activation weight for site rate shape proposer.")
+	public String tuningWeightSiteRateShape = "[0.25,0.25]";
 	
 	/** Tuning parameter: guest tree proposer weight. */
 	@Parameter(names = {"-tngwg", "--tuningweightguesttree"}, description = "Tuning parameter: Relative activation weight for guest tree topology proposer.")
@@ -176,7 +191,7 @@ public class Parameters {
 	
 	/** Tuning parameter: branch lengths. */
 	@Parameter(names = {"-tngwl", "--tuningweightlengths"}, description = "Tuning parameter: Relative activation weight for branch lengths proposer.")
-	public String tuningWeightLengths = "[1.0,1.0]";
+	public String tuningWeightLengths = "[10.0,10.0]";
 	
 	/** Debug flag. */
 	@Parameter(names = {"-dbg", "--debug"}, description = "Output debugging info.")
