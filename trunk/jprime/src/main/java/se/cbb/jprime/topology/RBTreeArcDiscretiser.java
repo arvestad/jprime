@@ -6,6 +6,7 @@ import java.util.Map;
 
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
 
 /**
@@ -24,7 +25,7 @@ import se.cbb.jprime.mcmc.ProperDependent;
  * 
  * @author Joel Sjöstrand.
  */
-public class RBTreeArcDiscretiser implements ProperDependent {
+public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 
 	/** Tree. */
 	private RBTree S;
@@ -318,11 +319,28 @@ public class RBTreeArcDiscretiser implements ProperDependent {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(this.S.getNoOfVertices() * 1024);
-		sb.append("Pre-order times of RBTreeDiscretizer on tree parameter ").append(this.S.getName()).append(" and times parameter ").append(this.times.getName()).append(":\n");
-		sb.append("Arc:\tNo. of slices:\tTimes:\n");
+		
+		return sb.toString();
+	}
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(16536);
+		sb.append(prefix).append("RBTREE ARC-DISCRETISER\n");
+		//sb.append("Times in pre-order of RBTreeDiscretizer on tree parameter ").append(this.S.getName()).append(" and times parameter ").append(this.times.getName()).append(":\n");
+		sb.append(prefix).append("Discretisation:\n");
+		prefix += '\t';
+		sb.append(prefix).append("Arc:\tNo. of slices:\tTimes:\n");
 		for (int x : this.S.getTopologicalOrdering()) {
-			sb.append(x).append('\t').append(this.getNoOfSlices(x)).append('\t').append(Arrays.toString(this.discTimes[x])).append('\n');
+			sb.append(prefix).append(x).append('\t').append(this.getNoOfSlices(x)).append('\t').append(Arrays.toString(this.discTimes[x])).append('\n');
 		}
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(128);
+		sb.append(prefix).append("RBTREE ARC-DISCRETISER\n");
 		return sb.toString();
 	}
 	

@@ -8,6 +8,8 @@ import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 import org.ejml.data.DenseMatrix64F;
 
+import se.cbb.jprime.mcmc.InfoProvider;
+
 /**
  * Handles multiple sequence alignment (MSA) data
  * of a specified sequence type (see <code>SequenceType</code>).
@@ -29,7 +31,7 @@ import org.ejml.data.DenseMatrix64F;
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class MSAData {
+public class MSAData implements InfoProvider {
 
 	/** Underlying sequence type. */
 	private SequenceType seqType;
@@ -371,6 +373,24 @@ public class MSAData {
 	 */
 	public Set<String> getAllSequenceNames() {
 		return this.nameToKey.keySet();
+	}
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(2048);
+		sb.append(prefix).append("MSA DATA\n");
+		sb.append(prefix).append("Sequence type: ").append(this.seqType.getType()).append('\n');
+		sb.append(prefix).append("Number of sequences: ").append(this.data.length).append('\n');
+		sb.append(prefix).append("Number of positions: ").append(this.noOfPositions).append('\n');
+		sb.append(prefix).append("Number of unique column patterns: ").append(this.patterns.size()).append('\n');
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(2048);
+		sb.append(prefix).append("MSA DATA\n");
+		return sb.toString();
 	}
 
 

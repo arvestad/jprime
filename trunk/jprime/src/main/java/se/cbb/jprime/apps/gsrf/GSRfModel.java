@@ -429,4 +429,23 @@ public class GSRfModel implements Model {
 		return sb.toString();
 	}
 
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(65536);
+		sb.append(prefix).append("GSRF MODEL\n");
+		sb.append(prefix).append("Number of vertices of host tree: ").append(this.s.getNoOfVertices()).append('\n');
+		sb.append(prefix).append("Number of vertices of guest tree: ").append(this.g.getNoOfVertices()).append('\n');
+		sb.append(prefix).append("IID edge rate distribution: ").append(this.substPD.getName()).append('\n');
+		sb.append(prefix).append("Host tree discretization:\n");
+		sb.append(this.times.getPreInfo(prefix + '\t'));
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(1024);
+		sb.append(prefix).append("GSRF MODEL\n");
+		return sb.toString();
+	}
+
 }

@@ -60,9 +60,7 @@ public class ReconciledRBTreeGenerator {
 				// Randomly pick two loose ends and join to a cherry.
 				int x = looseEnds.remove(prng.nextInt(looseEnds.size()));
 				int y = looseEnds.remove(prng.nextInt(looseEnds.size()));
-				G.setChildren(nxt, x, y);
-				G.setParent(x, nxt);
-				G.setParent(y, nxt);
+				G.setParentAndChildren(nxt, x, y);
 				looseEnds.add(nxt);
 				nxt++;
 			}
@@ -82,9 +80,7 @@ public class ReconciledRBTreeGenerator {
 			if (y == RBTree.NULL) {
 				return x;
 			}
-			G.setChildren(nxt, x, y);  // We set x left and y right for no particular reason. 
-			G.setParent(x, nxt);
-			G.setParent(y, nxt);
+			G.setParentAndChildren(nxt, x, y);  // We set x left and y right for no particular reason.
 			return nxt;
 		}
 	}

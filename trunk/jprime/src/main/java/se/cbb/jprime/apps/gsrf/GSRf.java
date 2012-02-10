@@ -66,8 +66,16 @@ public class GSRf {
 			
 			// ================ READ AND CREATE ALL PARAMETERS ================
 			
+			// MCMC chain output and auxiliary info.
+			SampleWriter sampler = ParameterParser.getOut(params);
+			BufferedWriter info = ParameterParser.getInfo(params);
+			info.write("=========================================================================\n");
+			info.write("||                             PRE-RUN INFO                            ||\n");
+			info.write("=========================================================================\n");
+			info.write("JPRIME GSRF\n");
+			
 			// Read S and t.
-			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params);
+			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
 			
 			// Substitution model first, then sequence alignment D and site rates.
 			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel);
@@ -78,15 +86,11 @@ public class GSRf {
 			// Read guest-to-host leaf map.
 			GuestHostMap gsMap = ParameterParser.getGSMap(params);
 			
-			// MCMC chain output and auxiliary info.
-			SampleWriter sampler = ParameterParser.getOut(params);
-			BufferedWriter info = ParameterParser.getInfo(params);
-			
 			// Pseudo-random number generator.
 			PRNG prng = ParameterParser.getPRNG(params);
 			
 			// Read/create G and l.
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info);
 			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
@@ -171,11 +175,21 @@ public class GSRf {
 				manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second, gNamesLengths.third));
 			}
 			
-			// ================ RUN ================
+			// ================ WRITE PRE-INFO ================
+			String prefix = "\t";
+			info.write(manager.getPreInfo(prefix));
+			info.flush();
 			
-			manager.writePreInfo(info, true);
+			// ================ RUN ================
 			manager.run();
-			manager.writePostInfo(info, true);
+			
+			// ================ WRITE POST-INFO ================
+			info.write("=========================================================================\n");
+			info.write("||                             POST-RUN INFO                           ||\n");
+			info.write("=========================================================================\n");
+			info.write("JPRIME GSRF\n");
+			info.write(manager.getPostInfo(prefix));
+			info.flush();
 			sampler.close();
 			info.close();
 			

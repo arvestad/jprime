@@ -1,9 +1,6 @@
 package se.cbb.jprime.mcmc;
 
 import java.util.Map.Entry;
-import java.util.TreeMap;
-
-import se.cbb.jprime.misc.Pair;
 
 /**
  * Extends the proposer statistics by being able to track acceptance
@@ -29,9 +26,6 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	/** The current window (i.e. "bucket"). */
 	protected int currentWindow;
 	
-	/** Number of accepted and rejected proposals indexed by number of parameters. */
-	protected TreeMap<Integer, Pair<Integer,Integer>> noOfAccRejByNoOfParams;
-	
 	/**
 	 * Constructor.
 	 * @param iter the iteration to which the fine-grained acceptance ratio refers.
@@ -46,7 +40,6 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 		this.noOfAcceptedPerWindow = new int[noOfWindows];
 		this.noOfRejectedPerWindow = new int[noOfWindows];
 		this.currentWindow = 0;
-		this.noOfAccRejByNoOfParams = new TreeMap<Integer, Pair<Integer,Integer>>();
 		this.iter.addIterationListener(this);
 	}
 	
@@ -57,19 +50,13 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	}
 	
 	@Override
-	public void increment(boolean wasAccepted, int noOfParams) {
-		super.increment(wasAccepted, noOfParams);
+	public void increment(boolean wasAccepted, String category) {
+		super.increment(wasAccepted, category);
 		if (wasAccepted) {
 			this.noOfAcceptedPerWindow[this.currentWindow]++;
 		} else {
 			this.noOfRejectedPerWindow[this.currentWindow]++;
 		}
-		Pair<Integer,Integer> ar = this.noOfAccRejByNoOfParams.get(noOfParams);
-		if (ar == null) {
-			ar = new Pair<Integer, Integer>(0, 0);
-		}
-		ar = (wasAccepted ? new Pair<Integer,Integer>(ar.first + 1, ar.second) : new Pair<Integer, Integer>(ar.first, ar.second + 1));
-		this.noOfAccRejByNoOfParams.put(new Integer(noOfParams), ar);
 	}
 	
 	/**
@@ -109,37 +96,6 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 		return this.noOfRejectedPerWindow[window];
 	}
 	
-	/**
-	 * Returns the number of accepted proposals indexed by the number
-	 * of perturbed parameters.
-	 * @param noOfParams the number of parameters.
-	 * @return the number of accepted proposals.
-	 */
-	public int getNoOfAcceptedProposalsByNoOfParams(int noOfParams) {
-		return this.noOfAccRejByNoOfParams.get(noOfParams).first;
-	}
-	
-	/**
-	 * Returns the number of rejected proposals indexed by the number
-	 * of perturbed parameters.
-	 * @param noOfParams the number of parameters.
-	 * @return the number of rejected proposals.
-	 */
-	public int getNoOfRejectedProposalsByNoOfParams(int noOfParams) {
-		return this.noOfAccRejByNoOfParams.get(noOfParams).second;
-	}
-	
-	/**
-	 * Returns the acceptance ratio of the subset of proposals which concern a certain number of
-	 * perturbed parameters.
-	 * @param noOfParams the number of parameters.
-	 * @return the acceptance ratio.
-	 */
-	public double getAcceptanceRatioByNoOfParams(int noOfParams) {
-		Pair<Integer,Integer> p = this.noOfAccRejByNoOfParams.get(noOfParams);
-		return (p.first / (double) (p.first + p.second));
-	}
-	
 	@Override
 	public String getPreInfo(String prefix) {
 		return (prefix + "FINE-DETAILED PROPOSER STATISTICS\n");
@@ -157,11 +113,13 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 			int r = this.noOfRejectedPerWindow[i];
 			sb.append(prefixt).append(i + 1).append('\t').append(a).append(" / ").append(a + r).append(" = ").append(a / (double) (a + r)).append("\n");
 		}
-		if (this.noOfAccRejByNoOfParams.size() > 1) {
-			sb.append(prefix).append("Acceptance ratio per number of perturbed parameters:\n");
-			for (Entry<Integer, Pair<Integer, Integer>> p : this.noOfAccRejByNoOfParams.entrySet()) {
-				sb.append(prefixt).append(p.getKey()).append('\t').append(p.getValue().first).append(" / ").append(p.getValue().first + p.getValue().second)
-				.append(" = ").append(p.getValue().first / (double) (p.getValue().first + p.getValue().second)).append("\n");
+		if (!this.accRejByKey.isEmpty()) {
+			sb.append(prefix).append("Acceptance ratios for sub-categories:\n");
+			prefix += '\t';
+			for (Entry<String, int[]> kv : this.accRejByKey.entrySet()) {
+				int acc = kv.getValue()[0];
+				int rej = kv.getValue()[1];
+				sb.append(prefix).append(kv.getKey()).append('\t').append(acc).append(" / ").append(acc+rej).append(" = ").append(acc/(double)(acc+rej)).append("\n");
 			}
 		}
 		return sb.toString();

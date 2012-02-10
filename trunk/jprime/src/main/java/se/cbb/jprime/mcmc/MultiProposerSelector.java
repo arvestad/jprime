@@ -172,9 +172,9 @@ public class MultiProposerSelector implements ProposerSelector {
 		sb.append(prefix).append("Cumulative no.-of-proposer weights: ").append(Arrays.toString(this.cumNoWeights)).append('\n');
 		for (int i = 0; i < this.proposers.size(); ++i) {
 			sb.append(prefix).append("Proposer ").append(i+1).append(":\n");
-			sb.append(prefix).append(this.proposers.get(i).getPreInfo(prefix + '\t'));
+			sb.append(this.proposers.get(i).getPreInfo(prefix + '\t'));
 			sb.append(prefix).append("Proposer ").append(i+1).append("'s weight:\n");
-			sb.append(prefix).append(this.weights.get(i).getPreInfo(prefix + '\t'));
+			sb.append(this.weights.get(i).getPreInfo(prefix + '\t'));
 		}
 		return sb.toString();
 	}
@@ -185,7 +185,7 @@ public class MultiProposerSelector implements ProposerSelector {
 		sb.append(prefix).append("MULTI-PROPOSER SELECTOR\n");
 		for (int i = 0; i < this.proposers.size(); ++i) {
 			sb.append(prefix).append("Proposer ").append(i+1).append(":\n");
-			sb.append(prefix).append(this.proposers.get(i).getPostInfo(prefix + '\t'));
+			sb.append(this.proposers.get(i).getPostInfo(prefix + '\t'));
 		}
 		return sb.toString();
 	}

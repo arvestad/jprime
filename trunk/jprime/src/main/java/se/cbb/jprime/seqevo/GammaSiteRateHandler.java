@@ -6,6 +6,7 @@ import se.cbb.jprime.math.Gamma;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
+import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
 
 /**
@@ -24,7 +25,7 @@ import se.cbb.jprime.mcmc.ProperDependent;
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class GammaSiteRateHandler implements ProperDependent {
+public class GammaSiteRateHandler implements ProperDependent, InfoProvider {
 
 	/** Gamma distribution shape parameter. */
 	private DoubleParameter k;
@@ -105,5 +106,20 @@ public class GammaSiteRateHandler implements ProperDependent {
 		assert k > 0;
 		assert theta > 0;
 		this.rates = Gamma.getDiscreteGammaCategories(this.nCat, k, theta);
+	}
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(2048);
+		sb.append(prefix).append("GAMMA SITE RATE HANDLER\n");
+		sb.append(prefix).append("Number of categories: ").append(this.nCat).append('\n');
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(2048);
+		sb.append(prefix).append("GAMMA SITE RATE HANDLER\n");
+		return sb.toString();
 	}
 }

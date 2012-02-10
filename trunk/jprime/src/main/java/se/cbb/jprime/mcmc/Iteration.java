@@ -140,7 +140,7 @@ public class Iteration implements Sampleable, InfoProvider {
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("ITERATION\n");
-		sb.append("Range: [").append(this.currentIteration).append(", ").append(this.totalNoOfIterations).append("]\n");
+		sb.append(prefix).append("Range: [").append(this.currentIteration).append(", ").append(this.totalNoOfIterations).append("]\n");
 		return sb.toString();
 	}
 
