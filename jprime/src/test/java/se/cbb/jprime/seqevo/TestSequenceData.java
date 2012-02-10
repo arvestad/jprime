@@ -28,7 +28,7 @@ public class TestSequenceData {
 		assertEquals(9, sz);
 		int i;
 		char c; 
-		assertEquals(0, D.getSequenceIndex("dwil_GLEAN_17706"));
+		assertEquals(0, D.getSequenceIndex("dwil_GLEAN"));
 		i = D.getIntState(0, 0);
 		assertEquals(23, i);
 		c = D.getCharState(0, 0);

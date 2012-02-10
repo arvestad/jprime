@@ -53,12 +53,12 @@ public class Parameters {
 	public String substitutionModel = "JTT";
 
 	/** Duplication rate. */
-	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no" +
+	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no " +
 			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
 	public String dupRate = null;
 	
 	/** Loss rate. */
-	@Parameter(names = {"-loss", "--lossrate"}, description = "Initial loss rate. Append with FIXED for no" +
+	@Parameter(names = {"-loss", "--lossrate"}, description = "Initial loss rate. Append with FIXED for no " +
 			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
 	public String lossRate = null;
 	
@@ -68,7 +68,7 @@ public class Parameters {
 	public String edgeRatePD = "GAMMA";
 	
 	/** Edge rate distribution parameter 1. */
-	@Parameter(names = {"-erpdm", "--edgeratepdmean"}, description = "Mean for relaxed clock probability distribution. If UNIFORM," +
+	@Parameter(names = {"-erpdm", "--edgeratepdmean"}, description = "Mean for relaxed clock probability distribution. If UNIFORM, " +
 			"refers to lower bound (a,...) instead. Append with FIXED for no perturbation, e.g. 0.1FIXED. Default: 0.5 or 0 if UNIFORM.")
 	public String edgeRatePDMean = null;
 	
