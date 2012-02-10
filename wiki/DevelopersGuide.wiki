@@ -12,13 +12,10 @@ The latest verified version is shown within brackets.
     * You probably want to set the default encoding to UTF-8 in Eclipse for both "Eclipse -> Preferences -> General -> Workspace" and all text content types under "Eclipse -> Preferences -> General -> Content Types".
     * You probably want to show .resource files in Eclipse. This can be changed by pressing the small down-arrow in the Package Explorer, and then clicking "Filters...".
     * To run Eclipse smoothly, you probably want edit eclipse.ini to set the path to the VM and set decent memory allocation settings.
-  # Download and Install required tools:
-    * Install Maven {{{[Maven 2]}}}.
-    * Possibly install external Subversion (SVN) client if Subversive not sufficient (see below).
-  # Install recommended Eclipse plugins:
+  # Install recommended Eclipse plugins or corresponding required tools:
     * Java Development Tools, if not already in place {{{[3.6.1]}}}.
     * Subversive with SVNKit or similarly, which enables SVN handling from within the IDE {{{[0.7.9 and 2.2.2]}}}.
-    * Maven Integration for Eclipse {{{[0.10.2]}}}.
+    * Maven Integration for Eclipse, m2eclipse {{{[0.10.2]}}}.
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on this wiki.
   # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
   # If needed, activate Maven by right-clicking the project and clicking "Maven -> Enable Dependency Management" or possibly "Configure -> Convert to Maven Project". You may need to refresh the project afterwards.
