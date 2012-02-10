@@ -495,23 +495,16 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 	
 	/**
-	 * Low-level setter for parent array.
-	 * @param x vertex.
-	 * @param p new parent of x.
+	 * Low-level setter for internal parent and children arrays.
+	 * @param p parent vertex.
+	 * @param lc left child.
+	 * @param rc right child.
 	 */
-	void setParent(int x, int p) {
-		this.parents[x] = p;
-	}
-	
-	/**
-	 * Low-level setter for children arrays.
-	 * @param x vertex.
-	 * @param lc new left child of x.
-	 * @param rc new right child of x.
-	 */
-	void setChildren(int x, int lc, int rc) {
-		this.leftChildren[x] = lc;
-		this.rightChildren[x] = rc;
+	void setParentAndChildren(int p, int lc, int rc) {
+		this.leftChildren[p] = lc;
+		this.rightChildren[p] = rc;
+		this.parents[lc] = p;
+		this.parents[rc] = p;
 	}
 	
 	/**

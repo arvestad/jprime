@@ -54,6 +54,9 @@ public class RBTreeBranchSwapper implements Proposer {
 	/** Active flag. */
 	private boolean isActive;
 	
+	/** Last operation type. */
+	private String lastOperationType;
+	
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
@@ -97,6 +100,7 @@ public class RBTreeBranchSwapper implements Proposer {
 		this.prng = prng;
 		this.operationWeights = new double[] {0.5, 0.3, 0.2};
 		this.isActive = true;
+		this.lastOperationType = null;
 	}
 	
 	@Override
@@ -171,10 +175,13 @@ public class RBTreeBranchSwapper implements Proposer {
 		//System.out.println("\n" + this.T.getSampleValue());
 		if (w < this.operationWeights[0]) {
 			this.doNNI();
+			this.lastOperationType = "NNI";
 		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
 			this.doSPR();
+			this.lastOperationType = "SPR";
 		} else {
 			this.doReroot();
+			this.lastOperationType = "Reroot";
 		}
 		//System.out.println("\n" + this.T.getSampleValue());
 		assert this.verticesAreUnique();
@@ -261,12 +268,8 @@ public class RBTreeBranchSwapper implements Proposer {
 		
 		// Swap children. It is OK if we accidentally swap children from left to 
 		// right while we are at it!
-		this.T.setChildren(vp, vs, w);
-		//this.T.setParent(vs, vp);      // Not necessary.
-		this.T.setParent(w, vp);
-		this.T.setChildren(wp, ws, v);
-		//this.T.setParent(ws, wp);      // Not necessary.
-		this.T.setParent(v, wp);
+		this.T.setParentAndChildren(vp, vs, w);
+		this.T.setParentAndChildren(wp, ws, v);
 	}
 
 	/**
@@ -524,17 +527,11 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 		
 		// Do the SPR move.
-		this.T.setChildren(u_p, u_oc, u_s);
-		this.T.setParent(u_oc, u_p);
-		this.T.setParent(u_s, u_p);
-		int u_c_new_p = this.T.getParent(u_c_new);   // Order seems to matter when u_s=u_c_new:
-		int u_c_new_s = this.T.getSibling(u_c_new);  // must make above move first! / Joel
-		this.T.setChildren(u, u_c, u_c_new);
-		this.T.setParent(u_c, u);
-		this.T.setParent(u_c_new, u);
-		this.T.setChildren(u_c_new_p, u_c_new_s, u);
-		this.T.setParent(u_c_new_s, u_c_new_p);
-		this.T.setParent(u, u_c_new_p);
+		this.T.setParentAndChildren(u_p, u_oc, u_s);
+		int u_c_new_p = this.T.getParent(u_c_new);    // Order seems to matter when u_s=u_c_new:
+		int u_c_new_s = this.T.getSibling(u_c_new);   // must make above move first! /Joel
+		this.T.setParentAndChildren(u, u_c, u_c_new);
+		this.T.setParentAndChildren(u_c_new_p, u_c_new_s, u);
 
 		// Time heuristics.
 		if (this.times != null) {	
@@ -694,12 +691,8 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 
 		// Move v.
-		T.setChildren(v, v_otherChild, v_sibling);
-		T.setParent(v_otherChild, v);
-		T.setParent(v_sibling, v);
-		T.setChildren(v_parent, v_child, v);
-		T.setParent(v_child, v_parent);
-		T.setParent(v, v_parent);
+		T.setParentAndChildren(v, v_otherChild, v_sibling);
+		T.setParentAndChildren(v_parent, v_child, v);
 
 		// Post-move times heuristics.
 		if (times != null) {
@@ -776,8 +769,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	@Override
 	public void clearCache() {
 		if (this.statistics != null) {
-			int no = 1 + (this.times == null ? 0 : 1) + (this.lengths == null ? 0 : 1);
-			this.statistics.increment(true, no);
+			this.statistics.increment(true, this.lastOperationType);
 		}
 		this.T.clearCache();
 		if (this.times != null) {
@@ -791,8 +783,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	@Override
 	public void restoreCache() {
 		if (this.statistics != null) {
-			int no = 1 + (this.times == null ? 0 : 1) + (this.lengths == null ? 0 : 1);
-			this.statistics.increment(false, no);
+			this.statistics.increment(false, this.lastOperationType);
 		}
 		this.T.restoreCache();
 		if (this.times != null) {

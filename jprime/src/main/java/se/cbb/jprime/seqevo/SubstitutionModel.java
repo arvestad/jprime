@@ -338,5 +338,32 @@ public class SubstitutionModel implements Model {
 	public LogDouble getLikelihood() {
 		return this.modelLikelihood;
 	}
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(4096);
+		sb.append(prefix).append("SUBSTITUTION MODEL\n");
+		sb.append(prefix).append("Including root arc in computations: ").append(this.useRootArc).append('\n');
+		sb.append(prefix).append("Multiple sequence alignment data:\n");
+		sb.append(this.D.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Discrete site rates:\n");
+		sb.append(this.siteRates.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Substitution matrix:\n");
+		sb.append(this.Q.getPreInfo(prefix + '\t'));
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(4096);
+		sb.append(prefix).append("SUBSTITUTION MODEL\n");
+		sb.append(prefix).append("Multiple sequence alignment data:\n");
+		sb.append(this.D.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Discrete site rates:\n");
+		sb.append(this.siteRates.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Substitution matrix:\n");
+		sb.append(this.Q.getPostInfo(prefix + '\t'));
+		return sb.toString();
+	}
     
 }

@@ -19,7 +19,7 @@ import se.cbb.jprime.math.LogDouble;
  * 
  * @author Joel Sjöstrand.
  */
-public interface Model extends ProperDependent, Sampleable {
+public interface Model extends ProperDependent, Sampleable, InfoProvider {
 
 	/**
 	 * Returns the (often conditional) probability density of the observations

@@ -41,9 +41,7 @@ public class UniformRBTreeGenerator {
 			// Randomly pick two loose ends and join to a cherry.
 			int x = looseEnds.remove(prng.nextInt(looseEnds.size()));
 			int y = looseEnds.remove(prng.nextInt(looseEnds.size()));
-			T.setChildren(z, x, y);
-			T.setParent(x, z);
-			T.setParent(y, z);
+			T.setParentAndChildren(z, x, y);
 			looseEnds.add(z);
 			z++;
 		}

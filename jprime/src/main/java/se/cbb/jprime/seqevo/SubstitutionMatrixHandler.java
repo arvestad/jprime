@@ -1,5 +1,6 @@
 package se.cbb.jprime.seqevo;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.ejml.alg.dense.decomposition.DecompositionFactory;
@@ -8,6 +9,7 @@ import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
 
 import se.cbb.jprime.math.AdditionalEJMLOps;
+import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.misc.BoundedRealMap;
 
 /**
@@ -29,7 +31,7 @@ import se.cbb.jprime.misc.BoundedRealMap;
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class SubstitutionMatrixHandler {
+public class SubstitutionMatrixHandler implements InfoProvider {
 	
 	/** The maximum allowed time w on which transition rate matrix Q can act. */
 	public static final double MAX_MARKOV_TIME = 1000.0;
@@ -304,6 +306,27 @@ public class SubstitutionMatrixHandler {
 				sb.append('\n');
 			}
 		}
+		return sb.toString();
+	}
+
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(4096);
+		sb.append(prefix).append("SUBSTITUTION MATRIX HANDLER\n");
+		sb.append(prefix).append("Model name: ").append(this.modelName).append('\n');
+		sb.append(prefix).append("Alphabet size: ").append(this.alphabetSize).append('\n');
+		sb.append(prefix).append("Stationary frequencies Pi: ").append(Arrays.toString(this.Pi.getData())).append('\n');
+		sb.append(prefix).append("Exchangeability matrix R (time reversible, symmetric, only part above diagonal in ro-major format): ").append(Arrays.toString(this.R.getData())).append('\n');
+		sb.append(prefix).append("Transition matrix P cache size: ").append(this.PCache.getMaxNoOfElements()).append('\n');
+		return sb.toString();
+	}
+
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(128);
+		sb.append(prefix).append("SUBSTITUTION MATRIX HANDLER\n");
 		return sb.toString();
 	}
 }

@@ -1,6 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ import se.cbb.jprime.math.PRNG;
  * 
  * @author Joel Sjöstrand.
  */
-public class MCMCManager implements Sampleable {
+public class MCMCManager implements Sampleable, InfoProvider {
 	
 	/** Iteration of MCMC chain. */
 	protected Iteration iteration;
@@ -352,54 +351,6 @@ public class MCMCManager implements Sampleable {
 		this.endTime = System.nanoTime();
 	}
 
-	/**
-	 * Writes pre-run info of this object.
-	 * @param buff the stream to which to write.
-	 * @throws IOException.
-	 */
-	public void writePreInfo(BufferedWriter buff, boolean doFlush) throws IOException {
-		buff.append("=======================\nPRE-RUN INFO\n=======================\n");
-		buff.append("MCMC MANAGER\n\n");
-		String prefix = "";
-		buff.append(this.prng.getPreInfo(prefix)).append('\n');
-		buff.append(this.iteration.getPreInfo(prefix)).append('\n');
-		buff.append(this.thinner.getPreInfo(prefix)).append('\n');
-		buff.append(this.proposerSelector.getPreInfo(prefix)).append('\n');
-		buff.append(this.proposalAcceptor.getPreInfo(prefix)).append('\n');
-		if (doFlush) {
-			buff.flush();
-		}
-	}
-	
-	/**
-	 * Writes post-run info of this object.
-	 * @param buff the stream to which to write.
-	 */
-	public void writePostInfo(BufferedWriter buff, boolean doFlush) throws IOException {
-		buff.append("\n\n=======================\nPOST-RUN INFO\n=======================\n");
-		buff.append("MCMC MANAGER\n");
-		long ns = this.endTime - this.startTime;
-		double s = (double) ns / 1000000000.0;
-		double h = s / 360.0;
-		DecimalFormat df = new DecimalFormat("#.##");
-		buff.append("Wall time: ")
-			.append(""+ns).append(" ns = ")
-			.append(df.format(s)).append(" s = ")
-			.append(df.format(h)).append(" min\n");
-		buff.append("Best encountered state:\n")
-			.append('\t').append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
-			.append('\t').append(this.bestState).append("\n\n");
-		String prefix = "";
-		buff.append(this.prng.getPostInfo(prefix)).append('\n');
-		buff.append(this.iteration.getPostInfo(prefix)).append('\n');
-		buff.append(this.thinner.getPostInfo(prefix)).append('\n');
-		buff.append(this.proposerSelector.getPostInfo(prefix)).append('\n');
-		buff.append(this.proposalAcceptor.getPostInfo(prefix)).append('\n');
-		if (doFlush) {
-			buff.flush();
-		}
-	}
-	
 	@Override
 	public Class<?> getSampleType() {
 		return SampleLogDouble.class;
@@ -413,5 +364,48 @@ public class MCMCManager implements Sampleable {
 	@Override
 	public String getSampleValue() {
 		return this.likelihood.toString();
+	}
+
+	@Override
+	public String getPreInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(65536);
+		sb.append(prefix).append("MCMC MANAGER\n");
+		prefix += '\t';
+		sb.append(this.prng.getPreInfo(prefix));
+		sb.append(this.iteration.getPreInfo(prefix));
+		sb.append(this.thinner.getPreInfo(prefix));
+		sb.append(this.proposerSelector.getPreInfo(prefix));
+		sb.append(this.proposalAcceptor.getPreInfo(prefix));
+		for (Model mod : this.models) {
+			sb.append(mod.getPreInfo(prefix));
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public String getPostInfo(String prefix) {
+		StringBuilder sb = new StringBuilder(65536);
+		sb.append(prefix).append("MCMC MANAGER\n");
+		long ns = this.endTime - this.startTime;
+		double s = (double) ns / 1000000000.0;
+		double h = s / 360.0;
+		DecimalFormat df = new DecimalFormat("#.##");
+		sb.append(prefix).append("Wall time: ")
+			.append(ns).append(" ns = ")
+			.append(df.format(s)).append(" s = ")
+			.append(df.format(h)).append(" min\n");
+		sb.append(prefix).append("Best encountered state:\n")
+			.append("\t\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
+			.append("\t\t").append(this.bestState).append("\n");
+		prefix += '\t';
+		sb.append(this.prng.getPostInfo(prefix));
+		sb.append(this.iteration.getPostInfo(prefix));
+		sb.append(this.thinner.getPostInfo(prefix));
+		sb.append(this.proposerSelector.getPostInfo(prefix));
+		sb.append(this.proposalAcceptor.getPostInfo(prefix));
+		for (Model mod : this.models) {
+			sb.append(mod.getPostInfo(prefix));
+		}
+		return sb.toString();
 	}
 }
