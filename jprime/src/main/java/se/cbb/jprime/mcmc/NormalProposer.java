@@ -259,7 +259,11 @@ public class NormalProposer implements Proposer {
 	@Override
 	public void clearCache() {
 		if (this.stats != null) {
-			this.stats.increment(true, "" + this.noPerturbed + " perturbed sub-parameters");
+			if (this.param.getNoOfSubParameters() > 1) {
+				this.stats.increment(true, "" + this.noPerturbed + " perturbed sub-parameters");
+			} else {
+				this.stats.increment(true);
+			}
 		}
 		this.param.clearCache();
 	}
@@ -267,7 +271,11 @@ public class NormalProposer implements Proposer {
 	@Override
 	public void restoreCache() {
 		if (this.stats != null) {
-			this.stats.increment(false, "" + this.noPerturbed + " perturbed sub-parameters");
+			if (this.param.getNoOfSubParameters() > 1) {
+				this.stats.increment(false, "" + this.noPerturbed + " perturbed sub-parameters");
+			} else {
+				this.stats.increment(false);
+			}
 		}
 		this.param.restoreCache();
 	}

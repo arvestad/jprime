@@ -50,6 +50,16 @@ public class FineProposerStatistics extends ProposerStatistics implements Iterat
 	}
 	
 	@Override
+	public void increment(boolean wasAccepted) {
+		super.increment(wasAccepted);
+		if (wasAccepted) {
+			this.noOfAcceptedPerWindow[this.currentWindow]++;
+		} else {
+			this.noOfRejectedPerWindow[this.currentWindow]++;
+		}
+	}
+	
+	@Override
 	public void increment(boolean wasAccepted, String category) {
 		super.increment(wasAccepted, category);
 		if (wasAccepted) {
