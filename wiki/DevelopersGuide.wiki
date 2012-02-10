@@ -9,8 +9,8 @@ Below summary refers to Eclipse. Use of !NetBeans, etc. should be similar.
 The latest verified version is shown within brackets.
 
   # Download and install Eclipse {{{[Eclipse Helios]}}}.
-    * You probably want to set the default encoding to UTF-8 in Eclipse for both "Eclipse -> Preferences -> General -> Workspace" and all text content types under "Eclipse -> Preferences -> General -> Content Types".
-    * You probably want to show .resource files in Eclipse. This can be changed by pressing the small down-arrow in the Package Explorer, and then clicking "Filters...".
+    * You probably want to set the default encoding to UTF-8 in Eclipse for both *Eclipse -> Preferences -> General -> Workspace* and all text content types under *Eclipse -> Preferences -> General -> Content Types*.
+    * You probably want to show .resource files in Eclipse. This can be changed by pressing the small down-arrow in the Package Explorer, and then clicking *Filters...*.
     * To run Eclipse smoothly, you probably want edit eclipse.ini to set the path to the VM and set decent memory allocation settings.
   # Install recommended Eclipse plugins or corresponding required tools:
     * Java Development Tools, if not already in place {{{[3.6.1]}}}.
