@@ -17,7 +17,7 @@ The latest verified version is shown within brackets.
     * Subversive with SVNKit or similarly, which enables SVN handling from within the IDE {{{[0.7.9 and 2.2.2]}}}.
     * Maven Integration for Eclipse, m2eclipse {{{[0.10.2]}}}.
   # Go to the SVN Repository Exploring perspective and add the repository. The location, your username and password can be found under the Source page on this wiki.
-  # In the Java perspective, add the project as an existing SVN project. You might have to browse for the trunk.
+  # In the Java perspective, add the project as an existing SVN project. Do this by browsing for {{{trunk/JPrIME}}}.
   # If needed, activate Maven by right-clicking the project and clicking "Maven -> Enable Dependency Management" or possibly "Configure -> Convert to Maven Project". You may need to refresh the project afterwards.
   # The Java version has been set to 1.6 in Maven but, just to be sure, verify that the Eclipse project settings don't disagree.
   # Just to be sure, right-click the project and select "Maven -> Download Javadoc" to make sure dependencies can be used more easily.
