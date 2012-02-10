@@ -17,7 +17,7 @@ public interface Sampleable {
 	
 	/**
 	 * Returns this object's name or some similar ID.
-	 * Must not return null.
+	 * Must not return null. Preferred format: 'MyFantasticVariable'.
 	 * @return the identifier.
 	 */
 	public String getSampleHeader();

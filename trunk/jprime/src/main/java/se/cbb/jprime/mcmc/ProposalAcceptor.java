@@ -24,5 +24,5 @@ public interface ProposalAcceptor extends InfoProvider {
 	 * @return true if suggested state accepted; false if rejected.
 	 */
 	public boolean acceptProposedState(LogDouble proposedStateLikelihood, LogDouble oldStateLikelihood,
-			List<Proposal> proposals);
+			List<Proposal> proposals) throws RunAbortedException;
 }

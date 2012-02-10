@@ -13,6 +13,7 @@ import se.cbb.jprime.io.SampleWriter;
 import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.DoubleParameter;
+import se.cbb.jprime.mcmc.FineProposerStatistics;
 import se.cbb.jprime.mcmc.Iteration;
 import se.cbb.jprime.mcmc.MCMCManager;
 import se.cbb.jprime.mcmc.MultiProposerSelector;
@@ -151,9 +152,12 @@ public class GSRf {
 			// Proposal acceptor.
 			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
 			
+			// Overall statistics.
+			FineProposerStatistics stats = new FineProposerStatistics(iter, 8);
+			
 			// ================ SETUP MCMC HIERARCHY ================
 			
-			MCMCManager manager = new MCMCManager(iter, thinner, selector, acceptor, sampler, prng);
+			MCMCManager manager = new MCMCManager(iter, thinner, selector, acceptor, sampler, prng, stats);
 			manager.setDebugMode(params.debug);
 			
 			manager.addModel(sm);
