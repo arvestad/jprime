@@ -6,6 +6,6 @@ Naturally, we use Maven for building and packaging. The pom.xml has been set to 
   # An original (small) JPrIME JAR file.
   # An "über" (or "shaded", if you wish) JPrIME JAR file, which contains the small JPrIME JAR file bundled with all dependencies.
 
-In Eclipse, packaging JPrIME should be as easy as to right-click the project root folder and selecting "Run as -> Maven package", or, from the command prompt, {{{mvn package}}}. This will generate a snapshot build, although manually renaming JAR files and keeping track of version numbers should be sufficient for our needs.
+In Eclipse, packaging JPrIME should be as easy as to right-click the project root folder and selecting first "Run as -> Maven clean", and then "Run as -> Maven package". Alternatively, from the command prompt, one could instead do {{{mvn clean}}} and then {{{mvn package}}}. This will generate a snapshot build, although manually renaming JAR files and keeping track of version numbers should be sufficient for our needs.
 
 On a side note: a tool for listing all (non-transitive) depencies from the root pom.xml can be found in {{{jprime/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
