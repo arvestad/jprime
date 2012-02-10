@@ -171,7 +171,7 @@ public class GSRfModel implements Model {
 
 	@Override
 	public String getSampleHeader() {
-		return "GSRf-likelihood";
+		return "GSRfLikelihood";
 	}
 
 	@Override
@@ -392,7 +392,8 @@ public class GSRfModel implements Model {
 			double xt = this.times.getDiscretisationTime(x, xi);
 			for (int ycnt = 0; ycnt < uAts.length; ++ycnt) {
 				double yt = this.times.getDiscretisationTime(y, yj);
-				double rateDens = this.g.isRoot(u) ? 1.0 : this.substPD.getPDF(length / (xt - yt));
+				// Note: We now allow edge rates over stem arc as well.
+				double rateDens = this.substPD.getPDF(length / (xt - yt));
 				uBelows[xcnt] += rateDens * this.dupLossProbs.getP11Probability(x, xi, y, yj) * uAts[ycnt];
 				// Move y_j onto next pure discretisation point above.
 				if (yj == this.times.getNoOfSlices(y)) {

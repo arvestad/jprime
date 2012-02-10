@@ -366,7 +366,7 @@ public class ParameterParser {
 		if (ps.runtype.equalsIgnoreCase("MCMC")) {
 			return new MetropolisHastingsAcceptor(prng);
 		} else if (ps.runtype.equalsIgnoreCase("HILLCLIMBING")) {
-			return new HillClimbingAcceptor();
+			return new HillClimbingAcceptor(100);
 		}
 		throw new IllegalArgumentException("Invalid run type.");
 	}

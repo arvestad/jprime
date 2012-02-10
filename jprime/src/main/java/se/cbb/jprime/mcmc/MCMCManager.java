@@ -106,6 +106,12 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	/** Time at iteration end in ns. */
 	protected long endTime;
 	
+	/** Overall statistics. */
+	protected ProposerStatistics stats;
+	
+	/** If run was aborted. */
+	protected String runAbortedMessage = null;
+	
 	/** Debug flag. */
 	protected boolean doDebug = false;
 	
@@ -117,9 +123,10 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * @param proposalAcceptor controls when a proposed state should be accepted or not.
 	 * @param sampler handles output of drawn samples.
 	 * @param prng pseudo-random number generator. May be null in certain situations.
+	 * @param stats monitors overall statistics of the chain. 
 	 */
 	public MCMCManager(Iteration iteration, Thinner thinner, ProposerSelector proposerSelector,
-			ProposalAcceptor proposalAcceptor, Sampler sampler, PRNG prng) {
+			ProposalAcceptor proposalAcceptor, Sampler sampler, PRNG prng, ProposerStatistics stats) {
 		this.iteration = iteration;
 		this.thinner = thinner;
 		this.proposerSelector = proposerSelector;
@@ -135,6 +142,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.bestState = null;
 		this.startTime = -1;
 		this.endTime = -1;
+		this.stats = stats;
 	}
 	
 	/**
@@ -257,94 +265,100 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.startTime = System.nanoTime();
 		HashMap<Dependent, ChangeInfo> changeInfos = new HashMap<Dependent, ChangeInfo>(16);
 		ArrayList<Proposal> proposals = new ArrayList<Proposal>(16);
-		while (this.iteration.increment()) {
-			
-			// Clear lists.
-			changeInfos.clear();
-			proposals.clear();
-			
-			// Query whether this is a sample iteration or not.
-			willSample = this.thinner.doSample();
-			
-			// Get proposer(s) to use.
-			Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
-			
-			// Debug info.
-			if (this.doDebug) {
-				StringBuilder dbg = new StringBuilder(512);
-				dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", Log-likelihood: ").append(this.likelihood.toString())
-					.append(", about to use: ");
-				for (Proposer p : shakeItBaby) {
-					dbg.append(p.toString()).append(", ");
-				}
-				this.sampler.writeString(dbg.toString());
-			}
-			
-			// Perturb state parameters.
-			for (Proposer proposer : shakeItBaby) {
-				Proposal proposal = proposer.cacheAndPerturb(changeInfos);
-				proposals.add(proposal);
-			}
-			
-			// Update in topological order, but only if deemed necessary.
-			for (ProperDependent dep : this.properDependents) {
-				for (Dependent parent : dep.getParentDependents()) {
-					if (changeInfos.get(parent) != null) {
-						dep.cacheAndUpdate(changeInfos, willSample);
-						break;
+		try {
+			while (this.iteration.increment()) {
+				
+				// Clear lists.
+				changeInfos.clear();
+				proposals.clear();
+				
+				// Query whether this is a sample iteration or not.
+				willSample = this.thinner.doSample();
+				
+				// Get proposer(s) to use.
+				Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
+				
+				// Debug info.
+				if (this.doDebug) {
+					StringBuilder dbg = new StringBuilder(512);
+					dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", Log-likelihood: ").append(this.likelihood.toString())
+						.append(", about to use: ");
+					for (Proposer p : shakeItBaby) {
+						dbg.append(p.toString()).append(", ");
 					}
+					this.sampler.writeString(dbg.toString());
 				}
-			}
-			
-			// Get likelihood of proposed state.
-			LogDouble newLikelihood = new LogDouble(1.0);
-			for (Model m : this.models) {
-				newLikelihood.mult(m.getLikelihood());
-			}
-			
-			// Finally, decide whether to accept or reject.
-			boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, this.likelihood, proposals);
-			
-			// Debug info.
-			if (this.doDebug) {
-				this.sampler.writeString(doAccept ? " ...state accepted," : " ...state rejected,");
-			}
-			
-			// Update accordingly.
-			if (doAccept) {
+				
+				// Perturb state parameters.
 				for (Proposer proposer : shakeItBaby) {
-					proposer.clearCache();
+					Proposal proposal = proposer.cacheAndPerturb(changeInfos);
+					proposals.add(proposal);
 				}
+				
+				// Update in topological order, but only if deemed necessary.
 				for (ProperDependent dep : this.properDependents) {
-					if (changeInfos.get(dep) != null) {
-						dep.clearCache(willSample);
+					for (Dependent parent : dep.getParentDependents()) {
+						if (changeInfos.get(parent) != null) {
+							dep.cacheAndUpdate(changeInfos, willSample);
+							break;
+						}
 					}
 				}
-				this.likelihood = newLikelihood;
-				if (this.bestLikelihood.lessThan(newLikelihood)) {
-					this.bestLikelihood = newLikelihood;
-					this.bestState = this.sampler.getSample(this.sampleables);
+				
+				// Get likelihood of proposed state.
+				LogDouble newLikelihood = new LogDouble(1.0);
+				for (Model m : this.models) {
+					newLikelihood.mult(m.getLikelihood());
 				}
-			} else {
-				for (Proposer proposer : shakeItBaby) {
-					proposer.restoreCache();
+				
+				// Finally, decide whether to accept or reject.
+				boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, this.likelihood, proposals);
+				
+				// Debug info.
+				if (this.doDebug) {
+					this.sampler.writeString(doAccept ? " ...state accepted," : " ...state rejected,");
 				}
-				for (ProperDependent dep: this.properDependents) {
-					if (changeInfos.get(dep) != null) {
-						dep.restoreCache(willSample);
+				
+				// Update accordingly.
+				if (doAccept) {
+					stats.increment(true, "" + shakeItBaby.size() + " used proposers");
+					for (Proposer proposer : shakeItBaby) {
+						proposer.clearCache();
+					}
+					for (ProperDependent dep : this.properDependents) {
+						if (changeInfos.get(dep) != null) {
+							dep.clearCache(willSample);
+						}
+					}
+					this.likelihood = newLikelihood;
+					if (this.bestLikelihood.lessThan(newLikelihood)) {
+						this.bestLikelihood = newLikelihood;
+						this.bestState = this.sampler.getSample(this.sampleables);
+					}
+				} else {
+					stats.increment(false, "" + shakeItBaby.size() + " used proposers");
+					for (Proposer proposer : shakeItBaby) {
+						proposer.restoreCache();
+					}
+					for (ProperDependent dep: this.properDependents) {
+						if (changeInfos.get(dep) != null) {
+							dep.restoreCache(willSample);
+						}
 					}
 				}
+				
+				// Debug info.
+				if (this.doDebug) {
+					this.sampler.writeString(doAccept ? " ...cached state deleted.\n" : " ...cached state reinstated.\n");
+				}
+				
+				// Sample, if desired.
+				if (willSample) {
+					this.sampler.writeSample(this.sampleables);
+				}
 			}
-			
-			// Debug info.
-			if (this.doDebug) {
-				this.sampler.writeString(doAccept ? " ...cached state deleted.\n" : " ...cached state reinstated.\n");
-			}
-			
-			// Sample, if desired.
-			if (willSample) {
-				this.sampler.writeSample(this.sampleables);
-			}
+		} catch (RunAbortedException rae) {
+			this.runAbortedMessage = rae.getMessage();
 		}
 		
 		// Post-run stuff.
@@ -370,15 +384,23 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(65536);
 		sb.append(prefix).append("MCMC MANAGER\n");
-		prefix += '\t';
-		sb.append(this.prng.getPreInfo(prefix));
-		sb.append(this.iteration.getPreInfo(prefix));
-		sb.append(this.thinner.getPreInfo(prefix));
-		sb.append(this.proposerSelector.getPreInfo(prefix));
-		sb.append(this.proposalAcceptor.getPreInfo(prefix));
+		sb.append(prefix).append("Psuedo-random number generator:\n");
+		sb.append(this.prng.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Iteration:\n");
+		sb.append(this.iteration.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Thinner:\n");
+		sb.append(this.thinner.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Proposer selector:\n");
+		sb.append(this.proposerSelector.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Proposal acceptor:\n");
+		sb.append(this.proposalAcceptor.getPreInfo(prefix + '\t'));
+		int i = 1;
 		for (Model mod : this.models) {
-			sb.append(mod.getPreInfo(prefix));
+			sb.append(prefix).append("Model ").append(i++).append(":\n");
+			sb.append(mod.getPreInfo(prefix + '\t'));
 		}
+		sb.append(prefix).append("Statistics:\n");
+		sb.append(this.stats.getPreInfo(prefix + '\t'));
 		return sb.toString();
 	}
 
@@ -386,6 +408,9 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(65536);
 		sb.append(prefix).append("MCMC MANAGER\n");
+		if (this.runAbortedMessage != null) {
+			sb.append(prefix).append("Run abortion reason: ").append(this.runAbortedMessage).append('\n');
+		}
 		long ns = this.endTime - this.startTime;
 		double s = (double) ns / 1000000000.0;
 		double h = s / 360.0;
@@ -397,15 +422,23 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		sb.append(prefix).append("Best encountered state:\n")
 			.append("\t\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
 			.append("\t\t").append(this.bestState).append("\n");
-		prefix += '\t';
-		sb.append(this.prng.getPostInfo(prefix));
-		sb.append(this.iteration.getPostInfo(prefix));
-		sb.append(this.thinner.getPostInfo(prefix));
-		sb.append(this.proposerSelector.getPostInfo(prefix));
-		sb.append(this.proposalAcceptor.getPostInfo(prefix));
+		sb.append(prefix).append("Pseudo-random number generator:\n");
+		sb.append(this.prng.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Iteration:\n");
+		sb.append(this.iteration.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Thinner:\n");
+		sb.append(this.thinner.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Proposer selector:\n");
+		sb.append(this.proposerSelector.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Proposal acceptor:\n");
+		sb.append(this.proposalAcceptor.getPostInfo(prefix + '\t'));
+		int i = 1;
 		for (Model mod : this.models) {
-			sb.append(mod.getPostInfo(prefix));
+			sb.append(prefix).append("Model ").append(i++).append(":\n");
+			sb.append(mod.getPostInfo(prefix + '\t'));
 		}
+		sb.append(prefix).append("Statistics:\n");
+		sb.append(this.stats.getPostInfo(prefix + '\t'));
 		return sb.toString();
 	}
 }
