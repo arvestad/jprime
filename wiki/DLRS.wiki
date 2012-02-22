@@ -99,11 +99,11 @@ where the path and version of course refer to your current setup. You may want t
 
 Before performing your final runs, you should make pilot runs to assess the mixing, and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2 - 0.5 (preferrably in the lower region). Even so, 0.1 - 0.7 might do the trick. For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
 
-For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)
+For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)  You probably want to perform 2 --4 independent "parallel" MCMC chains to be able to conduct proper analysis.
 
 ----
 
 == ANALYSIS ==
-To be announced. However, consider using [http://cran.r-project.org CRAN R] in general, and, for convergence in particular, its [http://cran.r-project.org/web/packages/coda/index.html CODA] package. As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), and sample autocorrelation.
+To be announced. However, consider using [http://cran.r-project.org CRAN R] in general, and, for convergence in particular, its [http://cran.r-project.org/web/packages/coda/index.html CODA] package. As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), and sample autocorrelation, and manual inspection of log-likelihoods and parameters for parallel chains.
 
 ----
