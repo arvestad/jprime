@@ -98,9 +98,9 @@ public class DLRSModel implements Model {
 		this.times = times;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
-		this.loLims = new IntMap("GSRf.lolims", g.getNoOfVertices());
-		this.ats = new DoubleArrayMap("GSRf.ats", g.getNoOfVertices());
-		this.belows = new DoubleArrayMap("GSRf.belows", g.getNoOfVertices());
+		this.loLims = new IntMap("DLRS.lolims", g.getNoOfVertices());
+		this.ats = new DoubleArrayMap("DLRS.ats", g.getNoOfVertices());
+		this.belows = new DoubleArrayMap("DLRS.belows", g.getNoOfVertices());
 				
 		// Update.
 		this.fullUpdate();
@@ -133,20 +133,20 @@ public class DLRSModel implements Model {
 				this.ats.cache(affected);
 				this.belows.cache(affected);
 				this.partialUpdate(affected);
-				changeInfos.put(this, new ChangeInfo(this, "Partial update", affected));
+				changeInfos.put(this, new ChangeInfo(this, "Partial DLRS update", affected));
 			} else if (lci != null) {
 				this.loLims.cache(null);
 				this.ats.cache(null);
 				this.belows.cache(null);
 				this.fullUpdate();
-				changeInfos.put(this, new ChangeInfo(this, "Full update."));
+				changeInfos.put(this, new ChangeInfo(this, "Full DLRS update."));
 			}
 		} else {
 			this.loLims.cache(null);
 			this.ats.cache(null);
 			this.belows.cache(null);
 			this.fullUpdate();
-			changeInfos.put(this, new ChangeInfo(this, "Full GSRf update."));
+			changeInfos.put(this, new ChangeInfo(this, "Full DLRS update."));
 		}
 	}
 
@@ -171,7 +171,7 @@ public class DLRSModel implements Model {
 
 	@Override
 	public String getSampleHeader() {
-		return "GSRfLikelihood";
+		return "DLRSLikelihood";
 	}
 
 	@Override
@@ -433,7 +433,7 @@ public class DLRSModel implements Model {
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(65536);
-		sb.append(prefix).append("GSRF MODEL\n");
+		sb.append(prefix).append("DLRS MODEL\n");
 		sb.append(prefix).append("Number of vertices of host tree: ").append(this.s.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("Number of vertices of guest tree: ").append(this.g.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("IID edge rate distribution: ").append(this.substPD.getName()).append('\n');
@@ -445,7 +445,7 @@ public class DLRSModel implements Model {
 	@Override
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(1024);
-		sb.append(prefix).append("GSRF MODEL\n");
+		sb.append(prefix).append("DLRS MODEL\n");
 		return sb.toString();
 	}
 

@@ -84,8 +84,8 @@ public class Parameters {
 	
 	/** Edge rate distribution parameter 1. */
 	@Parameter(names = {"-srshape", "--siterateshape"}, description = "Shape parameter for discretised gamma distribution" +
-			" for rate variation across sites. Only applicable if number of categories > 1. Append with FIXED for no perturbation, e.g. 3.0FIXED.")
-	public String siteRateShape = "1.0";
+			" for rate variation across sites. Only applicable if number of categories > 1. Append with FIXED for no perturbation, e.g. 1.0FIXED.")
+	public String siteRateShape = "0.8";
 	
 	/** Discretisation timestep. */
 	@Parameter(names = {"-dts", "--discretisationtimestep"}, description = "Discretisation timestep upper bound. E.g. 0.02 yields" +
@@ -167,11 +167,11 @@ public class Parameters {
 	/** Tuning parameter: duplication rate proposer weight. */
 	@Parameter(names = {"-tngwdup", "--tuningweightduplicationrate"}, description = "Tuning parameter: Relative activation weight for duplication rate proposer" +
 			" as [w_start,w_end], where start and end refer to the first and last iteration respectively.")
-	public String tuningWeightDupRate = "[2.0,1.0]";
+	public String tuningWeightDupRate = "[2.0,2.0]";
 	
 	/** Tuning parameter: loss rate proposer weight. */
 	@Parameter(names = {"-tngwloss", "--tuningweightlossrate"}, description = "Tuning parameter: Relative activation weight for loss rate proposer.")
-	public String tuningWeightLossRate = "[2.0,1.0]";
+	public String tuningWeightLossRate = "[2.0,2.0]";
 	
 	/** Tuning parameter: edge rate mean proposer weight. */
 	@Parameter(names = {"-tngwerm", "--tuningweightedgeratemean"}, description = "Tuning parameter: Relative activation weight for edge rate mean proposer.")
