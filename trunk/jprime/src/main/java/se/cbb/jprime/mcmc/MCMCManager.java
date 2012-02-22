@@ -399,7 +399,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 			sb.append(prefix).append("Model ").append(i++).append(":\n");
 			sb.append(mod.getPreInfo(prefix + '\t'));
 		}
-		sb.append(prefix).append("Statistics:\n");
+		sb.append(prefix).append("Overall statistics:\n");
 		sb.append(this.stats.getPreInfo(prefix + '\t'));
 		return sb.toString();
 	}
@@ -413,12 +413,14 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		}
 		long ns = this.endTime - this.startTime;
 		double s = (double) ns / 1000000000.0;
-		double h = s / 360.0;
+		double m = s / 60.0;
+		double h = m / 60.0;
 		DecimalFormat df = new DecimalFormat("#.##");
 		sb.append(prefix).append("Wall time: ")
 			.append(ns).append(" ns = ")
 			.append(df.format(s)).append(" s = ")
-			.append(df.format(h)).append(" min\n");
+			.append(df.format(m)).append(" min = ")
+			.append(df.format(h)).append(" h\n");
 		sb.append(prefix).append("Best encountered state:\n")
 			.append("\t\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
 			.append("\t\t").append(this.bestState).append("\n");
