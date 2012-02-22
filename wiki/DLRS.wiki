@@ -64,7 +64,7 @@ MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 Please consider clearing ambiguous positions from the alignment before feeding it into JPrIME-GSRf. There are many such applications, e.g., [http://trimal.cgenomics.org trimAl], [http://sourceforge.net/projects/probmask/ ZORRO], [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks], [http://guidance.tau.ac.il GUIDANCE] and [http://zfmk.de/web/Forschung/Tagungen/2012/201202_GfBS/Workshops/ALISCORE/index.de.html  ALISCORE].
 
 === Mapping ===
-The guest-to-host leaf map is straighforward, e.g., for the example above:
+The guest-to-host leaf map is a straighforward tab-delimited file, e.g., for the example above:
 {{{
 a1   A
 a2   A
