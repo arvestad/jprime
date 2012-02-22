@@ -13,14 +13,14 @@
 
 == INTRODUCTION ==
 
-DLRS (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a _gene family_ inside a _species tree_. The evolution of a gene family can be envisioned as occurring in separate phases:
-  # The gene tree topology is created by evolving down the species tree by means of duplications and loss events according to a birth-death process. Lineages branch deterministically at speciations.
-  # Using the ultrametric times of the gene tree, relaxed branch lengths are obtained by multiplying each branch time with an iid substitution rate according to some distribution.
-  # Using the gene tree topology and branch lengths, sequence evolution occurs over the tree to produce gene family sequences at the leaves. Possibly, site rate variation occurs according to a gamma distribution.
+DLRS (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). The evolution of the guest tree can be envisioned as occurring in separate phases:
+  # The guest tree topology is created by evolving down the host tree by means of duplications and loss events according to a birth-death process. Lineages branch deterministically at speciations.
+  # Using the ultrametric times of the guest tree, relaxed branch lengths are obtained by multiplying each branch time with an iid substitution rate according to some distribution.
+  # Using the guest tree topology and branch lengths, sequence evolution occurs over the tree to produce guest family sequences at the leaves. Possibly, site rate variation occurs according to a gamma distribution.
 
 Hence the name DLRS = duplications, losses, rates & sequence evolution.
 
-The application JPrIME-DLRS corresponding to the model is used for obtaining the unknown gene tree topology and model parameters in light of a known and dated species tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+The application JPrIME-DLRS corresponding to the model is used for obtaining the unknown guest tree topology and model parameters in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
 
 *Input:*
   * a file with a dated host tree.
