@@ -1,6 +1,9 @@
 package se.cbb.jprime.apps.dlrs;
 
 import java.io.BufferedWriter;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 
 import org.biojava3.core.sequence.template.Compound;
@@ -75,6 +78,10 @@ public class DLRS {
 			info.write("||                             PRE-RUN INFO                            ||\n");
 			info.write("=========================================================================\n");
 			info.write("JPRIME DLRS\n");
+			info.write("Arguments: " + Arrays.toString(args) + '\n');
+			Calendar cal = Calendar.getInstance();
+		    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			info.write("Current time: " + df.format(cal.getTime()) + '\n');
 			
 			// Read S and t.
 			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);

@@ -326,7 +326,7 @@ public class SubstitutionModel implements Model {
 
 	@Override
 	public String getSampleHeader() {
-		return this.name;
+		return (this.name + "Likelihood");
 	}
 
 	@Override

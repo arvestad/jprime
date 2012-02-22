@@ -307,8 +307,9 @@ public class ParameterParser {
 		if (ps.discStem == null) {
 			// Try to find a small but sufficient number of stem points to accommodate all
 			// duplications in the stem during G perturbation.
-			int h = (int) Math.round(Math.log((double) G.getNoOfLeaves()) / Math.log(2.0));
-			ps.discStem = Math.min(h + 8, 30);
+			int k = G.getNoOfLeaves();
+			int h = (int) Math.round(Math.log((double) k) / Math.log(2.0)); // Height of balanced tree...
+			ps.discStem = Math.min(Math.min(h + 12, k), 30);
 		}
 		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, ps.discTimestep, ps.discStem);
 	}
