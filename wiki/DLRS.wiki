@@ -93,12 +93,12 @@ N       L         Param1     Param2   Param3
 == RUNNING ==
 Typically, you would start JPrIME-DLRS by running e.g.:
 {{{
-java -cp mypath/jprime-0.0.0.jar se/cbb/jprime/apps/dlrs/DLRS [options] <host tree> <msa> <guest-to-host map>
+java -cp mypath/jprime-0.0.0.jar -Xms128m --Xmx1024m se/cbb/jprime/apps/dlrs/DLRS [options] <host tree> <msa> <guest-to-host map>
 }}}
 where the path and version of course refer to your current setup.
 Alternatively, you may specify all input in a file thus:
 {{{
-java -cp mypath/jprime-0.0.0.jar se/cbb/jprime/apps/dlrs/DLRS @<parameter file>
+java -cp mypath/jprime-0.0.0.jar -Xms128m --Xmx1024m se/cbb/jprime/apps/dlrs/DLRS @<parameter file>
 }}}
 You may want to tune the Java VM to your specific needs (heap size, performance tuning options, etc.). This is a non-trivial area however. If you are using an Oracle Java HotSpot VM, these documents may be of assistance: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
