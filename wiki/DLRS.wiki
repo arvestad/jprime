@@ -13,11 +13,20 @@
 
 == INTRODUCTION ==
 
-DLRS (previously known as GSR and GSRf) is a phylogenetic application for reconciling an unknown guest tree and a known host tree by means of duplication events and loss events. Typically, the guest tree corresponds to a gene tree, and the host tree corresponds to a species tree. DLRS relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+DLRS (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a _gene family_ inside a _species tree_. The evolution of a gene family can be envisioned as occurring in separate phases:
+  # The gene tree topology is created by evolving down the species tree by means of duplications and loss events according to a birth-death process. Lineages branch deterministically at speciations.
+  # Using the ultrametric times of the gene tree, relaxed branch lengths are obtained by multiplying each
+branch time with an iid substitution rate according to some distribution.
+  # Using the gene tree topology and branch lengths, sequence evolution occurs over the tree to produce
+gene family sequences at the leaves. Possibly, site rate variation occurs according to a gamma distribution.
+
+Hence the name DLRS = duplications, losses, rates & sequence evolution.
+
+The application JPrIME-DLRS corresponding to the model is used for obtaining the unknown gene tree topology and model parameters in light of a known and dated species tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
 
 *Input:*
   * a file with a dated host tree.
-  * a file with a multiple sequence alignment of guest tree leaf sequences.
+  * a file with a multiple sequence alignment (MSA) of guest tree leaf sequences.
   * a file with a simple map relating the guest tree leaves to host tree leaves.
 
 *Output:*
@@ -84,13 +93,13 @@ N       L         Param1     Param2   Param3
 ----
 
 == RUNNING ==
-Typically, you would start JPrIME-GSRf by running e.g.:
+Typically, you would start JPrIME-DLRS by running e.g.:
 {{{
-java -cp mypath/jprime-0.0.0.jar se/cbb/jprime/apps/gsrf/GSRf
+java -cp mypath/jprime-0.0.0.jar se/cbb/jprime/apps/dlrs/DLRS
 }}}
 where the path and version of course refer to your current setup. You may want to tune the Java VM to your specific needs (heap size, performance tuning options, etc.). This is a non-trivial area however. If you are using an Oracle Java HotSpot VM, these documents may be of assistance: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
-Before performing your final runs, you should make pilot runs to assess the mixing, and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2-0.5 (preferrably in the lower region). For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
+Before performing your final runs, you should make pilot runs to assess the mixing, and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2-0.5 (preferrably in the lower region). Even so, 0.1-0.7 might do the trick. For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
 
 For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)
 
