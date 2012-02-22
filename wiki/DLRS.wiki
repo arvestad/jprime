@@ -1,0 +1,102 @@
+#summary Description and instructions for DLRS.
+
+= JPrIME-DLRS =
+
+== CONTENTS ==
+  # [DLRS#INTRODUCTION Introduction]
+  # [DLRS#INPUT Input]
+  # [DLRS#OUTPUT Output]
+  # [DLRS#RUNNING Running]
+  # [DLRS#ANALYSIS Analysis]
+
+----
+
+== INTRODUCTION ==
+
+DLRS (previously known as GSR and GSRf) is a phylogenetic application for reconciling an unknown guest tree and a known host tree by means of duplication events and loss events. Typically, the guest tree corresponds to a gene tree, and the host tree corresponds to a species tree. DLRS relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+
+*Input:*
+  * a file with a dated host tree.
+  * a file with a multiple sequence alignment of guest tree leaf sequences.
+  * a file with a simple map relating the guest tree leaves to host tree leaves.
+
+*Output:*
+  * a file with samples drawn from the posterior distribution.
+
+----
+
+== INPUT ==
+ 
+=== Host tree ===
+Obtain a dated species tree in Newick format. The divergence times may be specified as branch lengths, e.g.:
+{{{
+((A:0.4,B:0.4):0.6,C:1.0):0.5;
+}}}
+Alternatively, one can specify absolute times using special formatting:
+{{{
+((A[&&PRIME NT=0.0],B[&&PRIME NT=0.0])[&&PRIME NT=0.4],C[&&PRIME NT=0.0])[&&PRIME NT=1.0][&&PRIME TT=0.5];
+}}}
+The host tree must be ultrametric, with time 0 at the leaves and time >0 at the root, and a "stem" with timespan >0 (in the above example this was set to 0.5). The scale of the dates can be any unit: *they will be rescaled internally prior to running so that the root time is 1.0, and the output will refer to this scaling*, and not the original values.
+
+A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of "core" gene families (e.g. monocopy putative orthologs, housekeeping genes, etc.), aligning these, then feeding the concatenated multiple locus sequence alignment (MLSA) into a program which estimates divergence times. For acquiring core genes for microbial datasets [http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0024704 this article] may be of help. For dating, consider e.g. [http://beast.bio.ed.ac.uk BEAST], [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
+
+=== Multiple sequence alignment ===
+The multiple sequence alignment (MSA) can be computed with any suitable program (MAFFT, MUSCLE, CLUSTAL, etc.), but should be provided on the FASTA format, e.g. for the example above:
+{{{
+>a1
+MTKKELIKSIAEKNKTSITQTEEFYNSFENAIIKAI
+>a2
+MTKKELIKSIAEKNKTSITQTEEFYNSFENAIIKAI
+>b1
+MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
+>c1
+MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
+>c2
+MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
+}}}
+Please consider clearing ambiguous positions from the alignment before feeding it into JPrIME-GSRf. There are many such applications, e.g., [http://trimal.cgenomics.org trimAl], [http://sourceforge.net/projects/probmask/ ZORRO], [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks], [http://guidance.tau.ac.il GUIDANCE] and [http://zfmk.de/web/Forschung/Tagungen/2012/201202_GfBS/Workshops/ALISCORE/index.de.html  ALISCORE].
+
+=== Mapping ===
+The guest-to-host leaf map is straighforward, e.g., for the example above:
+{{{
+a1   A
+a2   A
+b1   B
+c1   C
+c2   C
+}}}
+
+----
+
+== OUTPUT ==
+Output normally consists of two files, e.g.:
+  * {{{myoutput.info}}}, containing general pre- and post-run information.
+  * {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
+The latter will look something like:
+{{{
+N       L         Param1     Param2   Param3
+0       1.5e-64   1.0        0.1      0.1
+200     2.4e-32   0.56       0.23     0.43
+400     1.5e-30   0.51       0.18     0.52
+...
+}}}
+
+----
+
+== RUNNING ==
+Typically, you would start JPrIME-GSRf by running e.g.:
+{{{
+java -cp mypath/jprime-0.0.0.jar se/cbb/jprime/apps/gsrf/GSRf
+}}}
+where the path and version of course refer to your current setup. You may want to tune the Java VM to your specific needs (heap size, performance tuning options, etc.). This is a non-trivial area however. If you are using an Oracle Java HotSpot VM, these documents may be of assistance: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
+
+Before performing your final runs, you should make pilot runs to assess the mixing, and change tuning parameters accordingly. Try striving for model parameter acceptance ratios of 0.2-0.5 (preferrably in the lower region). For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned.
+
+For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)
+
+----
+
+== ANALYSIS ==
+To be announced. However, consider using [http://cran.r-project.org CRAN R] in general, and, for convergence in particular, its [http://cran.r-project.org/web/packages/coda/index.html CODA] package. As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), and sample autocorrelation.
+
+----
