@@ -48,7 +48,7 @@ The host tree must be ultrametric, with time 0 at the leaves and time >0 at the 
 
 A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of "core" gene families (e.g. monocopy putative orthologs, housekeeping genes, etc.), aligning these, then feeding the concatenated multiple locus sequence alignment (MLSA) into a program which estimates divergence times. For acquiring core genes for microbial datasets [http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0024704 this article] may be of help. For dating, consider e.g. [http://beast.bio.ed.ac.uk BEAST], [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
 
-=== Multiple sequence alignment ===
+=== Multiple sequence alignment and substitution model ===
 The multiple sequence alignment (MSA) can be computed with any suitable program (MAFFT, MUSCLE, CLUSTAL, etc.), but should be provided on the FASTA format, e.g. for the example above:
 {{{
 >a1
@@ -63,6 +63,8 @@ MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 MNKKELIKSIAEVNKTSITQTEEFYNSFENALIKAI
 }}}
 Please consider clearing ambiguous positions from the alignment before feeding it into JPrIME-GSRf. There are many such applications, e.g., [http://trimal.cgenomics.org trimAl], [http://sourceforge.net/projects/probmask/ ZORRO], [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks], [http://guidance.tau.ac.il GUIDANCE] and [http://zfmk.de/web/Forschung/Tagungen/2012/201202_GfBS/Workshops/ALISCORE/index.de.html  ALISCORE].
+
+JPrIME-DLRS does not infer substitution model parameters during a run. You may choose from some common built-in models (JTT, JC, etc.), or you may provide your own time-reversible model through a program option. There are programs that help you determining a suitable model, e.g., [http://darwin.uvigo.es/software/prottest.html ProtTest].
 
 === Mapping ===
 The guest-to-host leaf map is a straightforward tab-delimited file, e.g., for the example above:
