@@ -20,19 +20,21 @@ public class SubstitutionMatrixHandlerFactory {
 	 * Convenience method for creating a known substitution model from
 	 * its string identifier.
 	 * @param model the identifier.
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 */
-	public static SubstitutionMatrixHandler create(String model) {
+	public static SubstitutionMatrixHandler create(String model, int cacheSize) {
 		model = model.trim().toUpperCase();
 		if (model == "JC69") {
-			return createJC69();
+			return createJC69(cacheSize);
 		} else if (model == "UNIFORMAA") {
-			return createUniformAA();
+			return createUniformAA(cacheSize);
 		} else if (model == "JTT") {
-			return createJTT();
+			return createJTT(cacheSize);
 		} else if (model == "UNIFORMCODON") {
-			return createUniformCodon();
+			return createUniformCodon(cacheSize);
 		} else if (model == "ARVECODON") {
-			return createArveCodon();
+			return createArveCodon(cacheSize);
 		} else if (model.startsWith("USERDEFINED")) {
 			// TODO: Clean-up.
 			// HACK! Assumes string like "USERDEFINED=DNA;[pi1,...,pik];[r1,...,rj]".
@@ -40,7 +42,7 @@ public class SubstitutionMatrixHandlerFactory {
 			String pi = model.substring(model.indexOf(";")+1, model.indexOf(";", 22));
 			String r = model.substring(model.indexOf(";", 22)+1);
 			return createUserDefined(seqType,
-					SampleDoubleArray.toDoubleArray(pi), SampleDoubleArray.toDoubleArray(r));
+					SampleDoubleArray.toDoubleArray(pi), SampleDoubleArray.toDoubleArray(r), cacheSize);
 		} else {
 			throw new IllegalArgumentException("Cannot create unknown substitution model: " + model);
 		}
@@ -48,9 +50,11 @@ public class SubstitutionMatrixHandlerFactory {
 
 	/**
 	 * Returns the DNA model type described by Jukes & Cantor 1969.
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createJC69() {
+	public static SubstitutionMatrixHandler createJC69(int cacheSize) {
 		double[] Pi = new double[4];
 		double[] R = new double[6];
 		for (int i = 0; i < 4; i++) {
@@ -61,15 +65,17 @@ public class SubstitutionMatrixHandlerFactory {
 			R[i] = 1.0;
 		}
 
-		return new SubstitutionMatrixHandler("JC69", SequenceType.DNA, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("JC69", SequenceType.DNA, R, Pi, cacheSize);
 	}
 
 	/**
 	 * Returns the amino acid model type corresponding to that
 	 * described by Jukes & Cantor 1969 for DNA.
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createUniformAA() {
+	public static SubstitutionMatrixHandler createUniformAA(int cacheSize) {
 		double[] Pi = new double[20];
 		double[] R = new double[190];
 		for (int i = 0; i < 20; i++) {
@@ -78,14 +84,16 @@ public class SubstitutionMatrixHandlerFactory {
 		for (int i = 0; i < 190; i++) {
 			R[i] = 1.0;
 		}
-		return new SubstitutionMatrixHandler("UniformAA", SequenceType.AMINO_ACID, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("UniformAA", SequenceType.AMINO_ACID, R, Pi, cacheSize);
 	}
 
 	/**
 	 * Returns the model type described by Jones, Taylor and Thornton.
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createJTT() {
+	public static SubstitutionMatrixHandler createJTT(int cacheSize) {
 		double[] Pi = {
 				0.077000, 0.051000, 0.043000, 0.052000, 
 				0.020000, 0.041000, 0.062000, 0.074000, 
@@ -136,15 +144,17 @@ public class SubstitutionMatrixHandlerFactory {
 				42.000
 		};
 
-		return new SubstitutionMatrixHandler("JTT", SequenceType.AMINO_ACID, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("JTT", SequenceType.AMINO_ACID, R, Pi, cacheSize);
 	}
 
 	/**
 	 * Returns the codon model type corresponding to that
 	 * described by Jukes & Cantor 1969 for DNA.
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createUniformCodon() {
+	public static SubstitutionMatrixHandler createUniformCodon(int cacheSize) {
 		double[] Pi = new double[61];
 		double[] R = new double[1830];
 		for (int i = 0; i < 61; ++i) {
@@ -154,15 +164,17 @@ public class SubstitutionMatrixHandlerFactory {
 		for (int i = 0; i < 1830; ++i) {
 			R[i] = 1.0;
 		}
-		return new SubstitutionMatrixHandler("UniformCodon", SequenceType.CODON, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("UniformCodon", SequenceType.CODON, R, Pi, cacheSize);
 	}
 
 	/**
 	 * Returns the codon model type corresponding to that
 	 * described by Arvestad (unpublished).
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createArveCodon() {
+	public static SubstitutionMatrixHandler createArveCodon(int cacheSize) {
 		double[] Pi = {
 				0.029921, 0.020764, 0.025687, 0.021398, 0.013549,
 				0.017641, 0.01023, 0.013274, 0.0107, 0.012081,
@@ -660,7 +672,7 @@ public class SubstitutionMatrixHandlerFactory {
 				0.00909159, 0.149512,
 				0.0149748
 		};
-		return new SubstitutionMatrixHandler("ArveCodon", SequenceType.CODON, R, Pi, 1000);
+		return new SubstitutionMatrixHandler("ArveCodon", SequenceType.CODON, R, Pi, cacheSize);
 	}
 
 	/**
@@ -668,9 +680,11 @@ public class SubstitutionMatrixHandlerFactory {
 	 * @param seqType sequence type identifier ("DNA", "AA", "Codon").
 	 * @param pi stationary frequencies (alphabet size n).
 	 * @param r values of time-reversible rate matrix as if row-major, symmetric and lacking diagonal (size n*(n-1)/2).
+	 * @param cacheSize matrix cache size. Probably not useful with more than twice the number
+	 * of arcs in tree...?
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createUserDefined(String seqType, double[] pi, double[] r) {
+	public static SubstitutionMatrixHandler createUserDefined(String seqType, double[] pi, double[] r, int cacheSize) {
 		SequenceType st = SequenceType.getSequenceType(seqType);
 		int dim = st.getAlphabetSize();
 		int r_dim = dim * (dim - 1) / 2;
@@ -679,7 +693,7 @@ public class SubstitutionMatrixHandlerFactory {
 		} else if (r.length != r_dim) {
 			throw new IllegalArgumentException("Invalid size of row-major time-reversible rate matrix R: " + r_dim);
 		}
-		return new SubstitutionMatrixHandler("USER-DEFINED", st, r, pi, 1000);
+		return new SubstitutionMatrixHandler("USER-DEFINED", st, r, pi, cacheSize);
 	}
 
 }

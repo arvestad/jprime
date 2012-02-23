@@ -10,7 +10,7 @@ import org.ejml.ops.CommonOps;
 
 import se.cbb.jprime.math.AdditionalEJMLOps;
 import se.cbb.jprime.mcmc.InfoProvider;
-import se.cbb.jprime.misc.BoundedRealMap;
+import se.cbb.jprime.misc.DoubleKeyMap;
 
 /**
  * Handles transition probabilities of a Markov process for molecular sequence evolution.
@@ -77,7 +77,7 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 	private DenseMatrix64F tmp_diagonal;
 
 	/** A cache for saving instances of P for varying times w to avoid recalculations. */
-	private BoundedRealMap<DenseMatrix64F> PCache;
+	private DoubleKeyMap<DenseMatrix64F> PCache;
 	
 	/** Small cache for ambiguity leaf likelihoods. Cleared every time P i updated. */
 	private HashMap<Integer, DenseMatrix64F> ambigCache;
@@ -104,7 +104,7 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 		this.P = new DenseMatrix64F(alphabetSize, alphabetSize);
 		this.tmp_matrix = new DenseMatrix64F(alphabetSize, alphabetSize);
 		this.tmp_diagonal = new DenseMatrix64F(alphabetSize, 1);
-		this.PCache = new BoundedRealMap<DenseMatrix64F>(cacheSize, true);
+		this.PCache = new DoubleKeyMap<DenseMatrix64F>(cacheSize, cacheSize, true);
 		this.ambigCache = new HashMap<Integer, DenseMatrix64F>(14);  // Not more than at most ~14 different ambiguity characters.
 		this.update();
 	}

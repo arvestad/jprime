@@ -86,14 +86,14 @@ public class DLRS {
 			// Read S and t.
 			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
 			
+			// Read guest-to-host leaf map.
+			GuestHostMap gsMap = ParameterParser.getGSMap(params);
+			
 			// Substitution model first, then sequence alignment D and site rates.
-			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel);
+			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
 			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
 			MSAData D = new MSAData(Q.getSequenceType(), sequences);
 			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
-			
-			// Read guest-to-host leaf map.
-			GuestHostMap gsMap = ParameterParser.getGSMap(params);
 			
 			// Pseudo-random number generator.
 			PRNG prng = ParameterParser.getPRNG(params);
