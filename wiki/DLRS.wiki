@@ -107,7 +107,7 @@ You may want to tune the Java VM to your specific needs (heap size, performance 
 
 Before performing your real run, you should make a pilot run to assess the MCMC mixing and change tuning parameters accordingly. The length of a pilot run needs typically not be as long as the final run. Try striving for parameter acceptance ratios of 0.2 - 0.5 (preferably in the lower region). Even so, around 0.1 - 0.7 might do the trick. For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned. The acceptance ratios can be inspected in the info file.
 
-For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)  You probably want to perform 2 --4 independent "parallel" MCMC chains to be able to conduct proper analysis.
+For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)  You probably want to perform 2 -- 4 independent "parallel" MCMC chains to be able to conduct proper analysis.
 
 ----
 
