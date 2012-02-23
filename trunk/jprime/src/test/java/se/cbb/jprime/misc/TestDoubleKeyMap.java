@@ -12,12 +12,12 @@ import se.cbb.jprime.math.PRNG;
  * 
  * @author Joel Sjöstrand.
  */
-public class TestBoundedRealMap {
+public class TestDoubleKeyMap {
 
 	
 	@Test
 	public void testSingle() {
-		BoundedRealMap<String> map = new BoundedRealMap<String>(10, true);
+		DoubleKeyMap<String> map = new DoubleKeyMap<String>(10, 10, true);
 		map.put(345.4543, "single");
 		map.get(345.4543);
 		assertEquals("single", map.get(345.4543));
@@ -26,7 +26,7 @@ public class TestBoundedRealMap {
 	@SuppressWarnings("unused")
 	@Test
 	public void testOverfulfilled() {
-		BoundedRealMap<String> map = new BoundedRealMap<String>(8, true);
+		DoubleKeyMap<String> map = new DoubleKeyMap<String>(8, 8, true);
 		PRNG prng = new PRNG(new BigInteger("-112422468083609399096200301406773480499"));
 		double d = 0.0001234567;
 		double df = d;

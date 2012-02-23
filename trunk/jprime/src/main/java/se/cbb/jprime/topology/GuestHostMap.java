@@ -1,7 +1,7 @@
 package se.cbb.jprime.topology;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
@@ -19,17 +19,17 @@ import java.util.Set;
 public class GuestHostMap {
 	
 	/** Guest-to-host map. */
-	private HashMap<String, String> guestToHostLeafMap;
+	private LinkedHashMap<String, String> guestToHostLeafMap;
 	
 	/** Host-to-guest map. */
-	private HashMap<String, Set<String>> hostToGuestLeafMap;
+	private LinkedHashMap<String, Set<String>> hostToGuestLeafMap;
 	
 	/**
 	 * Creates an empty map.
 	 */
 	public GuestHostMap() {
-		this.guestToHostLeafMap = new HashMap<String, String>();
-		this.hostToGuestLeafMap = new HashMap<String, Set<String>>();
+		this.guestToHostLeafMap = new LinkedHashMap<String, String>();
+		this.hostToGuestLeafMap = new LinkedHashMap<String, Set<String>>();
 	}
 	
 	/**
@@ -82,5 +82,13 @@ public class GuestHostMap {
 	 */
 	public Set<String> getGuestLeafNames(String hostLeaf) {
 		return this.hostToGuestLeafMap.get(hostLeaf);
+	}
+	
+	/**
+	 * Returns the number of name-pairs of this map.
+	 * @return the number of name-pairs.
+	 */
+	public int getNoOfLeafNames() {
+		return this.guestToHostLeafMap.size();
 	}
 }
