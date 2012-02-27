@@ -311,7 +311,7 @@ public class ParameterParser {
 			int h = (int) Math.round(Math.log((double) k) / Math.log(2.0)); // Height of balanced tree...
 			ps.discStem = Math.min(Math.min(h + 12, k), 30);
 		}
-		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, ps.discTimestep, ps.discStem);
+		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, Double.parseDouble(ps.discTimestep), ps.discStem);
 	}
 		
 	/**

@@ -90,7 +90,7 @@ public class Parameters {
 	/** Discretisation timestep. */
 	@Parameter(names = {"-dts", "--discretisationtimestep"}, description = "Discretisation timestep upper bound. E.g. 0.02 yields" +
 			" timesteps of max size 0.02 on each host edge.")
-	public Double discTimestep = 0.02;
+	public String discTimestep = "0.02";
 	
 	/** Min. no of discretisation intervals. */
 	@Parameter(names = {"-dmin", "--discretisationmin"}, description = "Min. no. of discretisation intervals on each host edge.")
