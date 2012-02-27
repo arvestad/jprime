@@ -317,7 +317,7 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 		sb.append(prefix).append("Model name: ").append(this.modelName).append('\n');
 		sb.append(prefix).append("Alphabet size: ").append(this.alphabetSize).append('\n');
 		sb.append(prefix).append("Stationary frequencies Pi: ").append(Arrays.toString(this.Pi.getData())).append('\n');
-		sb.append(prefix).append("Exchangeability matrix R (time reversible, symmetric, only part above diagonal in ro-major format): ").append(Arrays.toString(this.R.getData())).append('\n');
+		sb.append(prefix).append("Exchangeability matrix R (time reversible, symmetric, only part above diagonal in row-major format): ").append(Arrays.toString(this.R.getData())).append('\n');
 		sb.append(prefix).append("Transition matrix P cache size: ").append(this.PCache.getMaxNoOfElements()).append('\n');
 		return sb.toString();
 	}
