@@ -1,6 +1,10 @@
 package se.cbb.jprime.apps.dlrs;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -55,6 +59,7 @@ public class DLRS {
 	 * @param args.
 	 */
 	public static void main(String[] args) {
+		BufferedWriter info = null;
 		try {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
@@ -73,7 +78,7 @@ public class DLRS {
 			
 			// MCMC chain output and auxiliary info.
 			SampleWriter sampler = ParameterParser.getOut(params);
-			BufferedWriter info = ParameterParser.getInfo(params);
+			info = ParameterParser.getInfo(params);
 			info.write("=========================================================================\n");
 			info.write("||                             PRE-RUN INFO                            ||\n");
 			info.write("=========================================================================\n");
@@ -190,7 +195,7 @@ public class DLRS {
 			// ================ WRITE PRE-INFO ================
 			String prefix = "\t";
 			info.write(manager.getPreInfo(prefix));
-			info.flush();
+			info.flush();   // Don't close, maybe using stdout for both sampling and info...
 			
 			// ================ RUN ================
 			manager.run();
@@ -199,7 +204,7 @@ public class DLRS {
 			info.write("=========================================================================\n");
 			info.write("||                             POST-RUN INFO                           ||\n");
 			info.write("=========================================================================\n");
-			info.write("JPRIME GSRF\n");
+			info.write("JPRIME DLRS\n");
 			info.write(manager.getPostInfo(prefix));
 			info.flush();
 			sampler.close();
@@ -208,6 +213,18 @@ public class DLRS {
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
 			System.err.print("\nUse option -h or --help to show usage.");
+			if (info != null) {
+				Writer w = new StringWriter();
+			    PrintWriter pw = new PrintWriter(w);
+			    e.printStackTrace(pw);
+				try {
+					info.write("Run failed. Reason:\n" + w.toString());
+					info.close();
+					pw.close();
+					w.close();
+				} catch (IOException f) {
+				}
+			}
 		}
 	}
 	
