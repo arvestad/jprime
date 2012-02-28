@@ -363,8 +363,7 @@ def genAndExecShellscripts(batchFile, sets, doExec):
             os.system(submitCmd)
             print ("    Submitted %s" % (shellfile))
         else:
-            print submitCmd
-            print ("    Generated %s" % (shellfile))
+            print ("    Generated but did not submit %s" % (shellfile))
     print ("...done. Processed %s jobs for %s nodes." % (n, noOfNodes))
 
 
