@@ -2,7 +2,7 @@ package se.cbb.jprime.misc;
 
 /**
  * Regular queue implementation for chars (avoids
- * wrapper requirement of e.g. LinkedList&lt;Character&gt;).
+ * wrapper requirement of e.g. LinkedList&lt;Boolean&gt;).
  * 
  * @author Joel Sjöstrand.
  */
