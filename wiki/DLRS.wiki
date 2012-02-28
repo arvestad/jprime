@@ -71,11 +71,18 @@ JPrIME-DLRS does not infer substitution model parameters during a run. You may c
 === Mapping ===
 The guest-to-host leaf map is a straightforward tab-delimited file, e.g., for the example above:
 {{{
-a1   A
-a2   A
-b1   B
-c1   C
-c2   C
+Oryctolagus_cuniculus_1	Oryctolagus_cuniculus
+Cavia_porcellus_1	Cavia_porcellus
+Cavia_porcellus_2	Cavia_porcellus
+Mus_musculus_1	Mus_musculus
+Oryctolagus_cuniculus_2	Oryctolagus_cuniculus
+Cavia_porcellus_3	Cavia_porcellus
+Mus_musculus_2	Mus_musculus
+Equus_caballus_1	Equus_caballus
+Felis_catus_1	Felis_catus
+Felis_catus_2	Felis_catus
+Canis_lupus_familiaris_1	Canis_lupus_familiaris
+Monodelphis_domestica_1	Monodelphis_domestica
 }}}
 
 ----
