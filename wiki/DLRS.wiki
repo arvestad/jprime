@@ -94,6 +94,8 @@ N       L         Param1     Param2   Param3
 ----
 
 == RUNNING ==
+
+=== Starting the application===
 Typically, you would start JPrIME-DLRS by running e.g.:
 {{{
 java -cp mypath/jprime-0.0.0.jar -Xms128m -Xmx1024m se/cbb/jprime/apps/dlrs/DLRS [options] <host tree> <msa> <guest-to-host map>
@@ -105,8 +107,10 @@ java -cp mypath/jprime-0.0.0.jar -Xms128m -Xmx1024m se/cbb/jprime/apps/dlrs/DLRS
 }}}
 You may want to tune the Java VM to your specific needs (heap size, performance tuning options, etc.). The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. Tuning a Java VM is otherwise a non-trivial area and is probably not necessary. If you are using an Oracle Java HotSpot VM (which is recommended), these documents may be of assistance: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
+===Pilot runs===
 Before performing your real run, you should make a pilot run to assess the MCMC mixing and change tuning parameters accordingly. The length of a pilot run needs typically not be as long as the final run. Try striving for parameter acceptance ratios of 0.2 - 0.5 (preferably in the lower region). Even so, around 0.1 - 0.7 might do the trick on smaller trees. For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned. The acceptance ratios can be inspected in the info file. For larger trees, consider increasing the weight for how often tree moves are carried out.
 
+===Final runs===
 For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)  You probably want to perform 2 - 4 independent "parallel" MCMC chains to be able to conduct proper analysis.
 
 ----
