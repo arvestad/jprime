@@ -10,6 +10,7 @@
   # [DLRS#ANALYSIS Analysis]
 
 ----
+----
 
 == INTRODUCTION ==
 
@@ -31,6 +32,7 @@ The application JPrIME-DLRS corresponding to the model is used for obtaining the
   * a file with samples drawn from the posterior distribution.
   * a supplementary info file with settings, proposal acceptance ratios, etc.
 
+----
 ----
 
 == INPUT ==
@@ -77,6 +79,7 @@ c2   C
 }}}
 
 ----
+----
 
 == OUTPUT ==
 Output normally consists of two files, e.g.:
@@ -91,6 +94,7 @@ N       L         Param1     Param2   Param3
 ...
 }}}
 
+----
 ----
 
 == RUNNING ==
@@ -113,6 +117,7 @@ Before performing your real run, you should make a pilot run to assess the MCMC 
 ===Final runs===
 For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses ;-)  You probably want to perform 2 - 4 independent "parallel" MCMC chains to be able to conduct proper analysis.
 
+----
 ----
 
 == ANALYSIS ==
