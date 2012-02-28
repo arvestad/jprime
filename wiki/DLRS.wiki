@@ -1,4 +1,4 @@
-#summary Description and instructions for DLRS.
+#summary Tutorial for using JPrIME-DLRS.
 
 = JPrIME-DLRS =
 
