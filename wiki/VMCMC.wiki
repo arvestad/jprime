@@ -1,13 +1,10 @@
-#summary One-sentence summary of this page.
+#summary Tutorial for using JPrIME-VMCMC.
 
 = Introduction =
 
-Add your content here.
+VMCMC is an application for analysing output of MCMC chains. It deals with both various metrics for assessing MCMC convergence, as well as summary statistics of inferred real-valued parameters, tree topologies, etc.
 
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+_To be announced._
