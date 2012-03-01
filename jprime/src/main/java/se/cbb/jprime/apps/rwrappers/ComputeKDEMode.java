@@ -79,7 +79,7 @@ public class ComputeKDEMode {
 	
 	private static void writeRFile(BufferedWriter out, ComputeKDEModeParameters params) throws IOException {
 		// Input file.
-		out.write("dat <- read.table('" + params.getInfile() + "');\n");
+		out.write("dat <- read.table('" + params.getInfile() + "', header=TRUE);\n");
 		// Sort data if desired.
 		if (params.sortColumn != null) {
 			int scol = Math.abs(params.sortColumn);
