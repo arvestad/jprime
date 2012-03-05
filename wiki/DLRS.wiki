@@ -78,9 +78,9 @@ TLCRFISVIFALYADFNRFLEILKVYVGMISNDYCYNMLLTRQVLRFGIPGNSQHLVNWLKTIGTRVEPGASSVFEADTS
 >Oryctolagus_cuniculus_2
 DVCRFITVIFALYDDFNRFLNIERAYKGMFSNCYCYNMLLTRQGVRFGIPGNSQHLVGWLKTIGVRVDAVAVSAFEANTSWDQRKTSIGKDHGIYYEYANTVSVTMAVQCDILGDHADLTYQRDGIGNLVSITVVSYMDRYKVDRLRSWQVQIFDGGQLSDMCAVVCGYNDEDKCRKILPNVDRKASGENMFKVKRLRRFTANVMSFFHQTSERTETVRVEMPDLNCVCPGATAGLLQTPSMEVWAAQKISSAIMKGETARNTSDMSVGVSIVATLQLSGDANCYFIETRKVLPNPSSFP
 }}}
-Please consider clearing ambiguous positions from the alignment before feeding it into JPrIME-GSRf. There are many such applications, e.g., [http://trimal.cgenomics.org trimAl], [http://sourceforge.net/projects/probmask/ ZORRO], [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks], [http://guidance.tau.ac.il GUIDANCE] and [http://zfmk.de/web/Forschung/Tagungen/2012/201202_GfBS/Workshops/ALISCORE/index.de.html  ALISCORE].
+Please consider clearing ambiguous positions from the alignment before feeding it into Delirious. There are many such applications, e.g., [http://trimal.cgenomics.org trimAl], [http://sourceforge.net/projects/probmask/ ZORRO], [http://molevol.cmima.csic.es/castresana/Gblocks.html Gblocks], [http://guidance.tau.ac.il GUIDANCE] and [http://zfmk.de/web/Forschung/Tagungen/2012/201202_GfBS/Workshops/ALISCORE/index.de.html  ALISCORE].
 
-JPrIME-DLRS does not infer substitution model parameters during a run. You may choose from some common built-in models (JTT, JC, etc.), or you may provide your own time-reversible model through a program option. There are programs that help you determining a suitable model, e.g., [http://darwin.uvigo.es/software/prottest.html PROTTEST] and [http://darwin.uvigo.es/software/jmodeltest.html jMODELTEST].
+Delirious does not infer substitution model parameters during a run. You may choose from some common built-in models (JTT, JC, etc.), or you may provide your own time-reversible model through a program option. There are programs that help you determining a suitable model, e.g., [http://darwin.uvigo.es/software/prottest.html PROTTEST] and [http://darwin.uvigo.es/software/jmodeltest.html jMODELTEST].
 
 === Mapping ===
 The guest-to-host leaf map is a straightforward tab-delimited file, e.g., for the example above:
@@ -121,14 +121,14 @@ N       L         Param1     Param2   Param3
 == RUNNING ==
 
 === Starting the application===
-Typically, you would start JPrIME-DLRS by running e.g.:
+Typically, you would start Delirious by running e.g.:
 {{{
-java -cp mypath/jprime-0.0.0.jar -Xms128m -Xmx1024m se/cbb/jprime/apps/dlrs/DLRS [options] <host tree> <msa> <leaf map>
+java -cp mypath/jprime-0.0.0.jar -Xms128m -Xmx1024m se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
 where the path and version of course refer to your current setup.
 Alternatively, you may specify all input in a file thus:
 {{{
-java -cp mypath/jprime-0.0.0.jar -Xms128m -Xmx1024m se/cbb/jprime/apps/dlrs/DLRS @<parameter file>
+java -cp mypath/jprime-0.0.0.jar -Xms128m -Xmx1024m se/cbb/jprime/apps/dlrs/Delirious @<parameter file>
 }}}
 You may want to tune the Java VM to your specific needs (heap size, performance tuning options, etc.). The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. Tuning a Java VM is otherwise a non-trivial area and is probably not necessary. If you are using an Oracle Java HotSpot VM (which is recommended), these documents may be of assistance: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
@@ -146,6 +146,4 @@ Consider using [http://cran.r-project.org CRAN R] in general. Several MCMC-tailo
   * [VMCMC JPrIME-VMCMC].
   * The CRAN R package [http://cran.r-project.org/web/packages/coda/index.html CODA].
   * [http://tree.bio.ed.ac.uk/software/tracer/ Tracer].
-As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and simply manual inspection of the agreement of log-likelihoods and parameter estimates for parallel chains.
-
-----
+As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and simply manual inspection of the agreement of log-likelihoods, trees and parameter estimates for parallel chains.
