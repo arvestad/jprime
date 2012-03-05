@@ -9,14 +9,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.cbb.jprime.apps.dlrs.DLRS;
+import se.cbb.jprime.apps.dlrs.Delirious;
 
 /**
- * DLRS unit tests.
+ * Unit tests.
  * 
  * @author Joel Sjöstrand.
  */
-public class TestDLRS {
+public class TestDelirious {
 	
 	private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 	private final ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -35,10 +35,10 @@ public class TestDLRS {
 	
 	@Test
 	public void testUsage() {
-		DLRS.main(new String[]{});
+		Delirious.main(new String[]{});
 		assertTrue(out.toString().startsWith("Usage"));
 		out.reset();
-		DLRS.main(new String[]{ "-h" });
+		Delirious.main(new String[]{ "-h" });
 		assertTrue(out.toString().startsWith("Usage"));
 		out.reset();
 	}
