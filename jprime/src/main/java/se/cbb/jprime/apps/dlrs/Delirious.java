@@ -46,16 +46,16 @@ import se.cbb.jprime.topology.TimesMap;
 import com.beust.jcommander.JCommander;
 
 /**
- * Java version of the DLRS application (previously known as GSR and GSRf)
+ * Java version of the Delirious application (previously known as GSR and GSRf)
  * for simultaneous reconciliation and inference
- * of a guest tree evolving inside a dated host tree.
+ * of a guest tree evolving inside a dated host tree. Based on the DLRS model.
  * 
  * @author Joel Sjöstrand.
  */
-public class DLRS {
+public class Delirious {
 	
 	/**
-	 * GSRf starter.
+	 * Delirious starter.
 	 * @param args.
 	 */
 	public static void main(String[] args) {
@@ -68,7 +68,7 @@ public class DLRS {
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
-				sb.append("Usage: java DLRS [options] ").append(jc.getMainParameterDescription()).append('\n');
+				sb.append("Usage: java Delirious [options] ").append(jc.getMainParameterDescription()).append('\n');
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				System.out.println(sb.toString());
 				return;
@@ -82,7 +82,7 @@ public class DLRS {
 			info.write("=========================================================================\n");
 			info.write("||                             PRE-RUN INFO                            ||\n");
 			info.write("=========================================================================\n");
-			info.write("JPRIME DLRS\n");
+			info.write("DELIRIOUS\n");
 			info.write("Arguments: " + Arrays.toString(args) + '\n');
 			Calendar cal = Calendar.getInstance();
 		    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -204,7 +204,7 @@ public class DLRS {
 			info.write("=========================================================================\n");
 			info.write("||                             POST-RUN INFO                           ||\n");
 			info.write("=========================================================================\n");
-			info.write("JPRIME DLRS\n");
+			info.write("DELIRIOUS\n");
 			info.write(manager.getPostInfo(prefix));
 			info.flush();
 			sampler.close();
