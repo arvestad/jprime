@@ -1,4 +1,4 @@
-#summary Tutorial for using Delerious.
+#summary Tutorial for DLRS and Delerious.
 
 =DLRS and Delirious =
 
