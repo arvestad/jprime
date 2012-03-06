@@ -328,6 +328,12 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 		StringBuilder sb = new StringBuilder(16536);
 		sb.append(prefix).append("RBTREE ARC-DISCRETISER\n");
 		//sb.append("Times in pre-order of RBTreeDiscretizer on tree parameter ").append(this.S.getName()).append(" and times parameter ").append(this.times.getName()).append(":\n");
+		sb.append(prefix).append("Min no. of slices: ").append(this.nmin).append('\n');
+		sb.append(prefix).append("Max no. of slices: ").append(this.nmax).append('\n');
+		sb.append(prefix).append("Approx. timestep: ").append(this.deltat).append('\n');
+		if (this.nroot != -1) {
+			sb.append(prefix).append("Stem no. of slices: ").append(this.nroot).append('\n');
+		}
 		sb.append(prefix).append("Discretisation:\n");
 		prefix += '\t';
 		sb.append(prefix).append("Arc:\tNo. of slices:\tTimes:\n");
