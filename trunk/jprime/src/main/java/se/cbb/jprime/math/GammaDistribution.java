@@ -98,12 +98,13 @@ public class GammaDistribution implements Continuous1DPDDependent {
 	}
 
 	/**
-	 * Updates the distribution.
+	 * Updates the distribution following, e.g., a change of the underlying DoubleParameters.
 	 */
-	public void update() {
+	private void update() {
 		if (this.mean != null) {
-			this.k = 1.0 / Math.pow(this.mean.getValue(), 2);
-			this.theta = this.mean.getValue() * Math.pow(this.cv.getValue(), 2);
+			double cv2 = Math.pow(this.cv.getValue(), 2);
+			this.k = 1.0 / cv2;
+			this.theta = this.mean.getValue() * cv2;
 		}
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 	}
@@ -184,7 +185,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		this.k = mean / this.theta;
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 		if (this.mean != null) {
-			synchP1AndP2();
+			synchMeanAndCV();
 		}
 	}
 
@@ -208,7 +209,7 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		this.k = Math.pow(stdev / this.theta, 2);
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 		if (this.mean != null) {
-			synchP1AndP2();
+			synchMeanAndCV();
 		}
 	}
 
@@ -227,15 +228,15 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		this.k = var / (this.theta * this.theta);
 		this.c = -this.k * Math.log(this.theta) - Gamma.lnGamma(this.k);
 		if (this.mean != null) {
-			synchP1AndP2();
+			synchMeanAndCV();
 		}
 	}
 
 	/**
-	 * Adjusts DoubleParameters' values accordance with the current internal values
+	 * Adjusts DoubleParameters' values in accordance with the current internal values
 	 * following a change of the shape parameter.
 	 */
-	private void synchP1AndP2() {
+	private void synchMeanAndCV() {
 		this.mean.setValue(this.k * this.theta);
 		this.cv.setValue(1.0 / Math.sqrt(this.k));
 	}
