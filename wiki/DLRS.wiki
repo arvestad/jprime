@@ -143,7 +143,7 @@ For your final runs, the number of iterations required and a suitable thinning f
 
 == ANALYSIS ==
 Consider using [http://cran.r-project.org CRAN R] in general. Several MCMC-tailored analysis softwares exist, among them:
-  * [VMCMC JPrIME-VMCMC].
+  * [VMCMC VMCMC].
   * The CRAN R package [http://cran.r-project.org/web/packages/coda/index.html CODA].
   * [http://tree.bio.ed.ac.uk/software/tracer/ Tracer].
 As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and simply manual inspection of the agreement of log-likelihoods, trees and parameter estimates for parallel chains.
