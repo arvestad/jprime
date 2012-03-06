@@ -193,8 +193,8 @@ public class Delirious {
 			}
 			
 			// ================ WRITE PRE-INFO ================
-			String prefix = "\t";
-			info.write(manager.getPreInfo(prefix));
+			info.write("MCMC manager:\n");
+			info.write(manager.getPreInfo("\t"));
 			info.flush();   // Don't close, maybe using stdout for both sampling and info...
 			
 			// ================ RUN ================
@@ -205,7 +205,8 @@ public class Delirious {
 			info.write("||                             POST-RUN INFO                           ||\n");
 			info.write("=========================================================================\n");
 			info.write("DELIRIOUS\n");
-			info.write(manager.getPostInfo(prefix));
+			info.write("MCMC manager:\n");
+			info.write(manager.getPostInfo("\t"));
 			info.flush();
 			sampler.close();
 			info.close();
