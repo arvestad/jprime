@@ -143,7 +143,7 @@ public class Parameters {
 	
 	/** Tuning parameter: site rate shape proposal distribution variance. */
 	@Parameter(names = {"-tngsrshape", "--tuningsiterateshape"}, description = "Tuning parameter: Governs site rate shape proposal distribution variance.")
-	public String tuningSiteRateShape = "[0.4,0.4,0.9,0.9]";
+	public String tuningSiteRateShape = "[0.2,0.2,0.9,0.9]";
 	
 	/** Tuning parameter: branch lengths proposal distribution variance. */
 	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution variance.")
@@ -179,15 +179,15 @@ public class Parameters {
 	
 	/** Tuning parameter: edge rate CV proposer weight. */
 	@Parameter(names = {"-tngwercv", "--tuningweightedgeratecv"}, description = "Tuning parameter: Relative activation weight for edge rate CV proposer.")
-	public String tuningWeightEdgeRateCV = "[2.0,2.0]";
+	public String tuningWeightEdgeRateCV = "[1.0,1.0]";
 	
 	/** Tuning parameter: site rate shape proposer weight. */
 	@Parameter(names = {"-tngwsrshape", "--tuningweightsiterateshape"}, description = "Tuning parameter: Relative activation weight for site rate shape proposer.")
-	public String tuningWeightSiteRateShape = "[0.25,0.25]";
+	public String tuningWeightSiteRateShape = "[0.5,0.5]";
 	
 	/** Tuning parameter: guest tree proposer weight. */
 	@Parameter(names = {"-tngwg", "--tuningweightguesttree"}, description = "Tuning parameter: Relative activation weight for guest tree topology proposer.")
-	public String tuningWeightG = "[1.0,1.0]";
+	public String tuningWeightG = "[2.0,2.0]";
 	
 	/** Tuning parameter: branch lengths. */
 	@Parameter(names = {"-tngwl", "--tuningweightlengths"}, description = "Tuning parameter: Relative activation weight for branch lengths proposer.")
