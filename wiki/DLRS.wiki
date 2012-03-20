@@ -16,7 +16,7 @@
 
 *DLRS* (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). The evolution of the guest tree can be envisioned as occurring in separate phases:
   # The guest tree topology is created by evolving down the host tree by means of duplications and loss events according to a birth-death process. Lineages branch deterministically at speciations.
-  # Using the ultrametric times of the guest tree, relaxed branch lengths are obtained by multiplying each branch time with an iid substitution rate according to some distribution.
+  # Using the ultrametric times of the guest tree, relaxed branch lengths are obtained by multiplying each branch time with an iid substitution rate according to a suitable distribution.
   # Using the guest tree topology and branch lengths, sequence evolution occurs over the guest tree according to an arbitrary substitution model to produce guest family sequences at the leaves. Possibly, site rate variation occurs according to a gamma distribution.
 
 Hence the name DLRS = duplications, losses, rates & sequence evolution.
