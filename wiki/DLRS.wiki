@@ -107,7 +107,7 @@ Monodelphis_domestica_1	Monodelphis_domestica
 == OUTPUT ==
 Output normally consists of two files, e.g.:
   * {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
-  * {{{myoutput.info}}}, containing general pre- and post-run information.
+  * {{{myoutput.mcmc.info}}}, containing general pre- and post-run information.
 The former will look something like:
 {{{
 N       L         Param1     Param2   Param3
