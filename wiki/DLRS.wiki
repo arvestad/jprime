@@ -18,7 +18,7 @@
 
 The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as occurring in separate phases:
   # _G_ is created by evolving down _S_ by means of duplications and loss events according to a birth-death-like process. Lineages branch deterministically at speciations.
-  # Using the clock-like times of _G_, relaxed branch lengths are obtained by multiplying each branch timespan with an iid substitution rate according to a suitable distribution.
+  # Using the clock-like times of _G_, relaxed branch lengths are obtained by multiplying each branch timespan with an _iid_ substitution rate according to a suitable distribution.
   # Using _G_ and its branch lengths, sequence evolution occurs over the tree according to a substitution model of choice to produce guest family sequences. Possibly, site rate variation occurs according to a gamma distribution.
 
 Hence the name DLRS = duplications, losses, rates & sequence evolution.
