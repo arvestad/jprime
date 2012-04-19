@@ -14,14 +14,16 @@
 
 == INTRODUCTION ==
 
-*DLRS [=the model]* (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). The evolution of the guest tree can be envisioned as occurring in separate phases:
-  # The guest tree topology is created by evolving down the host tree by means of duplications and loss events according to a birth-death process. Lineages branch deterministically at speciations.
-  # Using the ultrametric times of the guest tree, relaxed branch lengths are obtained by multiplying each branch time with an iid substitution rate according to a suitable distribution.
-  # Using the guest tree topology and branch lengths, sequence evolution occurs over the guest tree according to an arbitrary substitution model to produce guest family sequences at the leaves. Possibly, site rate variation occurs according to a gamma distribution.
+*DLRS [=the model]* (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication and loss events, and sequence evolution with a relaxed molecular clock.
+
+The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as occurring in separate phases:
+  # _G_ is created by evolving down _S_ by means of duplications and loss events according to a birth-death-like process. Lineages branch deterministically at speciations.
+  # Using the clock-like times of _G_, relaxed branch lengths are obtained by multiplying each branch timespan with an iid substitution rate according to a suitable distribution.
+  # Using _G_ and its branch lengths, sequence evolution occurs over the tree according to a substitution model of choice to produce guest family sequences. Possibly, site rate variation occurs according to a gamma distribution.
 
 Hence the name DLRS = duplications, losses, rates & sequence evolution.
 
-*Delirious [=the software application]* is the appropriately named Java application which corresponds to the model, and is used for obtaining the unknown guest tree topology and model parameters in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+*Delirious [=the software application]* is the appropriately named Java application corresponding to DLRS, and is used for inferring an unknown guest tree in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
 
 *Input:*
   * a file with a dated host tree.
@@ -46,7 +48,7 @@ Alternatively, one can specify absolute times using special formatting:
 {{{
 (((Oryctolagus_cuniculus[&&PRIME NT=0],(Cavia_porcellus[&&PRIME NT=0],Mus_musculus[&&PRIME NT=0])[&&PRIME NT=78.3])[&&PRIME NT=89.9],(Equus_caballus[&&PRIME NT=0],(Felis_catus[&&PRIME NT=0],Canis_lupus_familiaris[&&PRIME NT=0])[&&PRIME NT=55.7])[&&PRIME NT=80.8])[&&PRIME NT=101.7],Monodelphis_domestica[&&PRIME NT=0])[&&PRIME NT=163.9][&&PRIME TT=41.0 NAME=Mammalia];
 }}}
-The host tree must be ultrametric, with time 0 at the leaves and time >0 at the root, and a "stem" with timespan >0 (in the above example this was set to 0.5). The scale of the dates can be any unit: *they will be rescaled internally prior to running so that the root time is 1.0, and the output will refer to this scaling*, and not the original values. The scale factor is included in the info output file.
+The host tree must be clock-like (ultrametric), with time 0 at the leaves and time >0 at the root, and a "stem" with timespan >0 (in the above example this was set to 0.5). The scale of the dates can be any unit: *they will be rescaled internally prior to running so that the root time is 1.0, and the output will refer to this scaling*, and not the original values. The scale factor is included in the info output file.
 
 A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of "core" gene families (e.g. monocopy putative orthologs, housekeeping genes, etc.), aligning these, then feeding the concatenated multiple locus sequence alignment (MLSA) into a program which estimates divergence times. For acquiring core genes for microbial datasets [http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0024704 this article] may be of help. For dating, consider e.g. [http://beast.bio.ed.ac.uk BEAST], [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
 
