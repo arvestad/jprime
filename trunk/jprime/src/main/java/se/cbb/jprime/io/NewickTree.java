@@ -267,6 +267,27 @@ public class NewickTree {
 		return (bls != null ? new DoubleMap(name, bls) : null);
 	}
 	
+	/**
+	 * Removes any branch lengths from the tree.
+	 */
+	public void clearBranchLengths() {
+		List<NewickVertex> vertices = this.getVerticesAsList();
+		for (NewickVertex v : vertices) {
+			v.setBranchLength(null);
+		}
+	}
+	
+	/**
+	 * Removes any meta info from the vertices and the tree itself.
+	 */
+	public void clearMeta() {
+		List<NewickVertex> vertices = this.getVerticesAsList();
+		for (NewickVertex v : vertices) {
+			v.setMeta(null);
+		}
+		this.setMeta(null);
+	}
+	
 	@Override
 	public String toString() {
 		// Conforms with serialisation of a Newick tree.

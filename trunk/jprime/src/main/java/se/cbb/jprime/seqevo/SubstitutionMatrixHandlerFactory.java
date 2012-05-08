@@ -5,8 +5,7 @@ import se.cbb.jprime.io.SampleDoubleArray;
 /**
  * Creates matrix handlers corresponding to various substitution models.
  * TODO: the models JC69, etc. should be moved to another subclass
- * of TransitionHandler that implements analytical solutions of the
- * member functions.
+ * that implements analytical solutions of the member functions.
  * <p/>
  * Note: Not a proper factory class yet, but maybe eventually.
  * 
@@ -25,15 +24,15 @@ public class SubstitutionMatrixHandlerFactory {
 	 */
 	public static SubstitutionMatrixHandler create(String model, int cacheSize) {
 		model = model.trim().toUpperCase();
-		if (model == "JC69") {
+		if (model.equals("JC69")) {
 			return createJC69(cacheSize);
-		} else if (model == "UNIFORMAA") {
+		} else if (model.equals("UNIFORMAA")) {
 			return createUniformAA(cacheSize);
-		} else if (model == "JTT") {
+		} else if (model.equals("JTT")) {
 			return createJTT(cacheSize);
-		} else if (model == "UNIFORMCODON") {
+		} else if (model.equals("UNIFORMCODON")) {
 			return createUniformCodon(cacheSize);
-		} else if (model == "ARVECODON") {
+		} else if (model.equals("ARVECODON")) {
 			return createArveCodon(cacheSize);
 		} else if (model.startsWith("USERDEFINED")) {
 			// TODO: Clean-up.

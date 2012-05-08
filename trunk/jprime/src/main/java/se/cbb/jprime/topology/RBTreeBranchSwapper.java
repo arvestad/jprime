@@ -34,28 +34,28 @@ import se.cbb.jprime.mcmc.TuningParameter;
 public class RBTreeBranchSwapper implements Proposer {
 
 	/** Topology. */
-	private RBTree T;
+	protected RBTree T;
 	
 	/** Lengths. Null if not used. */
-	private DoubleMap lengths;
+	protected DoubleMap lengths;
 	
 	/** Times. Null if not used. */
-	private TimesMap times;
+	protected TimesMap times;
 	
 	/** Statistics. */
-	private ProposerStatistics statistics = null;
+	protected ProposerStatistics statistics = null;
 	
 	/** Pseudo-random number generator. */
-	private PRNG prng;
+	protected PRNG prng;
 	
 	/** Array of weights for NNI, SPR and rerooting respectively. */
-	private double[] operationWeights;
+	protected double[] operationWeights;
 	
 	/** Active flag. */
-	private boolean isActive;
+	protected boolean isActive;
 	
 	/** Last operation type. */
-	private String lastOperationType;
+	protected String lastOperationType;
 	
 	/**
 	 * Constructor.
