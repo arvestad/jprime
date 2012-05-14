@@ -2,6 +2,8 @@
 
 =DLRS and Delirious =
 
+[http://jprime.googlecode.com/files/DLRS.png]
+
 == CONTENTS ==
   # [DLRS#INTRODUCTION Introduction]
   # [DLRS#INPUT Input]
@@ -51,7 +53,7 @@ Alternatively, one can specify absolute times using special formatting:
 The host tree must be clock-like (ultrametric), with time 0 at the leaves and time >0 at the root, and a "stem" with timespan >0 (in the above example this was set to 41.0). The scale of the dates can be any unit: *they will be rescaled internally prior to running so that the root time is 1.0, and the output will refer to this scaling*, and not the original values. The scale factor is included in the info output file. The algorithm will use a discretization of the host tree. The default settings may be changed according to the options shown below.
 
  
-[http://jprime.googlecode.com/files/discretization.png]
+[http://jprime.googlecode.com/files/Delirious_discretization.png]
 
 
 A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of "core" gene families (e.g. monocopy putative orthologs, housekeeping genes, etc.), aligning these, then feeding the concatenated multiple locus sequence alignment (MLSA) into a program which estimates divergence times. For acquiring core genes for microbial datasets [http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0024704 this article] may be of help. For dating, consider e.g. [http://beast.bio.ed.ac.uk BEAST], [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
