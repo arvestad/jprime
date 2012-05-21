@@ -46,31 +46,36 @@ import se.cbb.jprime.apps.vmcmc.gui.MCMCWindow;
 import se.cbb.jprime.apps.vmcmc.gui.MCMCGraphPanel;
 import se.cbb.jprime.apps.vmcmc.gui.MCMCGraphToolPanel;
 
-/**
- *
+/**																							
  * File "MCMCApplication.java"
  *	Created by: M Bark & J Mir� Arredondo (2010)
  *   E-mail: mikbar at kth dot se & jorgma at kth dot se
  *
  *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
+ *   Royal Institute of Technology, Sweden
  * 
  *	File version: 1.0
  *	VMCMC version: 1.0
  *
  *	Modification history for this file:
  *	v1.0  (2010-06-15) First released version.
- *   v1.1  (2011-06-15) Second version work in progress)
+ *   v1.1  (2011-06-15) Second version work in progress
+ *   
+ *  Updated by: Raja Hashim Ali (2011-2014)
+ *   E-mail: rhali at kth dot se
+ *   
+ *   This file is part of PhD project work for Royal Institute of Technology.
  */
 public class MCMCApplication {
 	private MCMCWindow window;
 
-	/*
-	 * Default constructor. Used when no filename is provided. opens up the first window that is used to supply input file. 
-	 */
+	/* Default constructor. Used when no filename is provided.								*/
+	/* Used: When no filename is provided as input parameter.								*/
+	/* Function: Opens up the first window that is used to supply input file. 				*/
 	MCMCApplication() {
-		window = new MCMCWindow();				//Opens up a new window.
-
+		window = new MCMCWindow();				
+					/* Returns up a new window by invoking MCMCWindow.												*/
+		
 		window.setTitle("VMCMC Application");	//Window has title VMCMC Application
 		window.setJMenuBar(createMenuBar());	//Window will only contain a menu at startup
 		window.validate();
