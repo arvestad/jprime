@@ -118,11 +118,11 @@ abstract public class MCMCFileReader {
 	/*
 	 * readLine: Extract sub array terminated by \n from byte array. 
 	 */
-	private static byte[] readLine(byte[] data) {
+	private static byte[] readLine(byte[] data, int sizeofFile) {
 		byte[] line;
 		int size = 0;
 
-		while(data[p] != '\n') {
+		while(p < sizeofFile && data[p] != '\n') {
 			p++;
 			size++;
 		}
@@ -244,7 +244,7 @@ abstract public class MCMCFileReader {
 		{
 			if(data[p] == '#') 
 			{
-				commentline = readLine(data);	//Store comment line
+				commentline = readLine(data, size);	//Store comment line
 				continue;
 			}
 
@@ -261,7 +261,7 @@ abstract public class MCMCFileReader {
 				}
 				else 
 				{
-					commentline = readLine(data);
+					commentline = readLine(data, size);
 					values = formatCommentLine1((new String(commentline).toCharArray()));
 				}
 
