@@ -72,8 +72,7 @@ abstract public class MCMCFileReader {
 	 * formatCommentLine: Extracts names and types into two strings separated by spaces.
 	 */
 	private static String[] formatCommentLine1(char[] data) {
-		String names = "";
-		String types = "";
+		String names = "", types = "", suffix = "GuestTre ", type;
 
 		for(int i=0; i<data.length && data[i] != '\r' && data[i] != '\n'; i++) {
 			if(data[i] == '\t')		//Replace tabs with spaces for conformity
@@ -83,7 +82,7 @@ abstract public class MCMCFileReader {
 
 			if(data[i] != ' ') {	//Space means new parameter
 				//Extract name:
-				while(data[i] != ' ' && data[i] != '\t' && data[i] != '\r') {
+				while(data[i] != ' ' && data[i] != '\t' && data[i] != '\r' && i < data.length-1) {
 					names += data[i];
 					i++;
 				}
@@ -91,7 +90,16 @@ abstract public class MCMCFileReader {
 				types += "none ";
 			}
 		}
-
+		if(names.endsWith(suffix))
+		{
+			type = types.substring(0, types.length()-5);
+			types = type;
+			type = names.substring(0, names.length()-1);
+			names = type;
+			
+			names = names.concat("e ");
+			types = types.concat("tree ");
+		}
 		String[] returnValues = {names, types};
 		return returnValues;
 	}
@@ -227,7 +235,6 @@ abstract public class MCMCFileReader {
 	public static MCMCDataContainer readMCMCFile(File file) throws IOException
 	{
 		MCMCDataContainer datacontainer = new MCMCDataContainer();
-		
 		FileInputStream inputStream = new FileInputStream(file);
 
 		datacontainer.setFileName(file.getName());
@@ -262,6 +269,7 @@ abstract public class MCMCFileReader {
 				else 
 				{
 					commentline = readLine(data, size);
+					System.out.println(new String(commentline).toCharArray());
 					values = formatCommentLine1((new String(commentline).toCharArray()));
 				}
 
