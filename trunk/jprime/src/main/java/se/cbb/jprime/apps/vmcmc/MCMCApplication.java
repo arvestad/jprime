@@ -35,58 +35,77 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import se.cbb.jprime.apps.vmcmc.libs.MCMCDataContainer;
-import se.cbb.jprime.apps.vmcmc.libs.MCMCFileReader;
-import se.cbb.jprime.apps.vmcmc.libs.MCMCMath;
-import se.cbb.jprime.apps.vmcmc.libs.MCMCTree;
-import se.cbb.jprime.apps.vmcmc.gui.MCMCMainTab;
-import se.cbb.jprime.apps.vmcmc.gui.MCMCTableTab;
-import se.cbb.jprime.apps.vmcmc.gui.MCMCTreeTab;
-import se.cbb.jprime.apps.vmcmc.gui.MCMCWindow;
-import se.cbb.jprime.apps.vmcmc.gui.MCMCGraphPanel;
-import se.cbb.jprime.apps.vmcmc.gui.MCMCGraphToolPanel;
+import com.beust.jcommander.JCommander;
+
+import se.cbb.jprime.apps.vmcmc.libs.*;
+import se.cbb.jprime.apps.vmcmc.gui.*;
+import se.cbb.jprime.misc.Triple;
 
 /**																							
- * File "MCMCApplication.java"
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *   Royal Institute of Technology, Sweden
+ * 	The main class for VMCMC. It is responsible for efficiently co-ordinating calls between various GUI classes, Data handling classes, User requirements and MCMC statistics computation and convergence test classes. 
+ *	The main method is to get the filename and the type of results a user wants from this program and to use the function calls from various other implemented classes to generate the required graphics and/or results.
  * 
- *	File version: 1.0
- *	VMCMC version: 1.0
+ *   <p>This file is part of the bachelor thesis "Verktyg för visualisering av MCMC-data" - VMCMC
+ *   Royal Institute of Technology, Sweden. (M.Bark, J. Miró)
+ *  <p>This file is part of PhD project work for Royal Institute of Technology. (R. H. Ali)
  *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
- *   v1.1  (2011-06-15) Second version work in progress
- *   
- *  Updated by: Raja Hashim Ali (2011-2014)
- *   E-mail: rhali at kth dot se
- *   
- *   This file is part of PhD project work for Royal Institute of Technology.
+ *	@Modification_history
+ *	v1.0  (2010-06-15) First released version by M Bark (mikbar at kth dot se) and J Miró (jorgma at kth dot se)
+ *  <p>v1.1  (2011-2014) Second version work in progress
+ *  <p>Updated by: Raja Hashim Ali (rhali at kth dot se)
+ *  <p>This code has used a few functions and classes from JPrime code developed by Joel Sjöstrand. We are extremely grateful to him for helping us graciously in this project with his ideas, sincere help, developed codes and classes. 
+ *  
+ *  <code>
+ *  @Class_Variables MCMCWindow window;
+ *  @Private_Class_Functions
+ *  MCMCApplication(), MCMCApplication(String), MCMCApplication(int, String, int, double)
+ *  JMenuBar createMenuBar(), JMenuBar createDirectMenuBar(final File), void linkTabsToTrees(final JTabbedPane, final MCMCTreeTab),
+ *  MCMCMainTab createMainPanel(final MCMCDataContainer), void linkMainToTabs(final MCMCMainTab, final JTabbedPane),
+ *  void linkMainToTable(final MCMCMainTab, final MCMCTableTab), void linkMainToTrees(final MCMCMainTab, final MCMCTreeTab),
+ *  MCMCTableTab createTablePanel(final MCMCDataContainer), void linkeTreesToMain(final MCMCTreeTab, final MCMCMainTab),
+ *  MCMCTreeTab createTreePanel(MCMCDataContainer).
+ *  @Public_Class_Functions
+ *  static void main(String[]), MCMCWindow getWindow().
+ *  @Classes
+ *  MCMCApplication, MCMCDisplayPanel, MCMCGraphPanel, MCMCGraphRuler, MCMCGraphToolPanel, MCMCMainTab, MCMCStandardTab, MCMCTableTab,
+ *  MCMCTreeTab, MCMCWindow, JcommanderUserWrapper, MCMCConsensusTree, MCMCDataContainer, MCMCFileReader, MCMCInterface, MCMCMath,
+ *  MCMCNewick, MCMCTree, MCMCTreeNode, ParameterParser, Parameters, misc.Triple.
+ *  </code>
+ *
+ *	@author Mikael Bark, J. Miró and Raja Hashim Ali
+ *	@param filename, burnin, confidence_level.
+ *	@return Statistical and convergence analysis of MCMC output from CODA, JPRiME and PRiME.
+ *	@Usage java MCMCApplication [-h] [-f FILENAME] [[-b burnin] [-c confidencelevel] [-n] [-s] [-t] [-e] [-r] [-g]]
  */
 public class MCMCApplication {
 	private MCMCWindow window;
 
-	/* Default constructor. Used when no filename is provided.								*/
-	/* Used: When no filename is provided as input parameter.								*/
-	/* Function: Opens up the first window that is used to supply input file. 				*/
+	/** Definition: 			Default constructor for VMCMC.										
+		<p>Usage: 				When no filename is provided as input parameter.						
+	 	<p>Function:			Opens up the first window that is used to supply input file. 				
+	 	<p>Classes: 			MCMCWindow.
+	 	<p>Internal Functions:	createMenuBar(). 		
+	 	@return: 				A new graphical basic window by invoking MCMCWindow.					
+	 */
 	MCMCApplication() {
 		window = new MCMCWindow();				
-					/* Returns up a new window by invoking MCMCWindow.												*/
 		
-		window.setTitle("VMCMC Application");	//Window has title VMCMC Application
-		window.setJMenuBar(createMenuBar());	//Window will only contain a menu at startup
+		window.setTitle("VMCMC Application");	
+		window.setJMenuBar(createMenuBar());	
 		window.validate();
 
-		UIManager.put("TabbedPane.selected", new Color(0xFFEEEEFF));	//Setting color for selected tabs
+		UIManager.put("TabbedPane.selected", new Color(0xFFEEEEFF));	
 		UIManager.put("TabbedPane.contentAreaColor", new Color(0xFFEEEEFF));
 		UIManager.put("TabbedPane.shadow", new Color(0xFF000000));
 	}
 
-	/*
-	 * Constructor with a filename. Used when a filename is provided. Opens up the second window directly that is used to show all test values and statistics. 
+
+	/** Definition: 			Constructor with filename for VMCMC.										
+	<p>Usage: 				When a filename is provided as input parameter.						
+ 	<p>Function:			Opens up the second window that displays all graphs and statistical analysis. 
+ 	<p>Classes: 		MCMCWindow.		
+	<p>Internal Functions:	createDirectMenuBar(File). 		
+ 	@return: 				A new graphical basic window by invoking MCMCWindow that has all statistics and convergence tests for the MCMC file performed.					
 	 */
 	MCMCApplication(String file1) {
 		File file = new File(file1);
@@ -102,8 +121,13 @@ public class MCMCApplication {
 		UIManager.put("TabbedPane.shadow", new Color(0xFF000000));
 	}
 
-	/*
-	 * Constructor with a filename. Used when a filename is provided. Opens up the second window directly that is used to show all test values and statistics. 
+
+	/** Definition: 			Constructor with filename, custom burnin and/or confidence level for VMCMC.										
+	<p>Usage: 				When filename and custom burnin/confidence level/both are provided as input parameters.						
+ 	<p>Function:			Opens up the second window that displays all graphs and statistical analysis.  				
+ 	<p>Classes: 			MCMCWindow, MCMCDataContainer, MCMCFileReader, MCMCMath.		
+	<p>Internal Functions:	None. 				
+ 	@return: 				A new graphical basic window by invoking MCMCWindow.					
 	 */
 	MCMCApplication(int choice, String file1, int burnin, double confidencelevel) {
 		File file = new File(file1);
@@ -112,6 +136,7 @@ public class MCMCApplication {
 			confidencelevel = 0;
 		else if(confidencelevel>100)
 			confidencelevel = 100;
+
 		if(file != null) 
 		{
 			MCMCDataContainer datacontainer = null;
@@ -128,11 +153,10 @@ public class MCMCApplication {
 					}
 					else
 					{
-						System.out.println("Filename or file path incorrect");
+						System.out.println("Filename incorrect or file path not found.");
 						System.exit(-2);
 					}
 				}
-
 				datacontainer = MCMCFileReader.readMCMCFile(file);	
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -159,7 +183,6 @@ public class MCMCApplication {
 						}
 						else if(choice == 4)
 						{
-
 							int geweke = tests.calculateGeweke(serie);
 							if (geweke != -1)
 								System.out.println("    Parameter " + j + ": \"" + array.get(i) + "\" estimated burn in point is " + geweke);
@@ -177,26 +200,25 @@ public class MCMCApplication {
 						else if(choice == 2)
 						{
 							System.out.println("\n    ------ Parameter " + j + ": "+ array.get(i) + " ------");
-
+							
+							int geweke = tests.calculateGeweke(serie);
+							boolean gelmanRubin = tests.GelmanRubinTest(serie, burnin);
 							int ess = tests.calculateESS(serie);
+
 							if (ess > length/800)
 								System.out.println("    'ESS': Estimated burn in point is " + ess);
 							else
 								System.out.println("    'ESS': Insignificant. Not converged");
 
-							int geweke = tests.calculateGeweke(serie);
 							if (geweke != -1)
 								System.out.println("    'Geweke': Estimated burn in point is " + geweke);
 							else
 								System.out.println("    'Geweke': Not converged");
 
-							boolean gelmanRubin = tests.GelmanRubinTest(serie, burnin);
 							if(gelmanRubin == true)	
 								System.out.println("    'Gelman Rubin': Converged at data point " + burnin);
 							else
 								System.out.println("    'Gelman Rubin': Not converged at data point " + burnin);
-
-
 						}
 						else if(choice == 3)
 						{
@@ -252,19 +274,18 @@ public class MCMCApplication {
 									if(comp > 0) {nearest = (Double)data[k+1]; equalStart = k+1;}
 									if(comp == 0){equalEnd = k+1;}
 								}
+
 								if(equalEnd == 0)
 									tempHolder = equalStart;
 								else
 									tempHolder = equalStart + (equalEnd - equalStart)/2;
+
 								double[] start = {nearest, tempHolder};
-
 								int intervalLength = (int) ((double)(numValues)*(confidencelevel/100));
-
 								int startPos = (int)start[1]; 
 								double startNum = start[0];
 								int leftIndex = startPos-1, rightIndex = startPos+1;
 								double tempHolder1, tempHolder2;
-
 								System.out.println("    Confidence Level:                        " + confidencelevel + "%");
 
 								if(numValues == 0) 
@@ -272,7 +293,6 @@ public class MCMCApplication {
 									tempHolder1 = Double.NaN;
 									tempHolder2 = Double.NaN;
 									double[] result = {tempHolder1, tempHolder2};
-
 									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
 								}
 								else if(numValues == 1)
@@ -280,7 +300,6 @@ public class MCMCApplication {
 									tempHolder1 = (Double) data[0];
 									tempHolder2 = (Double) data[0];
 									double[] result = {tempHolder1, tempHolder2};
-
 									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
 								}
 								else if(numValues == 2) 
@@ -288,14 +307,12 @@ public class MCMCApplication {
 									tempHolder1 = (Double) data[0];
 									tempHolder2 = (Double) data[1];
 									double[] result = {tempHolder1, tempHolder2};
-
 									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
 								}	
 								else
 								{
 									for(int k = 0 ; k < intervalLength ; k++) 
 									{
-
 										if(leftIndex == 0)
 											if(rightIndex < numValues-1)
 												rightIndex++;
@@ -305,18 +322,14 @@ public class MCMCApplication {
 												leftIndex--;
 
 										if(leftIndex > 0 && Math.abs((Double)data[leftIndex] - startNum) <= Math.abs((Double)data[rightIndex] - startNum))
-										{
 											leftIndex--;
-										}
 										else if(rightIndex < numValues-1 && Math.abs((Double)data[leftIndex] - startNum) > Math.abs((Double)data[rightIndex] - startNum))
 											rightIndex++;
 									}
 									double[] result = {(Double) data[leftIndex], (Double) data[rightIndex]};
-
 									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
 								}
 							}
-
 						}
 					}
 				}
@@ -325,8 +338,12 @@ public class MCMCApplication {
 	}
 
 
-	/*
-	 * createMenuBar(): Creates and returns the application menu together with functionality.
+	/** Definition: 			Private method for opening the first graphical window for VMCMC.										
+	<p>Usage: 				When no filename is provided as input parameter, the default constructor with no file input refers to this function for coming up with the first interface.		
+ 	<p>Function:			Populates the first window and all its other options like about and exit etc. that are displayed in the first window. 	
+ 	<p>Classes: 			MCMCDataContainer, MCMCFileReader, MCMCMath.		
+	<p>Internal Functions:	None.		
+ 	@return: 				A populated graphical basic window and handles all options used inside it.					
 	 */
 	private JMenuBar createMenuBar() {
 		JMenuBar menubar =  new JMenuBar();
@@ -454,7 +471,7 @@ public class MCMCApplication {
 
 				aboutPanel.add(new JLabel("VISUAL MCMC Ver 1.0\n"));
 				aboutPanel.add(new JSeparator());
-				aboutPanel.add(new JLabel("Created by: Jorge Mir� & Mikael Bark"));
+				aboutPanel.add(new JLabel("Created by: Jorge Miró & Mikael Bark"));
 				aboutPanel.add(new JLabel("Updated by: Raja Hashim Ali"));
 
 				JOptionPane.showMessageDialog(window, aboutPanel);
@@ -471,16 +488,19 @@ public class MCMCApplication {
 		return menubar;
 	}
 
-	/*
-	 * createDirectMenuBar(file): Returns the GUI alogwith statistics. Works when filename is provided in arguments.
-	 */	
+
+	/** Definition: 			Private method for opening the second graphical window directly for VMCMC.										
+	<p>Usage: 				When a filename is provided as input parameter, the second constructor with filename refers to this function for coming up with the second interface.		
+ 	<p>Function:			Populates the second window with all its other options and all the statitical computations and convergence tests, that are displayed in the second window. 	
+ 	<p>Classes: 			MCMCDataContainer, MCMCFileReader, MCMCMath.		
+	<p>Internal Functions:	None.		
+ 	@return: 				A populated graphical extended window that displays parameter values, sattistics, tests and trees found in the input file.					
+	 */
 	private JMenuBar createDirectMenuBar(final File file) 
 	{
 		JMenuBar menubar =  new JMenuBar();
-
 		JMenu menuFile = new JMenu("File");
 		JMenuItem itemClose = new JMenuItem("Exit");
-
 		JMenu menuAbout = new JMenu("About");  
 		JMenuItem itemAbout = new JMenuItem("About Visual MCMC");
 
@@ -509,7 +529,7 @@ public class MCMCApplication {
 					}
 					else
 					{
-						System.out.println("Filename or file path incorrect");
+						System.out.println("Filename or file path incorrect. Also check help for suggestions.");
 						System.exit(-2);
 					}
 				}
@@ -573,7 +593,7 @@ public class MCMCApplication {
 
 				aboutPanel.add(new JLabel("VISUAL MCMC Ver 1.0\n"));
 				aboutPanel.add(new JSeparator());
-				aboutPanel.add(new JLabel("Created by: Jorge Mir� & Mikael Bark"));
+				aboutPanel.add(new JLabel("Created by: Jorge Miró & Mikael Bark"));
 				aboutPanel.add(new JLabel("Updated by: Raja Hashim Ali"));
 
 				JOptionPane.showMessageDialog(window, aboutPanel);
@@ -589,9 +609,8 @@ public class MCMCApplication {
 		return menubar;
 	}
 
-	/*
-	 * addTabListeners: Adds the applications default listeners for the tabs associated 
-	 * with current file.
+	/** Definition: 			Adds the applications default listeners for the tabs associated with current file.										
+ 	<p>Function:			 Update Tree Maps and tabel in the tree panel based on the Event Change.								
 	 */
 	private void linkTabsToTrees(final JTabbedPane tabs, final MCMCTreeTab treePanel) {
 		tabs.addChangeListener(new ChangeListener() {
@@ -604,9 +623,10 @@ public class MCMCApplication {
 		});
 	}
 
-	/*
-	 * createMainPanel: Creates and updates new instance of MCMCMainTab and adds default.
-	 * components. Will set application specific default values (including burnin - 10%).
+
+	/** Definition: 			Creates and updates new instance of MCMCMainTab and adds default components. Sets application specific default values (including burnin - 10%).						
+ 	<p>Function:			Handle MCMCMainTab and set default values for it. Displays all the statistics and convergence test results for a parameter.				
+ 	<p>Classes:				MCMCMainTab, MCMCDataContainer, MCMCGraphToolPanel, 												
 	 */
 	private MCMCMainTab createMainPanel(final MCMCDataContainer datacontainer) {
 		final MCMCMainTab mainPanel = new MCMCMainTab();
@@ -679,9 +699,11 @@ public class MCMCApplication {
 		return mainPanel;
 	}
 
-	/*
-	 * linkMainToTabs(MCMCMainTab JTabbedPane): Will add functionalty between Main tab and
-	 * the JTabbedPane.
+
+	/** Definition: 			Adds functionalty between Main tab and	the JTabbedPane.									
+	<p>Usage: 				When data in an interval is to be extracted and examined.						
+ 	<p>Function:			Extract the interval from the graph and display in a new pane. 				
+ 	<p>Classes:				MCMCMainTab.  		
 	 */
 	private void linkMainToTabs(final MCMCMainTab mainPanel, final JTabbedPane tabs) {
 		JButton extractSelectionButton = new JButton("Extract interval");
@@ -709,9 +731,11 @@ public class MCMCApplication {
 		mainPanel.addToSouth(Box.createRigidArea(new Dimension(10, 0)));
 	}
 
-	/*
-	 * linkMainToTabs(MCMCMainTab, MCMCTableTab): Will add functionalty between Main tab and
-	 * the Table tab.
+
+	/** Definition: 			Adds functionalty between Main tab and the Table tab.								
+	<p>Usage: 				Select a parameter to see its data.						
+ 	<p>Function:			For a selected parameter in the main tab, display its corresponding data in table panel. 				
+ 	<p>Classes:				MCMCMainTab, MCMCTableTab.  													
 	 */
 	private void linkMainToTable(final MCMCMainTab mainPanel, final MCMCTableTab tablePanel) {
 		mainPanel.getDropList().addActionListener(new ActionListener() {
@@ -725,9 +749,11 @@ public class MCMCApplication {
 		});
 	}
 
-	/*
-	 * linkMainToTabs(MCMCMainTab, MCMCTreeTab): Will add functionalty between Main tab and
-	 * the Trees tab.
+
+	/** Definition: 			Adds functionality between Main tab and the Trees tab.										
+	<p>Usage: 				Make the main panel and tree panel uniform.						
+ 	<p>Function:			Handle and mantain the uniformity of the burnin selection between tree panel and main panel. 				
+ 	<p>Classes:				MCMCMainTab, MCMCTreeTab		
 	 */
 	private void linkMainToTrees(final MCMCMainTab mainPanel, final MCMCTreeTab treePanel) {
 		mainPanel.getGraphTool().getSlider().addChangeListener(new ChangeListener() {
@@ -757,9 +783,11 @@ public class MCMCApplication {
 		});
 	}
 
-	/*
-	 * createTablePanel: Creates and updates new instance of MCMCTableTab and adds default.
-	 * components.
+
+	/** Definition: 			Creates and updates new instance of MCMCTableTab and adds default components.										
+	<p>Usage: 				Display the data in a tabular format. 						
+ 	<p>Function:			Adds the parameter names and parameter values to the Table Tab (Second Tab) 				
+ 	<p>Classes:				MCMCTabletab, MCMCDataContainer.
 	 */
 	private MCMCTableTab createTablePanel(final MCMCDataContainer datacontainer) {
 		final MCMCTableTab tablePanel = new MCMCTableTab();
@@ -768,16 +796,16 @@ public class MCMCApplication {
 
 		tablePanel.setDataContainer(datacontainer);
 
-		for(int i=0; i<numValues; i++) {
+		for(int i=0; i<numValues; i++) 
 			tablePanel.addColumn(names.get(i), datacontainer.getValueSerie(i));
-		}
 
 		return tablePanel;
 	}
 
-	/*
-	 * linkTableToMain(MCMCTableTab, MCMCMainTab): Will add functionalty between Table tab and
-	 * the Main Tab.
+
+	/** Definition: 			Adds functionality between Table tab and the Main tab.						
+ 	<p>Function:			Create the left table tab on the main window for selecting the parameter.				
+ 	<p>Classes:				MCMCTableTab, MCMCMainTab, MCMCDataContainer.  													
 	 */
 	private void linkTableToMain(final MCMCTableTab tablePanel, final MCMCMainTab mainPanel) {
 		MCMCDataContainer datacontainer = tablePanel.getDataContainer();
@@ -819,9 +847,11 @@ public class MCMCApplication {
 		tablePanel.addToNorth(buttonPanel);
 	}
 
-	/*
-	 * createTreePanel: Creates and updates new instance of MCMCMTreeTab and adds default.
-	 * components.
+
+	/** Definition: 			Creates and updates new instance of MCMCMTreeTab and adds default components.
+	<p>Usage: 				Used when tree data is found in the input file.						
+ 	<p>Function:			Build up teh Tree Panel using all the data from the file provided. 				
+ 	<p>Classes:				MCMCTreeTab, MCMCDataContainer. 												
 	 */
 	private MCMCTreeTab createTreePanel(MCMCDataContainer datacontainer) {
 		final MCMCTreeTab treePanel = new MCMCTreeTab();
@@ -846,9 +876,11 @@ public class MCMCApplication {
 		return treePanel;
 	}
 
-	/*
-	 * linkTreesToMain(MCMCTreeTab, MCMCMainTab): Will add functionalty between Tree tab and
-	 * the Main Tab.
+
+	/** Definition: 			Adds functionalty between Tree tab and the Main Tab.										
+	<p>Usage: 										
+ 	<p>Function:			 				
+ 	<p>Classes:				MCMCTreeTab, MCMCMainTab.
 	 */
 	private void linkeTreesToMain(final MCMCTreeTab treePanel, final MCMCMainTab mainPanel) {
 		JButton markTreeButton = new JButton("Mark selection in graph");
@@ -876,205 +908,83 @@ public class MCMCApplication {
 		treePanel.addToSouth(markTreeButton);
 		treePanel.addToSouth(Box.createRigidArea(new Dimension(10, 0)));
 	}
+	
 
+	/** Definition: 			Returns the private variable .											  		
+ 	@return 				Graphical window.				
+	 */
 	public MCMCWindow getWindow() {return window;}
 
+	/** Definition: 			Main function for VMCMC.										
+	<p>Usage: 				Initialize the application from command line.						
+ 	<p>Function:			Gets the inputs from command line, parses them and calls the appropriate constructor of MCMCWindow. 				
+ 	<p>Classes:				Parameters, JCommander, JCommanderUserWrapper, Triple.
+ 	<p>Internal Functions: 	MCMCApplication(),  		
+ 	@return 				(A new graphical window)/(command line) statistical and/or convergence test analysis.					
+	 */
 	public static void main(String[] args) {
-		int c = 0;
-		String arg;
-		if (args.length > 0)
+		if (args.length == 0)
+			new MCMCApplication();
+		else
 		{
-			while (c<args.length)
+			Parameters params = new Parameters();
+			JCommander vmcmc = new JCommander(params, args);
+
+			if (params.help) 
 			{
-				arg = args[c];
-				if (arg.startsWith("-") )
+				StringBuilder sb = new StringBuilder(65536);
+				sb.append("Usage: java vmcmc [options] ").append('\n');
+				JCommanderUserWrapper.getUnsortedUsage(vmcmc, params, sb);
+				System.out.println(sb.toString());
+			}
+			else if (args.length == 1)
+				new MCMCApplication(args[0]);
+			else if (params.filename == null)
+				System.out.println("File Name not provided. Use -f for inputting filename or see -h for valid options.");
+			else if ((params.nogui == false) && (params.test == false) && (params.stats == false) && (params.ess == false) && (params.geweke == false) && (params.gr == false))
+				new MCMCApplication(params.filename);
+			else 
+			{
+				Triple<String, Integer, Double> paramData = ParameterParser.Getoptions(params);
+
+				if (params.nogui == true)
 				{
-					if(arg.equalsIgnoreCase("-filename"))
-					{
-						if (args.length == 2)
-						{
-							new MCMCApplication(args[1]);
-							c = 10;
-						}
-						else if (args.length > 2)
-						{
-							System.out.println("Extra arguments given. Please give -filename FILENAME only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given. Please give filename");
-							System.exit(-3);
-						}
-					}
-					else if(arg.equalsIgnoreCase("-nogui"))
-					{
-						if (args.length == 4)
-						{
-							System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(2, args[1], Integer.parseInt(args[2]), 95);
-							System.out.println("\n");
+					System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
+					new MCMCApplication(2, paramData.first, paramData.second, paramData.third);
+					System.out.println("\n");
 
-							System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(3, args[1], Integer.parseInt(args[2]), Double.parseDouble(args[3]));
-							System.out.println("\n");
-
-							c = 10;
-						}
-						else if(args.length == 3)
-						{
-							System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(2, args[1], Integer.parseInt(args[2]), 95);
-							System.out.println("\n");
-
-							System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(3, args[1], Integer.parseInt(args[2]), 95);
-							System.out.println("\n");
-
-							c = 10;
-						}
-
-						else if (args.length > 4)
-						{
-							System.out.println("Extra arguments given. Please give \"-filename FILENAME BURNIN\" only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given Or speculated Burn-in point missing. Please give missing information");
-							System.exit(-3);
-						}
-					}
-					else if(arg.equalsIgnoreCase("-testsonly"))
-					{
-						if (args.length == 3)
-						{
-							System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(2, args[1], Integer.parseInt(args[2]), 95);
-							System.out.println("\n");
-							c = 10;
-						}
-						else if (args.length > 3)
-						{
-							System.out.println("Extra arguments given. Please give \"-filename FILENAME BURNIN\" only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given Or speculated Burn-in point missing. Please give missing information");
-							System.exit(-3);
-						}
-					}	
-					else if(arg.equalsIgnoreCase("-statsonly"))
-					{
-						if (args.length == 2)
-						{
-							System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(3, args[1], 0, 95);
-							System.out.println("\n");
-							c = 10;
-						}
-						else if (args.length == 4)
-						{
-							System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-							new MCMCApplication(3, args[1], Integer.parseInt(args[2]), Double.parseDouble(args[3]));
-							System.out.println("\n");
-							c = 10;
-						}
-						else if (args.length > 4)
-						{
-							System.out.println("Extra arguments given. Please give -filename FILENAME \"burn in\" \"confidence level\" only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given OR no burn in given OR Confidencelevel missing. Please give missing information");
-							System.exit(-3);
-						}
-					}	
-					else if(arg.equalsIgnoreCase("-geweke"))
-					{
-						if (args.length == 2)
-						{
-							System.out.println("            ****** GEWEKE TEST BURN-IN INDICATOR ******");
-							new MCMCApplication(4, args[1], 0, 95);
-							c = 10;
-						}
-						else if (args.length > 2)
-						{
-							System.out.println("Extra arguments given. Please give -filename FILENAME only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given. Please give filename");
-							System.exit(-3);
-						}
-					}	
-					else if(arg.equalsIgnoreCase("-ess"))
-					{
-						if (args.length == 2)
-						{
-							System.out.println("            ****** ESTIMATED SAMPLE SIZE BURN-IN INDICATOR ******");
-							new MCMCApplication(5,args[1],0, 95);
-							c = 10;
-						}
-						else if (args.length > 2)
-						{
-							System.out.println("Extra arguments given. Please give -filename FILENAME only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given. Please give filename");
-							System.exit(-3);
-						}
-					}	
-					else if(arg.equalsIgnoreCase("-gelmanrubin"))
-					{
-						if (args.length == 3)
-						{
-							System.out.println("            ******* GELMAN RUBIN CONVERGENCE TEST *******");
-							new MCMCApplication(6, args[1], Integer.parseInt(args[2]), 95);
-							c = 10;
-						}
-						else if (args.length > 3)
-						{
-							System.out.println("Extra arguments given. Please give \"-filename FILENAME BURNIN\" only");
-							System.exit(-4);
-						}
-						else
-						{
-							System.out.println("No filename given Or speculated Burn-in point missing. Please give missing information");
-							System.exit(-3);
-						}
-					}	
-					else if(arg.equalsIgnoreCase("-status"))
-						System.out.println("All the exit statuses");
-					else if(arg.equalsIgnoreCase("-usage"))
-						System.out.println("\n\n Please use one of the following commands alongwith options mentioned from command line." + 
-								"\n\n java MCMCApplication -filename FILENAME              View all the results and data with a Graphical User Interface for the file FILENAME" + 
-								"\n java MCMCApplication -usage                          View the options possible to use with VMCMC" +
-								"\n java MCMCApplication -nogui FILENAME Burnin          View the results of all tests and statistics directly on command line without GUI" + 
-								"\n java MCMCApplication -testsonly FILENAME Burnin      View the results of all tests only for the file" +
-								"\n java MCMCApplication -statsonly FILENAME             View the relevant statistics only for the file" +
-								"\n java MCMCApplication -Geweke FILENAME                View the result of Geweke convergence test only for the file" +
-								"\n java MCMCApplication -ESS FILENAME                   View the result of Estimated Sample Size test only for the file" + 
-								"\n java MCMCApplication -GelmanRubin FILENAME Burnin    View the result of Gelman Rubin Test for the file only" + 
-						"\n java MCMCApplication -status                         View the possible exit statuses and what each means\n\n");
-					else
-						System.out.println("Invalid option. Please select -usage to see valid options");
+					System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
+					new MCMCApplication(3, paramData.first, paramData.second, paramData.third);
+					System.out.println("\n");
 				}
-				else
+				else if (params.test == true)
 				{
-					System.out.println("Invalid Options. Please see -usage for valid options.");
-					System.exit(0);
+					System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
+					new MCMCApplication(2, paramData.first, paramData.second, paramData.third);
+					System.out.println("\n");
 				}
-
-				c++;
+				else if (params.stats == true)
+				{
+					System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
+					new MCMCApplication(3, paramData.first, paramData.second, paramData.third);
+					System.out.println("\n");
+				}
+				else if (params.geweke == true)
+				{
+					System.out.println("            ****** GEWEKE TEST BURN-IN INDICATOR ******");
+					new MCMCApplication(4, paramData.first, paramData.second, paramData.third);
+				}
+				else if (params.ess == true)
+				{
+					System.out.println("            ****** ESTIMATED SAMPLE SIZE BURN-IN INDICATOR ******");
+					new MCMCApplication(5, paramData.first, paramData.second, paramData.third);
+				}
+				else if (params.gr == true)
+				{
+					System.out.println("            ******* GELMAN RUBIN CONVERGENCE TEST *******");
+					new MCMCApplication(6, paramData.first, paramData.second, paramData.third);
+				}
 			}
 		}
-		else 
-			new MCMCApplication();
 	}
 }
