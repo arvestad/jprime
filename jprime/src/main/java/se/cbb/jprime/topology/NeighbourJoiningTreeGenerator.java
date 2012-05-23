@@ -52,7 +52,9 @@ public class NeighbourJoiningTreeGenerator {
 		LinkedHashMap<String,String> map = new LinkedHashMap<String, String>(msa.getSize());
 		int i = 0;
 		for (S seq : msa.getAlignedSequences()) {
-			String origID = seq.getAccession().getID();
+			// HACK: Apparently, some BioJava helpers will store the accession plus more,
+			// (at least for FASTA), so we truncate after the first encountered word, and hope it's the ID.
+			String origID = seq.getAccession().getID().trim().split("[,\\s]+")[0];
 			String newID = "NJID" + SAFE_NAME_NUMBER.format(i++);
 			seq.setAccession(new AccessionID(newID));
 			map.put(newID, origID);
