@@ -11,4 +11,4 @@ Naturally, we use Maven for building and packaging. The pom.xml has been set to 
   # Rename the shaded snapshot JAR file to jprime-x.y.z.jar with a suitable x.y.z.
   # Add it to Downloads on Google Code along with the current SVN revision. This can be seen e.g. from the SVN repository view in Eclipse.
 
-On a side note: a tool for listing all (non-transitive) depencies from the root pom.xml can be found in {{{jprime/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
+On a side note: a tool for listing all (non-transitive) dependencies from the root pom.xml can be found in {{{jprime/src/main/python/getmavendependencies/GetMavenDependencies.py}}}
