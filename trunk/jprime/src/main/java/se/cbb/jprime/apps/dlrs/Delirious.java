@@ -19,6 +19,7 @@ import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleWriter;
 import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.PRNG;
+import se.cbb.jprime.math.RealInterval;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.FineProposerStatistics;
 import se.cbb.jprime.mcmc.Iteration;
@@ -26,6 +27,7 @@ import se.cbb.jprime.mcmc.MCMCManager;
 import se.cbb.jprime.mcmc.MultiProposerSelector;
 import se.cbb.jprime.mcmc.NormalProposer;
 import se.cbb.jprime.mcmc.ProposalAcceptor;
+import se.cbb.jprime.mcmc.RealParameterUniformPrior;
 import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.misc.Triple;
@@ -124,6 +126,12 @@ public class Delirious {
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
 			
+			// Priors. We only have them for parameters which might cause issues.
+			RealInterval priorRange = new RealInterval(1e-16, 1e16, false, false);
+			RealParameterUniformPrior edgeRateMeanPrior = new RealParameterUniformPrior(edgeRatePD.first, priorRange);
+			RealParameterUniformPrior edgeRateCVPrior = new RealParameterUniformPrior(edgeRatePD.second, priorRange);
+			RealParameterUniformPrior lengthsPrior = new RealParameterUniformPrior(gNamesLengths.third, priorRange);
+			
 			// Substitution model. NOTE: Root arc is turned on!!!!
 			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true);
 			
@@ -173,11 +181,17 @@ public class Delirious {
 			MCMCManager manager = new MCMCManager(iter, thinner, selector, acceptor, sampler, prng, stats);
 			manager.setDebugMode(params.debug);
 			
+			manager.addModel(edgeRateMeanPrior);
+			manager.addModel(edgeRateCVPrior);
+			manager.addModel(lengthsPrior);
 			manager.addModel(sm);
 			manager.addModel(dlrs);
 			
 			manager.addSampleable(iter);
 			manager.addSampleable(manager);			// Overall likelihood.
+			//manager.addSampleable(edgeRateMeanPrior);
+			//manager.addSampleable(edgeRateCVPrior);
+			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
 			manager.addSampleable(dlrs);
 			manager.addSampleable(dupLoss.first);

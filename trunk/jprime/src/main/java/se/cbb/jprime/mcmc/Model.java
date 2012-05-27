@@ -13,6 +13,7 @@ import se.cbb.jprime.math.LogDouble;
  * is invoked, and only return this value when <code>getLikelihood()</code> is
  * called. Also, it should be able to cache and restore its old values if the proposed
  * state is rejected like any other <code>ProperDependent</code>.
+ * Priors are currently also encouraged to implement this interface.
  * <p/>
  * Furthermore, a model can act as a "sampleable". No particular requirements are made as to
  * what is sampled, although outputting the model's log-likelihood is recommended.
