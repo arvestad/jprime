@@ -35,7 +35,7 @@ public class TestSubstitutionModel {
 		
 		// Site rates and matrix.
 		GammaSiteRateHandler siteRates = new GammaSiteRateHandler(new DoubleParameter("k", 3.0), 4);
-		SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.createJTT(100);
+		SubstitutionMatrixHandler Q = JTT.createJTT(100);
 		
 		// (Unrooted) tree from NJ on sequence identity.
 		MultiAlignment<ProteinSequence, AminoAcidCompound> msa = new MultiAlignment<ProteinSequence, AminoAcidCompound>(false);
