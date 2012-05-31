@@ -269,7 +269,6 @@ abstract public class MCMCFileReader {
 				else 
 				{
 					commentline = readLine(data, size);
-					System.out.println(new String(commentline).toCharArray());
 					values = formatCommentLine1((new String(commentline).toCharArray()));
 				}
 
