@@ -81,14 +81,14 @@ public class Delirious {
 			// MCMC chain output and auxiliary info.
 			SampleWriter sampler = ParameterParser.getOut(params);
 			info = ParameterParser.getInfo(params);
-			info.write("=========================================================================\n");
-			info.write("||                             PRE-RUN INFO                            ||\n");
-			info.write("=========================================================================\n");
-			info.write("DELIRIOUS\n");
-			info.write("Arguments: " + Arrays.toString(args) + '\n');
+			info.write("# =========================================================================\n");
+			info.write("# ||                             PRE-RUN INFO                            ||\n");
+			info.write("# =========================================================================\n");
+			info.write("# DELIRIOUS\n");
+			info.write("# Arguments: " + Arrays.toString(args) + '\n');
 			Calendar cal = Calendar.getInstance();
 		    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			info.write("Current time: " + df.format(cal.getTime()) + '\n');
+			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
 			// Read S and t.
 			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
@@ -207,20 +207,20 @@ public class Delirious {
 			}
 			
 			// ================ WRITE PRE-INFO ================
-			info.write("MCMC manager:\n");
-			info.write(manager.getPreInfo("\t"));
+			info.write("# MCMC manager:\n");
+			info.write(manager.getPreInfo("# \t"));
 			info.flush();   // Don't close, maybe using stdout for both sampling and info...
 			
 			// ================ RUN ================
 			manager.run();
 			
 			// ================ WRITE POST-INFO ================
-			info.write("=========================================================================\n");
-			info.write("||                             POST-RUN INFO                           ||\n");
-			info.write("=========================================================================\n");
-			info.write("DELIRIOUS\n");
-			info.write("MCMC manager:\n");
-			info.write(manager.getPostInfo("\t"));
+			info.write("# =========================================================================\n");
+			info.write("# ||                             POST-RUN INFO                           ||\n");
+			info.write("# =========================================================================\n");
+			info.write("# DELIRIOUS\n");
+			info.write("# MCMC manager:\n");
+			info.write(manager.getPostInfo("# \t"));
 			info.flush();
 			sampler.close();
 			info.close();
@@ -233,7 +233,7 @@ public class Delirious {
 			    PrintWriter pw = new PrintWriter(w);
 			    e.printStackTrace(pw);
 				try {
-					info.write("Run failed. Reason:\n" + w.toString());
+					info.write("# Run failed. Reason:\n" + w.toString());
 					info.close();
 					pw.close();
 					w.close();

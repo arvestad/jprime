@@ -422,8 +422,8 @@ public class MCMCManager implements Sampleable, InfoProvider {
 			.append(df.format(m)).append(" min = ")
 			.append(df.format(h)).append(" h\n");
 		sb.append(prefix).append("Best encountered state:\n")
-			.append("\t\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
-			.append("\t\t").append(this.bestState).append("\n");
+			.append(prefix + "\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
+			.append(prefix + "\t").append(this.bestState).append("\n");
 		sb.append(prefix).append("Pseudo-random number generator:\n");
 		sb.append(this.prng.getPostInfo(prefix + '\t'));
 		sb.append(prefix).append("Iteration:\n");
