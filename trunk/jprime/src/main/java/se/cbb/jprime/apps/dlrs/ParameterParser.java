@@ -86,7 +86,7 @@ public class ParameterParser {
 			// Rescale tree so that root has time 1.0.
 			double rootTime = sTimes.getVertexTime(s.getRoot());
 			if (Math.abs(rootTime - 1.0) > 1e-6) {
-				info.append("Host tree rescaling factor: ").append("" + (1.0/rootTime)).append('\n');
+				info.append("# Host tree rescaling factor: ").append("" + (1.0/rootTime)).append('\n');
 				double[] vts = sTimes.getVertexTimes();
 				double[] ats = sTimes.getArcTimes();
 				for (int x = 0; x < vts.length; ++x) {
@@ -214,7 +214,7 @@ public class ParameterParser {
 			DoubleMap gLengths;
 			if (ps.guestTree == null || ps.guestTree.equalsIgnoreCase("NJ")) {
 				// "Randomly rooted" NJ tree. Produced lengths seem suspicious, so we won't use'em.
-				info.append("Initial guest tree: Produced with NJ on sequence identity (arbitrarily rooted).\n");
+				info.append("# Initial guest tree: Produced with NJ on sequence identity (arbitrarily rooted).\n");
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(new MultiAlignment(seqs, false));
 				g = new RBTree(gRaw, "GuestTree");
@@ -222,14 +222,14 @@ public class ParameterParser {
 				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
 			} else if (ps.guestTree.equalsIgnoreCase("UNIFORM")) {
 				// Uniformly drawn tree.
-				info.append("Initial guest tree: Uniformly selected random unlabelled tree.\n");
+				info.append("# Initial guest tree: Uniformly selected random unlabelled tree.\n");
 				Pair<RBTree, NamesMap> gn = UniformRBTreeGenerator.createUniformTree("GuestTree", new ArrayList<String>(gsMap.getAllGuestLeafNames()), prng);
 				g = gn.first;
 				gNames = gn.second;
 				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
 			} else {
 				// Read tree from file.
-				info.append("Initial guest tree: User-specified from file ").append(ps.guestTree).append(".\n");
+				info.append("# Initial guest tree: User-specified from file ").append(ps.guestTree).append(".\n");
 				PrIMENewickTree GRaw = PrIMENewickTreeReader.readTree(new File(ps.guestTree), true, false);
 				g = new RBTree(GRaw, "GuestTree");
 				gNames = GRaw.getVertexNamesMap(true, "GuestTreeNames");
