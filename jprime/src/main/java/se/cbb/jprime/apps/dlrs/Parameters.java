@@ -74,7 +74,7 @@ public class Parameters {
 	
 	/** Edge rate distribution parameter 2. */
 	@Parameter(names = {"-erpdcv", "--edgeratepdcv"}, description = "Coefficient of variation (CV) for relaxed clock probability distribution. If UNIFORM," +
-			"refers to upper bound (...,b) instead. Append with FIXED for no perturbation, e.g. 1.2FIXED. Default: 0.5, or 5.0 if UNIFORM.")
+			"refers to upper bound (...,b) instead. Append with FIXED for no perturbation, e.g. 1.2FIXED. Default: 1.0, or 5.0 if UNIFORM.")
 	public String edgeRatePDCV = null;
 	
 	/** Gamma site rate categories. */
