@@ -134,7 +134,7 @@ public class MPRMap implements ProperDependent {
 	/**
 	 * Returns true if a vertex x of G is forced to be a duplication, i.e., it sigma(x)==sigma(y) or sigma(x)==sigma(z),
 	 * where y and z are its children.
-	 * @param x the vertex of x.
+	 * @param x the vertex of G.
 	 * @return true if x must be a duplication in the MPR; false otherwise.
 	 */
 	public boolean isDuplication(int x) {
@@ -144,4 +144,52 @@ public class MPRMap implements ProperDependent {
 		return (this.sigma[x] == this.sigma[this.G.getLeftChild(x)] || this.sigma[x] == this.sigma[this.G.getRightChild(x)]);
 	}
 	
+	/**
+	 * For an edge e=(x,parent(x)) in the gene tree, returns the number of implied
+	 * losses along e in a parsimonious reconciliation of the gene tree. If x is the root, the case
+	 * is treated analogously.
+	 * @param x the head vertex of the arc.
+	 * @return the number of implied losses along the arc.
+	 */
+	public int getNoOfLossesOfArc(int x) {
+		int xsigma = this.sigma[x];
+		int xpsigma = (this.G.isRoot(x) ? RBTree.NULL : this.sigma[this.G.getParent(x)]);
+		if (xsigma == xpsigma) {
+			return 0;
+		}
+		int cnt = -1;
+		while (xsigma != xpsigma) {
+			cnt++;
+			xsigma = this.S.getParent(xsigma);
+		}
+		return cnt;
+	}
+	
+	/**
+	 * Returns the total number of implied duplications of G in a parsimonious
+	 * reconciliation of G and S.
+	 * @return the number of duplications.
+	 */
+	public int getTotalNoOfDuplications() {
+		int cnt = 0;
+		for (int x = 0; x < this.G.getNoOfVertices(); ++x) {
+			if (isDuplication(x)) {
+				cnt++;
+			}
+		}
+		return cnt;
+	}
+	
+	/**
+	 * Returns the total number of implied losses of G in a parsimonious
+	 * reconciliation of G and S.
+	 * @return the number of losses.
+	 */
+	public int getTotalNoOfLosses() {
+		int cnt = 0;
+		for (int x = 0; x < this.G.getNoOfVertices(); ++x) {
+			cnt += getNoOfLossesOfArc(x);
+		}
+		return cnt;
+	}
 }
