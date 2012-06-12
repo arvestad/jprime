@@ -25,7 +25,7 @@ The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as 
 
 Hence the name DLRS = duplications, losses, rates & sequence evolution.
 
-*JPrIME-DLRS [=the software application]*, colloquially known as Delirious, is the Java application corresponding to the DLRS model, and is used for inferring an unknown guest tree in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+*JPrIME-DLRS [=the software application]*, colloquially known as *Delirious*, is the Java application corresponding to the DLRS model, and is used for inferring an unknown guest tree in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
 
 *Input:*
   * a file with a dated host tree.
