@@ -54,11 +54,56 @@ public class NewickTree {
 	 * Protected constructor for superclasses.
 	 * @param tree the tree to copy.
 	 */
-	protected NewickTree(NewickTree tree) {
+	protected NewickTree(NewickTree tree, boolean dummy) {
 		this.root = tree.root;
 		this.meta = tree.meta;
 	}
-
+	
+	/**
+	 * Copy constructor.
+	 * Perform a deep copy of a whole NewickTree.
+	 * @param tree NewickTree to copy.
+	 */
+	public NewickTree(NewickTree tree) {
+		this.root = new NewickVertex(tree.root);
+		this.meta = tree.meta;
+		recursCopy(this.root, null);
+	}
+	
+	/**
+	 * Recursively copy all the vertices of a subtree.
+	 * @param originalVertex vertex that give rise to the subtree to copy.
+	 * @param newParent the parent of originalVertex.
+	 */
+	private void recursCopy(NewickVertex originalVertex, NewickVertex newParent) {
+		ArrayList<NewickVertex> originalChildren = null;
+		if (!originalVertex.isLeaf()) {
+			// We are altering the list of the "originalVertex" children when replacing
+			// a child by its copy, therefore we need to remember all the original children.
+			originalChildren = new ArrayList<NewickVertex>(originalVertex.getChildren());
+		}
+		NewickVertex copiedVertex = null;
+		if (!originalVertex.isRoot()) {
+			copiedVertex = new NewickVertex(originalVertex);
+			copiedVertex.setParent(newParent);
+			// Copy the list of the newParent children, otherwise changing elements without copying
+			// the list will change the elements of the original list.
+			ArrayList<NewickVertex> newParentChildren = new ArrayList<NewickVertex>(newParent.getChildren());
+			newParentChildren.remove(originalVertex);
+			newParentChildren.add(copiedVertex);
+			newParent.setChildren(newParentChildren);
+		} else {
+			// The root has already been copied in the copy constructor, therefore we must not copy it another time.
+			copiedVertex = originalVertex;
+		}
+		if (!originalVertex.isLeaf()) {
+			// Do the recursion copy on the children.
+			for (NewickVertex child : originalChildren) {
+				recursCopy(child, copiedVertex);
+			}
+		}
+	}
+	
 	/**
 	 * Returns the root vertex.
 	 * @return the root.
