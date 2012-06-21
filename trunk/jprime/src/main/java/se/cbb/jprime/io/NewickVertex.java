@@ -52,6 +52,20 @@ public class NewickVertex {
 	}
 	
 	/**
+	 * Copy constructor.
+	 * Note: the parent and children of v are not copied, ie. their references are not changed.
+	 * @param v NewickVertex to copy.
+	 */
+	public NewickVertex(NewickVertex v) {
+		this.number = v.number;
+		this.name = v.name;
+		this.branchLength = v.branchLength;
+		this.meta = v.meta;
+		this.parent = v.parent;
+		this.children = v.children;
+	}
+	
+	/**
 	 * Sets all values.
 	 * @param name vertex name.
 	 * @param branchLength branch length.
