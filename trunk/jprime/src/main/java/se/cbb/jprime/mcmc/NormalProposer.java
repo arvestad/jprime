@@ -23,19 +23,14 @@ import se.cbb.jprime.math.RealInterval.Type;
  * By default, this is set to one sub-parameter only, but it may be changed by invoking
  * <code>setSubParameterWeights(...)</code>.
  * <p/>
- * The proposer relies on two user-defined tuning parameters, t1 and t2, which define the variance v of
- * the proposal distribution: v is chosen so that for m > 0, Pr[(1-t1)*m < Y < (1+t1)*m] = t2. For instance, with
- * t1 = 0.5 and t2 = 0.6, the proposed value Y will be at most 50% greater or smaller
- * than the previous value m in 60% of the cases. For m < 0, the case is analogous, whereas for m = 0, a
- * small epsilon proposal variance
- * is used. For bounded domains, v is chosen as if not truncated and sampling is repeated until within the domain. 
+ * The proposer relies on a user-defined tuning parameter, which governs the proposal distribution's
+ * coefficient of variation (CV). For m = 0, a small epsilon proposal variance
+ * is used instead.
+ * For bounded domains, v is chosen as if not truncated and sampling is repeated until within the domain. 
  * 
  * @author Joel Sjöstrand.
  */
 public class NormalProposer implements Proposer {
-
-	/** Fixed distribution used for making certain computations. */
-	private static final NormalDistribution N = new NormalDistribution(0.0, 1.0);
 	
 	/** Perturbed parameter. */
 	private RealParameter param;
@@ -46,12 +41,9 @@ public class NormalProposer implements Proposer {
 	/** Pseudo-random number generator. */
 	private PRNG prng;
 	
-	/** First tuning parameter. Governs width from old state value. */
-	private TuningParameter t1;
+	/** Tuning parameter. Governs proposal distribution's coefficient of variation. */
+	private TuningParameter proposalCV;
 	
-	/** Second tuning parameter. Governs probability of staying in +-(1+t1)*old value. */
-	private TuningParameter t2;
-
 	/** Current number of perturbed sub-parameters. */
 	int noPerturbed;
 	
@@ -71,16 +63,12 @@ public class NormalProposer implements Proposer {
 	 * Constructor. Creates a normal proposal distribution.
 	 * @param param state parameter perturbed by this proposer.
 	 * @param interval domain of state parameter and proposal distribution.
-	 * @param t1 tuning parameter governing factor from old state.
-	 * @param t2 tuning parameter governing probability of staying within +-(1+t1)*old state.
+	 * @param proposalCV tuning parameter governing proposal distribution's CV.
 	 * @param prng pseudo-random number generator.
 	 */
-	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter t1, TuningParameter t2, PRNG prng) {
-		if (t1.getMinValue() <= 0) {
-			throw new IllegalArgumentException("First tuning parameter for normal proposer must be in (0,inf).");
-		}
-		if (t2.getMinValue() <= 0 || t2.getMaxValue() >= 1.0) {
-			throw new IllegalArgumentException("Second tuning parameter for normal proposer must be in (0,1).");
+	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter proposalCV, PRNG prng) {
+		if (proposalCV.getMinValue() <= 0) {
+			throw new IllegalArgumentException("Illegal tuning parameter for normal proposer for parameter " + param.getName() + ". Value must be in (0,inf).");
 		}
 		RealInterval.Type t = interval.getType();
 		if (t == Type.DEGENERATE || t == Type.EMPTY) {
@@ -88,8 +76,7 @@ public class NormalProposer implements Proposer {
 		}
 		this.param = param;
 		this.interval = interval;
-		this.t1 = t1;
-		this.t2 = t2;
+		this.proposalCV = proposalCV;
 		this.noPerturbed = 0;
 		this.prng = prng;
 		this.cumSubParamWeights = new double[] { 1.0 };
@@ -99,12 +86,11 @@ public class NormalProposer implements Proposer {
 	/**
 	 * Constructor. Creates an unbounded proposal distribution, i.e. defined over (-inf,+inf).
 	 * @param param state parameter perturbed by this proposer.
-	 * @param t1 tuning parameter governing factor from old state.
-	 * @param t2 tuning parameter governing probability of staying within +-(1+t1)*old state.
+	 * @param proposalCV tuning parameter governing proposal distribution's CV.
 	 * @param prng random number generator.
 	 */
-	public NormalProposer(RealParameter param, TuningParameter t1, TuningParameter t2, PRNG prng) {
-		this(param, new RealInterval(), t1, t2, prng);
+	public NormalProposer(RealParameter param, TuningParameter proposalCV, PRNG prng) {
+		this(param, new RealInterval(), proposalCV, prng);
 	}
 	
 	@Override
@@ -155,8 +141,7 @@ public class NormalProposer implements Proposer {
 	@Override
 	public List<TuningParameter> getTuningParameters() {
 		ArrayList<TuningParameter> l = new ArrayList<TuningParameter>(2);
-		l.add(this.t1);
-		l.add(this.t2);
+		l.add(this.proposalCV);
 		return l;
 	}
 
@@ -196,9 +181,6 @@ public class NormalProposer implements Proposer {
 		// Cache.
 		this.param.cache(indices);
 		
-		// Get size factor w.r.t. N(0,1) given t2.
-		double normFact = N.getQuantile((1.0 + this.t2.getValue()) / 2);
-		
 		// Perturb all chosen sub-parameters.
 		LogDouble forward = new LogDouble(1.0);
 		LogDouble backward = new LogDouble(1.0);
@@ -206,7 +188,7 @@ public class NormalProposer implements Proposer {
 			
 			// Compute variance for current proposal distribution.
 			double xOld = this.param.getValue(indices[i]);
-			double stdev = (xOld == 0.0 ? 1e-10 : Math.abs(xOld * this.t1.getValue()) / normFact);
+			double stdev = Math.max(Math.abs(xOld * this.proposalCV.getValue()), 1e-16);
 			
 			// Sample a new value.
 			NormalDistribution pd = new NormalDistribution(xOld, Math.pow(stdev, 2));
@@ -235,7 +217,7 @@ public class NormalProposer implements Proposer {
 			forward.mult(new LogDouble(Math.max(pd.getPDF(x) / nonTails, 0.0)));
 			
 			// Obtain "backward" density.
-			stdev = (x == 0.0 ? 1e-10 : Math.abs(x * this.t1.getValue()) / normFact);
+			stdev = Math.max(Math.abs(x * this.proposalCV.getValue()), 1e-16);
 			pd.setMean(x);
 			pd.setStandardDeviation(stdev);
 			nonTails = 1.0;
@@ -298,8 +280,7 @@ public class NormalProposer implements Proposer {
 		sb.append(prefix).append("Is active: ").append(this.isEnabled).append("\n");
 		sb.append(prefix).append("Domain: ").append(this.interval.toString()).append('\n');
 		sb.append(prefix).append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
-		sb.append(prefix).append("Tuning parameter 1:\n").append(this.t1.getPreInfo(prefix + '\t'));
-		sb.append(prefix).append("Tuning parameter 2:\n").append(this.t2.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Tuning parameter governing proposal CV:\n").append(this.proposalCV.getPreInfo(prefix + '\t'));
 		if (this.stats != null) {
 			sb.append(prefix).append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));
 		}
@@ -311,8 +292,7 @@ public class NormalProposer implements Proposer {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix).append("NORMAL-DISTRIBUTED PROPOSER\n");
 		sb.append(prefix).append("Perturbed parameter: ").append(this.param.getName()).append('\n');
-		sb.append(prefix).append("Tuning parameter 1:\n").append(this.t1.getPostInfo(prefix + '\t'));
-		sb.append(prefix).append("Tuning parameter 2:\n").append(this.t2.getPostInfo(prefix + '\t'));
+		sb.append(prefix).append("Tuning parameter governing proposal CV:\n").append(this.proposalCV.getPostInfo(prefix + '\t'));
 		if (this.stats != null) {
 			sb.append(prefix).append("Statistics:\n").append(this.stats.getPostInfo(prefix + '\t'));
 		}

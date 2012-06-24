@@ -378,14 +378,13 @@ public class ParameterParser {
 	 * @param p MCMC parameter.
 	 * @param iter iterations.
 	 * @param prng PRNG.
-	 * @param tuning tuning parameters as an array in string format.
+	 * @param tuningCV tuning CV parameter start-stop as an array in string format.
 	 * @return proposer.
 	 */
 	public static NormalProposer getNormalProposer(Parameters ps, RealParameter p, Iteration iter, PRNG prng, String tuning) {
 		double[] tng = SampleDoubleArray.toDoubleArray(tuning);
-		LinearTuningParameter t1 = new LinearTuningParameter(iter, tng[0], tng[1]);
-		LinearTuningParameter t2 = new LinearTuningParameter(iter, tng[2], tng[3]);		
-		NormalProposer proposer = new NormalProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), t1, t2, prng);
+		LinearTuningParameter tcv = new LinearTuningParameter(iter, tng[0], tng[1]);
+		NormalProposer proposer = new NormalProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), tcv, prng);
 		proposer.setStatistics(new FineProposerStatistics(iter, 8));
 		return proposer;
 	}
