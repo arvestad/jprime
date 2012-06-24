@@ -123,31 +123,29 @@ public class Parameters {
 	public Boolean outputLengths = false;
 	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
-	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution variance:" +
-		" [t1_start,t1_end,t2_start,t2_end], with e.g. t1=0.5 and t2=0.6" +
-		" meaning roughly that the proposed value will be at most 50% greater or smaller than the previous value in 60% of the cases. Start and end refer" +
-		" to values at first and last iteration respectively.")
-	public String tuningDupRate = "[0.5,0.5,0.5,0.5]";
+	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
+		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
+	public String tuningDupRate = "[0.75,0.75]";
 	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
-	@Parameter(names = {"-tngloss", "--tuninglossrate"}, description = "Tuning parameter: Governs loss rate proposal distribution variance.")
-	public String tuningLossRate = "[0.5,0.5,0.5,0.5]";
+	@Parameter(names = {"-tngloss", "--tuninglossrate"}, description = "Tuning parameter: Governs loss rate proposal distribution's CV.")
+	public String tuningLossRate = "[0.75,0.75]";
 	
 	/** Tuning parameter: edge rate mean proposal distribution variance. */
-	@Parameter(names = {"-tngerm", "--tuningedgeratemean"}, description = "Tuning parameter: Governs edge rate mean proposal distribution variance.")
-	public String tuningEdgeRateMean = "[0.4,0.4,0.9,0.9]";
+	@Parameter(names = {"-tngerm", "--tuningedgeratemean"}, description = "Tuning parameter: Governs edge rate mean proposal distribution's CV.")
+	public String tuningEdgeRateMean = "[0.25,0.25]";
 	
 	/** Tuning parameter: edge rate CV proposal distribution variance. */
-	@Parameter(names = {"-tngercv", "--tuningedgeratecv"}, description = "Tuning parameter: Governs edge rate CV proposal distribution variance.")
-	public String tuningEdgeRateCV = "[0.4,0.4,0.9,0.9]";
+	@Parameter(names = {"-tngercv", "--tuningedgeratecv"}, description = "Tuning parameter: Governs edge rate CV proposal distribution's CV.")
+	public String tuningEdgeRateCV = "[0.25,0.25]";
 	
 	/** Tuning parameter: site rate shape proposal distribution variance. */
-	@Parameter(names = {"-tngsrshape", "--tuningsiterateshape"}, description = "Tuning parameter: Governs site rate shape proposal distribution variance.")
-	public String tuningSiteRateShape = "[0.2,0.2,0.9,0.9]";
+	@Parameter(names = {"-tngsrshape", "--tuningsiterateshape"}, description = "Tuning parameter: Governs site rate shape proposal distribution's CV.")
+	public String tuningSiteRateShape = "[0.10,0.10]";
 	
 	/** Tuning parameter: branch lengths proposal distribution variance. */
-	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution variance.")
-	public String tuningLengths = "[0.5,0.5,0.6,0.6]";
+	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution's CV.")
+	public String tuningLengths = "[0.6,0.6]";
 	
 	/** Tuning parameter: guest tree move weights. */
 	@Parameter(names = {"-tnggw", "--tuningguesttreeweights"}, description = "Tuning parameter: Governs how often a particular " +

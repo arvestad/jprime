@@ -18,7 +18,8 @@ public class TestNormalProposer {
 		DoubleParameter p = new DoubleParameter("Param", 2.34);
 		double t1 = 0.6;
 		double t2 = 0.5;
-		NormalProposer prop = new NormalProposer(p, new ConstantTuningParameter(t1), new ConstantTuningParameter(t2), prng);
+		double tcv = 0.8895613;
+		NormalProposer prop = new NormalProposer(p, new ConstantTuningParameter(tcv), prng);
 		int within = 0;
 		int n = 1000;
 		for (int i = 0; i < n; ++i) {
@@ -34,6 +35,9 @@ public class TestNormalProposer {
 				++within;
 			}
 			//System.out.println(newVal + ", forward: " + psal.getForwardDensity().getValue() + ", backward: " + psal.getBackwardDensity().getValue());
+			if (newVal < 1e-20) {
+				p.setValue(2.34);
+			}
 		}
 		double ratio = within / ((double) n);
 		//System.out.println("" + within + " / " + n + " = " + ratio);
@@ -48,7 +52,8 @@ public class TestNormalProposer {
 		RealInterval iv = new RealInterval(0, 10, true, true);
 		double t1 = 0.3;
 		double t2 = 0.5;
-		NormalProposer prop = new NormalProposer(p, iv, new ConstantTuningParameter(t1), new ConstantTuningParameter(t2), prng);
+		double tcv = 0.4447807;
+		NormalProposer prop = new NormalProposer(p, iv, new ConstantTuningParameter(tcv), prng);
 		int within = 0;
 		int n = 500;
 		for (int i = 0; i < n; ++i) {
@@ -64,6 +69,9 @@ public class TestNormalProposer {
 				++within;
 			}
 			//System.out.println(newVal + ", forward: " + psal.getForwardDensity().getValue() + ", backward: " + psal.getBackwardDensity().getValue());
+			if (newVal < 1e-20) {
+				p.setValue(2.34);
+			}
 		}
 		double ratio = within / ((double) n);
 		//System.out.println("" + within + " / " + n + " = " + ratio);
