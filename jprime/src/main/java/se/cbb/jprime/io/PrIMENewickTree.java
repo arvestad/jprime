@@ -122,7 +122,7 @@ public class PrIMENewickTree extends NewickTree {
 	 * @throws NewickIOException.
 	 */
 	public PrIMENewickTree(NewickTree tree, boolean strict) throws NewickIOException {
-		super(tree);
+		super(tree, true);
 		List<NewickVertex> vertices = tree.getVerticesAsList();
 		this.noOfVertices = vertices.size();
 		parseTreeData();
