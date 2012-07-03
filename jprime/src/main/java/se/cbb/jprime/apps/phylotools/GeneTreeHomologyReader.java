@@ -26,17 +26,16 @@ import se.cbb.jprime.io.PrIMENewickTreeReader;
 
 public class GeneTreeHomologyReader{
 	public static void main(String[] args)  throws IOException, NewickIOException {
-		boolean status = false;
-		BufferedWriter writer = new BufferedWriter(new FileWriter("orthopairs.txt"));
+		if(args.length != 1){
+			System.err.println("Usage: java -classpath jprime.jar se.cbb.jprime.apps.phylotools.GeneTreeHomologyReader gene_tree_name");
+		}
+		System.out.println("Input Gene Tree is " + args[0]);
+		File gFile = new File(args[0]);
 		
-		System.out.println("The status is " + status);
-		File gFile = new File("/home/ikramu/Desktop/true.tree");
+		BufferedWriter writer = new BufferedWriter(new FileWriter(args[0]+".orthopairs"));
+		
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(gFile, false, true);
-		System.out.println(sRaw.toString());
-		if(sRaw.hasProperty(MetaProperty.VERTEX_NUMBERS))
-			System.out.println("Its there");
-		else
-			System.out.println("Sorry not there!");
+		//System.out.println(sRaw.toString());		
 		
 		List<NewickVertex> vertices = sRaw.getVerticesAsList();
 		int[] dupStatus = sRaw.getDuplicationValues();
@@ -46,13 +45,14 @@ public class GeneTreeHomologyReader{
 				ArrayList<NewickVertex> children = v.getChildren();
 				String lchild = getLeafIds(children.get(0));
 				String rchild = getLeafIds(children.get(1));
-				System.out.println("The childern ids are " + lchild + " and " + rchild);
-				System.out.println("The node number " + id + " has dupStatus = " + dupStatus[id]);
+				//System.out.println("The childern ids are " + lchild + " and " + rchild);
+				//System.out.println("The node number " + id + " has dupStatus = " + dupStatus[id]);
 				writer.write("["+lchild+", "+rchild+"]"+"\t"+dupStatus[id]+"\n");
 			}
 		}
 		writer.flush();
 		writer.close();
+		
 	}
 	
 	public static String getLeafNames(NewickVertex vertex){
