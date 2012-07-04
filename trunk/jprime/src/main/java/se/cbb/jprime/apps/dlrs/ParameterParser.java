@@ -13,6 +13,7 @@ import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.io.GuestHostMapReader;
+import se.cbb.jprime.io.MSAFastPhyloTree;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
@@ -42,6 +43,7 @@ import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
 import se.cbb.jprime.seqevo.MultiAlignment;
 import se.cbb.jprime.seqevo.SequenceType;
+import se.cbb.jprime.topology.BifurcateTree;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.MPRMap;
@@ -203,46 +205,62 @@ public class ParameterParser {
 	 * @param ps parameters.
 	 * @param gsMap guest-to-host leaf map.
 	 * @param prng PRNG.
-	 * @param alignment alignment of sequances.
+	 * @param alignment alignment of sequences.
 	 * @return guest tree, names and branch lengths.
 	 */
 	public static Triple<RBTree, NamesMap, DoubleMap>
 		getGuestTreeAndLengths(Parameters ps, GuestHostMap gsMap, PRNG prng, LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs, BufferedWriter info) {
-		try {
-			RBTree g;
-			NamesMap gNames;
-			DoubleMap gLengths;
-			if (ps.guestTree == null || ps.guestTree.equalsIgnoreCase("NJ")) {
-				// "Randomly rooted" NJ tree. Produced lengths seem suspicious, so we won't use'em.
-				info.append("# Initial guest tree: Produced with NJ on sequence identity (arbitrarily rooted).\n");
-				@SuppressWarnings({ "unchecked", "rawtypes" })
-				NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(new MultiAlignment(seqs, false));
-				g = new RBTree(gRaw, "GuestTree");
-				gNames = gRaw.getVertexNamesMap(true, "GuestTreeNames");
-				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
-			} else if (ps.guestTree.equalsIgnoreCase("UNIFORM")) {
-				// Uniformly drawn tree.
-				info.append("# Initial guest tree: Uniformly selected random unlabelled tree.\n");
-				Pair<RBTree, NamesMap> gn = UniformRBTreeGenerator.createUniformTree("GuestTree", new ArrayList<String>(gsMap.getAllGuestLeafNames()), prng);
-				g = gn.first;
-				gNames = gn.second;
-				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
-			} else {
-				// Read tree from file.
-				info.append("# Initial guest tree: User-specified from file ").append(ps.guestTree).append(".\n");
-				PrIMENewickTree GRaw = PrIMENewickTreeReader.readTree(new File(ps.guestTree), true, false);
-				g = new RBTree(GRaw, "GuestTree");
-				gNames = GRaw.getVertexNamesMap(true, "GuestTreeNames");
-				if (GRaw.hasProperty(MetaProperty.BRANCH_LENGTHS)) {
-					gLengths = GRaw.getBranchLengthsMap("BranchLengths");
-				} else {
+		RBTree g = null;
+		NamesMap gNames = null;
+		DoubleMap gLengths = null;
+		if (!ps.msaFastPhyloTree) {
+			// If we don't compute a guest tree via FastPhylo
+			try {
+				if (ps.guestTree == null || ps.guestTree.equalsIgnoreCase("NJ")) {
+					// "Randomly rooted" NJ tree. Produced lengths seem suspicious, so we won't use'em.
+					info.append("# Initial guest tree: Produced with NJ on sequence identity (arbitrarily rooted).\n");
+					@SuppressWarnings({ "unchecked", "rawtypes" })
+					NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(new MultiAlignment(seqs, false));
+					g = new RBTree(gRaw, "GuestTree");
+					gNames = gRaw.getVertexNamesMap(true, "GuestTreeNames");
 					gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+				} else if (ps.guestTree.equalsIgnoreCase("UNIFORM")) {
+					// Uniformly drawn tree.
+					info.append("# Initial guest tree: Uniformly selected random unlabelled tree.\n");
+					Pair<RBTree, NamesMap> gn = UniformRBTreeGenerator.createUniformTree("GuestTree", new ArrayList<String>(gsMap.getAllGuestLeafNames()), prng);
+					g = gn.first;
+					gNames = gn.second;
+					gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+				} else {
+					// Read tree from file.
+					info.append("# Initial guest tree: User-specified from file ").append(ps.guestTree).append(".\n");
+					PrIMENewickTree GRaw = PrIMENewickTreeReader.readTree(new File(ps.guestTree), true, false);
+					g = new RBTree(GRaw, "GuestTree");
+					gNames = GRaw.getVertexNamesMap(true, "GuestTreeNames");
+					if (GRaw.hasProperty(MetaProperty.BRANCH_LENGTHS)) {
+						gLengths = GRaw.getBranchLengthsMap("BranchLengths");
+					} else {
+						gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+					}
 				}
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid guest tree parameter or file.", e);
 			}
-			return new Triple<RBTree, NamesMap, DoubleMap>(g, gNames, gLengths);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Invalid guest tree parameter or file.", e);
+		} else {
+			// Guest tree is computed by FastPhylo on a MSA file
+			try {
+				info.append("# Initial guest tree: Tree computated by FastPhylo\n");
+				PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(new File(ps.files.get(0)), false, true);
+				NewickTree GRaw = MSAFastPhyloTree.getTreeFromFastPhylo(ps.files.get(1), ps.substitutionModel);
+				Pair<RBTree, NamesMap> bestBifurcatingTree = BifurcateTree.bestBifurcatingTree(GRaw, sRaw, gsMap);
+				g = bestBifurcatingTree.first;
+				gNames = bestBifurcatingTree.second;
+				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Error when using Fast Phylo to get a guest tree.", e);
+			}
 		}
+		return new Triple<RBTree, NamesMap, DoubleMap>(g, gNames, gLengths);
 	}
 	
 	/**

@@ -227,7 +227,7 @@ public class Delirious {
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
-			System.err.print("\nUse option -h or --help to show usage.");
+			System.err.print("\nUse option -h or --help to show usage.\n");
 			if (info != null) {
 				Writer w = new StringWriter();
 			    PrintWriter pw = new PrintWriter(w);
