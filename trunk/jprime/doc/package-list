@@ -1,0 +1,15 @@
+se.cbb.jprime.apps.analysisextraction
+se.cbb.jprime.apps.dlrs
+se.cbb.jprime.apps.phylotools
+se.cbb.jprime.apps.rwrappers
+se.cbb.jprime.apps.vmcmc
+se.cbb.jprime.apps.vmcmc.gui
+se.cbb.jprime.apps.vmcmc.libs
+se.cbb.jprime.consensus.day
+se.cbb.jprime.io
+se.cbb.jprime.math
+se.cbb.jprime.mcmc
+se.cbb.jprime.misc
+se.cbb.jprime.prm
+se.cbb.jprime.seqevo
+se.cbb.jprime.topology

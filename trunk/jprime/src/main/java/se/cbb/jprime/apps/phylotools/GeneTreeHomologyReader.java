@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickVertex;
@@ -28,10 +29,12 @@ public class GeneTreeHomologyReader{
 	public static void main(String[] args)  throws IOException, NewickIOException {
 		if(args.length != 1){
 			System.err.println("Usage: java -classpath jprime.jar se.cbb.jprime.apps.phylotools.GeneTreeHomologyReader gene_tree_name");
+			System.out.println("Exiting now...");
+			System.exit(1);
 		}
-		System.out.println("Input Gene Tree is " + args[0]);
-		File gFile = new File(args[0]);
-		
+		System.out.println("Input true reconciliation file is " + args[0]);								
+		String treepath = parseTreeFromReconciliationFile(args[0]);
+		File gFile = new File(treepath);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(args[0]+".orthopairs"));
 		
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(gFile, false, true);
@@ -55,6 +58,40 @@ public class GeneTreeHomologyReader{
 		
 	}
 	
+	private static String parseTreeFromReconciliationFile(String fileName) {
+		try {
+			String gfileName = "treeFromReconFile.tree";
+		BufferedReader buf = new BufferedReader(new FileReader(fileName));
+		BufferedWriter bw = new BufferedWriter(new FileWriter(gfileName));
+		String line = "";
+		while((line = buf.readLine()) != null){
+			line = line.trim();
+			if(line.charAt(0) == '#')
+				continue;
+			else {
+//				StringTokenizer stk = new StringTokenizer(line);
+//				String tree = "";
+//				
+//				// true reconciliations is the last token
+//				while(stk.hasMoreTokens())
+//					tree = stk.nextToken();
+				String[] token = line.split(";");
+				String trueFile = token[4].trim() + ";";
+				bw.write(trueFile);
+				bw.flush();
+				bw.close();
+				buf.close();
+				
+				return gfileName;
+			}
+		}
+		}catch(Exception ex){
+			System.err.println("Error in reading reconciliation file");
+			System.err.println("Reason: " + ex.getMessage());
+		}
+		return null;
+	}
+
 	public static String getLeafNames(NewickVertex vertex){
 		String lNames = "(";
 		lNames += getLeafNamesRecursive(vertex);
