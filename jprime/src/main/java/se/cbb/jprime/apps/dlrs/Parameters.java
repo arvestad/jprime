@@ -118,6 +118,11 @@ public class Parameters {
 	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix branch lengths of guest tree.")
 	public Boolean lengthsFixed = false;
 	
+	/** MSA that will be used to generate a starting gene tree */
+	@Parameter(names = {"-fp", "--fastphylo"}, description = "Generate a good starting tree by calling FastPhylo on a specified MSA <file>." + 
+			" If --guesttree is specified it inhibits this parameter.")
+	public boolean msaFastPhyloTree = false;
+	
 	/** Sample (output) branch lengths in additional Newick tree. */
 	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output an additional Newick guest tree with branch lengths.")
 	public Boolean outputLengths = false;
