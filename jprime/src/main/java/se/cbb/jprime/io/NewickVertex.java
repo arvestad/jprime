@@ -186,6 +186,17 @@ public class NewickVertex {
 	}
 	
 	/**
+	 * Returns the vertex degree.
+	 * @return the vertex degree.
+	 */
+	public int getDegree() {
+		int degree = this.getNoOfChildren();
+		if (!this.isRoot())
+			degree++;
+		return degree;
+	}
+	
+	/**
 	 * Returns true if name is not null.
 	 * Empty string returns true.
 	 * @return true if vertex has name.

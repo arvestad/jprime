@@ -223,6 +223,50 @@ public class NewickTree {
 	}
 	
 	/**
+	 * Returns the list of all edges of the tree.
+	 * Each edges is represented by a couple of vertices.
+	 * @return the list of all edges of the tree.
+	 */
+	public ArrayList<NewickVertex[]> getEdges() {
+		ArrayList<NewickVertex[]> edges = new ArrayList<NewickVertex[]>();
+		recursAddEdges(this.root, edges);
+		return edges;
+	}
+	
+	/**
+	 * Add edges of the subtree starting with v to list edges.
+	 * @param v start of the subtree.
+	 * @param edges list to add edges to.
+	 */
+	private void recursAddEdges(NewickVertex v, ArrayList<NewickVertex[]> edges) {
+		if (!v.isLeaf()) {
+			for (NewickVertex c : v.getChildren()) {
+				NewickVertex[] e = {v, c}; 
+				edges.add(e);
+				recursAddEdges(c, edges);
+			}
+		}
+	}
+	
+	/**
+	 * Returns the vertex identified by its number n.
+	 * @param n number of the vertex.
+	 * @return the vertex identified by its number n.
+	 * @throws NewickIOException if no vertex has the number n.
+	 */
+	public NewickVertex getVertex(int n) throws NewickIOException {
+		NewickVertex vres = null;
+		List<NewickVertex> vs = getVerticesAsList();
+		for (NewickVertex v : vs) {
+			if (v.getNumber() == n) { vres = v; }
+		}
+		if (vres == null) {
+			throw new NewickIOException("No vertex found with number "+n+".");
+		}
+		return vres;
+	}
+	
+	/**
 	 * Returns all leaves as a list.
 	 * @return all vertices.
 	 */
