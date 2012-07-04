@@ -54,7 +54,8 @@ public class PrIMENewickTree extends NewickTree {
 		BRANCH_LENGTHS   ("BL=\"?([0-9\\+\\-\\.e]+)\"?"),
 		VERTEX_WEIGHTS   ("NW=\"?([0-9\\+\\-\\.e]+)\"?"),
 		VERTEX_TIMES     ("NT=\"?([0-9\\+\\-\\.e]+)\"?"),
-		ARC_TIMES        ("ET=\"?([0-9\\+\\-\\.e]+)\"?");
+		ARC_TIMES        ("ET=\"?([0-9\\+\\-\\.e]+)\"?"),
+		IS_DUPLICATION   ("DUP=\"?(\\w+)\"?");
 		
 		public static final String REGEXP_PREFIX = "\\[&&PRIME [^\\]]*";
 		public static final String REGEXP_SUFFIX = "[^\\]]*\\]";
@@ -110,6 +111,9 @@ public class PrIMENewickTree extends NewickTree {
 	
 	/** Vertex weights. */
 	private double[] vertexTimes = null;
+	
+	/** Whether a node is a duplication or speciation */
+	private int[] isDuplication = null;
 	
 	/** Arc times. Implicitly defines vertex times. */
 	private double[] arcTimes = null;
@@ -232,6 +236,10 @@ public class PrIMENewickTree extends NewickTree {
 		if  (val != null) {
 			setArcTime(x, Double.parseDouble(val));
 		}
+		val = MetaProperty.IS_DUPLICATION.getValue(meta);
+		if  (val != null) {
+			setDuplicationFlag(x, Integer.parseInt(val));
+		}
 	}
 	
 	/**
@@ -285,6 +293,22 @@ public class PrIMENewickTree extends NewickTree {
 	}
 	
 	/**
+	 * Sets the duplication value. All empty values are Integer.MAX_VALUE
+	 * (for which one checks by comparing with Integer.MAX_VALUE)
+	 * @param x the vertex.
+	 * @param value the value (0 or 1).
+	 */
+	private void setDuplicationFlag(int x, int value) {
+		if (this.isDuplication == null) {
+			this.isDuplication = new int[this.noOfVertices];
+			for (int i = 0; i < this.isDuplication.length; ++i) {
+				this.isDuplication[i] = Integer.MAX_VALUE;
+			}
+		}
+		this.isDuplication[x] = value;
+	}
+	
+	/**
 	 * Returns the tree name (null if lacking name).
 	 * @return the tree name.
 	 */
@@ -332,6 +356,16 @@ public class PrIMENewickTree extends NewickTree {
 	 */
 	public double[] getArcTimes() {
 		return this.arcTimes;
+	}
+	
+	/**
+	 * Returns isDuplication values. If lacking values altogether, returns
+	 * null. Single uninitialised items are set to Integer.MAX_VALUE.
+	 * (for which one checks by comparing with Integer.MAX_VALUE).
+	 * @return array of duplication flags.
+	 */
+	public int[] getDuplicationValues() {
+		return this.isDuplication;
 	}
 	
 	/**
