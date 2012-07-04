@@ -20,7 +20,9 @@ public class TestNewickTree {
 		List<NewickVertex> treeVertices = tree.getVerticesAsList();
 		List<NewickVertex> treeCopyVertices = treeCopy.getVerticesAsList();
 		for (int i = 0; i < treeVertices.size(); i++) {
-			assertNotSame(treeVertices.get(i), treeCopyVertices.get(i));
+			for (int j = 0; j < treeCopyVertices.size(); j++) {
+				assertNotSame(treeVertices.get(i), treeCopyVertices.get(j));
+			}
 		}
 	}
 
