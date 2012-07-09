@@ -14,15 +14,15 @@ import se.cbb.jprime.topology.TopologyException;
 
 /**
  * Reads a column of Newick trees from a tab-delimited file (typically an output file from
- * MCMC), either matching a tree without branch lengths or with branch lengths.
- * Typically used in conjunction with <code>ConditionedRBTreeBranchSwapper</code>.
+ * MCMC), either matching a tree with or without branch lengths.
+ * Typically used in conjunction with <code>RBTreeBranchSwapperSampler</code>.
  * Trees can be obtained sorted according to topology frequency.
  * 
  * @author Joel Sjöstrand.
  */
-public class NewickRBTreeColumnReader {
+public class NewickRBTreeSamples {
 	
-	/** Inner class for counting identical topologies and keeping track of lengths. */
+	/** Inner class for counting identical topologies and keeping track of "lengthses". */
 	class TreeInstances implements Comparable<TreeInstances> {
 		RBTree tree;
 		int count;
@@ -51,34 +51,39 @@ public class NewickRBTreeColumnReader {
 	}
 	
 	/** Tree instances, hashed by purified Newick string. */
-	LinkedHashMap<String, TreeInstances> trees;
+	private LinkedHashMap<String, TreeInstances> trees;
 	
 	/** Tree instances sorted by descending frequency. */
-	ArrayList<TreeInstances> treesByFreq;
+	private ArrayList<TreeInstances> treesByFreq;
+	
+	/** The total no. of instances. */
+	private int totalCount;
 	
 	/**
 	 * Private constructor.
-	 * @param f
-	 * @param withLengths
-	 * @param absColIdx
-	 * @param firstLn
+	 * @param f file.
+	 * @param withLengths true if trees with lengths.
+	 * @param absColIdx absolute column index.
+	 * @param firstLn row index of first sample (e.g 1 to discard header).
 	 * @throws NewickIOException.
 	 * @throws TopologyException.
 	 * @throws FileNotFoundException.
 	 */
-	private NewickRBTreeColumnReader(File f, boolean withLengths, int absColIdx, int firstLn) throws FileNotFoundException, NewickIOException, TopologyException {
+	private NewickRBTreeSamples(File f, boolean withLengths, int absColIdx, int firstLn) throws FileNotFoundException, NewickIOException, TopologyException {
 		Scanner sc = new Scanner(f);
-		int lnNo = 0;
-		while (lnNo < firstLn) {
+		int i = 0;
+		while (i < firstLn) {
 			sc.nextLine();
-			lnNo++;
+			i++;
 		}
 		
-		this.trees = new LinkedHashMap<String, NewickRBTreeColumnReader.TreeInstances>(4096);
+		this.trees = new LinkedHashMap<String, NewickRBTreeSamples.TreeInstances>(4096);
 		
 		// Read tree instances.
+		i = 0;
 		while (sc.hasNextLine()) {
 			String[] parts = sc.nextLine().split("\t");
+			i++;
 			// Must sort to ensure equal numbering of identical trees.
 			NewickTree t = NewickTreeReader.readTree(parts[absColIdx], true);
 			DoubleMap lengths = null;
@@ -98,20 +103,45 @@ public class NewickRBTreeColumnReader {
 			}
 		}
 		sc.close();
+		this.totalCount = i;
 		
 		// Sort trees according to topology frequency.
-		this.treesByFreq = new ArrayList<NewickRBTreeColumnReader.TreeInstances>(this.trees.values());
+		this.treesByFreq = new ArrayList<NewickRBTreeSamples.TreeInstances>(this.trees.values());
 		Collections.sort(this.treesByFreq, Collections.reverseOrder());
 	}
 	
-	public static NewickRBTreeColumnReader readTreesWithoutLengths(File f, boolean hasHeader, int relColNo, double burnInProp) throws FileNotFoundException, NewickIOException, TopologyException {
+	/**
+	 * Returns the trees from a column, where trees are expected to lack lengths.
+	 * @param f the file.
+	 * @param hasHeader true if header; false if none.
+	 * @param relColNo the relative column number containing trees without lengths, e.g., 1
+	 * if the first encountered column with Newick trees without lengths is the desired one.
+	 * @param burnInProp proportion of samples to discard as burn-in, e.g. 0.25 for 25%.
+	 * @return the trees of the column.
+	 * @throws FileNotFoundException.
+	 * @throws NewickIOException.
+	 * @throws TopologyException.
+	 */
+	public static NewickRBTreeSamples readTreesWithoutLengths(File f, boolean hasHeader, int relColNo, double burnInProp) throws FileNotFoundException, NewickIOException, TopologyException {
 		int[] colStart = findAbsColAndStartLn(f, hasHeader, relColNo, burnInProp, false);
-		return new NewickRBTreeColumnReader(f, false, colStart[0], colStart[1]);
+		return new NewickRBTreeSamples(f, false, colStart[0], colStart[1]);
 	}
 	
-	public static NewickRBTreeColumnReader readTreesWithLengths(File f, boolean hasHeader, int relColNo, double burnInProp) throws FileNotFoundException, NewickIOException, TopologyException {
+	/**
+	 * Returns the trees from a column, where trees are expected to have lengths.
+	 * @param f the file.
+	 * @param hasHeader true if header; false if none.
+	 * @param relColNo the relative column number containing trees with lengths, e.g., 1
+	 * if the first encountered column with Newick trees with lengths is the desired one.
+	 * @param burnInProp proportion of samples to discard as burn-in, e.g. 0.25 for 25%.
+	 * @return the trees of the column.
+	 * @throws FileNotFoundException.
+	 * @throws NewickIOException.
+	 * @throws TopologyException.
+	 */
+	public static NewickRBTreeSamples readTreesWithLengths(File f, boolean hasHeader, int relColNo, double burnInProp) throws FileNotFoundException, NewickIOException, TopologyException {
 		int[] colStart = findAbsColAndStartLn(f, hasHeader, relColNo, burnInProp, true);
-		return new NewickRBTreeColumnReader(f, true, colStart[0], colStart[1]);
+		return new NewickRBTreeSamples(f, true, colStart[0], colStart[1]);
 	}
 	
 	/**
@@ -141,7 +171,7 @@ public class NewickRBTreeColumnReader {
 		int lnCnt = 1;
 		
 		// Find absolute column index.
-		String[] parts = ln.split("\t");       // TODO: This could be made into a default only in the future.
+		String[] parts = ln.split("\t");       // TODO: This could be made into a default-only in the future.
 		int matchCols = 0;
 		for (int i = 0; i < parts.length; ++i) {
 			try {
@@ -204,5 +234,14 @@ public class NewickRBTreeColumnReader {
 	 */
 	public List<DoubleMap> getTreeBranchLengths(int i) {
 		return this.treesByFreq.get(i).lengthses;
+	}
+	
+	/**
+	 * Returns the total number of tree instances, i.e., accounting for
+	 * the multiplicity of each unique topology.
+	 * @return the total number of samples.
+	 */
+	public int getTotalTreeCount() {
+		return this.totalCount;
 	}
 }
