@@ -10,28 +10,20 @@ import java.io.IOException;
  */
 public class MSAFastPhyloTree {
 	
-	/**
-	 * Returns true if the FastPhylo binaries <code>fastdist</code>, <code>fastprot</code> and <code>fnj</code>
-	 * are found in the path. If only one these binaries are found, returns false. If none of these binaries are
-	 * found, returns false.
-	 * @return true if <code>fastdist</code> and <code>fastprot</code> and <code>fnj</code> are in the path.
-	 * @throws Exception if FastPhylo binaries are not found in the path.
-	 */
-    private static boolean isFastPhyloInPath() throws Exception {
-        boolean res = true;
-        String fastdist = "fastdist -V";
-        String fastprot = "fastprot -V";
-        String fnj = "fnj -V";
-        Runtime rt = Runtime.getRuntime();
-        try {
-            rt.exec(fastdist);
-            rt.exec(fastprot);
-            rt.exec(fnj);
-        } catch (IOException e) {
-            res = false;
-            throw new Exception("Error: FastPhylo is not in path.");
-        }
-        return res;
+    /**
+     * Returns true if the program prog is found in the path.
+     * @param prog the program to look for in the path.
+     * @return true if the program prog is found in the path, false otherwise.
+     */
+    private static boolean isProgInPath(String prog) {
+    	boolean res = true;
+    	Runtime rt = Runtime.getRuntime();
+    	try {
+    		rt.exec(prog);
+    	} catch (IOException e) {
+    		res = false;
+    	}
+    	return res;
     }
     
     /**
@@ -85,7 +77,10 @@ public class MSAFastPhyloTree {
     		throw new IllegalArgumentException("FastPhylo can not handle codon sequences.");
     	}
 	   	try {
-	   		isFastPhyloInPath();
+	   		if (!isProgInPath(distProgram+" -V"))
+	   			throw new Exception("Error: the Fast Phylo subprogram "+distProgram+" is not in the path but is needed.");
+	   		if (!isProgInPath("fnj -V"))
+	   			throw new Exception("Error: the Fast Phylo subprogram fnj is not in the path but is needed.");
 		   	runFastPhylo(msaFile, outTreeFile, distProgram, overwrite);
 		   	File out = new File(outTreeFile);
 		   	GRaw = NewickTreeReader.readTree(out, true);
