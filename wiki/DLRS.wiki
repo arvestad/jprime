@@ -141,6 +141,15 @@ The info file will look something like:
 #               MERSENNE-TWISTER PRNG
 #               Seed as integer: -165791062564516345067622441299051870177
 #               Seed as byte-array: [-125, 69, -51, -124, -20, -62, 8, -53, -73, 18, -97, 40, -69, -81, 8, 31]
+#
+... 
+=========================================================================
+# ||                             POST-RUN INFO                           ||
+# =========================================================================
+# DELIRIOUS
+# MCMC manager:
+#       MCMC MANAGER
+#       Wall time: 16793658000 ns = 16,79 s = 0,28 min = 0 h
 ...
 #       Statistics:
 #               FINE-DETAILED PROPOSER STATISTICS
