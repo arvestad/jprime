@@ -242,9 +242,14 @@ The ABCA subfamily for some vertebrates, with 12 members in human.
 
 
 == OPTIONS ==
-Delirious comes with a large number of user options; please don't feel overwhelmed! The various types of options are detailed below, although not exhaustively.
+Delirious comes with a large number of user options; please don't feel overwhelmed! The various types of options are detailed below, although not exhaustively. Please use option `-h` for the most recent specifications.
 
 === General options ===
-  * `-o <outfile>`  Output file.
-  * '-i <iterations>'  Number of iterations.
-  * '-t <'
+  * `-o <outfile>  `  Output file.
+  * `-i <iterations>  `  Number of iterations.
+  * `-t <thinning>  ` Governs how often samples are taken.
+
+=== Substitution model ===
+  * `-sm <model>  ` The substitution model. You may also provide your own time-reversible model by inputting the stationary frequencies and the exchangeability matrix (not the transition matrix).
+  * `-srcats <n>  ` Number of discrete site rate categories for modelling site rate heterogeneity.
+  * `-erpd <PD>  ` Probability distribution used for modelling iid rates of relaxed molecular clock.
