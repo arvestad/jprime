@@ -242,4 +242,8 @@ The ABCA subfamily for some vertebrates, with 12 members in human.
 
 
 == OPTIONS ==
-At the moment, Delirious
+Delirious comes with a large number of user options; please don't feel overwhelmed! The various types of options are detailed below, although not exhaustively.
+
+=== General options ===
+  * '-o <outfile>'  Output file.
+  * '-i <iterations>'  Number of iterations.
