@@ -210,3 +210,8 @@ As in all MCMC inference, you should discard an initial proportion of the sample
 == EXAMPLES ==
 === Example 1 ===
 A synthetic mammal protein family (the same as used in the tutorial above).
+
+With 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we have something like:
+{{{
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
+}}}
