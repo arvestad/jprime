@@ -112,9 +112,9 @@ Monodelphis_domestica_1	Monodelphis_domestica
 
 == OUTPUT ==
 Output normally consists of two files, e.g.:
-  * {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
-  * {{{myoutput.mcmc.info}}}, containing general pre- and post-run information.
-The former will look something like:
+  # {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
+  # {{{myoutput.mcmc.info}}}, containing general pre- and post-run information.
+The file with the samples will look something like:
 {{{
 Iteration       PosteriorDensity       SubstitutionModelLikelihood     DLRSModelLikelihood     DuplicationRate LossRate        EdgeRateMean    EdgeRateCV      GuestTree
 0       -3552.679327202671      -3499.5465333279344     -53.13279387473693      1.2695758513931887      1.2695758513931887      0.5     1.0     ((((((Canis_lupus_1,(Felis_catus_1,Felis_catus_2)),Equus_caballus_1),Monodelphis_domestica_1),((Cavia_porcellus_3,Oryctolagus_cuniculus_2),Mus_musculus_2)),((Cavia_porcellus_1,Mus_musculus_1),Cavia_porcellus_2)),Oryctolagus_cuniculus_1);
@@ -123,6 +123,41 @@ Iteration       PosteriorDensity       SubstitutionModelLikelihood     DLRSModel
 300     -3374.107762944613      -3353.653784061512      -20.453978883101296     0.6946280180733413      1.7153266079409586      0.2597670645491367      0.5326983810097781      (((((Canis_lupus_1,(Felis_catus_1,Felis_catus_2)),Equus_caballus_1),Monodelphis_domestica_1),((Cavia_porcellus_3,Oryctolagus_cuniculus_2),Mus_musculus_2)),((Cavia_porcellus_1,Mus_musculus_1),(Cavia_porcellus_2,Oryctolagus_cuniculus_1)));
 400     -3364.1989247177135     -3347.7627052940393     -16.436219423674128     0.20484065463728496     1.2600320636943336      0.2780947853756359      0.6196617091721438      (((((Canis_lupus_1,(Felis_catus_1,Felis_catus_2)),Equus_caballus_1),Monodelphis_domestica_1),((Cavia_porcellus_3,Mus_musculus_2),Oryctolagus_cuniculus_2)),((Cavia_porcellus_1,Mus_musculus_1),(Cavia_porcellus_2,Oryctolagus_cuniculus_1)));
 ...
+}}}
+
+The info file will look something like:
+{{{
+# =========================================================================
+# ||                             PRE-RUN INFO                            ||
+# =========================================================================
+# DELIRIOUS
+# Arguments: [-o, example1.mcmc, -i, 10000, example1.stree, example1.fa, example1.map]
+# Current time: 2012-07-10 11:36:33
+# Host tree rescaling factor: 0.0061012812690665035
+# Initial guest tree: Produced with NJ on sequence identity (arbitrarily rooted).
+# MCMC manager:
+#       MCMC MANAGER
+#       Psuedo-random number generator:
+#               MERSENNE-TWISTER PRNG
+#               Seed as integer: -165791062564516345067622441299051870177
+#               Seed as byte-array: [-125, 69, -51, -124, -20, -62, 8, -53, -73, 18, -97, 40, -69, -81, 8, 31]
+...
+#       Statistics:
+#               FINE-DETAILED PROPOSER STATISTICS
+#               Acceptance ratio: 2673 / 10000 = 0.2673
+#               Acceptance ratios per window:
+#                       1       730 / 2498 = 0.2922337870296237
+#                       2       666 / 2500 = 0.2664
+#                       3       706 / 2500 = 0.2824
+#                       4       686 / 2500 = 0.2744
+#                       5       630 / 2500 = 0.252
+#                       6       672 / 2500 = 0.2688
+#                       7       594 / 2500 = 0.2376
+#                       8       662 / 2502 = 0.26458832933653076
+#               Acceptance ratios for sub-categories:
+#                       1 used proposers        2248 / 6940 = 0.3239193083573487
+#                       2 used proposers        321 / 2043 = 0.15712187958883994
+#                       3 used proposers        104 / 1017 = 0.10226155358898721
 }}}
 
 ----
