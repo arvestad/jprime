@@ -229,6 +229,11 @@ Family 1572 from the [http://wolfe.gen.tcd.ie/ygob/ Yeast Gene Order Browser (YG
   * [http://jprime.googlecode.com/files/dlrs_example_2.fa dlrs_example_2.fa] (MSA)
   * [http://jprime.googlecode.com/files/dlrs_example_2.map dlrs_example_2.map] (guest-to-host leaf map)
 
+If we hypothesize that the gene tree should be congruent with the host tree and kept fixed, and we wish to output branch lengths with the samples, we might execute:
+{{{
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_2.mcmc -i 200000 -t 100 -sm JTT -g dlrs_example_2.gtree -lout dlrs_example_2.stree dlrs_example_2.fa dlrs_example_2.map
+}}}
+
 === Example 3: ABCA subfamily ===
 The ABCA subfamily for some vertebrates, with 12 members in human.
 
@@ -236,6 +241,10 @@ The ABCA subfamily for some vertebrates, with 12 members in human.
   * [http://jprime.googlecode.com/files/dlrs_example_3.fa dlrs_example_3.fa] (MSA trimmed of uninformative positions)
   * [http://jprime.googlecode.com/files/dlrs_example_3.map dlrs_example_3.map] (guest-to-host leaf map)
 
+On this larger family, we might want to improve on the tuning parameters:
+{{{
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_2.mcmc -i 200000 -t 100 -sm JTT -g dlrs_example_2.gtree -lout dlrs_example_2.stree dlrs_example_2.fa dlrs_example_2.map
+}}}
 
 ----
 ----
