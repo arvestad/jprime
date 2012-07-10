@@ -248,6 +248,7 @@ Delirious comes with a large number of user options; please don't feel overwhelm
   * `-o <outfile>  `  Output file.
   * `-i <n>  `  Number of iterations.
   * `-t <n>  ` Governs how often samples are taken.
+  * `-lout  ` To output the current branch lengths in a Newick tree.
 
 === Substitution model ===
   * `-sm <model>  ` The substitution model. You may also provide your own time-reversible model by inputting the stationary frequencies and the exchangeability matrix (not the transition matrix).
