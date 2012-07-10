@@ -10,6 +10,7 @@
   # [DLRS#OUTPUT Output]
   # [DLRS#RUNNING Running]
   # [DLRS#ANALYSIS Analysis]
+  # [DLRS#EXAMPLES Examples]
 
 ----
 ----
@@ -202,3 +203,10 @@ Consider using [http://cran.r-project.org CRAN R] in general. Several MCMC-tailo
   * [http://tree.bio.ed.ac.uk/software/tracer/ Tracer].
   * [http://ceb.csit.fsu.edu/awty/ AWTY]
 As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and simply manual inspection of the agreement of log-likelihoods, trees and parameter estimates for parallel chains. AWTY mentioned above is particularly tailored for inspecting clade convergence diagnostics.
+
+----
+----
+
+== EXAMPLES ==
+=== Example 1 ===
+A synthetic mammal protein family (the same as used in the tutorial above).
