@@ -177,12 +177,12 @@ The info file will look something like:
 == RUNNING ==
 
 === Starting the application===
-Typically, you would start Delirious by running e.g.:
+Delirious is started as a command-line Java application. It is possible that future versions will come with a graphical user interface, a command-line based environment for managing options, or similarly. However, at the moment, you would start Delirious by running e.g.:
 {{{
 java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
-where the path and version of course refer to your current setup.
-However, you may need to increase the default heap size allocated by Java. The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. We recommend using Oracle's Java HotSpot VM, in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
+where the path and version of course refer to your current setup. See also the section on options below.
+You may need to increase the default heap size allocated by Java. The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. We recommend using Oracle's Java HotSpot VM, in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
 {{{
 java -cp mypath/jprime-X.Y.Z.jar -Xms512m -Xmx1024m se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
@@ -237,5 +237,9 @@ The ABCA subfamily for some vertebrates, with 12 members in human.
   * [http://jprime.googlecode.com/files/dlrs_example_3.map dlrs_example_3.map] (guest-to-host leaf map)
 
 
+----
+----
+
+
 == OPTIONS ==
-TBD.
+At the moment, Delirious
