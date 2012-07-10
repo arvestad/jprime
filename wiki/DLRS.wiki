@@ -131,12 +131,12 @@ N       L         Param1     Param2   Param3
 === Starting the application===
 Typically, you would start Delirious by running e.g.:
 {{{
-java -cp mypath/jprime-0.0.0.jar se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
+java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
 where the path and version of course refer to your current setup.
 However, you may need to increase the default heap size allocated by Java. The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. We recommend using Oracle's Java HotSpot VM, in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
 {{{
-java -cp mypath/jprime-0.0.0.jar -Xms512m -Xmx1024m se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
+java -cp mypath/jprime-X.Y.Z.jar -Xms512m -Xmx1024m se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
 Tuning other aspects of a Java VM is otherwise a non-trivial area and is probably not necessary. Should you still wish to do so, please have a look at these documents: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
