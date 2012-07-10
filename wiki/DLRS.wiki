@@ -11,6 +11,7 @@
   # [DLRS#RUNNING Running]
   # [DLRS#ANALYSIS Analysis]
   # [DLRS#EXAMPLES Examples]
+  # [DLRS#OPTIONS Options]
 
 ----
 ----
@@ -219,3 +220,14 @@ Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT
 {{{
 java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
 }}}
+
+=== Example 3 ===
+The ABCA subfamily for some vertebrates, with 12 members in human.
+
+  * [http://jprime.googlecode.com/files/dlrs_example_3.stree dlrs_example_3.stree] (host tree)
+  * [http://jprime.googlecode.com/files/dlrs_example_3.fa dlrs_example_3.fa] (MSA trimmed of uninformative positions)
+  * [http://jprime.googlecode.com/files/dlrs_example_3.map dlrs_example_3.map] (guest-to-host leaf map)
+
+
+== OPTIONS ==
+TBD.
