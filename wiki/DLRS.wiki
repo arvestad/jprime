@@ -209,7 +209,7 @@ As in all MCMC inference, you should discard an initial proportion of the sample
 ----
 
 == EXAMPLES ==
-=== Example 1 ===
+=== Example 1: synthetic gene family ===
 A synthetic mammal protein family (the same as used in the tutorial above).
 
   * [http://jprime.googlecode.com/files/dlrs_example_1.stree dlrs_example_1.stree] (host tree)
@@ -221,7 +221,15 @@ Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT
 java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
 }}}
 
-=== Example 3 ===
+=== Example 2: yeast orthologs ===
+
+Family 1572 from the Yeast Gene Order Browser (YGOB) [http://wolfe.gen.tcd.ie/ygob/YGOB].
+
+  * [http://jprime.googlecode.com/files/dlrs_example_2.stree dlrs_example_2.stree] (host tree)
+  * [http://jprime.googlecode.com/files/dlrs_example_2.fa dlrs_example_2.fa] (MSA trimmed of uninformative positions)
+  * [http://jprime.googlecode.com/files/dlrs_example_2.map dlrs_example_2.map] (guest-to-host leaf map)
+
+=== Example 3: ABCA subfamily ===
 The ABCA subfamily for some vertebrates, with 12 members in human.
 
   * [http://jprime.googlecode.com/files/dlrs_example_3.stree dlrs_example_3.stree] (host tree)
