@@ -211,9 +211,9 @@ As in all MCMC inference, you should discard an initial proportion of the sample
 === Example 1 ===
 A synthetic mammal protein family (the same as used in the tutorial above).
 
-  * Host tree: [http://jprime.googlecode.com/files/dlrs_example_1.stree dlrs_example_1.stree]
-  * MSA: [http://jprime.googlecode.com/files/dlrs_example_1.fa dlrs_example_1.fa]
-  * Guest-to-host map: [http://jprime.googlecode.com/files/dlrs_example_1.map dlrs_example_1.map]
+  * [http://jprime.googlecode.com/files/dlrs_example_1.stree dlrs_example_1.stree] (host tree)
+  * [http://jprime.googlecode.com/files/dlrs_example_1.fa dlrs_example_1.fa] (MSA)
+  * [http://jprime.googlecode.com/files/dlrs_example_1.map dlrs_example_1.map] (guest-to-host leaf map)
 
 Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we get something like:
 {{{
