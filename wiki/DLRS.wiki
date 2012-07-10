@@ -246,10 +246,16 @@ Delirious comes with a large number of user options; please don't feel overwhelm
 
 === General options ===
   * `-o <outfile>  `  Output file.
-  * `-i <iterations>  `  Number of iterations.
-  * `-t <thinning>  ` Governs how often samples are taken.
+  * `-i <n>  `  Number of iterations.
+  * `-t <n>  ` Governs how often samples are taken.
 
 === Substitution model ===
   * `-sm <model>  ` The substitution model. You may also provide your own time-reversible model by inputting the stationary frequencies and the exchangeability matrix (not the transition matrix).
-  * `-srcats <n>  ` Number of discrete site rate categories for modelling site rate heterogeneity.
-  * `-erpd <PD>  ` Probability distribution used for modelling iid rates of relaxed molecular clock.
+  * `-srcats <n>  ` Number of discrete site rate categories for modeling site rate heterogeneity.
+  * `-erpd <distribution>  ` Probability distribution used for modeling iid rates of relaxed molecular clock.
+
+=== Discretization ===
+  * `-dts <timestep>  ` Approximate timestep between discretization points. Remember that this refers to the rescaled species tree where the root-to-leaf time is 1.
+  * `-dmin <n>  ` The minimum number of discretization slices of an edge.
+  * `-dmax <n>  ` The maximum number of discretization slices of an edge.
+  * `-dstem <n>  ` The number of discretization slices of the stem edge. Too many will inflate the running time, too few may cause the gene tree to not fit when trying out different topologies.
