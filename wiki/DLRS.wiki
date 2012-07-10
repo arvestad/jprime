@@ -253,9 +253,10 @@ Delirious comes with a large number of user options; please don't feel overwhelm
 *Substitution model*
   * `-sm <string>  ` The substitution model. You may also provide your own time-reversible model by inputting the stationary frequencies and the exchangeability matrix (not the transition matrix).
   * `-srcats <int>  ` Number of discrete site rate categories for modeling gamma site rate heterogeneity.
-  * `-erpd <distribution>  ` Probability distribution used for modeling iid rates of relaxed molecular clock.
+  * `-erpd <string>  ` Probability distribution used for modeling iid rates of relaxed molecular clock.
 
 *Discretization*
+See the figure above for a more detailed description.
   * `-dts <float>  ` Approximate timestep between discretization points. Remember that this refers to the rescaled species tree where the root-to-leaf time is 1.
   * `-dmin <int>  ` The minimum number of discretization slices of an edge.
   * `-dmax <int>  ` The maximum number of discretization slices of an edge.
@@ -268,3 +269,7 @@ Generally, you may fix an initial value from being inferred by appending it with
   * `-erpdm  <float>  ` Relaxed molecular clock mean.
   * `-erpdcv  <float>  ` Relaxed molecular clock coefficient of variation.
   * `-srshape <float>  ` Gamma site rate shape parameter.
+
+*Tuning parameters*
+  * `-tng<param> <[float,float]>  ` General pattern for tuning parameters of floating point state parameters. The specified values controls the proposal distributions coefficient of variation for the first and last iterations respectively.
+  * `-tngw<param> <[float,float]>  ` General pattern for setting the weights for how often parameters are perturbed with respect to each other.
