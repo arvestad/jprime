@@ -289,5 +289,5 @@ Should the default discretization settings not be satisfactory, you can change t
 *Tuning parameters*
 
 In order to get good mixing, it might be necessary to tweak the tuning parameters. These come in several flavours, of which the most important ones are for 1) setting the audacity of the proposed new states, and 2) setting how often a state parameter should be perturbed. 
-  * `-tng<param> <[float,float]>  ` General pattern for tuning parameters of floating point state parameters. The specified values controls the proposal distributions CV for the first and last iterations respectively. Inspect acceptance ratios of pilot runs in their info files. Try striving for around 0.2-0.5. If to low, decrease the CV, if too high, increase the CV.
+  * `-tng<param> <[float,float]>  ` General pattern for tuning parameters of floating point state parameters. The specified values controls the proposal distributions CV for the first and last iterations respectively. Try striving for acceptance ratios of around 0.2-0.5. To see whether this is the case, inspect the info files of pilot runs. If acceptance ratio too low, decrease the CV from its default, if too high, increase the CV.
   * `-tngw<param> <[float,float]>  ` General pattern for setting the weights for how often parameters are perturbed with respect to each other.
