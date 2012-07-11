@@ -209,7 +209,7 @@ As in all MCMC inference, you should discard an initial proportion of the sample
 ----
 
 == EXAMPLES ==
-=== 1: synthetic gene family ===
+=== 1: Synthetic gene family ===
 A synthetic mammal protein family (the same as used in the tutorial above).
 
   * [http://jprime.googlecode.com/files/dlrs_example_1.stree dlrs_example_1.stree] (host tree)
@@ -221,7 +221,7 @@ Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT
 java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
 }}}
 
-=== 2: yeast orthologs ===
+=== 2: Yeast orthologs ===
 
 Family 1,975 from the [http://wolfe.gen.tcd.ie/ygob/ Yeast Gene Order Browser (YGOB)].
 
