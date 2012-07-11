@@ -198,12 +198,23 @@ For your final runs, the number of iterations required and a suitable thinning f
 ----
 
 == ANALYSIS ==
-Consider using [http://cran.r-project.org CRAN R] in general. Several MCMC-tailored analysis softwares exist, among them:
-  * [VMCMC VMCMC].
-  * The CRAN R package [http://cran.r-project.org/web/packages/coda/index.html CODA].
+As in most MCMC inference tools, you will need to verify that the chain has been mixing properly and reached convergence to the posterior distribution. However, ultimately, you should be rewarded with obtaining the full probabilistic picture, and not just a point sample.
+
+You should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and manual inspection of the agreement of log-likelihoods, trees and parameter estimates for parallel chains.
+
+Several MCMC-tailored analysis softwares exist, among them:
+  * The [http://cran.r-project.org CRAN R] package [http://cran.r-project.org/web/packages/coda/index.html CODA].
+  * [VMCMC VMCMC]. Includes many of CODA's diagnostics, but is easier to use.
   * [http://tree.bio.ed.ac.uk/software/tracer/ Tracer].
-  * [http://ceb.csit.fsu.edu/awty/ AWTY]
-As in all MCMC inference, you should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and simply manual inspection of the agreement of log-likelihoods, trees and parameter estimates for parallel chains. AWTY mentioned above is particularly tailored for inspecting clade convergence diagnostics.
+  * [http://ceb.csit.fsu.edu/awty/ AWTY]. Particularly tailored for inspecting clade convergence diagnostics.
+
+Generally, CRAN R is suitable for many types of analysis. For instance, you could read and plot the dupliocation rate thus:
+{{{
+burnInLim <- 2500;
+chain <- read.table('myoutput.mcmc', header=TRUE);
+chain <- chain[chain$Iteration>burnInLim,];
+hist(chain$DuplicationRate, 40);
+}}}
 
 ----
 ----
@@ -281,7 +292,7 @@ Delirious can work with DNA, peptide and codon MSAs. As of yet, working with sev
 *Tuning parameters*
 
 In order to get good mixing, it might be necessary to tweak the tuning parameters. These come in several flavours, of which the most important ones are for 1) setting the audacity of the proposed new states, and 2) setting how often a state parameter should be perturbed. 
-  * `-tng<param> <[float,float]>  ` General pattern for tuning parameters of floating point state parameters. The specified values controls the proposal distributions CV for the first and last iterations respectively. Try striving for acceptance ratios of around 0.2-0.5. To see whether this is the case, inspect the info files of pilot runs. If acceptance ratio too low, decrease the CV from its default, if too high, increase the CV.
+  * `-tng<param> <[float,float]>  ` General pattern for tuning parameters of floating point state parameters. The specified values controls the proposal distribution's CV for the first and last iterations respectively. Try striving for acceptance ratios of around 0.2-0.5. To see whether this is the case, inspect the info files of pilot runs. If acceptance ratio too low, decrease the CV from its default, if too high, increase the CV.
   * `-tngw<param> <[float,float]>  ` General pattern for setting the weights for how often parameters are perturbed with respect to each other.
 
 *Discretization*
