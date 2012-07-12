@@ -210,7 +210,7 @@ Several MCMC-tailored analysis softwares exist, among them:
 
 Generally, CRAN R is suitable for many types of analysis. For instance, you could read and plot the duplication rate in R thus:
 {{{
-> burnInLim <- 2500;
+> burnInLim <- 250000;
 > chain <- read.table('myoutput.mcmc', header=TRUE);
 > chain <- chain[chain$Iteration > burnInLim, ];
 > hist(chain$DuplicationRate, 40);
