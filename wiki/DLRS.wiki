@@ -216,7 +216,7 @@ Generally, CRAN R is suitable for many types of analysis. For instance, you coul
 > hist(chain$DuplicationRate, 40);
 }}}
 
-To get a quick glance at the tree space, you could even use a shell such as bash (assuming the tree is in column 9 and we only look at the last 5,000 samples):
+To get a quick glimpse of the tree space, you could even use a shell such as bash (assuming the tree is in column 9 and we only look at the last 5,000 samples):
 {{{
 $ cut -f9 myoutput.mcmc | tail -5000 | sort | uniq -c | sort -n
 }}}
