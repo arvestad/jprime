@@ -14,7 +14,14 @@ import se.cbb.jprime.io.SampleDoubleArray;
  * @author Joel Sjöstrand.
  */
 public class SubstitutionMatrixHandlerFactory {
-
+	
+	/** User message suitable for all available models. */
+	public static final String USER_MESSAGE =
+		"Substitution model. May be JC69, UNIFORMAA, JTT, LG, WAG, " +
+		"UNIFORMCODON, ARVECODON or USERDEFINED='type;[pi1,...,pik];[r1,...,rj]', where type is DNA/AA/CODON, pi holds " +
+		"the k stationary frequencies of the model, and r holds the j=k*(k-1)/2 time-reversible exchangeability rates of the model " +
+		"in row-major format. Base ordering is 'acgt' for DNA/CODON and 'arndcqeghilkmfpstwyv' for AA.";
+	
 	/**
 	 * Convenience method for creating a known substitution model from
 	 * its string identifier.
@@ -30,6 +37,10 @@ public class SubstitutionMatrixHandlerFactory {
 			return UniformAA.createUniformAA(cacheSize);
 		} else if (model.equals("JTT")) {
 			return JTT.createJTT(cacheSize);
+		} else if (model.equals("LG")) {
+			return LG.createLG(cacheSize);
+		} else if (model.equals("WAG")) {
+			return WAG.createWAG(cacheSize);
 		} else if (model.equals("UNIFORMCODON")) {
 			return UniformCodon.createUniformCodon(cacheSize);
 		} else if (model.equals("ARVECODON")) {
@@ -37,6 +48,7 @@ public class SubstitutionMatrixHandlerFactory {
 		} else if (model.startsWith("USERDEFINED")) {
 			// TODO: Clean-up.
 			// HACK! Assumes string like "USERDEFINED=DNA;[pi1,...,pik];[r1,...,rj]".
+			model = model.replaceAll("'", "").replaceAll("\"", "");
 			String seqType = model.substring(model.indexOf("=")+1, model.indexOf(";"));
 			String pi = model.substring(model.indexOf(";")+1, model.indexOf(";", 22));
 			String r = model.substring(model.indexOf(";", 22)+1);
