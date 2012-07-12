@@ -3,6 +3,8 @@ package se.cbb.jprime.apps.dlrs;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
+
 import com.beust.jcommander.Parameter;
 
 /**
@@ -46,10 +48,7 @@ public class Parameters {
 	public Integer thinning = 100;
 	
 	/** Substitution model. */
-	@Parameter(names = {"-sm", "--substitutionmodel"}, description = "Substitution model. May be JC69, UNIFORMAA, JTT, " +
-			"UNIFORMCODON, ARVECODON or USERDEFINED=type;[pi1,...,pik];[r1,...,rj], where type is DNA/AA/CODON, pi holds " +
-			"the k stationary frequencies of the model, and r holds the j=k*(k-1)/2 time-reversible exchangeability rates of the model " +
-			"in row-major format. Base ordering is 'acgt' for DNA/CODON and 'arndcqeghilkmfpstwyv' for AA.")
+	@Parameter(names = {"-sm", "--substitutionmodel"}, description = SubstitutionMatrixHandlerFactory.USER_MESSAGE)
 	public String substitutionModel = "JTT";
 
 	/** Duplication rate. */
