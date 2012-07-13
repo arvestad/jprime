@@ -132,7 +132,7 @@ public class MPRMap implements ProperDependent {
 	}
 	
 	/**
-	 * Returns true if a vertex x of G is forced to be a duplication, i.e., it sigma(x)==sigma(y) or sigma(x)==sigma(z),
+	 * Returns true if a vertex x of G is forced to be a duplication, i.e., if sigma(x)==sigma(y) or sigma(x)==sigma(z),
 	 * where y and z are its children.
 	 * @param x the vertex of G.
 	 * @return true if x must be a duplication in the MPR; false otherwise.

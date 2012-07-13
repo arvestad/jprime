@@ -1,6 +1,10 @@
 package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTree;
@@ -72,27 +76,42 @@ public class BifurcateTree {
 	 */
 	private static NewickTree makeBifurcatingTree(NewickTree G, int numberA, int numberB) throws NewickIOException {
 		NewickTree newTree = new NewickTree(G);
-		Double branchLength = null;
-		try {
-			NewickVertex a = newTree.getVertex(numberA);
-			NewickVertex b = newTree.getVertex(numberB);
-			if (!(a.getParent() == b || b.getParent() == a)) {
-				throw new NewickIOException("Cannot initiate a bifurcating tree from two non-neighbour vertices.");
-			}
-			// Create a new vertex that will be the root.
-			int numberNewRoot = G.getNoOfVertices();
-			NewickVertex newRoot = new NewickVertex(numberNewRoot, "artificial_root", branchLength, null); // TODO branchlength?
-			// Set the children of this vertex to be a and b.
-			ArrayList<NewickVertex> children = new ArrayList<NewickVertex>();
-			children.add(a);
-			children.add(b);
-			newRoot.setChildren(children);
-			newTree.setRoot(newRoot);
-			rebuildTree(a, newRoot, a, b);
-			rebuildTree(b, newRoot, a, b);
-		} catch (NewickIOException e) {
-			throw new NewickIOException(e.getMessage(), e);
+		HashMap<NewickVertex[], Double> tmpBranchLengths = newTree.getMapEdgeBranchLength();
+		NewickVertex a = newTree.getVertex(numberA);
+		NewickVertex b = newTree.getVertex(numberB);
+		if (!(a.getParent() == b || b.getParent() == a)) {
+			throw new NewickIOException("Cannot initiate a bifurcating tree from two non-neighbour vertices.");
 		}
+		// Create a new vertex that will be the root.
+		int numberNewRoot = G.getNoOfVertices();
+		NewickVertex newRoot = new NewickVertex(numberNewRoot, "artificial_root", null, null);
+		// Branch lengths of the new root edges.
+		Double branchLength = null;
+		if (a.getParent() == b && a.getBranchLength() != null) {
+			branchLength = a.getBranchLength()/2;
+		} else if (b.getParent() == a && b.getBranchLength() != null) {
+			branchLength = b.getBranchLength()/2;
+		}
+		// Set the children of this vertex to be a and b
+		ArrayList<NewickVertex> children = new ArrayList<NewickVertex>();
+		children.add(a);
+		children.add(b);
+		newRoot.setChildren(children);
+		newTree.setRoot(newRoot);
+		rebuildTree(a, newRoot, a, b);
+		rebuildTree(b, newRoot, a, b);
+		// Setting the correct branch length for edges that swapped their vertices.
+		Iterator<Entry<NewickVertex[], Double>> it = tmpBranchLengths.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<NewickVertex[], Double> pair = (Map.Entry<NewickVertex[], Double>)it.next();
+			NewickVertex[] e = pair.getKey();
+			if (!((e[0] == a && e[1] == b) || (e[1] == a && e[0] == b))) {
+				Double correctBranchLength = pair.getValue();
+				newTree.setEdgeBranchLength(e[0], e[1], correctBranchLength);
+			}
+		}
+		a.setBranchLength(branchLength);
+		b.setBranchLength(branchLength);
 		return newTree;
 	}
 	
@@ -107,7 +126,8 @@ public class BifurcateTree {
 	 * a better understanding of this argument.
 	 * @throws NewickIOException if a non-leaf vertex is not of degree 3.
 	 */
-	private static void rebuildTree(NewickVertex currentVertex, NewickVertex newParent, NewickVertex a, NewickVertex b) throws NewickIOException {
+	private static void rebuildTree(NewickVertex currentVertex, NewickVertex newParent, NewickVertex a, NewickVertex b)
+			throws NewickIOException {
 		if(!currentVertex.isLeaf()) {
 			if (currentVertex.getDegree() != 3) {
 				throw new NewickIOException("Cannot make a bifurcating tree if non-leaf vertices are not of degree 3.");
@@ -120,10 +140,10 @@ public class BifurcateTree {
 			newChildren.remove(newParent);
 			currentVertex.setParent(newParent);
 			currentVertex.getChildren().clear();
-			for(NewickVertex v : newChildren) {
-				if (v != null) {
-					currentVertex.getChildren().add(v);
-					rebuildTree(v, currentVertex, a, b);
+			for(NewickVertex c : newChildren) {
+				if (c != null) {
+					currentVertex.getChildren().add(c);
+					rebuildTree(c, currentVertex, a , b);
 				}
 			}
 		} else {
