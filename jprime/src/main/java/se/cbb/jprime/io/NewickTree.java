@@ -1,6 +1,7 @@
 package se.cbb.jprime.io;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import se.cbb.jprime.topology.DoubleMap;
@@ -333,6 +334,65 @@ public class NewickTree {
 			}
 		}
 		return (hasBLs ? bls : null);
+	}
+	
+	/**
+	 * Returns a map with a couple NewickVertex as key and its branch length as value.
+	 * @return a map with a couple NewickVertex as key and its branch length as value.
+	 * @throws NewickIOException
+	 */
+	public HashMap<NewickVertex[], Double> getMapEdgeBranchLength() throws NewickIOException {
+		HashMap<NewickVertex[], Double> map = new HashMap<NewickVertex[], Double>();
+		for (NewickVertex[] e : this.getEdges()) {
+			map.put(e, this.getEdgeBranchLength(e[0], e[1]));
+		}
+		return map;
+	}
+	
+	/**
+	 * Get the branch length value of the edge (v, w).
+	 * @param v vertex.
+	 * @param w vertex.
+	 * @return branch length value of the edge (v, w).
+	 * @throws NewickIOException if trying to get the branch length of two non adjacent vertices.
+	 */
+	public Double getEdgeBranchLength(NewickVertex v, NewickVertex w) throws NewickIOException {
+		NewickVertex child = getEdgeChild(v, w);
+		return child.getBranchLength();
+	}
+	
+	/**
+	 * Sets the branch length of the edge (v, w).
+	 * @param v vertex.
+	 * @param w vertex.
+	 * @param branchLength branch length.
+	 * @throws NewickIOException 
+	 */
+	public void setEdgeBranchLength(NewickVertex v, NewickVertex w, Double branchLength) throws NewickIOException {
+		NewickVertex c = getEdgeChild(v, w);
+		c.setBranchLength(branchLength);
+	}
+	
+	/**
+	 * Returns the child of the edge formed by the two vertices v and w,
+	 * ie. the vertex of the edge that is farther from the root.
+	 * @param v vertex of one end of the edge.
+	 * @param w vertex of the other end of the edge.
+	 * @return the child of the edge formed by the two vertices v and w.
+	 * @throws NewickIOException
+	 */
+	private NewickVertex getEdgeChild(NewickVertex v, NewickVertex w) throws NewickIOException {
+		NewickVertex child = null;
+		ArrayList<NewickVertex> childrenV = v.getChildren();
+		ArrayList<NewickVertex> childrenW = w.getChildren();
+		if ((childrenV != null && childrenV.contains(w)) || w.getParent() == v) {
+			child = w;
+		} else if ((childrenW != null && childrenW.contains(v)) || v.getParent() == w) {
+			child = v;
+		} else {
+			throw new NewickIOException("Error: trying to access an edge of two non adjacent vertices : "+v+", "+w+".");
+		}
+		return child;
 	}
 	
 	/**
