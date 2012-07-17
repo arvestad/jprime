@@ -175,8 +175,9 @@ public class NewickRBTreeSamples {
 		int matchCols = 0;
 		for (int i = 0; i < parts.length; ++i) {
 			try {
-				NewickTree t = NewickTreeReader.readTree(parts[i], false);
-				if ((t.getBranchLengths() != null) == withLengths) {
+				String part = parts[i];
+				NewickTree t = NewickTreeReader.readTree(part, false);
+				if ((t.getBranchLengths() != null) == withLengths && !part.matches("-?\\d+(.\\d+)?")) {
 					matchCols++;
 				}
 			} catch (Exception e) {
