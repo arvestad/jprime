@@ -35,19 +35,22 @@ public class GeneTreeHomologyReader{
 		System.out.println("Input true reconciliation file is " + args[0]);								
 		String treepath = parseTreeFromReconciliationFile(args[0]);
 		File gFile = new File(treepath);
-		BufferedWriter writer = new BufferedWriter(new FileWriter(args[0]+".orthopairs"));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(args[0]+".original"));
 		
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(gFile, false, true);
+		//System.out.println("Tree is " + sRaw.toString());
 		//System.out.println(sRaw.toString());		
-		
+		System.out.println("Extracting true reconciliation events...");
 		List<NewickVertex> vertices = sRaw.getVerticesAsList();
 		int[] dupStatus = sRaw.getDuplicationValues();
 		for (NewickVertex v : vertices) {
 			int id = v.getNumber();
 			if(dupStatus[id] != Integer.MAX_VALUE){
 				ArrayList<NewickVertex> children = v.getChildren();
-				String lchild = getLeafIds(children.get(0));
-				String rchild = getLeafIds(children.get(1));
+				//String lchild = getLeafIds(children.get(0));
+				//String rchild = getLeafIds(children.get(1));
+				String lchild = getLeafNames(children.get(0));
+				String rchild = getLeafNames(children.get(1));
 				//System.out.println("The childern ids are " + lchild + " and " + rchild);
 				//System.out.println("The node number " + id + " has dupStatus = " + dupStatus[id]);
 				writer.write("["+lchild+", "+rchild+"]"+"\t"+dupStatus[id]+"\n");
@@ -55,7 +58,9 @@ public class GeneTreeHomologyReader{
 		}
 		writer.flush();
 		writer.close();
-		
+		gFile.deleteOnExit();
+		System.out.println("Done...");
+		System.out.println("True values has been written to " + args[0]+".original");
 	}
 	
 	private static String parseTreeFromReconciliationFile(String fileName) {
@@ -92,10 +97,9 @@ public class GeneTreeHomologyReader{
 		return null;
 	}
 
-	public static String getLeafNames(NewickVertex vertex){
-		String lNames = "(";
-		lNames += getLeafNamesRecursive(vertex);
-		return lNames + ")";
+	public static String getLeafNames(NewickVertex vertex){		 
+		 String lNames = getLeafNamesRecursive(vertex);
+		return lNames;
 	}
 
 	private static String getLeafNamesRecursive(NewickVertex vertex) {
@@ -104,7 +108,7 @@ public class GeneTreeHomologyReader{
 			return vertex.getName();
 		else {
 			ArrayList<NewickVertex> ch = vertex.getChildren();
-			return getLeafNamesRecursive(ch.get(0)) + "," + getLeafNamesRecursive(ch.get(1));
+			return getLeafNamesRecursive(ch.get(0)) + " " + getLeafNamesRecursive(ch.get(1));
 		}
 	}
 	
