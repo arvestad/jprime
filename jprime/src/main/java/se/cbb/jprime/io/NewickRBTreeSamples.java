@@ -59,17 +59,23 @@ public class NewickRBTreeSamples {
 	/** The total no. of instances. */
 	private int totalCount;
 	
+	/** Lengths flag. */
+	private boolean hasLengths;
+	
 	/**
 	 * Private constructor.
 	 * @param f file.
 	 * @param withLengths true if trees with lengths.
 	 * @param absColIdx absolute column index.
 	 * @param firstLn row index of first sample (e.g 1 to discard header).
+	 * @param minCvg minimum coverage for a topology to be included among the samples, e.g. 0.01.
 	 * @throws NewickIOException.
 	 * @throws TopologyException.
 	 * @throws FileNotFoundException.
 	 */
-	private NewickRBTreeSamples(File f, boolean withLengths, int absColIdx, int firstLn) throws FileNotFoundException, NewickIOException, TopologyException {
+	private NewickRBTreeSamples(File f, boolean withLengths, int absColIdx, int firstLn, double minCvg) throws FileNotFoundException, NewickIOException, TopologyException {
+		this.hasLengths = withLengths;
+		
 		Scanner sc = new Scanner(f);
 		int i = 0;
 		while (i < firstLn) {
@@ -108,6 +114,14 @@ public class NewickRBTreeSamples {
 		// Sort trees according to topology frequency.
 		this.treesByFreq = new ArrayList<NewickRBTreeSamples.TreeInstances>(this.trees.values());
 		Collections.sort(this.treesByFreq, Collections.reverseOrder());
+		
+		// Remove samples not meeting with the coverage requirements.
+		while (this.treesByFreq.get(this.treesByFreq.size() - 1).count / (double) this.totalCount < minCvg) {
+			TreeInstances t = this.treesByFreq.get(this.treesByFreq.size() - 1);
+			this.treesByFreq.remove(this.treesByFreq.size() - 1);
+			this.trees.remove(t.tree.toString());
+			this.totalCount -= t.count;
+		}
 	}
 	
 	/**
@@ -117,14 +131,15 @@ public class NewickRBTreeSamples {
 	 * @param relColNo the relative column number containing trees without lengths, e.g., 1
 	 * if the first encountered column with Newick trees without lengths is the desired one.
 	 * @param burnInProp proportion of samples to discard as burn-in, e.g. 0.25 for 25%.
+	 * @param minCvg minimum coverage for a topology to be included among the samples, e.g. 0.01.
 	 * @return the trees of the column.
 	 * @throws FileNotFoundException.
 	 * @throws NewickIOException.
 	 * @throws TopologyException.
 	 */
-	public static NewickRBTreeSamples readTreesWithoutLengths(File f, boolean hasHeader, int relColNo, double burnInProp) throws FileNotFoundException, NewickIOException, TopologyException {
+	public static NewickRBTreeSamples readTreesWithoutLengths(File f, boolean hasHeader, int relColNo, double burnInProp, double minCvg) throws FileNotFoundException, NewickIOException, TopologyException {
 		int[] colStart = findAbsColAndStartLn(f, hasHeader, relColNo, burnInProp, false);
-		return new NewickRBTreeSamples(f, false, colStart[0], colStart[1]);
+		return new NewickRBTreeSamples(f, false, colStart[0], colStart[1], minCvg);
 	}
 	
 	/**
@@ -134,14 +149,15 @@ public class NewickRBTreeSamples {
 	 * @param relColNo the relative column number containing trees with lengths, e.g., 1
 	 * if the first encountered column with Newick trees with lengths is the desired one.
 	 * @param burnInProp proportion of samples to discard as burn-in, e.g. 0.25 for 25%.
+	 * @param minCvg minimum coverage for a topology to be included among the samples, e.g. 0.01.
 	 * @return the trees of the column.
 	 * @throws FileNotFoundException.
 	 * @throws NewickIOException.
 	 * @throws TopologyException.
 	 */
-	public static NewickRBTreeSamples readTreesWithLengths(File f, boolean hasHeader, int relColNo, double burnInProp) throws FileNotFoundException, NewickIOException, TopologyException {
+	public static NewickRBTreeSamples readTreesWithLengths(File f, boolean hasHeader, int relColNo, double burnInProp, double minCvg) throws FileNotFoundException, NewickIOException, TopologyException {
 		int[] colStart = findAbsColAndStartLn(f, hasHeader, relColNo, burnInProp, true);
-		return new NewickRBTreeSamples(f, true, colStart[0], colStart[1]);
+		return new NewickRBTreeSamples(f, true, colStart[0], colStart[1], minCvg);
 	}
 	
 	/**
@@ -203,7 +219,7 @@ public class NewickRBTreeSamples {
 	
 	/**
 	 * Returns the number of unique tree topologies.
-	 * @return the number of trees.
+	 * @return the number of trees. See also <code>getTotalTreeCount()</code>.
 	 */
 	public int getNoOfTrees() {
 		return this.treesByFreq.size();
@@ -239,10 +255,18 @@ public class NewickRBTreeSamples {
 	
 	/**
 	 * Returns the total number of tree instances, i.e., accounting for
-	 * the multiplicity of each unique topology.
+	 * the multiplicity of each unique topology. See also <code>getNoOfTrees()</code>.
 	 * @return the total number of samples.
 	 */
 	public int getTotalTreeCount() {
 		return this.totalCount;
+	}
+	
+	/**
+	 * Returns true if lengths are included with the tree samples.
+	 * @return true if lengths included; false if not included.
+	 */
+	public boolean hasLengths() {
+		return this.hasLengths;
 	}
 }

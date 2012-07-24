@@ -203,7 +203,7 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 		
 		// Right now, we consider forward-backward probabilities as equal.
-		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), this.times, no);
+		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), affected, no);
 	}
 
 	@Override
