@@ -11,6 +11,11 @@ import org.junit.Test;
 
 import se.cbb.jprime.topology.TopologyException;
 
+/**
+ * JUint test case.
+ * 
+ * @author Vincent Llorens.
+ */
 public class TestNewickRBTreeSamples {
 	
 	@Test
@@ -18,7 +23,7 @@ public class TestNewickRBTreeSamples {
 		// Initialization
 		URL shortRunURL = this.getClass().getResource("/mcmc_output/short_run.mcmc");
 		File shortRun = new File(shortRunURL.getFile());
-		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithoutLengths(shortRun, true, 1, 0);
+		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithoutLengths(shortRun, true, 1, 0, 0.0);
 		// Testing
 		assertEquals(tree.getNoOfTrees(), 3);
 		assertEquals(tree.getTotalTreeCount(), 10);
@@ -35,7 +40,7 @@ public class TestNewickRBTreeSamples {
 		// Initialization
 		URL longRunURL = this.getClass().getResource("/mcmc_output/long_run_w_lengths.mcmc");
 		File longRun = new File(longRunURL.getFile());
-		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithLengths(longRun, true, 1, 0);
+		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithLengths(longRun, true, 1, 0, 0.0);
 		// Testing
 		assertEquals(tree.getNoOfTrees(), 81);
 		assertEquals(tree.getTotalTreeCount(), 1001);

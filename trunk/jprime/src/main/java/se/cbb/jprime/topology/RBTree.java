@@ -515,6 +515,17 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 		this.root = x;
 	}
 	
+	/**
+	 * Low-level setter for copying the topology of another tree. At the moment only handles equally big trees.
+	 * @param tree the tree from which the new topology is mimicked.
+	 */
+	void setTopology(RBTree tree) {
+		System.arraycopy(tree.parents, 0, this.parents, 0, tree.parents.length);
+		System.arraycopy(tree.leftChildren, 0, this.leftChildren, 0, tree.leftChildren.length);
+		System.arraycopy(tree.rightChildren, 0, this.rightChildren, 0, tree.rightChildren.length);
+		this.root = tree.root;
+	}
+	
 	@Override
 	public List<Integer> getTopologicalOrdering() {
 		return this.getTopologicalOrdering(this.root);
