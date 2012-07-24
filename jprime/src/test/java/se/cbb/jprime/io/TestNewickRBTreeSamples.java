@@ -12,7 +12,7 @@ import org.junit.Test;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
- * JUint test case.
+ * JUnit test case.
  * 
  * @author Vincent Llorens.
  */
