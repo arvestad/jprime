@@ -282,7 +282,7 @@ Delirious comes with a large number of user options; please don't feel overwhelm
   * `-o <string>  `  Output file for MCMC chain. The auxiliary info file will be appended with .info.
   * `-i <int>  `  Number of iterations, e.g. 1000000.
   * `-t <int>  ` Governs how often samples are taken, e.g. 200.
-  * `-lout  ` To include a Newick tree with branch lengths among the samples, and not only a plain Newick tree.
+  * `-lout  ` To include a Newick tree with branch lengths among the samples and not only the plain Newick tree.
 
 *Substitution model*
 
