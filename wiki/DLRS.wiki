@@ -38,6 +38,8 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
   * a file with samples drawn from the posterior distribution.
   * a supplementary info file with settings, proposal acceptance ratios, etc.
 
+Below, you will find textual examples of input and output files, while some sample files and explanations of vital program options are found at the end of the document.
+
 ----
 ----
 
