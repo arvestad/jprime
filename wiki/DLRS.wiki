@@ -296,7 +296,11 @@ java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Deli
 
 
 == OPTIONS ==
-Delirious comes with a large number of user options; please don't feel overwhelmed! Some of the more commonly used ones are detailed below. You can always use option `-h` to get a more up-to-date description of all available options.
+Delirious comes with a large number of user options; please don't feel overwhelmed! Some of the more commonly used ones are detailed below. You can always type
+{{{
+java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious -h
+}}}
+to get a more up-to-date description of all available options.
 
 *General options*
   * `-o <string>  `  Output file for MCMC chain. The auxiliary info file will be appended with .info.
