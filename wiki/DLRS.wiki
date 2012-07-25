@@ -190,11 +190,11 @@ Delirious is started as a command-line Java application. It is possible that fut
 java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
 where the path and version of course refer to your current setup. See also the section on options below.
-You may need to increase the default heap size allocated by Java. The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. We recommend using Oracle's Java HotSpot VM, in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
+You may need to increase the default heap size allocated by Java. The memory requirements will primarily depend on the size of your gene family, MSA length and substitution model. We recommend using Oracle's Java HotSpot virtual machine (VM), in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
 {{{
 java -cp mypath/jprime-X.Y.Z.jar -Xms512m -Xmx1024m se/cbb/jprime/apps/dlrs/Delirious [options] <host tree> <msa> <leaf map>
 }}}
-Tuning other aspects of a Java VM is otherwise a non-trivial area and is probably not necessary. Should you still wish to do so, please have a look at these documents: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
+Note that these options refer to Java's VM itself, and are not options of DLRS. Tuning other aspects of a Java VM is otherwise a non-trivial area and is probably not necessary. Should you still wish to do so, please have a look at these documents: [http://www.oracle.com/technetwork/java/hotspotfaq-138619.html Oracle Java HotSpot VM FAQ] and [http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html Oracle Java HotSpot VM Options].
 
 ===Pilot runs===
 Before performing your real runs, you should make pilot runs to assess the MCMC mixing and change tuning parameters accordingly. The length of a pilot run needs typically not be as long as a final run. Try striving for parameter acceptance ratios of 0.2 - 0.5 (preferably in the lower region). Even so, around 0.1 - 0.7 might do the trick on smaller trees. For the topology, the acceptance ratios will typically be much lower, and cannot really be tuned. The acceptance ratios can be inspected in the info file. For larger trees, consider increasing the weight for how often tree moves are carried out.
