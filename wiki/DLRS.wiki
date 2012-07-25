@@ -16,6 +16,9 @@
 ----
 ----
 
+
+
+
 == INTRODUCTION ==
 
 *DLRS [=the model]* (previously known as GSR and GSRf) is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication and loss events, and sequence evolution with a relaxed molecular clock.
@@ -42,6 +45,9 @@ Below, you will find textual examples of input and output files, while some samp
 
 ----
 ----
+
+
+
 
 == INPUT ==
  
@@ -114,6 +120,9 @@ Monodelphis_domestica_1	Monodelphis_domestica
 ----
 ----
 
+
+
+
 == OUTPUT ==
 Output is typically directed to a file with the following option: `-o myoutput.mcmc`. If not specified, output will be written to stdout. If the file option is used, two files will be produced:
 
@@ -182,6 +191,9 @@ Notably, at the end of the info file, you can find statistics for acceptance rat
 ----
 ----
 
+
+
+
 == RUNNING ==
 
 === Starting the application===
@@ -204,6 +216,9 @@ For your final runs, the number of iterations required and a suitable thinning f
 
 ----
 ----
+
+
+
 
 == ANALYSIS ==
 As in most MCMC inference tools, you will need to verify that the chain has been mixing properly and reached convergence to the posterior distribution. However, ultimately, you should be rewarded with obtaining the full probabilistic picture, and not just a point sample.
@@ -273,6 +288,8 @@ java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Deli
 
 ----
 ----
+
+
 
 
 == OPTIONS ==
