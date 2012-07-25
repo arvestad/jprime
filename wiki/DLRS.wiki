@@ -131,6 +131,8 @@ Iteration       PosteriorDensity       SubstitutionModelLikelihood     DLRSModel
 ...
 }}}
 
+The `PosteriorDensity` column refers to the unnormalized posterior density in log-format, and corresponds to the products of the likelihood of sub-models and priors. The duplication rate and other model parameters refer to the rescaled version of the host tree. The guest tree topology is output as a sorted Newick string without branch lengths. To include a tree with branch lengths, one may specify option `-lout`.
+
 The info file will look something like:
 {{{
 # =========================================================================
