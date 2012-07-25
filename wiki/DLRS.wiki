@@ -177,7 +177,7 @@ The info file will look something like:
 #                       3 used proposers        104 / 1017 = 0.10226155358898721
 }}}
 
-Notably, and the end of the info file, you can find statistics for acceptance ratios which may be needed for tuning to obtain proper mixing of the MCMC chain (see below).
+Notably, at the end of the info file, you can find statistics for acceptance ratios which may be needed for tuning to obtain proper mixing of the MCMC chain (see below).
 
 ----
 ----
@@ -254,7 +254,7 @@ Family no. 1,975 from the [http://wolfe.gen.tcd.ie/ygob/ Yeast Gene Order Browse
   * [http://jprime.googlecode.com/files/dlrs_example_2.map dlrs_example_2.map] (guest-to-host leaf map)
   * [http://jprime.googlecode.com/files/dlrs_example_2.map dlrs_example_2.gtree] (guest tree)
 
-If we hypothesize that we only orthologs, save for a predicted WGD, and we wish to fix this tree and output branch lengths with the samples, we might execute:
+If we hypothesize that we have only orthologs, save for a predicted WGD, and we wish to fix this tree and output branch lengths with the samples, we might execute:
 {{{
 java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_2.mcmc -i 100000 -t 100 -sm JTT -g dlrs_example_2.gtree -gfix -lout dlrs_example_2.stree dlrs_example_2.fa dlrs_example_2.map
 }}}
