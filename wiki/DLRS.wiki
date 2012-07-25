@@ -177,6 +177,8 @@ The info file will look something like:
 #                       3 used proposers        104 / 1017 = 0.10226155358898721
 }}}
 
+Notably, and the end of the info file, you can find statistics for acceptance ratios which may be needed for tuning to obtain proper mixing of the MCMC chain (see below).
+
 ----
 ----
 
