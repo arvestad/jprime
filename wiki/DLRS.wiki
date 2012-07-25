@@ -115,9 +115,12 @@ Monodelphis_domestica_1	Monodelphis_domestica
 ----
 
 == OUTPUT ==
-Output normally consists of two files, e.g.:
+Output is typically directed to a file with the following option: '-o myoutput.mcmc'. If not specified, output will be written to stdout.
+
+Output normally consists of two files:
   # {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
   # {{{myoutput.mcmc.info}}}, containing general pre- and post-run information.
+
 The file with the samples will look something like:
 {{{
 Iteration       PosteriorDensity       SubstitutionModelLikelihood     DLRSModelLikelihood     DuplicationRate LossRate        EdgeRateMean    EdgeRateCV      GuestTree
