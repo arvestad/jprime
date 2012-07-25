@@ -115,7 +115,7 @@ Monodelphis_domestica_1	Monodelphis_domestica
 ----
 
 == OUTPUT ==
-Output is typically directed to a file with the following option: '-o myoutput.mcmc'. If not specified, output will be written to stdout.
+Output is typically directed to a file with the following option: ´-o myoutput.mcmc´. If not specified, output will be written to stdout.
 
 Output normally consists of two files:
   # {{{myoutput.mcmc}}}, containing tab-delimited samples drawn from the posterior distribution.
