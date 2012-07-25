@@ -2,7 +2,7 @@
 
 =DLRS and Delirious =
 
-[http://jprime.googlecode.com/files/DLRS_2.png]
+[http://jprime.googlecode.com/files/DLRS_3.png]
 
 == CONTENTS ==
   # [DLRS#INTRODUCTION Introduction]
