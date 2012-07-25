@@ -15,8 +15,8 @@
 
 ----
 ----
-
-
+----
+----
 
 
 == INTRODUCTION ==
@@ -45,8 +45,8 @@ Below, you will find textual examples of input and output files, while some samp
 
 ----
 ----
-
-
+----
+----
 
 
 == INPUT ==
@@ -119,8 +119,8 @@ Monodelphis_domestica_1	Monodelphis_domestica
 
 ----
 ----
-
-
+----
+----
 
 
 == OUTPUT ==
@@ -190,8 +190,8 @@ Notably, at the end of the info file, you can find statistics for acceptance rat
 
 ----
 ----
-
-
+----
+----
 
 
 == RUNNING ==
@@ -216,8 +216,8 @@ For your final runs, the number of iterations required and a suitable thinning f
 
 ----
 ----
-
-
+----
+----
 
 
 == ANALYSIS ==
@@ -246,6 +246,9 @@ $ cut -f9 myoutput.mcmc | tail -5000 | sort | uniq -c | sort -n
 
 ----
 ----
+----
+----
+
 
 == EXAMPLES ==
 === 1: Synthetic gene family ===
@@ -288,8 +291,8 @@ java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Deli
 
 ----
 ----
-
-
+----
+----
 
 
 == OPTIONS ==
