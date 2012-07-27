@@ -133,7 +133,7 @@ Output is typically directed to a file with the following option: `-o myoutput.m
 
 The file with the samples will look something like:
 {{{
-Iteration       PosteriorDensity       SubstitutionModelLikelihood     DLRSModelLikelihood     DuplicationRate LossRate        EdgeRateMean    EdgeRateCV      GuestTree
+Iteration       PosteriorDensity       SubstitutionModelLikelihood     DLRSModelProbability     DuplicationRate LossRate        EdgeRateMean    EdgeRateCV      GuestTree
 0       -3552.679327202671      -3499.5465333279344     -53.13279387473693      1.2695758513931887      1.2695758513931887      0.5     1.0     ((((((Canis_lupus_1,(Felis_catus_1,Felis_catus_2)),Equus_caballus_1),Monodelphis_domestica_1),((Cavia_porcellus_3,Oryctolagus_cuniculus_2),Mus_musculus_2)),((Cavia_porcellus_1,Mus_musculus_1),Cavia_porcellus_2)),Oryctolagus_cuniculus_1);
 100     -3460.3268146346086     -3418.3402167205877     -41.98659791402091      1.382297474580881       1.9561323720461337      0.34371401944169133     0.8636497213264948      ((((((Canis_lupus_1,(Felis_catus_1,Felis_catus_2)),Equus_caballus_1),Monodelphis_domestica_1),((Cavia_porcellus_3,Oryctolagus_cuniculus_2),Mus_musculus_2)),((Cavia_porcellus_1,Mus_musculus_1),Cavia_porcellus_2)),Oryctolagus_cuniculus_1);
 200     -3377.8681987196874     -3355.0176933757098     -22.85050534397761      1.9884471995654707      2.2021552001268927      0.2527456690787075      0.5533612995885099      (((((Canis_lupus_1,(Felis_catus_1,Felis_catus_2)),Equus_caballus_1),Monodelphis_domestica_1),((Cavia_porcellus_3,Oryctolagus_cuniculus_2),Mus_musculus_2)),((Cavia_porcellus_1,Mus_musculus_1),(Cavia_porcellus_2,Oryctolagus_cuniculus_1)));
