@@ -18,12 +18,15 @@ import se.cbb.jprime.topology.TopologyException;
  */
 public class TestNewickRBTreeSamples {
 	
+	private URL shortRunURL = this.getClass().getResource("/mcmc_output/short_run.mcmc");
+	private File shortRun = new File(this.shortRunURL.getFile());
+	private URL longRunURL = this.getClass().getResource("/mcmc_output/long_run_w_lengths.mcmc");
+	private File longRun = new File(this.longRunURL.getFile());
+	
 	@Test
 	public void testShortRun() throws FileNotFoundException, NewickIOException, TopologyException {
 		// Initialization
-		URL shortRunURL = this.getClass().getResource("/mcmc_output/short_run.mcmc");
-		File shortRun = new File(shortRunURL.getFile());
-		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithoutLengths(shortRun, true, 1, 0, 0.0);
+		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithoutLengths(this.shortRun, true, 1, 0, 0.0);
 		// Testing
 		assertEquals(tree.getNoOfTrees(), 3);
 		assertEquals(tree.getTotalTreeCount(), 10);
@@ -38,9 +41,7 @@ public class TestNewickRBTreeSamples {
 	@Test
 	public void testLongRun() throws FileNotFoundException, NewickIOException, TopologyException {
 		// Initialization
-		URL longRunURL = this.getClass().getResource("/mcmc_output/long_run_w_lengths.mcmc");
-		File longRun = new File(longRunURL.getFile());
-		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithLengths(longRun, true, 1, 0, 0.0);
+		NewickRBTreeSamples tree = NewickRBTreeSamples.readTreesWithLengths(this.longRun, true, 1, 0, 0.0);
 		// Testing
 		assertEquals(tree.getNoOfTrees(), 81);
 		assertEquals(tree.getTotalTreeCount(), 1001);
@@ -50,6 +51,18 @@ public class TestNewickRBTreeSamples {
 		for (int i = 0; i < tree.getNoOfTrees(); i++) {
 			assertNotNull(tree.getTreeBranchLengths(i));
 		}
-		
+	}
+	
+	@Test
+	public void testCvgShortRun() throws FileNotFoundException, NewickIOException, TopologyException {
+		// Initialization
+		NewickRBTreeSamples fullTreeSample = NewickRBTreeSamples.readTreesWithoutLengths(this.shortRun, true, 1, 0, 0.0);
+		NewickRBTreeSamples bisFullTreeSample = NewickRBTreeSamples.readTreesWithoutLengths(this.shortRun, true, 1, 0, 0.1);
+		NewickRBTreeSamples smallerTreeSample = NewickRBTreeSamples.readTreesWithoutLengths(this.shortRun, true, 1, 0, 0.2);
+		NewickRBTreeSamples smallestTreeSample = NewickRBTreeSamples.readTreesWithoutLengths(this.shortRun, true, 1, 0, 0.7);
+		assertEquals(fullTreeSample.getNoOfTrees(), 3);
+		assertEquals(bisFullTreeSample.getNoOfTrees(), 3);
+		assertEquals(smallerTreeSample.getNoOfTrees(), 2);
+		assertEquals(smallestTreeSample.getNoOfTrees(), 1);
 	}
 }

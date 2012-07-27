@@ -47,7 +47,7 @@ public class RBTreeBranchSwapperSampler implements Proposer {
 	/** If true, samples uniformly among unique topologies; if false, samples weighted according to topology prevalence. */
 	protected boolean equalTopoChance;
 	
-	/** List with topology inideces among one samples. */
+	/** List with topology indices among one samples. */
 	protected int[] sampleIndices;
 	
 	/** Statistics. */
