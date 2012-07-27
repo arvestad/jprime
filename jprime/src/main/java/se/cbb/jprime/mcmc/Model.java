@@ -10,7 +10,7 @@ import se.cbb.jprime.math.LogDouble;
  * A model is a <code>ProperDependent</code>, and as such, typically a sink
  * in a dependency DAG where the state parameters are sources.
  * It should ideally compute its likelihood when <code>cacheAndUpdateAndSetChangeInfo()</code>
- * is invoked, and only return this value when <code>getLikelihood()</code> is
+ * is invoked, and only return this value when <code>getDataProbability()</code> is
  * called. Also, it should be able to cache and restore its old values if the proposed
  * state is rejected like any other <code>ProperDependent</code>.
  * Priors are currently also encouraged to implement this interface.
@@ -23,9 +23,9 @@ import se.cbb.jprime.math.LogDouble;
 public interface Model extends ProperDependent, Sampleable, InfoProvider {
 
 	/**
-	 * Returns the (often conditional) probability density of the observations
-	 * given the current model instantiation, priors, and current parameters.
-	 * @return the probability of the data given the model and parameters.
+	 * Returns the (often conditional) probability density of the observations (or intermediate parameters)
+	 * given the current model instantiation, priors, and current parameters (or hyperparameters).
+	 * @return the model probability.
 	 */
-	public LogDouble getLikelihood();
+	public LogDouble getDataProbability();
 }

@@ -19,14 +19,14 @@ import se.cbb.jprime.topology.TreeAlgorithms;
 
 /**
  * Implements the DLRS (a.k.a. GSR and GSRf) model.
- * Effectively, this class computes the likelihood
+ * Effectively, this class computes the conditional probability
  * Pr[G,l | S,t,lambda,mu,m,v], where G is the guest tree
  * topology, l the branch lengths of G, S the host tree, t the
  * divergence times of S, lambda the duplication (birth) rate,
  * mu the loss (death) rate,
  * m the substitution rate mean, and v the substitution rate variance.
  * <p/>
- * More specifically, this model computes the likelihood of G and l given
+ * More specifically, this model computes the probability of G and l given
  * S and t, where the G is assumed to have evolved down S according to
  * a birth-death-like process, and the branch lengths of G are iid according
  * to some distribution (e.g. gamma), thus relaxing the molecular clock.
@@ -171,16 +171,16 @@ public class DLRSModel implements Model {
 
 	@Override
 	public String getSampleHeader() {
-		return "DLRSModelLikelihood";
+		return "DLRSModelProbability";
 	}
 
 	@Override
 	public String getSampleValue() {
-		return this.getLikelihood().toString();
+		return this.getDataProbability().toString();
 	}
 
 	@Override
-	public LogDouble getLikelihood() {
+	public LogDouble getDataProbability() {
 		return new LogDouble(this.belows.get(this.g.getRoot(), 0));
 	}
 	

@@ -70,7 +70,22 @@ public class Delirious {
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
-				sb.append("Usage: java Delirious [options] ").append(jc.getMainParameterDescription()).append('\n');
+				sb.append(
+						"================================================================================\n" +
+						"JPrIME-DLRS (colloquially \"Delirious\") is a phylogenetic tool to simul-\n" +
+						"taneously infer and reconcile a gene tree given a species tree. It accounts for\n" +
+						"duplication and loss events, a relaxed molecular clock, and is intended for the\n" +
+						"study of homologous gene families, for example in a comparative genomics setting\n" +
+						"involving multiple species. It uses a Bayesian MCMC framework, where the input\n" +
+						"is a known species tree with divergence times and a multiple sequence alignment,\n" +
+						"and the output is a posterior distribution over gene trees and model parameters.\n\n" +
+						"References:\n" +
+						"     Simultaneous Bayesian gene tree reconstruction and reconciliation analysis,\n" +
+						"     Akerborg et al., PNAS, 2009.\n\n" +
+						"URL: http://code.google.com/p/jprime/wiki/DLRS\n" +
+						"================================================================================\n");
+				sb.append("Usage:\n" +
+						"    java -cp jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious [options] <args>\n");
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				System.out.println(sb.toString());
 				return;

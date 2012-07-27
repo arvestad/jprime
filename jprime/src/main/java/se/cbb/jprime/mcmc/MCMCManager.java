@@ -253,7 +253,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.likelihood = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
 		for (Model m : this.models) {
-			this.likelihood.mult(m.getLikelihood());
+			this.likelihood.mult(m.getDataProbability());
 		}
 		if (willSample) {
 			this.sampler.writeSample(this.sampleables);
@@ -308,7 +308,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				// Get likelihood of proposed state.
 				LogDouble newLikelihood = new LogDouble(1.0);
 				for (Model m : this.models) {
-					newLikelihood.mult(m.getLikelihood());
+					newLikelihood.mult(m.getDataProbability());
 				}
 				
 				// Finally, decide whether to accept or reject.

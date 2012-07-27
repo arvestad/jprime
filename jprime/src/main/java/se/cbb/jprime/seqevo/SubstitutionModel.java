@@ -335,7 +335,7 @@ public class SubstitutionModel implements Model {
 	}
 
 	@Override
-	public LogDouble getLikelihood() {
+	public LogDouble getDataProbability() {
 		return this.modelLikelihood;
 	}
 

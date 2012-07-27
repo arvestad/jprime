@@ -51,7 +51,7 @@ public class TestSubstitutionModel {
 		
 		// Model.
 		SubstitutionModel sm = new SubstitutionModel("JTT", D, siteRates, Q, T, names, bls, true);
-		LogDouble L = sm.getLikelihood();
+		LogDouble L = sm.getDataProbability();
 		assertTrue(L.greaterThan(0.0));
 		assertTrue(L.lessThan(1.0));
 	}
