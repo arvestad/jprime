@@ -42,7 +42,10 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
   * a supplementary info file with settings, proposal acceptance ratios, etc.
 
 {{{
-Below, you will find information on the input and output of the application, while some sample files and explanations of vital program options are found at the end of the document. If you want to get started quickly, we suggest that you download and try [DLRS#EXAMPLES Example 1], and have a look at it while reading through the other parts of the guide.
+Below, you will find information on the input and output of the application, while some sample files and
+explanations of vital program options are found at the end of the document. If you want to get started
+quickly, we suggest that you download and try [DLRS#EXAMPLES Example 1], and have a look at it while
+reading through the other parts of the guide.
 }}}
 
 ----
