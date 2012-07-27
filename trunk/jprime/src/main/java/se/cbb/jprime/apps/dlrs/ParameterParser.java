@@ -149,7 +149,7 @@ public class ParameterParser {
 	 */
 	public static SampleWriter getOut(Parameters ps) {
 		try {
-			return (ps.outfile == null ? new SampleWriter() : new SampleWriter(new File(ps.outfile)));
+			return (ps.outfile == null ? new SampleWriter() : new SampleWriter(new File(ps.outfile), 10));
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid output file.", e);
 		}

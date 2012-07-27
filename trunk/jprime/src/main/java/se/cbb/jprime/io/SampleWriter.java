@@ -39,8 +39,11 @@ public class SampleWriter implements Sampler {
 	/** Output stream. */
 	private BufferedWriter out;
 	
-	/** If true, flushes buffer immediately after sample. */
-	private boolean flushAfterSampling;
+	/** Governs how often automatic sampling is performed. */
+	private int flushFactor;
+	
+	/** Sampling counter. */
+	private int noOfUnflushedSamples;
 	
 	/** Delimiter. */
 	private String delim = DEFAULT_DELIM;
@@ -56,35 +59,40 @@ public class SampleWriter implements Sampler {
 	 */
 	public SampleWriter() {
 		this.out = new BufferedWriter(new OutputStreamWriter(System.out));
-		this.flushAfterSampling = true;
+		this.flushFactor = 1;
+		this.noOfUnflushedSamples = 0;
 	}
 	
 	/**
 	 * Constructor.
 	 * @param out stream to sample to.
+	 * @param flushFactor governs how often automatic sampling is performed.
 	 */
-	public SampleWriter(BufferedWriter out) {
+	public SampleWriter(BufferedWriter out, int flushFactor) {
 		this.out = out;
-		this.flushAfterSampling = false;
+		this.flushFactor = flushFactor;
+		this.noOfUnflushedSamples = 0;
 	}
 	
 	/**
 	 * Constructor. Uses the default encoding and a fairly high default buffer size.
 	 * @param f the file to write to.
+	 * @param flushFactor governs how often automatic sampling is performed.
 	 * @throws IOException if output stream cannot be connected to f.
 	 */
-	public SampleWriter(File f) throws IOException {
-		this(new BufferedWriter(new FileWriter(f), DEFAULT_BUFFER_SIZE));
+	public SampleWriter(File f, int flushFactor) throws IOException {
+		this(new BufferedWriter(new FileWriter(f), DEFAULT_BUFFER_SIZE), flushFactor);
 	}
 	
 	/**
 	 * Constructor. Uses the desired buffer size.
 	 * @param f the file to write to.
 	 * @param bufferSz the buffer size.
+	 * @param flushFactor governs how often automatic sampling is performed.
 	 * @throws IOException if output stream cannot be connected to f.
 	 */
-	public SampleWriter(File f, int bufferSz) throws IOException {
-		this(new BufferedWriter(new FileWriter(f), bufferSz));
+	public SampleWriter(File f, int bufferSz, int flushFactor) throws IOException {
+		this(new BufferedWriter(new FileWriter(f), bufferSz), flushFactor);
 	}
 
 	/**
@@ -149,8 +157,10 @@ public class SampleWriter implements Sampler {
 		this.out.newLine();
 		
 		// Flush if desired.
-		if (this.flushAfterSampling) {
+		this.noOfUnflushedSamples++;
+		if (this.noOfUnflushedSamples % this.flushFactor == 0) {
 			this.out.flush();
+			this.noOfUnflushedSamples = 0;
 		}
 	}
 	
@@ -234,10 +244,8 @@ public class SampleWriter implements Sampler {
 	public void writeString(String str) throws IOException {
 		this.out.write(str);
 		
-		// Flush if desired.
-		if (this.flushAfterSampling) {
-			this.out.flush();
-		}
+		// We flush immediately.
+		this.out.flush();
 	}
 
 }

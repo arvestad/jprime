@@ -27,9 +27,10 @@ public class JCommanderUsageWrapper {
 		// Special treatment of main parameter.
 		ParameterDescription mainParam = jc.getMainParameter();
 		if (mainParam != null) {
-			out.append("Required arguments\n");
+			out.append("Required arguments:\n");
 			out.append("     ").append(mainParam.getDescription()).append('\n');
 		}
+		out.append("Options:\n");
 		List<ParameterDescription> params = jc.getParameters();
 		Field[] fields = jcParams.getClass().getFields();
 		for (Field f : fields) {
