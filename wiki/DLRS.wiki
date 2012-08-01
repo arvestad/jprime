@@ -118,6 +118,7 @@ Felis_catus_2	Felis_catus
 Canis_lupus_1	Canis_lupus
 Monodelphis_domestica_1	Monodelphis_domestica
 }}}
+Please note that the names are case-sensitive and must match those in the host and sequence files.
 
 ----
 ----
