@@ -54,7 +54,7 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
 == INPUT ==
  
 === Host tree ===
-Obtain a dated species tree in Newick format. The divergence times may be specified as branch lengths, e.g.:
+Obtain a dated, rooted, bifurcating species tree in Newick format. The divergence times may be specified as branch lengths, e.g.:
 {{{
 (((Oryctolagus_cuniculus:89.9, (Cavia_porcellus:78.3,Mus_musculus:78.3):11.6):11.8, (Equus_caballus:80.8, (Felis_catus:55.7, Canis_lupus:55.7):25.1):20.9):62.2, Monodelphis_domestica:163.9):41.0;
 }}}
@@ -273,7 +273,7 @@ Delirious can work with DNA, peptide and codon MSAs. As of yet, working with sev
 
 *Initial values and leaving parameters out*
 
-  * `-g <string>  ` Initial guest tree. You can choose to create a random tree, a NJ tree based on sequence identity, or inputting your own tree, possibly with branch lengths. Recently, support for inferring a more sophisticated NJ tree was added with option `-fp`.
+  * `-g <string>  ` Initial guest tree. You can choose to create a random tree, a NJ tree based on sequence identity, or inputting your own tree, possibly with branch lengths. Recently, support for inferring a more sophisticated NJ tree was added with option `-fp`. Note: The guest tree must be rooted and bifurcating.
   * `-gfix  ` Fix the guest tree.
   * `-lfix  ` Fix the branch lengths.
   * `-dup  <float>  ` Duplication rate. You may fix this value by appending it with FIXED.
