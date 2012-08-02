@@ -45,12 +45,12 @@ import se.cbb.jprime.math.PRNG;
  *     Proposal densities from/to the new state are noted</li>
  * <li>The dependencies Dc1,...,Dcs relying on Sb1,...,Sbr are asked to cache and update in topological order.
  *     This is recursively repeated until all dependencies up to and including the models are up-to-date.</li>
- * <li>The likelihood of the proposed state is collected from M1,...,Mn.</li>
+ * <li>The (unnormalised) posterior density of the proposed state is collected from M1,...,Mn.</li>
  * <li>A is used to decide whether to accept or reject the new state:</li>
  * <li>
  *   <ul>
  *     <li>Accepted: Pa1,...,Paq and induced dependencies are asked to clear their cache.
- *         The current likelihood is updated.</li>
+ *         The current posterior density is updated.</li>
  *     <li>Rejected: Pa1,...,Paq and induced dependencies are asked to restore their cache.</li>
  *   </ul>
  * </li>
@@ -91,11 +91,11 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	/** The fields included in each sampling-tuple. */
 	protected ArrayList<Sampleable> sampleables;
 	
-	/** Current overall likelihood. */
-	protected LogDouble likelihood;
+	/** Current overall (unnormalised) posterior density. */
+	protected LogDouble posteriorDensity;
 	
-	/** Best seen overall likelihood so far. */
-	protected LogDouble bestLikelihood;
+	/** Best seen overall (unnormalised) posterior density so far. */
+	protected LogDouble bestPosteriorDensity;
 	
 	/** Best seen state so far. */
 	protected String bestState;
@@ -137,8 +137,8 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.properDependents = new ArrayList<ProperDependent>(16);
 		this.models = new ArrayList<Model>(16);
 		this.sampleables = new ArrayList<Sampleable>(16);
-		this.likelihood = null;
-		this.bestLikelihood = null;
+		this.posteriorDensity = null;
+		this.bestPosteriorDensity = null;
 		this.bestState = null;
 		this.startTime = -1;
 		this.endTime = -1;
@@ -249,16 +249,16 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		// Write sample header.
 		this.sampler.writeSampleHeader(this.sampleables);
 		
-		// First time, assume all objects are up-to-date and compute initial likelihood.
-		this.likelihood = new LogDouble(1.0);
+		// First time, assume all objects are up-to-date and compute initial posterior density.
+		this.posteriorDensity = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
 		for (Model m : this.models) {
-			this.likelihood.mult(m.getDataProbability());
+			this.posteriorDensity.mult(m.getDataProbability());
 		}
 		if (willSample) {
 			this.sampler.writeSample(this.sampleables);
 		}
-		this.bestLikelihood = this.likelihood;
+		this.bestPosteriorDensity = this.posteriorDensity;
 		this.bestState = this.sampler.getSample(this.sampleables);
 		
 		// Iterate.
@@ -281,7 +281,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				// Debug info.
 				if (this.doDebug) {
 					StringBuilder dbg = new StringBuilder(512);
-					dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", Log-likelihood: ").append(this.likelihood.toString())
+					dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", posterior density: ").append(this.posteriorDensity.toString())
 						.append(", about to use: ");
 					for (Proposer p : shakeItBaby) {
 						dbg.append(p.toString()).append(", ");
@@ -305,14 +305,14 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					}
 				}
 				
-				// Get likelihood of proposed state.
-				LogDouble newLikelihood = new LogDouble(1.0);
+				// Get posterior density of proposed state.
+				LogDouble newPosteriorDensity = new LogDouble(1.0);
 				for (Model m : this.models) {
-					newLikelihood.mult(m.getDataProbability());
+					newPosteriorDensity.mult(m.getDataProbability());
 				}
 				
 				// Finally, decide whether to accept or reject.
-				boolean doAccept = this.proposalAcceptor.acceptProposedState(newLikelihood, this.likelihood, proposals);
+				boolean doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
 				
 				// Debug info.
 				if (this.doDebug) {
@@ -330,9 +330,9 @@ public class MCMCManager implements Sampleable, InfoProvider {
 							dep.clearCache(willSample);
 						}
 					}
-					this.likelihood = newLikelihood;
-					if (this.bestLikelihood.lessThan(newLikelihood)) {
-						this.bestLikelihood = newLikelihood;
+					this.posteriorDensity = newPosteriorDensity;
+					if (this.bestPosteriorDensity.lessThan(newPosteriorDensity)) {
+						this.bestPosteriorDensity = newPosteriorDensity;
 						this.bestState = this.sampler.getSample(this.sampleables);
 					}
 				} else {
@@ -372,12 +372,12 @@ public class MCMCManager implements Sampleable, InfoProvider {
 
 	@Override
 	public String getSampleHeader() {
-		return "OverallLikelihood";
+		return "PosteriorDensity";
 	}
 
 	@Override
 	public String getSampleValue() {
-		return this.likelihood.toString();
+		return this.posteriorDensity.toString();
 	}
 
 	@Override

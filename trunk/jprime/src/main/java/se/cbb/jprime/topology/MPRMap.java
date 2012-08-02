@@ -1,6 +1,8 @@
 package se.cbb.jprime.topology;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
@@ -48,10 +50,26 @@ public class MPRMap implements ProperDependent {
 		this.S = S;
 		this.sigma = new int[G.getNoOfVertices()];
 		
+		List<Integer> GLeaves = this.G.getLeaves();
+		Set<String> allSLeaves = SNames.getNames(false);
+		
 		// Fill the sigma map for the leaves only once, prior to the rest.
-		for (int l : this.G.getLeaves()) {
-			String sigmaname = this.GSMap.getHostLeafName(GNames.get(l));
+		for (int l : GLeaves) {
+			String GName = GNames.get(l);
+			String sigmaname = this.GSMap.getHostLeafName(GName);
+			if (sigmaname == null) {
+				throw new IllegalArgumentException("Cannot find guest leaf " + GName + " in guest-to-host leaf map.");
+			}
+			if (!allSLeaves.contains(sigmaname)) {
+				throw new IllegalArgumentException("Cannot find host leaf " + sigmaname + " corresponding to guest leaf " + GName + ".");
+			}
 			this.sigma[l] = SNames.getVertex(sigmaname);
+		}
+		
+		// Additional validation.
+		Set<String> GSMapGLeaves = this.GSMap.getAllGuestLeafNames();
+		if (GLeaves.size() != GSMapGLeaves.size()) {
+			throw new IllegalArgumentException("Mismatch in the number of guest tree leaves and guest-to-host map items: " + GLeaves.size() + " vs. "  + GSMapGLeaves.size() + ".");
 		}
 		
 		// Now fill the rest.
