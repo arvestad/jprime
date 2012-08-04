@@ -341,8 +341,10 @@ The ABCA subfamily for some vertebrates. 12 gene members in human.
 
 On this larger family, we might want to model site rate heterogeneity, achieve some more reasonable acceptance rates by changing the tuning parameters based on pilot runs, and increase the how often the guest tree topology and the branch lengths are perturbed:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Delirious -i 500000 -t 200 -o dlrs_example_3.mcmc -lout -sm JTT -srcats 4 -tngdup [0.3,0.3] -tngloss [0.3,0.3] -tngerm [0.1,0.1] -tngercv [0.1,0.1] -tngl [0.4,0.4] -tngsrshape [0.07,0.07] -tngwg [3.0,3.0] -tngwl [15.0,15.0] dlrs_example_3.stree dlrs_example_3.fa dlrs_example_3.map
+java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Delirious -i 1000000 -t 200 -o dlrs_example_3.mcmc -lout -sm JTT -srcats 4 -tngdup [0.3,0.3] -tngloss [0.3,0.3] -tngerm [0.1,0.1] -tngercv [0.1,0.1] -tngl [0.4,0.4] -tngsrshape [0.07,0.07] -tngwg [3.0,3.0] -tngwl [15.0,15.0] dlrs_example_3.stree dlrs_example_3.fa dlrs_example_3.map
 }}}
+
+Note: This will be a long MCMC chain.
 
 
 ----
