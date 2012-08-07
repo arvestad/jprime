@@ -8,12 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
-
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.PrIMENewickTree;
-import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
 
 /**

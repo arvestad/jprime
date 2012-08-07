@@ -23,7 +23,7 @@ public class RobinsonFoulds {
 	 * @throws Exception if naming mismatch, etc.
 	 */
 	public static int computeDistance(RootedTree tree1, StringMap names1,
-			RootedTree tree2, StringMap names2, boolean treatAsUnrooted) throws Exception {
+			RootedTree tree2, StringMap names2, boolean treatAsUnrooted) {
 		
 		ClusterTablePSWTree c1 = new ClusterTablePSWTree(tree1, names1, treatAsUnrooted);
 		ClusterTablePSWTree c2 = new ClusterTablePSWTree(tree2, names2, treatAsUnrooted);
@@ -45,7 +45,7 @@ public class RobinsonFoulds {
 	 * @return the number of partitions in the templated tree not in its template.
 	 * @throws Exception if tree mismatches, etc.
 	 */
-	public static int computeAsymmetricDistance(TemplatedPSWTree compTree) throws Exception {
+	public static int computeAsymmetricDistance(TemplatedPSWTree compTree) {
 		ClusterTablePSWTree orig = compTree.getTemplate();
 		
 		// Traverse interior vertices of templated tree, counting the those which:

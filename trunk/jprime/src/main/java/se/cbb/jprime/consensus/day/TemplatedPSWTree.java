@@ -70,13 +70,13 @@ public class TemplatedPSWTree extends PSWTree {
 	 * @param template the template DayTree.
 	 * @throws Exception when input tree and template have been rerooted at different leaves.
 	 */
-	public TemplatedPSWTree(ClusterTablePSWTree tree, ClusterTablePSWTree template) throws Exception {
+	public TemplatedPSWTree(ClusterTablePSWTree tree, ClusterTablePSWTree template) {
 		super();
 		this.template = template;
 		if (tree.rerootName == null && template.rerootName != null ||
 				tree.rerootName != null && template.rerootName == null ||
 				(tree.rerootName != null && !tree.rerootName.equals(template.rerootName))) {
-			throw new Exception("Cannot create TemplatedPSWTree when input tree and template tree " +
+			throw new IllegalArgumentException("Cannot create TemplatedPSWTree when input tree and template tree " +
 					"have been rerooted at different leaves.");
 		}
 		this.rerootName = template.rerootName;
