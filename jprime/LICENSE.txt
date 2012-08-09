@@ -1,7 +1,16 @@
-JPrIME is licensed under the New BSD License:
+=============================================
+||                JPRIME                   ||
 =============================================
 
-Copyright (c) 2012, CompBio groups at SciLifeLab Stockholm.
+
+-------------------- LICENSE --------------------
+
+JPrIME is licensed under the New BSD License.
+
+
+-------------------- DISCLAIMER --------------------
+
+Copyright (c) 2012, Computational biology groups at SciLifeLab Stockholm.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -18,10 +27,149 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL COMPBIO GROUPS AT SCILIFELAB STOCKHOLM BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+DISCLAIMED. IN NO EVENT SHALL COMPUTATIONAL BIOLOGY GROUPS AT SCILIFELAB STOCKHOLM
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+-------------------- CITATION --------------------
+
+"JPrIME: Phylogenetics library in Java (version X.X.X).
+ Available at http://code.google.com/p/jprime/.
+ Computational biology groups, Science for Life Laboratory Stockholm."
+ 
+
+ 
+==============================================
+||                BIOJAVA                   ||
+==============================================
+
+
+-------------------- LICENSE --------------------
+
+BioJava is licensed under LGPL 2.1.
+
+
+-------------------- CITATION --------------------
+
+"BioJava: an Open-Source Framework for Bioinformatics.
+ R.C.G. Holland; T. Down; M. Pocock; A. Prlić; D. Huen; K. James; S. Foisy; A. Dräger; A. Yates; M. Heuer; M.J. Schreiber.
+ Bioinformatics 2008; doi: 10.1093/bioinformatics/btn397."
+ 
+
+ 
+=============================================
+||               FORESTER                  ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+Forester is available under GNU Lesser GPL.
+
+
+-------------------- DISCLAIMER --------------------
+
+Copyright (C) 2012 Christian M. Zmasek. All rights reserved.
+
+ 
+-------------------- CITATION --------------------
+
+Please contact Christian M. Zmasek at http://www.cmzmasek.net/.
+
+
+
+=============================================
+||              JCOMMANDER                 ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+JCommander is released under the Apache 2.0 license.
+
+
+-------------------- CITATION --------------------
+
+Please contact Cédric Beust at cedric@beust.com.
+
+
+
+=============================================
+||           UNCOMMONS MATHS               ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+Uncommons Maths is available under the Apache Software Licence, Version 2.0.
+
+
+-------------------- CITATION --------------------
+
+Please contact Dan Dyer at http://dandyer.co.uk/.
+
+
+
+=============================================
+||                  EJML                   ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+EJML is available under GNU Lesser GPL.
+
+
+-------------------- CITATION --------------------
+
+Please contact Peter Abeles at peter.abeles@gmail.com.
+
+
+
+=============================================
+||                  MDSJ                   ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+MDSJ is available under Creative Commons License "by-nc-sa" 3.0.
+
+
+-------------------- DISCLAIMER --------------------
+
+The MDSJ Java library ("software") is developed and maintained in the Algorithmics Group, Department
+of Computer & Information Science, University of Konstanz, Germany ("author"). Some rights reserved.
+The software is provided "AS IS", with no warranty, express or implied, including but not limited to
+the implied warranties of merchantability and fitness for a particular use. In no event shall the author
+be liable for any damages, direct or indirect, even if advised of the possibility of such damages. If you
+do not accept these restrictions, you do not have permission to download or use MDSJ.
+
+
+-------------------- CITATION --------------------
+
+"Algorithmics Group. MDSJ: Java Library for Multidimensional Scaling (Version 0.2).
+ Available at http://www.inf.uni-konstanz.de/algo/software/mdsj/.
+ University of Konstanz, 2009."
+ 
+
+
+=============================================
+||             APACHE COMMONS              ||
+=============================================
+
+------------------- LICENSE --------------------
+
+Apache Commons is available under Apache License Version 2.0
+
+
+
+=============================================
+||               JFREECHART                ||
+=============================================
+
+------------------- LICENSE --------------------
+
+JFreeChart is available under GNU Lesser General Public Licence.
+
+
