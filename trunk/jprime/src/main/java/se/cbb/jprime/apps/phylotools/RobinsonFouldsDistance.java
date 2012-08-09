@@ -60,14 +60,14 @@ public class RobinsonFouldsDistance {
 				// Create matrix of comparisons.
 				File f = new File(params.infiles.get(0));
 				List<PrIMENewickTree> trees = PrIMENewickTreeReader.readTrees(f, false, false);
-				computeDistanceMatrix(trees, params.rooted);
+				computeDistanceMatrix(trees, params.unrooted);
 			} else if (params.infiles.size() == 2) {
 				// Create pairwise comparisons.
 				File f1 = new File(params.infiles.get(0));
 				File f2 = new File(params.infiles.get(1));
 				List<PrIMENewickTree> trees1 = PrIMENewickTreeReader.readTrees(f1, false, false);
 				List<PrIMENewickTree> trees2 = PrIMENewickTreeReader.readTrees(f2, false, false);
-				computePairedDistances(trees1, trees2, params.rooted);
+				computePairedDistances(trees1, trees2, params.unrooted);
 			} else {
 				throw new IllegalArgumentException("Must have one or two input files.");
 			}
@@ -80,7 +80,7 @@ public class RobinsonFouldsDistance {
 	}
 	
 	
-	private static void computeDistanceMatrix(List<PrIMENewickTree> trees, boolean treatAsRooted) throws IOException, TopologyException {
+	private static void computeDistanceMatrix(List<PrIMENewickTree> trees, boolean treatAsUnrooted) throws IOException, TopologyException {
 		// Not optimised in the slightest way right now...
 		for (PrIMENewickTree t1 : trees) {
 			RTree r1 = new RTree(t1, "T1");
@@ -89,14 +89,14 @@ public class RobinsonFouldsDistance {
 			for (PrIMENewickTree t2 : trees) {
 				RTree r2 = new RTree(t1, "T2");
 				NamesMap n2 = t2.getVertexNamesMap(true, "N2");
-				int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, !treatAsRooted);
+				int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, treatAsUnrooted);
 				sb.append(dist).append('\t');
 			}
 			System.out.println(sb.substring(0, sb.length() - 1));
 		}
 	}
 	
-	private static void computePairedDistances(List<PrIMENewickTree> trees1, List<PrIMENewickTree> trees2, boolean treatAsRooted) throws TopologyException, IOException {
+	private static void computePairedDistances(List<PrIMENewickTree> trees1, List<PrIMENewickTree> trees2, boolean treatAsUnrooted) throws TopologyException, IOException {
 		if (trees1.size() != trees2.size()) {
 			throw new IllegalArgumentException("Input tree lists do not have equal length.");
 		}
@@ -105,7 +105,7 @@ public class RobinsonFouldsDistance {
 			NamesMap n1 = trees1.get(i).getVertexNamesMap(true, "N1");
 			RTree r2 = new RTree(trees2.get(i), "T2");
 			NamesMap n2 = trees2.get(i).getVertexNamesMap(true, "N2");
-			int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, !treatAsRooted);
+			int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, treatAsUnrooted);
 			System.out.println(dist);
 		}
 	}
