@@ -87,6 +87,27 @@ public class NamesMap extends StringMap {
 	}
 	
 	/**
+	 * Swap two vertices numbers given two vertices names.
+	 * @param u vertex name.
+	 * @param v vertex name.
+	 */
+	public void swapVertices(String u, String v) {
+		int numU = this.vertices.get(u);
+		this.changeVertex(u, this.vertices.get(v));
+		this.changeVertex(v, numU);
+	}
+	
+	/**
+	 * Changes the vertex number associated with a given name.
+	 * @param val name of the vertex.
+	 * @param x vertex number.
+	 */
+	public void changeVertex(String val, int x) {
+		this.vertices.put(val, new Integer(x));
+		this.values[x] = val;
+	}
+	
+	/**
 	 * Returns the vertex/arc of a certain name.
 	 * @param name the name.
 	 * @return the vertex containing the name.
