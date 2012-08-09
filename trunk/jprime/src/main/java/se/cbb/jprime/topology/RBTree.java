@@ -495,6 +495,45 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 	
 	/**
+	 * Swap two vertices in the tree.
+	 * @param i vertex number.
+	 * @param j vertex number.
+	 */
+	public void swap(int i, int j) {
+		if (this.root == i) {
+			this.root = j;
+		} else if (this.root == j) {
+			this.root = i;
+		}
+		this.swapNumbers(i, j, this.parents);
+		this.swapNumbers(i, j, this.leftChildren);
+		this.swapNumbers(i, j, this.rightChildren);
+		int[] iTmp = {this.parents[i], this.leftChildren[i], this.rightChildren[i]};
+		this.parents[i] = this.parents[j];
+		this.leftChildren[i] = this.leftChildren[j];
+		this.rightChildren[i] = this.rightChildren[j];
+		this.parents[j] = iTmp[0];
+		this.leftChildren[j] = iTmp[1];
+		this.rightChildren[j] = iTmp[2];
+	}
+	
+	/**
+	 * Swap the number i and j in a list.
+	 * @param i number.
+	 * @param j number.
+	 * @param list list to swap.
+	 */
+	private void swapNumbers(int i, int j, int[] list) {
+		for (int n = 0; n < list.length; n++) {
+			if (list[n] == i) {
+				list[n] = j;
+			} else if(list[n] == j) {
+				list[n] = i;
+			}
+		}
+	}
+	
+	/**
 	 * Low-level setter for internal parent and children arrays.
 	 * @param p parent vertex.
 	 * @param lc left child.

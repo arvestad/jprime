@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.TopologyException;
 
@@ -25,11 +26,13 @@ public class NewickRBTreeSamples {
 	/** Inner class for counting identical topologies and keeping track of "lengthses". */
 	class TreeInstances implements Comparable<TreeInstances> {
 		RBTree tree;
+		String nwTopology;
 		int count;
 		ArrayList<DoubleMap> lengthses;
 		
-		public TreeInstances(RBTree tree, DoubleMap lengths) {
+		public TreeInstances(RBTree tree, String nwTopology, DoubleMap lengths) {
 			this.tree = tree;
+			this.nwTopology = nwTopology;
 			this.count = 1;
 			if (lengths != null) {
 				this.lengthses = new ArrayList<DoubleMap>();
@@ -61,6 +64,9 @@ public class NewickRBTreeSamples {
 	
 	/** Lengths flag. */
 	private boolean hasLengths;
+	
+	/** Template NamesMap */
+	private NamesMap templateNamesMap;
 	
 	/**
 	 * Private constructor.
@@ -99,13 +105,22 @@ public class NewickRBTreeSamples {
 			// We want to hash on "pure" Newick tree.
 			t.clearBranchLengths();
 			t.clearMeta();
+			RBTree rbt = new RBTree(t, "Dummy");
+			NamesMap rbtNamesMap = t.getVertexNamesMap(true, "Dummy");
 			String nw = t.toString();
 			TreeInstances ts = this.trees.get(nw);
 			if (ts == null) {
-				ts = new TreeInstances(new RBTree(t, "Dummy"), lengths);
+				ts = new TreeInstances(rbt, nw, lengths);
 				this.trees.put(nw, ts);
 			} else {
 				ts.add(lengths);
+			}
+			if (i == 1) {
+				// Initialize the template
+				this.templateNamesMap = t.getVertexNamesMap(true, "Template");
+			} else {
+				// Change the numbering of the current tree according to the template
+				this.renumberTree(rbt, rbtNamesMap);
 			}
 		}
 		sc.close();
@@ -261,6 +276,23 @@ public class NewickRBTreeSamples {
 	public int getTotalTreeCount() {
 		return this.totalCount;
 	}
+
+	/**
+	 * Returns the Newick string topology representation of a tree.
+	 * @param i the index.
+	 * @return the Newick string topology representation of a tree.
+	 */
+	public String getTreeNewickString(int i) {
+		return this.treesByFreq.get(i).nwTopology;
+	}
+	
+	/**
+	 * Returns the template names map.
+	 * @return the template names map.
+	 */
+	public NamesMap getTemplateNamesMap() {
+		return this.templateNamesMap;
+	}
 	
 	/**
 	 * Returns true if lengths are included with the tree samples.
@@ -268,5 +300,27 @@ public class NewickRBTreeSamples {
 	 */
 	public boolean hasLengths() {
 		return this.hasLengths;
+	}
+	
+	/**
+	 * Renumber a RBTree so that its vertex leaf numbers are consistent with
+	 * the template.
+	 * @param t tree to renumber.
+	 * @param nm tree t names map.
+	 */
+	private void renumberTree(RBTree t, NamesMap nm) {
+		for (String leafName : this.templateNamesMap.getNames(false)) {
+			int templateNum = this.templateNamesMap.getVertex(leafName);
+			int currentNum = nm.getVertex(leafName);
+			if (templateNum != currentNum) {
+				t.swap(currentNum, templateNum);
+				// Update NamesMap according to the swapping.
+				if (nm.get(templateNum) != null) {
+					nm.swapVertices(leafName, nm.get(templateNum));
+				} else {
+					nm.changeVertex(leafName, templateNum);
+				}
+			}
+		}
 	}
 }

@@ -117,6 +117,35 @@ public class Parameters {
 	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix branch lengths of guest tree.")
 	public Boolean lengthsFixed = false;
 	
+	/** Sample guest trees among a fixed set of Newick trees. */
+	@Parameter(names = {"-gtset", "--guesttreeset"}, description = "Sample guest trees among a fixed set of Newick trees in the specified <file>.")
+	public String guestTreeSet = null;
+	
+	/** Take the branch lengths into account for a guest tree set. */
+	@Parameter(names = {"-gtsetl", "--guesttreesetwithlengths"}, description = "When sampling guest trees from a fixed set, take the branch lengths into account.")
+	public Boolean guestTreeSetWithLengths = false;
+	
+	/** Samples uniformly among unique topologies rather than by topology prevalence. */
+	@Parameter(names = {"-gtsete", "--guesttreesetequaltopochance"}, description = "When sampling guest trees from a fixed set,"+
+			"samples uniformly among unique topologies rather than by topology prevalence.")
+	public Boolean guestTreeSetEqualTopoChance = false;
+	
+	/** If the file that contains the set of guest trees has a header. */
+	@Parameter(names = {"-gtseth", "--guesttreesetfilehasheader"}, description = "The file that contains the set of guest trees has a header.")
+	public Boolean guestTreeSetFileHasHeader = false;
+	
+	/** Relative column number containing trees. */
+	@Parameter(names = {"-gtsetc", "--guesttreesetfilerelcolno"}, description = "The relative column number containing trees in the file containing the set of guest trees.")
+	public Integer guestTreeSetFileRelColNo = null;
+	
+	/** Proportion of samples to discard as burn-in. */
+	@Parameter(names = {"-gtsetb", "--guesttreesetburninprop"}, description = "Proportion of samples to discard as burn-in in the guest tree set, e.g. 0.25 for 25%..")
+	public String guestTreeSetBurninProp = "0.25";
+	
+	/** Minimum coverage for a topology to be included among the samples */
+	@Parameter(names = {"-gtsetcvg"}, description = "Minimum coverage for a topology to be included among the samples in the guest tree set, e.g. 0.01.")
+	public String guestTreeSetMinCvg = "0.01";
+	
 	/** MSA that will be used to generate a starting gene tree */
 	@Parameter(names = {"-fp", "--fastphylo"}, description = "Generate a good starting tree by calling FastPhylo on a specified MSA <file>." + 
 			" If --guesttree is specified it inhibits this parameter.")

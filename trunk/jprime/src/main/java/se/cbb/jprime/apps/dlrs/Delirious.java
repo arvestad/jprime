@@ -1,6 +1,7 @@
 package se.cbb.jprime.apps.dlrs;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -14,6 +15,7 @@ import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.io.JCommanderUsageWrapper;
+import se.cbb.jprime.io.NewickRBTreeSamples;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleWriter;
@@ -27,6 +29,7 @@ import se.cbb.jprime.mcmc.MCMCManager;
 import se.cbb.jprime.mcmc.MultiProposerSelector;
 import se.cbb.jprime.mcmc.NormalProposer;
 import se.cbb.jprime.mcmc.ProposalAcceptor;
+import se.cbb.jprime.mcmc.Proposer;
 import se.cbb.jprime.mcmc.RealParameterUniformPrior;
 import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.misc.Pair;
@@ -42,7 +45,6 @@ import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
-import se.cbb.jprime.topology.RBTreeBranchSwapper;
 import se.cbb.jprime.topology.TimesMap;
 
 import com.beust.jcommander.JCommander;
@@ -122,7 +124,19 @@ public class Delirious {
 			PRNG prng = ParameterParser.getPRNG(params);
 			
 			// Read/create G and l.
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info);
+			NewickRBTreeSamples guestTreeSamples = null;
+			if (params.guestTreeSet != null) {
+				Double burninProp = Double.parseDouble(params.guestTreeSetBurninProp);
+				Double minCvg = Double.parseDouble(params.guestTreeSetMinCvg);
+				if (params.guestTreeSetWithLengths) {
+					guestTreeSamples = NewickRBTreeSamples.readTreesWithLengths(new File(params.guestTreeSet), params.guestTreeSetFileHasHeader,
+							params.guestTreeSetFileRelColNo, burninProp, minCvg);
+				} else {
+					guestTreeSamples = NewickRBTreeSamples.readTreesWithoutLengths(new File(params.guestTreeSet), params.guestTreeSetFileHasHeader,
+							params.guestTreeSetFileRelColNo, burninProp, minCvg);
+				}
+			}
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples);
 			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
@@ -160,9 +174,7 @@ public class Delirious {
 			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
 			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
 			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
-			RBTreeBranchSwapper guestTreeProposer = ParameterParser.getBranchSwapper(gNamesLengths.first, gNamesLengths.third, iter, prng);
-			double[] moves = SampleDoubleArray.toDoubleArray(params.tuningGuestTreeMoveWeights);
-			guestTreeProposer.setOperationWeights(moves[0], moves[1], moves[2]);
+			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, iter, prng, guestTreeSamples);
 			NormalProposer lengthsProposer = ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
