@@ -7,7 +7,7 @@ import se.cbb.jprime.io.SampleDoubleArray;
  * TODO: the models JC69, etc. should be moved to another subclass
  * that implements analytical solutions of the member functions.
  * <p/>
- * Note: Not a proper factory class yet, but maybe eventually.
+ * Note: Not a proper factory class yet, but maybe eventually...
  * 
  * @author Bengt Sennblad.
  * @author Lars Arvestad.

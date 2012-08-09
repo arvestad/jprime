@@ -21,7 +21,7 @@ public class RobinsonFouldsDistanceParameters {
 	public Boolean help = false;
 	
 	/** Treat trees as rooted. */
-	@Parameter(names = {"-r", "--rooted"}, description = "Treat trees as rooted.")
-	public Boolean rooted = true;
+	@Parameter(names = {"-u", "--unrooted"}, description = "Treat trees as unrooted.")
+	public Boolean unrooted = false;
 	
 }
