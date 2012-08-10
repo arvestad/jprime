@@ -3,13 +3,17 @@ package se.cbb.jprime.apps.phylotools;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import javax.swing.JFrame;
+import mdsj.MDSJ;
+
 import com.beust.jcommander.JCommander;
 import se.cbb.jprime.consensus.day.RobinsonFoulds;
+import se.cbb.jprime.gui.MDSPanel;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
-import se.cbb.jprime.io.PrIMENewickTree;
-import se.cbb.jprime.io.PrIMENewickTreeReader;
-import se.cbb.jprime.topology.NamesMap;
-import se.cbb.jprime.topology.RTree;
+import se.cbb.jprime.io.NewickIOException;
+import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
@@ -59,15 +63,25 @@ public class RobinsonFouldsDistance {
 			if (params.infiles.size() == 1) {
 				// Create matrix of comparisons.
 				File f = new File(params.infiles.get(0));
-				List<PrIMENewickTree> trees = PrIMENewickTreeReader.readTrees(f, false, false);
-				computeDistanceMatrix(trees, params.unrooted);
+				List<NewickTree> trees = NewickTreeReader.readTrees(f, false);
+				double[][] dists = RobinsonFoulds.computeDistanceMatrix(trees, params.unrooted);
+				for (int i = 0; i < trees.size(); ++i) {
+					for (int j = 0; j < trees.size(); ++j) {
+						System.out.print("" + ((int)(dists[i][j])) + '\t');
+					}
+					System.out.print("\n");
+				}
+				computeMDS(dists);
 			} else if (params.infiles.size() == 2) {
 				// Create pairwise comparisons.
 				File f1 = new File(params.infiles.get(0));
 				File f2 = new File(params.infiles.get(1));
-				List<PrIMENewickTree> trees1 = PrIMENewickTreeReader.readTrees(f1, false, false);
-				List<PrIMENewickTree> trees2 = PrIMENewickTreeReader.readTrees(f2, false, false);
-				computePairedDistances(trees1, trees2, params.unrooted);
+				List<NewickTree> trees1 = NewickTreeReader.readTrees(f1, false);
+				List<NewickTree> trees2 = NewickTreeReader.readTrees(f2, false);
+				double[] dists = RobinsonFoulds.computePairedDistances(trees1, trees2, params.unrooted);
+				for (double dist : dists) {
+					System.out.println((int)dist);
+				}
 			} else {
 				throw new IllegalArgumentException("Must have one or two input files.");
 			}
@@ -79,36 +93,60 @@ public class RobinsonFouldsDistance {
 		}
 	}
 	
-	
-	private static void computeDistanceMatrix(List<PrIMENewickTree> trees, boolean treatAsUnrooted) throws IOException, TopologyException {
-		// Not optimised in the slightest way right now...
-		for (PrIMENewickTree t1 : trees) {
-			RTree r1 = new RTree(t1, "T1");
-			NamesMap n1 = t1.getVertexNamesMap(true, "N1");
-			StringBuilder sb = new StringBuilder(trees.size() * 4);
-			for (PrIMENewickTree t2 : trees) {
-				RTree r2 = new RTree(t1, "T2");
-				NamesMap n2 = t2.getVertexNamesMap(true, "N2");
-				int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, treatAsUnrooted);
-				sb.append(dist).append('\t');
-			}
-			System.out.println(sb.substring(0, sb.length() - 1));
+	/**
+	 * Computes multidimensional scaling output based on distance matrix.
+	 * @param dists distances.
+	 * @throws NewickIOException.
+	 * @throws IOException.
+	 * @throws TopologyException.
+	 */
+	public static void computeMDS(double[][] dists) throws NewickIOException, IOException, TopologyException {
+
+		String nwtreesstr = "(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Chrysemys_picta_1),Lepisosteus_oculatus_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1),Chrysemys_picta_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),Lepisosteus_oculatus_2),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Chrysemys_picta_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2))),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2),Chrysemys_picta_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_1),Chrysemys_picta_1),Lepisosteus_oculatus_2),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2)),Chrysemys_picta_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_1)),Lepisosteus_oculatus_2),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_1),Lepisosteus_oculatus_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),Chrysemys_picta_1),Lepisosteus_oculatus_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),Chrysemys_picta_1),Lepisosteus_oculatus_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_1),Lepisosteus_oculatus_2),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2)),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_1),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),Lepisosteus_oculatus_1),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2))),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_1)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
+		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));";
+
+		double[] weights = new double[] {1,1,2,2,2,2,3,3,3,6,8,14,19,22,41,60,76,128,154,241,256,483,532,555,927,1459};
+		
+		List<NewickTree> nwtrees = NewickTreeReader.readTrees(nwtreesstr, false);
+		dists = RobinsonFoulds.computeDistanceMatrix(nwtrees, false);
+		int n = dists[0].length;
+		double[][] coords = MDSJ.classicalScaling(dists);
+			
+		String[] labels = new String[n];
+		for (int i = 0; i < n; ++i) {
+			labels[i] = "T" + i;
 		}
+		
+		// Show window.
+		JFrame frame = new JFrame("Robinson-Foulds metric MDS test");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(new MDSPanel(labels, coords, weights, 800, 600));
+        frame.setSize(800, 600);
+        frame.setVisible(true);
 	}
-	
-	private static void computePairedDistances(List<PrIMENewickTree> trees1, List<PrIMENewickTree> trees2, boolean treatAsUnrooted) throws TopologyException, IOException {
-		if (trees1.size() != trees2.size()) {
-			throw new IllegalArgumentException("Input tree lists do not have equal length.");
-		}
-		for (int i = 0; i < trees1.size(); ++i) {
-			RTree r1 = new RTree(trees1.get(i), "T1");
-			NamesMap n1 = trees1.get(i).getVertexNamesMap(true, "N1");
-			RTree r2 = new RTree(trees2.get(i), "T2");
-			NamesMap n2 = trees2.get(i).getVertexNamesMap(true, "N2");
-			int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, treatAsUnrooted);
-			System.out.println(dist);
-		}
-	}
-	
 
 }
