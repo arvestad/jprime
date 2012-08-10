@@ -1,7 +1,14 @@
 package se.cbb.jprime.consensus.day;
 
+import java.io.IOException;
+import java.util.List;
+
+import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.topology.NamesMap;
+import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.RootedTree;
+import se.cbb.jprime.topology.TopologyException;
 
 /**
  * Uses Day's algorithm to compute the Robinson-Foulds distance metric
@@ -60,5 +67,66 @@ public class RobinsonFoulds {
 			}
 		}
 		return dist;
+	}
+	
+	/**
+	 * Returns the RF distances between a list of k trees with equal terminal nodes.
+	 * The output is a symmetric matrix. For convenience,
+	 * the distances are returned on floating-point format.
+	 * @param trees the trees.
+	 * @param treatAsUnrooted true to treat as unrooted; false as rooted.
+	 * @return the distances.
+	 * @throws TopologyException.
+	 * @throws IOException.
+	 */
+	public static double[][] computeDistanceMatrix(List<NewickTree> trees, boolean treatAsUnrooted) throws IOException, TopologyException {
+		// Not optimised in the slightest way right now...
+		int n = trees.size();
+		double[][] dists = new double[n][];
+		for (int i = 0; i < n; ++i) {
+			dists[i] = new double[n];
+			dists[i][i] = 0;
+		}
+		for (int i = 0; i < n - 1; ++i) {
+			NewickTree t1 = trees.get(i);
+			RTree r1 = new RTree(t1, "T1");
+			NamesMap n1 = t1.getVertexNamesMap(true, "N1");
+			for (int j = i + 1; j < trees.size(); ++j) {
+				NewickTree t2 = trees.get(j);
+				//System.out.println(t1.toString() + "     " + t2.toString());
+				RTree r2 = new RTree(t2, "T2");
+				NamesMap n2 = t2.getVertexNamesMap(true, "N2");
+				int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, treatAsUnrooted);
+				dists[i][j] = dist;
+				dists[j][i] = dist;
+			}
+		}
+		return dists;
+	}
+	
+	/**
+	 * Returns the RF distance between pairs of trees. For convenience,
+	 * the distances are returned on floating-point format.
+	 * @param trees1 tree column 1.
+	 * @param trees2 tree column 2.
+	 * @param treatAsUnrooted true to treat as unrooted; false as rooted.
+	 * @return the distances.
+	 * @throws TopologyException.
+	 * @throws IOException.
+	 */
+	public static double[] computePairedDistances(List<NewickTree> trees1, List<NewickTree> trees2, boolean treatAsUnrooted) throws TopologyException, IOException {
+		if (trees1.size() != trees2.size()) {
+			throw new IllegalArgumentException("Input tree lists do not have equal length.");
+		}
+		double[] dists = new double[trees1.size()];
+		for (int i = 0; i < trees1.size(); ++i) {
+			RTree r1 = new RTree(trees1.get(i), "T1");
+			NamesMap n1 = trees1.get(i).getVertexNamesMap(true, "N1");
+			RTree r2 = new RTree(trees2.get(i), "T2");
+			NamesMap n2 = trees2.get(i).getVertexNamesMap(true, "N2");
+			int dist = RobinsonFoulds.computeDistance(r1, n1, r2, n2, treatAsUnrooted);
+			dists[i] = dist;
+		}
+		return dists;
 	}
 }
