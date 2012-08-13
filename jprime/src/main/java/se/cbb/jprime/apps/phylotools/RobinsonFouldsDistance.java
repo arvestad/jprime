@@ -1,20 +1,13 @@
 package se.cbb.jprime.apps.phylotools;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-
-import javax.swing.JFrame;
-import mdsj.MDSJ;
 
 import com.beust.jcommander.JCommander;
 import se.cbb.jprime.consensus.day.RobinsonFoulds;
-import se.cbb.jprime.gui.MDSPanel;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
-import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickTreeReader;
-import se.cbb.jprime.topology.TopologyException;
 
 /**
  * Computes the Robinson-Foulds distance between trees. Two modes are supported:
@@ -71,7 +64,6 @@ public class RobinsonFouldsDistance {
 					}
 					System.out.print("\n");
 				}
-				computeMDS(dists);
 			} else if (params.infiles.size() == 2) {
 				// Create pairwise comparisons.
 				File f1 = new File(params.infiles.get(0));
@@ -91,62 +83,6 @@ public class RobinsonFouldsDistance {
 			e.printStackTrace(System.err);
 			System.err.print("\nUse option -h or --help to show usage.\n");
 		}
-	}
-	
-	/**
-	 * Computes multidimensional scaling output based on distance matrix.
-	 * @param dists distances.
-	 * @throws NewickIOException.
-	 * @throws IOException.
-	 * @throws TopologyException.
-	 */
-	public static void computeMDS(double[][] dists) throws NewickIOException, IOException, TopologyException {
-
-		String nwtreesstr = "(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Chrysemys_picta_1),Lepisosteus_oculatus_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1),Chrysemys_picta_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),Lepisosteus_oculatus_2),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Chrysemys_picta_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2))),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2),Chrysemys_picta_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_1),Chrysemys_picta_1),Lepisosteus_oculatus_2),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2)),Chrysemys_picta_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_1)),Lepisosteus_oculatus_2),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_1),Lepisosteus_oculatus_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),Chrysemys_picta_1),Lepisosteus_oculatus_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),Chrysemys_picta_1),Lepisosteus_oculatus_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_1),Lepisosteus_oculatus_2),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2)),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_1),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),Lepisosteus_oculatus_1),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),(Chrysemys_picta_1,Lepisosteus_oculatus_1)),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2))),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_2),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_1)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),(Lepisosteus_oculatus_1,Lepisosteus_oculatus_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),Lepisosteus_oculatus_1),(((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2),Lepisosteus_oculatus_2)),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));\n" +
-		"(((((((Astatotilapia_burtoni_1,Gastorosteus_aculeatus_1),Tetraodon_nigroviridis_1),((Astatotilapia_burtoni_2,Gastorosteus_aculeatus_2),Tetraodon_nigroviridis_2)),Lepisosteus_oculatus_2),Lepisosteus_oculatus_1),Chrysemys_picta_1),(Petromyzon_marinus_1,(Petromyzon_marinus_2,(Petromyzon_marinus_3,Petromyzon_marinus_4))));";
-
-		double[] weights = new double[] {1,1,2,2,2,2,3,3,3,6,8,14,19,22,41,60,76,128,154,241,256,483,532,555,927,1459};
-		
-		List<NewickTree> nwtrees = NewickTreeReader.readTrees(nwtreesstr, false);
-		dists = RobinsonFoulds.computeDistanceMatrix(nwtrees, false);
-		int n = dists[0].length;
-		double[][] coords = MDSJ.classicalScaling(dists);
-			
-		String[] labels = new String[n];
-		for (int i = 0; i < n; ++i) {
-			labels[i] = "T" + i;
-		}
-		
-		// Show window.
-		JFrame frame = new JFrame("Robinson-Foulds metric MDS test");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new MDSPanel(labels, coords, weights, 800, 600));
-        frame.setSize(800, 600);
-        frame.setVisible(true);
 	}
 
 }
