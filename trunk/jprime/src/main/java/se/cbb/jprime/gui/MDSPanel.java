@@ -6,15 +6,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
-import java.util.Random;
-
 import javax.swing.JPanel;
 
 import se.cbb.jprime.math.PRNG;
 
 /**
  * Panel for showing 2-D multidimensional scaling (MDS) data.
- * MDS is also known as principal coordinate analysis (PCoA).
+ * MDS is also known as principal coordinate analysis (PCoA); not
+ * to be confused with principal component analysis (PCA).
  * 
  * @author Joel Sjöstrand.
  */
@@ -32,15 +31,17 @@ public class MDSPanel extends JPanel {
 	/** Weights. */
 	private double[] weights;
 	
-	/** Scaled coords for the display. */
-	private double[][] scaledCoords;
+	private double xmin = Double.MAX_VALUE;
+	private double xmax = -Double.MAX_VALUE;
+	private double ymin = Double.MAX_VALUE;
+	private double ymax = -Double.MAX_VALUE;
 	
 	private Font font;
 	private Color backgroundColor;
 	private Color[] pointColors;
 	private Color textColor;
-	private double pointMinRadius;
-	private double[] pointSizes;
+	private double pointMaxDiameter;
+	private double[] pointDiameters;
 	private int textOffset;
 	
 	/**
@@ -56,42 +57,31 @@ public class MDSPanel extends JPanel {
 		this.setSize(width, height);
 		this.labels = labels;
 		this.coords = coords;
-		int n = this.coords[0].length;
 		this.weights = weights;
-		this.scaledCoords = new double[2][];
-		this.scaledCoords[0] = new double[n];
-		this.scaledCoords[1] = new double[n];
 		
-		// Scale according to panel size.
-		double xmin = Double.MAX_VALUE;
-		double xmax = -Double.MAX_VALUE;
-		double ymin = Double.MAX_VALUE;
-		double ymax = -Double.MAX_VALUE;
+		// Find min and max coords.
+		int n = this.coords[0].length;
+		xmin = Double.MAX_VALUE;
+		xmax = -Double.MAX_VALUE;
+		ymin = Double.MAX_VALUE;
+		ymax = -Double.MAX_VALUE;
 		for (int i = 0; i < n; ++i) {
 			if (coords[0][i] < xmin) { xmin = coords[0][i]; }
 			if (coords[0][i] > xmax) { xmax = coords[0][i]; }
 			if (coords[1][i] < ymin) { ymin = coords[1][i]; }
 			if (coords[1][i] > ymax) { ymax = coords[1][i]; }
 		}
-		double xmargin = width / 8.0;
-		double ymargin = height / 8.0;
-		double xscale = (width - 2 * xmargin) / (xmax - xmin);
-		double yscale = (height - 2 * ymargin) / (ymax - ymin);
-		for (int i = 0; i < n; ++i) {
-			this.scaledCoords[0][i] = xmargin + xscale * (coords[0][i] - xmin);
-			this.scaledCoords[1][i] = ymargin + yscale * (coords[1][i] - ymin);
-		}
 		
 		// Scale point size.
-		this.pointMinRadius = 1.0;
-		double minw = Double.MAX_VALUE;
+		this.pointMaxDiameter = 30.0;
+		double maxw = -Double.MAX_VALUE;
 		for (int i = 0; i < n; ++i) {
-			if (weights[i] < minw) { minw = weights[i]; }
+			if (this.weights[i] > maxw) { maxw = this.weights[i]; }
 		}
-		this.pointSizes = new double[n];
+		this.pointDiameters = new double[n];
 		for (int i = 0; i < n; ++i) {
-			// Area prop to weight => radius prop to sq.root of weight.
-			this.pointSizes[i] = pointMinRadius * Math.sqrt(weights[i] / minw);
+			// Area prop to weight => diameter prop to sq.root of weight.
+			this.pointDiameters[i] = pointMaxDiameter * Math.sqrt(weights[i] / maxw);
 		}
 		
 		this.font = new Font("Verdana", Font.PLAIN, 12);
@@ -100,33 +90,49 @@ public class MDSPanel extends JPanel {
 		this.pointColors = new Color[n];
 		PRNG prng = new PRNG();
 		for (int i = 0; i < n; ++i) {
-			//to get rainbow, pastel colors
-			
 			float hue = prng.nextFloat();
-			float saturation = 0.9f;//1.0 for brilliant, 0.0 for dull
-			float luminance = 1.0f; //1.0 for brighter, 0.0 for black
+			float saturation = 1.0f;  // 1.0 for brilliant, 0.0 for dull.
+			float luminance = 0.7f;   // 1.0 for brighter, 0.0 for black.
 			Color col = Color.getHSBColor(hue, saturation, luminance);
 			pointColors[i] = new Color(col.getRed(), col.getGreen(), col.getBlue(), 196);
 		}
 		this.textColor = Color.BLACK;
-		this.textOffset = 5;
+		this.textOffset = 0;
 	}
 	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
+		
+		// Scale coords onto panel.
+		int n = this.coords[0].length;
+		double[][] scaledCoords = new double[2][];
+		scaledCoords[0] = new double[n];
+		scaledCoords[1] = new double[n];
+		double xmargin = getWidth() / 8.0;
+		double ymargin = getHeight() / 8.0;
+		double xscale = (getWidth() - 2 * xmargin) / (xmax - xmin);
+		double yscale = (getHeight() - 2 * ymargin) / (ymax - ymin);
+		for (int i = 0; i < n; ++i) {
+			scaledCoords[0][i] = xmargin + xscale * (coords[0][i] - xmin);
+			scaledCoords[1][i] = ymargin + yscale * (coords[1][i] - ymin);
+		}
+		
 		Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setFont(this.font);
-        for (int i = 0; i < this.scaledCoords[0].length; ++i) {
+        
+        // Draw points.
+        for (int i = 0; i < scaledCoords[0].length; ++i) {
         	g2.setPaint(this.pointColors[i]);
-        	g2.fill(new Ellipse2D.Double(this.scaledCoords[0][i], this.scaledCoords[1][i],
-        			this.pointSizes[i], this.pointSizes[i]));
+        	g2.fill(new Ellipse2D.Double(scaledCoords[0][i], scaledCoords[1][i],
+        			this.pointDiameters[i], this.pointDiameters[i]));
         }
+        // Draw labels.
+        g2.setFont(this.font);
         g2.setPaint(this.textColor);
         for (int i = 0; i < this.labels.length; ++i) {
-            g2.drawString(this.labels[i], (float) (this.scaledCoords[0][i] + this.textOffset),
-            		(float) (this.scaledCoords[1][i] + this.textOffset));
+            g2.drawString(this.labels[i], (float) (scaledCoords[0][i] + this.pointDiameters[i] + this.textOffset),
+            		(float) (scaledCoords[1][i] + this.pointDiameters[i] + this.textOffset));
         }
 	};
 }
