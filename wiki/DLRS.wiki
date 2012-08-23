@@ -119,7 +119,7 @@ Felis_catus_2	Felis_catus
 Canis_lupus_1	Canis_lupus
 Monodelphis_domestica_1	Monodelphis_domestica
 }}}
-Please note that the names are case-sensitive and must match those in the host and sequence files, and also that only the actual ID of the gene should be used. This is of particular importance in `|`-separated headers, meaning that for an NCBI-style FASTA header like
+Please note that the names are case-sensitive and must match those in the host and sequence files, and also that only the actual ID of the guest sequence should be used. This is of particular importance in `|`-separated headers, meaning that for an NCBI-style FASTA header like
 {{{
 >gi|gi-number|gb|accession
 }}}
@@ -352,7 +352,7 @@ On this larger family, we might want to model site rate heterogeneity, achieve s
 java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Delirious -i 1000000 -t 200 -o dlrs_example_3.mcmc -lout -sm JTT -srcats 4 -tngdup [0.3,0.3] -tngloss [0.3,0.3] -tngerm [0.1,0.1] -tngercv [0.1,0.1] -tngl [0.4,0.4] -tngsrshape [0.07,0.07] -tngwg [3.0,3.0] -tngwl [15.0,15.0] dlrs_example_3.stree dlrs_example_3.fa dlrs_example_3.map
 }}}
 
-Note: This will be a long MCMC chain.
+Note: This will be a long and time-consuming MCMC chain.
 
 
 ----
@@ -372,7 +372,7 @@ A2) At the moment, only the FASTA format is supported.
 
 *Q3) I get errors that seem to be related to the guest or species names. What could be wrong?*
 
-A3) Make sure that the guest-to-host mapping file refers precisely to the sequence names and host tree leaves (they are case sensitive). Also, please note that the mapping file should only reference genes by IDs (typically accessions). See the input instructions above for more info. If '|' characters in the FASTA header is still causing issues, try replacing them with e.g. '`_`' in the MSA file and the mapping file.
+A3) Make sure that the guest-to-host mapping file refers precisely to the sequence names and host tree leaves (they are case sensitive). Also, please note that the mapping file should only reference guest sequences by IDs (typically accessions). See the input instructions above for more info. If '|' characters in the FASTA header is still causing issues, try replacing them with e.g. '`_`' in the MSA file and the mapping file.
 
 *Q4) I get an error about "Division with zero" when I try to start Delirious. What's wrong?*
 
@@ -380,3 +380,7 @@ A4) This means that the initial state is so poor that its probability gets round
   # Is there a user-defined initial guest tree that includes branch lengths? If so, do they agree with the substitution model? If not, try removing the lengths to start with simple default values.
   # Perhaps the initial values for the duplication or loss rate are inappropriate. Try setting some user-defined initial values.
   # Perhaps the initial guest tree is too unrealistic. Try estimating a better topology, either by option -g NJ or option -fp, or infer a tree using some external method.
+
+Q5) Can I easily get a hold of divergence times for the host tree?
+
+A5) That depends. Reasonable estimates can often be obtained from the excellent initiative [http://www.timetree.org]. If these have a large variance, you will have to date a tree your self using one of the methods mentioned in the instructions above, preferably using a clock relaxation technique similar to what you use in Delirious, e.g., _iid_ gamma edge rates.
