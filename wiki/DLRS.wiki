@@ -381,6 +381,6 @@ A4) This means that the initial state is so poor that its probability gets round
   # Perhaps the initial values for the duplication or loss rate are inappropriate. Try setting some user-defined initial values.
   # Perhaps the initial guest tree is too unrealistic. Try estimating a better topology, either by option -g NJ or option -fp, or infer a tree using some external method.
 
-Q5) Can I easily get a hold of divergence times for the host tree?
+*Q5) Can I easily get a hold of divergence times for the host tree?*
 
 A5) That depends. Reasonable estimates can often be obtained from the excellent initiative [http://www.timetree.org]. If these have a large variance, you will have to date a tree your self using one of the methods mentioned in the instructions above, preferably using a clock relaxation technique similar to what you use in Delirious, e.g., _iid_ gamma edge rates.
