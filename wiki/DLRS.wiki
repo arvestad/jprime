@@ -372,7 +372,7 @@ A2) At the moment, only the FASTA format is supported.
 
 *Q3) I get errors that seem to be related to the guest or species names. What could be wrong?*
 
-A3) Make sure that the guest-to-host mapping file refers precisely to the sequence names and host tree leaves (they are case sensitive). Also, please note the mapping file should only reference genes by IDs ((typically accessions). See the guide for more info. If '|' characters in the FASTA header still cause you issues, try replacing them with e.g. '`_`' in the MSA file and the mapping file.
+A3) Make sure that the guest-to-host mapping file refers precisely to the sequence names and host tree leaves (they are case sensitive). Also, please note that the mapping file should only reference genes by IDs (typically accessions). See the input instructions above for more info. If '|' characters in the FASTA header still cause you issues, try replacing them with e.g. '`_`' in the MSA file and the mapping file.
 
 *Q4) I get an error about "Division with zero" when I try to start Delirious. What's wrong?*
 
