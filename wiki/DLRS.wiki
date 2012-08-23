@@ -383,4 +383,4 @@ A4) This means that the initial state is so poor that its probability gets round
 
 *Q5) Can I easily get a hold of divergence times for the host tree?*
 
-A5) That depends. Reasonable estimates can often be obtained from the excellent initiative [http://www.timetree.org]. If these have a large variance, you will have to date a tree your self using one of the methods mentioned in the instructions above, preferably using a clock relaxation technique similar to what you use in Delirious, e.g., _iid_ gamma edge rates.
+A5) That depends. Reasonable estimates can often be obtained from the excellent initiative [http://www.timetree.org]. If these are missing or seem unreasonable due to a large variance, you will have to date a tree yourself using one of the methods mentioned in the instructions above, preferably using a clock relaxation technique similar to what you use in Delirious, e.g., _iid_ gamma edge rates.
