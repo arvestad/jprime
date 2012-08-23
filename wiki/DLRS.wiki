@@ -119,7 +119,7 @@ Felis_catus_2	Felis_catus
 Canis_lupus_1	Canis_lupus
 Monodelphis_domestica_1	Monodelphis_domestica
 }}}
-Please note that the names are case-sensitive and must match those in the host and sequence files, and also that only the actual ID of the gene should be used. This is of particular importance in `|`-separated headers, meaning that for an NCBI-style FASTA header like `>gi|gi-number|gb|accession`, only `accession` should appear in the mapping file, while for a header like`>custom|moreinfo|evenmoreinfo` the initial part `custom` will be interpreted as the ID.
+Please note that the names are case-sensitive and must match those in the host and sequence files, and also that only the actual ID of the gene should be used. This is of particular importance in `|`-separated headers, meaning that for an NCBI-style FASTA header like {{{>gi|gi-number|gb|accession}}}, only `accession` should appear in the mapping file, while for a header like {{{>custom|moreinfo|evenmoreinfo}}} only the initial part `custom` will be interpreted as the ID.
 
 ----
 ----
