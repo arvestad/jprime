@@ -388,7 +388,7 @@ A5) That depends. Reasonable estimates can often be obtained from the excellent 
 
 *Q6) Does Delirious support GTR?*
 
-A6) No, not at this point. Only empirical and fixed-parameter substitution models are included. You may, however, make an _a priori_ estimate of such parameters using e.g. jModelTest, and then feeding them into Delirious.
+A6) No, not at this point. Only empirical and fixed-parameter substitution models are included. You may, however, make an _a priori_ estimate of such parameters using e.g. [http://darwin.uvigo.es/software/jmodeltest.html jMODELTEST], and then feeding them into Delirious.
 
 *Q7) Does Delirious support separate partitions of MSA data corresponding to multiple loci (having separate substitution models / parameters)?*
 
