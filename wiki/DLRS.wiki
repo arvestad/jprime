@@ -69,7 +69,8 @@ The host tree must be clock-like (ultrametric), with time 0 at the leaves and ti
 [http://jprime.googlecode.com/files/Delirious_discretization_2.png]
 
 
-A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of "core" gene families (e.g. monocopy putative orthologs, housekeeping genes, etc.), aligning these, then feeding the concatenated multiple locus sequence alignment (MLSA) into a program which estimates divergence times. Some programs will allow multiple loci without concatenation. For acquiring core genes for microbial datasets [http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0024704 this article] may be of help. For dating, consider e.g. [http://beast.bio.ed.ac.uk BEAST], [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
+A good resource for divergence times is [http://www.timetree.org]. If you cannot find references to reliable divergence times, you will need to date the tree yourself. Typically, this is achieved by obtaining a set of "core" gene families believed to be congruent with the species tree (monocopy syntenic orthologs, housekeeping genes, etc.). These can then be aligned, and divergence times be acquired with a suitable application using a concatenated multiple locus sequence alignment (MLSA), i.e., a _supergene_.
+Some programs may allow the different loci to not be concatenated and to treat the partitions with separate model parameters. For dating, consider e.g. [http://beast.bio.ed.ac.uk BEAST], [http://www.biomedcentral.com/1471-2148/8/77 MAP-DP], [http://www.phylobayes.org PhyloBayes] or [http://loco.biosci.arizona.edu/r8s r8s].
 
 === Multiple sequence alignment and substitution model ===
 The multiple sequence alignment (MSA) can be computed with any suitable program (MAFFT, MUSCLE, CLUSTAL, etc.), but should be provided on the FASTA format, e.g. for the example above:
@@ -384,3 +385,11 @@ A4) This means that the initial state is so poor that its probability gets round
 *Q5) Can I easily get a hold of divergence times for the host tree?*
 
 A5) That depends. Reasonable estimates can often be obtained from the excellent initiative [http://www.timetree.org]. If these are missing or seem unreasonable due to a large variance, you will have to date a tree yourself using one of the methods mentioned in the instructions above, preferably using a clock relaxation technique similar to what you use in Delirious, e.g., _iid_ gamma edge rates.
+
+*Q6) Does Delirious support GTR?*
+
+A6) No, not at this point. Only empirical and fixed-parameter substitution models are included. You may, however, make an _a priori_ estimate of such parameters using e.g. jModelTest, and then feeding them into Delirious.
+
+*Q7) Does Delirious support separate partitions of MSA data corresponding to multiple loci (having separate substitution models / parameters)?*
+
+A7) No, not yet, although this may be included in the future.
