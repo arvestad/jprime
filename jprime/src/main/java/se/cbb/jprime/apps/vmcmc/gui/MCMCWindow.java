@@ -12,27 +12,18 @@ import javax.swing.JTabbedPane;
 /**
  * MCMCWindow: JFrame with default layout implemented. Stores a JTabbedPane containing each
  * file openened.
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
- * 
- *	File version: 1.0
- *	VMCMC version: 1.0
- *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
  */
 public class MCMCWindow extends JFrame{
-	/**
-	 * 
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS VARIABLES										*
+	 * **************************************************************************** */
 	private static final long serialVersionUID = 1L;
-	
 	private JTabbedPane fileTabs;
 	private JPanel defaultpanel;
 	
+	/* **************************************************************************** *
+	 * 							CLASS CONSTRUCTORS									*
+	 * **************************************************************************** */
 	public MCMCWindow() 
 	{
 		defaultpanel = new JPanel();
@@ -55,12 +46,12 @@ public class MCMCWindow extends JFrame{
 	
 	public MCMCWindow(int size) 
 	{
-		defaultpanel = new JPanel();
+		defaultpanel 		= new JPanel();
 		
 		defaultpanel.setLayout(new BoxLayout(defaultpanel, BoxLayout.Y_AXIS));
 		defaultpanel.setBackground(new Color(0xFFEEEEFF));
 		
-		fileTabs = new JTabbedPane();
+		fileTabs 			= new JTabbedPane();
 		fileTabs.setBackground(new Color(0xFFEEFFEE));
 		fileTabs.setFocusable(false);
 		fileTabs.setVisible(false);
@@ -71,16 +62,21 @@ public class MCMCWindow extends JFrame{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	public void appear() {fileTabs.setVisible(true);}
-	public void windowAppear() {this.setVisible(true);}
-	
+	/* **************************************************************************** *
+	 * 							CLASS PUBLIC FUNCTIONS								*
+	 * **************************************************************************** */
 	public void addTab(String title, Component panel) {
 		fileTabs.add(title, panel);
 		this.pack();
 	}
+	public void appear() 				{fileTabs.setVisible(true);}
+	public void windowAppear() 			{this.setVisible(true);}
+	public void selectTab(int index) 	{fileTabs.setSelectedIndex(index);}
+	public void getTab(int index) 		{fileTabs.getComponentAt(index);}
+	public JTabbedPane getTabs() 		{return fileTabs;}
 	
-	public void selectTab(int index) {fileTabs.setSelectedIndex(index);}
-	public void getTab(int index) {fileTabs.getComponentAt(index);}
-	public JTabbedPane getTabs() {return fileTabs;}
+	/* **************************************************************************** *
+	 * 							END OF CLASS										*
+	 * **************************************************************************** */
 }
 

@@ -33,32 +33,18 @@ import se.cbb.jprime.apps.vmcmc.libs.MCMCInterface;
 
 /**
  * MCMCGraphToolPanel: Panel contains graph and tools dependent on the graph.
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
- * 
- *	File version: 1.0
- *	VMCMC version: 1.0
- *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
  */
 public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
-	/**
-	 * 
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS VARIABLES										*
+	 * **************************************************************************** */
 	private static final long serialVersionUID = 1L;
-	
 	private JSlider slider;
 	MCMCGraphPanel graphpanel;
 	MCMCGraphRuler rulerpanel;
-
 	MCMCDataContainer datacontainer;
 	int seriesID;
 	double burnin;
-	
 	JScrollPane scrollpane;
 
 	private class GraphListener implements MouseListener, MouseMotionListener, KeyListener {
@@ -148,6 +134,9 @@ public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
 		public void keyTyped(KeyEvent arg0) {}
 	}
 
+	/* **************************************************************************** *
+	 * 							CLASS CONSTRUCTORS									*
+	 * **************************************************************************** */
 	public MCMCGraphToolPanel() {
 		slider = createSlider();
 		
@@ -159,8 +148,7 @@ public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
 		
 		scrollpane.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent arg0) {
-				/*
-				 * Possibility of adding functionality to update burn in marker when graph
+				/* Possibility of adding functionality to update burn in marker when graph
 				 * is scrolled.
 				 */
 				
@@ -196,18 +184,13 @@ public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setBackground(new Color(0xFFEEEEFF));
 	}
-
+	
+	/* **************************************************************************** *
+	 * 							CLASS PUBLIC FUNCTIONS								*
+	 * **************************************************************************** */
 	public JSlider createSlider() {
-		Object[] gradient = {new Float(0.3f), 
-				new Float(0.3f),
-				new ColorUIResource(0xFFEEEEEE),
-				new Color(0xFFFFFFFF),
-				new ColorUIResource(0xFFEEEEEE)};
-		Object[] focusGradient = {new Float(0.3f), 
-				new Float(0.3f),
-				new ColorUIResource(0xFFDDDDEE),
-				new Color(0xFFEEEEFF),
-				new ColorUIResource(0xFFDDDDEE)};
+		Object[] gradient = {new Float(0.3f), new Float(0.3f), new ColorUIResource(0xFFEEEEEE),	new Color(0xFFFFFFFF), new ColorUIResource(0xFFEEEEEE)};
+		Object[] focusGradient = {new Float(0.3f), new Float(0.3f),	new ColorUIResource(0xFFDDDDEE), new Color(0xFFEEEEFF),	new ColorUIResource(0xFFDDDDEE)};
 		
 		//Specify look of slider
 		UIManager.put("Slider.gradient", Arrays.asList(gradient));
@@ -283,9 +266,7 @@ public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
 		return rulerpanel;
 	}
 	
-	/*
-	 * updateGraph: Set new data for graph.
-	 */
+	/** updateGraph: Set new data for graph.*/
 	public void updateGraph() {
 		if(datacontainer != null) {
 			Object[] data = datacontainer.getValueSerie(seriesID).toArray();
@@ -306,9 +287,7 @@ public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
 		}
 	}
 	
-	/*
-	 * updateRuler: Set new data for ruler.
-	 */
+	/** updateRuler: Set new data for ruler.*/
 	public void updateRuler() {
 		Object[] serie = datacontainer.getValueSerie(seriesID).toArray();
 		
@@ -333,38 +312,35 @@ public class MCMCGraphToolPanel extends JPanel implements MCMCInterface {
 
 		rulerpanel.setMax(maxY);
 		rulerpanel.setMin(minY);
-
 		rulerpanel.repaint();
 	}
 	
-	/*
-	 * addMarksToGraph: Marks intervals in graph.
-	 */
+	/** addMarksToGraph: Marks intervals in graph. */
 	public void addMarksToGraph(ArrayList<Integer> list) {
 		ArrayList<Double> templist = new ArrayList<Double>();
 
-		for(int i=0; i<list.size(); i++) {
+		for(int i=0; i<list.size(); i++) 
 			templist.add((double) list.get(i)/datacontainer.getNumValues(seriesID));
-		}
 
 		graphpanel.getMarksList().add(templist);
 	}
 	
-	/*
-	 * clearGraphMarks: Removes marks made in graph.
-	 */
+	/** clearGraphMarks: Removes marks made in graph.*/
 	public void clearGraphMarks() {
 		graphpanel.getMarksList().clear();
 		graphpanel.repaint();
 	}
 
-	public void setDataContainer(MCMCDataContainer datacontainer) {this.datacontainer = datacontainer;}
-	public void setSeriesID(int id) {this.seriesID = id;}
-	public void setBurnIn(double burnin) {this.burnin = burnin;}
+	public void setDataContainer(MCMCDataContainer datacontainer) 	{this.datacontainer = datacontainer;}
+	public void setSeriesID(int id) 								{this.seriesID 		= id;}
+	public void setBurnIn(double burnin) 							{this.burnin 		= burnin;}
 	
-	public JSlider getSlider() {return slider;}
-	public MCMCGraphPanel getGraph() {return graphpanel;}
-	public JScrollPane getScrollPane() {return scrollpane;}
-	public int getSeriesID() {return seriesID;}
-	public MCMCDataContainer getDataContainer() {return datacontainer;}
+	public JSlider getSlider() 										{return slider;}
+	public MCMCGraphPanel getGraph() 								{return graphpanel;}
+	public JScrollPane getScrollPane() 								{return scrollpane;}
+	public int getSeriesID() 										{return seriesID;}
+	public MCMCDataContainer getDataContainer() 					{return datacontainer;}
+	/* **************************************************************************** *
+	 * 							END OF CLASS										*
+	 * **************************************************************************** */
 }

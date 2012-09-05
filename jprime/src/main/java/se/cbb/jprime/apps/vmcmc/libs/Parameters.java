@@ -49,10 +49,10 @@ public class Parameters {
 	public Boolean geweke = false;
 	
 	/** Estimated Sample Size Test only */
-	@Parameter(names = {"-e","--ess"}, description = "Estimated sample size test result on command line only. VMCMC computed estimated sample size estimator for the MCMC chain shown on stdout. ")
+	@Parameter(names = {"-e","--ess"}, description = "Effective Sample Size test result on command line only. VMCMC computed estimated sample size estimator for the MCMC chain shown on stdout. ")
 	public Boolean ess = false;
 	
 	/** Estimated Sample Size Test only */
-	@Parameter(names = {"-r","--gelmanrubin"}, description = "Gelman rubin convergence test result on command line only. VMCMC computed estimated sample size estimator for the MCMC chain shown on stdout. ")
+	@Parameter(names = {"-r","--gelmanrubin"}, description = "Gelman-Rubin convergence test result on command line only. VMCMC computed estimated sample size estimator for the MCMC chain shown on stdout. ")
 	public Boolean gr = false;
 }

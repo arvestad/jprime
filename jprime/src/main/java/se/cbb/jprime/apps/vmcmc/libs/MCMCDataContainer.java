@@ -4,48 +4,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * SerieType: Enumeration of all types of parameters handled by datacontainer.
  */
 enum SerieType {
 	FLOAT,
 	TREE,
+	INT,
 	OTHER
 }
 
-/**
- *
- * SerieType: Enumeration of all types of parameters handled by datacontainer.
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
- * 
- *	File version: 1.0
- *	VMCMC version: 1.0
- *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
- */
 public class MCMCDataContainer {
-	String fileName;	//Name of file
-	
-	ArrayList<SerieType> listSerietype = new ArrayList<SerieType>();	//List of parameter types
-	
-	int numSeries;	//Total number of series
-	int numTreeSeries; 	//Number of tree series
-	int numValueSeries;	//Number of numerical series
-	
-	int numLines;	//Number of lines in file
-	
-	ArrayList<List<Double>> listValueSeries = new ArrayList<List<Double>>();
-	ArrayList<String> listValueNames = new ArrayList<String>();		//List of names for numerical series
-	ArrayList<Integer> listNumValues = new ArrayList<Integer>();
-	
-	ArrayList<ArrayList<MCMCTree>> listTreeSeries = new ArrayList<ArrayList<MCMCTree>>();
-	ArrayList<String> listTreeNames = new ArrayList<String>();		//List of names for tree series
-	ArrayList<Integer> listNumTrees = new ArrayList<Integer>();
+	/* **************************************************************************** *
+	 * 							CLASS VARIABLES										*
+	 * **************************************************************************** */
+	String 							fileName;	//Name of file
+	int 							numSeries;	//Total number of series
+	int 							numTreeSeries; 	//Number of tree series
+	int 							numValueSeries;	//Number of numerical series
+	int 							numLines;	//Number of lines in file
+	ArrayList<SerieType> 			listSerietype;	//List of parameter types
+	ArrayList<List<Double>> 		listValueSeries;
+	ArrayList<String> 				listValueNames;		//List of names for numerical series
+	ArrayList<Integer> 				listNumValues;
+	ArrayList<ArrayList<MCMCTree>> 	listTreeSeries;
+	ArrayList<String> 				listTreeNames;		//List of names for tree series
+	ArrayList<Integer> 				listNumTrees;
 
+	/* **************************************************************************** *
+	 * 							CLASS CONSTRUCTORS									*
+	 * **************************************************************************** */
+	public MCMCDataContainer(){
+		listSerietype 		= new ArrayList<SerieType>();	//List of parameter types
+		listValueSeries 	= new ArrayList<List<Double>>();
+		listValueNames 		= new ArrayList<String>();		//List of names for numerical series
+		listNumValues 		= new ArrayList<Integer>();
+		listTreeSeries 		= new ArrayList<ArrayList<MCMCTree>>();
+		listTreeNames 		= new ArrayList<String>();		//List of names for tree series
+		listNumTrees 		= new ArrayList<Integer>();
+	}
+	
+	/* **************************************************************************** *
+	 * 							CLASS PUBLIC FUNCTIONS								*
+	 * **************************************************************************** */	
 	public void addSerieType(SerieType type) {
 		listSerietype.add(type);
 		numSeries++;
@@ -67,10 +67,6 @@ public class MCMCDataContainer {
 		listNumTrees.set(index, listNumTrees.get(index)+1);
 	}
 	
-	public void addTreeName(String name) {
-		listTreeNames.add(name);
-	}
-	
 	public void addNewValueSerie() {
 		listValueSeries.add(new ArrayList<Double>());
 		listNumValues.add(0);
@@ -87,14 +83,13 @@ public class MCMCDataContainer {
 		listNumValues.set(index, listNumValues.get(index)+1);
 	}
 	
-	public void addValueName(String name) {
-		listValueNames.add(name);
+	public void removeSerie(int index) {
+		listValueSeries.remove(index);
+		listValueNames.remove(index);
+		numValueSeries--;
 	}
 	
-	/*
-	 * getSubDataContainer: Returns part of datacontainer. 
-	 * WARNING: Incomplete
-	 */
+	/** getSubDataContainer: Returns part of datacontainer. WARNING: Incomplete */
 	public MCMCDataContainer getSubDataContainer(int first, int last) {
 		MCMCDataContainer datacontainer = new MCMCDataContainer();
 		
@@ -115,31 +110,29 @@ public class MCMCDataContainer {
 		return datacontainer;
 	}
 	
-	public int getNumLines() {return numLines;}
+	public int getNumLines() 										{return numLines;}
+	public int getNumSeries() 										{return numSeries;}
+	public int getNumValues(int index) 								{return listNumValues.get(index);}
+	public int getNumValueSeries() 									{return numValueSeries;}	public String getFileName() 									{return fileName;}
+	public int getNumTrees(int index) 								{return listNumTrees.get(index);}
+	public int getNumTreeSeries() 									{return numTreeSeries;}
+	public ArrayList<SerieType> getSerieTypes() 					{return listSerietype;}
+	public ArrayList<List<Double>> getValueSeries() 				{return listValueSeries;}
+	public List<Double> getValueSerie(int index) 					{return listValueSeries.get(index);}
+	public ArrayList<ArrayList<MCMCTree>> getTreeSeries() 			{return listTreeSeries;}
+	public ArrayList<MCMCTree> getTreeSerie(int index) 				{return listTreeSeries.get(index);}
+	public ArrayList<String> getTreeNames() 						{return listTreeNames;}
+	public ArrayList<String> getValueNames() 						{return listValueNames;}
 	
-	public String getFileName() {return fileName;}
+	public void addTreeName		(String name) 						{listTreeNames.add(name);}
+	public void addValueName	(String name) 						{listValueNames.add(name);}
+	public void setNumLines		(int numLines)						{this.numLines = numLines;}
+	public void setFileName		(String fileName) 					{this.fileName = fileName;}
+	public void setSerieTypes	(ArrayList<SerieType> listSerietype){this.listSerietype = listSerietype;}
+	public void setNumSeries	(int numSeries) 					{this.numSeries = numSeries;}
+	public void setNumTreeSeries(int numTreeSeries) 				{this.numTreeSeries = numTreeSeries;}
 	
-	public ArrayList<SerieType> getSerieTypes() {return listSerietype;}
-	public int getNumSeries() {return numSeries;}
-	
-	public ArrayList<List<Double>> getValueSeries() {return listValueSeries;}
-	public List<Double> getValueSerie(int index) {return listValueSeries.get(index);}
-	public int getNumValues(int index) {return listNumValues.get(index);}
-	public int getNumValueSeries() {return numValueSeries;}
-	public ArrayList<String> getValueNames() {return listValueNames;}
-	
-	public ArrayList<ArrayList<MCMCTree>> getTreeSeries() {return listTreeSeries;}
-	public ArrayList<MCMCTree> getTreeSerie(int index) {return listTreeSeries.get(index);}
-	public int getNumTrees(int index) {return listNumTrees.get(index);}
-	public int getNumTreeSeries() {return numTreeSeries;}
-	public ArrayList<String> getTreeNames() {return listTreeNames;}
-	
-	public void setNumLines(int numLines) {this.numLines = numLines;}
-	public void setFileName(String fileName) {this.fileName = fileName;}
-	public void setSerieTypes(ArrayList<SerieType> listSerietype) {this.listSerietype = listSerietype;}
-	
-	public void setNumSeries(int numSeries) {this.numSeries = numSeries;}
-	
-	public void setNumTreeSeries(int numTreeSeries) {this.numTreeSeries = numTreeSeries;}
-	
+	/* **************************************************************************** *
+	 * 							END OF CLASS										*
+	 * **************************************************************************** */
 }
