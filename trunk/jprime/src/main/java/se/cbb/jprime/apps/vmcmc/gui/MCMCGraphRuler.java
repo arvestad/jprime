@@ -11,40 +11,34 @@ import javax.swing.JPanel;
 
 /**
  * MCMCGraphRuler: Draw ruler between values min and max.
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
- * 
- *	File version: 1.0
- *	VMCMC version: 1.0
- *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
  */
 public class MCMCGraphRuler extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	/* **************************************************************************** *
+	 * 							CLASS VARIABLES										*
+	 * **************************************************************************** */
+	private static final long 	serialVersionUID = 1L;
+	private double 				max;
+	private double 				min;
 	
-	private double max, min;
-	
-	MCMCGraphRuler() {
+	/* **************************************************************************** *
+	 * 							CLASS CONSTRUCTORS									*
+	 * **************************************************************************** */
+	public MCMCGraphRuler() {
 		this.setMaximumSize(new Dimension(50, this.getMaximumSize().height));
 		this.setPreferredSize(new Dimension(50, 0));
 	}
 	
+	/* **************************************************************************** *
+	 * 							CLASS PUBLIC FUNCTIONS								*
+	 * **************************************************************************** */
 	public void paint(Graphics g) {
-		g.setColor(new Color(0xFFEEEEFF));
-		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-		
 		double d = this.getHeight()/10;
 		double dv = (max-min)/8;
-		
 		final NumberFormat formatter = new DecimalFormat("0.####");
 		
+		g.setColor(new Color(0xFFEEEEFF));
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+				
 		for(int i=1; i<10; i++) {
 			g.setColor(Color.BLACK);
 			g.fillRect(0,(int) (i*d)+1, 5, 1);
@@ -54,7 +48,11 @@ public class MCMCGraphRuler extends JPanel {
 		}
 	}
 	
-	public void setMax(double max) {this.max = max;}
-	public void setMin(double min) {this.min = min;}
-	public double getMax() {return max;}
+	public void setMax(double max) 	{this.max = max;}
+	public void setMin(double min) 	{this.min = min;}
+	public double getMax() 			{return max;}
+	
+	/* **************************************************************************** *
+	 * 							END OF CLASS										*
+	 * **************************************************************************** */
 }

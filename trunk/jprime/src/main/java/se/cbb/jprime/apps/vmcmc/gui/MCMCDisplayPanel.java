@@ -20,28 +20,19 @@ import javax.swing.border.TitledBorder;
  * MCMCDisplayPanel: Panels with specific layout. Provides functionality for easy creation
  * and manipulation of multiple labels. Used for showing numerical calculations and information
  * about the files and parameters.
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
- * 
- *	File version: 1.0
- *	VMCMC version: 1.0
- *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
  */
 public class MCMCDisplayPanel extends JPanel{
-	/**
-	 * 
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS VARIABLES										*
+	 * **************************************************************************** */
 	private static final long serialVersionUID = 1L;
-	
 	private JLabel[] labelNames;
 	private JLabel[] labelValues;
 	public ArrayList<JLabel> labels = new ArrayList<JLabel>();
 
+	/* **************************************************************************** *
+	 * 							CLASS CONSTRUCTORS									*
+	 * **************************************************************************** */
 	public MCMCDisplayPanel(){
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setBackground(new Color(0xFFEEEEFF));
@@ -67,9 +58,10 @@ public class MCMCDisplayPanel extends JPanel{
 		this.setBorder(border);
 	}
 
-	/*
-	 * setupLabels: Creates description labels
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS PRIVATE FUNCTIONS								*
+	 * **************************************************************************** */
+	/** setupLabels: Creates description labels */
 	private void setupLabels(String[] nameArray) {
 		labelNames = new JLabel[nameArray.length];
 		labelValues = new JLabel[nameArray.length];
@@ -102,9 +94,10 @@ public class MCMCDisplayPanel extends JPanel{
 		}
 	}
 
-	/*
-	 * addComponents: Creates components from a given array of names 
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS PUBLIC FUNCTIONS								*
+	 * **************************************************************************** */
+	/** addComponents: Creates components from a given array of names */
 	public void addComponents(String[] nameArray, JComponent[] components) {
 		JPanel panel;
 		labelNames = new JLabel[nameArray.length];
@@ -113,9 +106,8 @@ public class MCMCDisplayPanel extends JPanel{
 		for(int i = 0; i < nameArray.length; i++) {
 			labelNames[i] = new JLabel(nameArray[i]);
 
-			if(components[i] instanceof JLabel) {
-				labelValues[i] = (JLabel) components[i];;
-			}
+			if(components[i] instanceof JLabel) 
+				labelValues[i] = (JLabel) components[i];
 
 			panel = new JPanel();
 
@@ -130,17 +122,12 @@ public class MCMCDisplayPanel extends JPanel{
 		}
 	}
 	
-	/*
-	 * addComponent: Creates single component
-	 */
+	/** addComponent: Creates single component */
 	public void addComponent(String name, Component component) {
-		JPanel panel;
-
-		panel = new JPanel();
+		JPanel panel = new JPanel();
 		
-		if(component instanceof JLabel) {
+		if(component instanceof JLabel) 
 			labels.add((JLabel) component);
-		}
 
 		panel.setPreferredSize(new Dimension(275, 18));
 		panel.setLayout(new GridLayout());
@@ -151,13 +138,11 @@ public class MCMCDisplayPanel extends JPanel{
 			label.setFont(new Font("arial", Font.BOLD, 11));
 			panel.add(label);
 		}
-		
 		panel.add(component);
 		this.add(panel);
 	}
-	/*
-	 * addJTextField: Used for burn-in text field.
-	 */
+	
+	/** addJTextField: Used for burn-in text field. */
 	public void addJTextField(String caption, JTextField field) {
 		JPanel panel = new JPanel();
 
@@ -171,22 +156,19 @@ public class MCMCDisplayPanel extends JPanel{
 		this.add(panel);
 	}
 
-	public JLabel getNameLabel(int index) {return this.labelNames[index];}
-	public JLabel getValueLabel(int index) {return labelValues[index];}
+	public JLabel getNameLabel	(int index) 	{return this.labelNames[index];}
+	public JLabel getValueLabel	(int index)		{return labelValues[index];}
 
-	/*
-	 * update: Used for updating the labels that show the numerical calculation results.
-	 */
-	public void update(String value, int index) {
-		labelValues[index].setText(value);
-	}
+	/** Update: Used for updating the labels that show the numerical calculation results.*/
+	public void update(String value, int index) {labelValues[index].setText(value);}
 
-	/*
-	 * update: Used for updating the burn-in text field.
-	 */
+	/** Update: Used for updating the burn-in text field. */
 	public void update(String[] values) {
-		for(int i = 0 ; i < labels.size(); i++){
+		for(int i = 0 ; i < labels.size(); i++)
 			labels.get(i).setText(values[i]);
-		}
 	}
+
+	/* **************************************************************************** *
+	 * 							END OF CLASS										*
+	 * **************************************************************************** */
 }

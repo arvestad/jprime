@@ -28,39 +28,25 @@ import java.lang.Math;
 
 /**
  * MCMCMainTab: Tab panel for the main tab. Central to all numerical analysis of a file.
- *	Created by: M Bark & J Mir� Arredondo (2010)
- *   E-mail: mikbar at kth dot se & jorgma at kth dot se
- *
- *   This file is part of the bachelor thesis "Verktyg f�r visualisering av MCMC-data" - VMCMC
- *	Royal Institute of Technology, Sweden
- * 
- *	File version: 1.0
- *	VMCMC version: 1.0
- *
- *	Modification history for this file:
- *	v1.0  (2010-06-15) First released version.
  */
 public class MCMCMainTab extends MCMCStandardTab {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	private MCMCGraphToolPanel graphtoolPanel;
-
-	private MCMCDisplayPanel filePanel;
-	private MCMCDisplayPanel mathPanel;
-	private MCMCDisplayPanel burninPanel;
-
-	private JComboBox droplist;
-	private JTextField burninField;
-
-	private Thread[] workerThreads;
-
-	private Lock displaypanelLock;
+	/* **************************************************************************** *
+	 * 							CLASS VARIABLES										*
+	 * **************************************************************************** */
+	private static final long 	serialVersionUID = 1L;
+	private MCMCGraphToolPanel 	graphtoolPanel;
+	private MCMCDisplayPanel 	filePanel;
+	private MCMCDisplayPanel 	mathPanel;
+	private MCMCDisplayPanel 	burninPanel;
+	private JComboBox 			droplist;
+	private JTextField 			burninField;
+	private Thread[] 			workerThreads;
+	private Lock 				displaypanelLock;
+	private double 				confidencelevel;
 	
-	private double confidencelevel;
-
+	/* **************************************************************************** *
+	 * 							CLASS CONSTRUCTORS									*
+	 * **************************************************************************** */
 	public MCMCMainTab() {
 		super();
 
@@ -96,9 +82,10 @@ public class MCMCMainTab extends MCMCStandardTab {
 		initDefaultButtons();
 	}
 	
-	/*
-	 * initDefaultButtons: Add default buttons for the bottom panel.
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS PRIVATE FUNCTIONS								*
+	 * **************************************************************************** */
+	/** initDefaultButtons: Add default buttons for the bottom panel.*/
 	private void initDefaultButtons() {
 		JButton clearTreeButton = new JButton("Clear Tree Markings");
 		clearTreeButton.setBackground(Color.WHITE);
@@ -115,10 +102,7 @@ public class MCMCMainTab extends MCMCStandardTab {
 		southPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 	}
 
-	/*
-	 * CreateDisplayPanels: Creates and adds panels responsible showing, file information,
-	 * statistics and burn in.
-	 */
+	/** CreateDisplayPanels: Creates and adds panels responsible showing, file information, statistics and burn in. */
 	private JPanel createDisplayPanels() {
 		JPanel panel = new JPanel();
 
@@ -129,7 +113,7 @@ public class MCMCMainTab extends MCMCStandardTab {
 		panel.setBackground(new Color(0xFFEEEEFF));
 
 		String[] paramnames = {"File Name:"};
-		String[] burninNames = {"Burn in:", "Enter burnin", "Estimated burnin (ESS): ", "Estimated burnin (Geweke): ", "Estimated burnin (Our): "};
+		String[] burninNames = {"Burn in:", "Enter burnin", "Est. burnin (ESS): ", "Est. burnin (Geweke): ", "Gelman-Rubin Est. : "};
 
 		JComponent[] burninComponents = {new JLabel(), burninField, new JLabel(), new JLabel(), new JLabel()};
 
@@ -142,12 +126,10 @@ public class MCMCMainTab extends MCMCStandardTab {
 					JOptionPane.showMessageDialog(new JFrame(), "Not a valid number. Only numbers 0-100 allowed.");
 				}
 
-				if(confidencelevel > 1.0) {
+				if(confidencelevel > 1.0)
 					confidencelevel = 1.0;
-				}
-				else if(confidencelevel < 0) {
+				else if(confidencelevel < 0)
 					confidencelevel = 0;
-				}
 
 				updateDisplayPanels();
 			}
@@ -194,57 +176,68 @@ public class MCMCMainTab extends MCMCStandardTab {
 		return panel;
 	}
 		
-	
-	/*
-	 * updateDisplayPanels: Will calculate, format and display information for each display 
-	 * panel in the left panel. 
-	 */
+	/* **************************************************************************** *
+	 * 							CLASS PUBLIC FUNCTIONS								*
+	 * **************************************************************************** */
+	/** updateDisplayPanels: Will calculate, format and display information for each display panel in the left panel. */
 	public void updateDisplayPanels(){
 		final NumberFormat formatter = new DecimalFormat("0.#####E0");
 
 		if(datacontainer != null) {
-			final Object[] serie = datacontainer.getValueSerie(seriesID).toArray();
-			String[] paramName = {datacontainer.getFileName()};
+			final Object[] serie 		= datacontainer.getValueSerie(seriesID).toArray();
+			String[] paramName 			= {datacontainer.getFileName()};
 
 			filePanel.update(paramName);
 			mathPanel.labels.get(7).setText(confidencelevel*100 + "%");
 
-			int numPoints = serie.length;	
-			final int numBurnInPoints = (int)(numPoints*burnin);		
+			int numPoints 				= serie.length;	
+			final int numBurnInPoints 	= (int)(numPoints*burnin);		
+			int ess;
+			int geweke;
+			boolean gelmanRubin;
 			
-			MCMCMath tests = new MCMCMath();
-			int ess = tests.calculateESS(serie);
-			int geweke = tests.calculateGeweke(serie);
-			boolean gelmanRubin = tests.GelmanRubinTest(serie, ess);
+			if(numPoints < 100) {
+				geweke 					= -2;
+				ess 					= -1;
+				gelmanRubin				= false;
+			} else {
+				ess 					= MCMCMath.calculateESS(serie);
+				geweke 					= MCMCMath.calculateGeweke(serie);
+				gelmanRubin 			= MCMCMath.GelmanRubinTest(serie, numBurnInPoints);
+			}
 
-			if(numPoints-numBurnInPoints != 0){
-			
+			if(numPoints-numBurnInPoints != 0) {
 				burninPanel.getValueLabel(0).setText(String.valueOf(numBurnInPoints));
-				burninPanel.getValueLabel(2).setText(String.valueOf(ess));
-				if (geweke != -1)
-					burninPanel.getValueLabel(3).setText(String.valueOf(geweke));
+				if (ess != -1)
+					burninPanel.getValueLabel(2).setText(String.valueOf(ess));
 				else
+					burninPanel.getValueLabel(2).setText(String.valueOf("Short Input"));
+				
+				if (geweke == -2)
+					burninPanel.getValueLabel(3).setText(String.valueOf("Short Input"));
+				else if(geweke == -1)
 					burninPanel.getValueLabel(3).setText(String.valueOf("Not Converged"));
+				else
+					burninPanel.getValueLabel(3).setText(String.valueOf(geweke));
+				
 				burninPanel.getValueLabel(4).setText(String.valueOf(gelmanRubin));
 				burninField.setText(String.valueOf(numBurnInPoints));				
 
-				for(int t=0; t<workerThreads.length; t++) {
+				for(int t=0; t<workerThreads.length; t++)
 					workerThreads[t].interrupt();
-				}
 				
-				final Double[] data = new Double[serie.length-numBurnInPoints];
+				final Double[] data 	= new Double[serie.length-numBurnInPoints];
 				System.arraycopy(serie, numBurnInPoints, data, 0, serie.length-numBurnInPoints);
 
 				//Thread updating arithmetic mean.
 				workerThreads[0] = new Thread() {
 					public void run() {
-
-						double values = 0;
+						double values 	= 0;
 
 						for(int i = 0; i < data.length; i++)
 							values+= (Double)data[i];
 
-						double result = values/data.length;
+						double result 	= values/data.length;
 
 						displaypanelLock.lock();
 						mathPanel.labels.get(0).setText(String.valueOf(formatter.format(result)));
@@ -280,8 +273,8 @@ public class MCMCMainTab extends MCMCStandardTab {
 				//Thread updating geometric mean
 				workerThreads[2] = new Thread() {
 					public void run() {
-						double values = 1;
-						double power = (double) 1/data.length;
+						double values 	= 1;
+						double power 	= (double) 1/data.length;
 
 						for(int i=0; i < data.length; i++)
 							values *= java.lang.Math.pow((Double)data[i],power);
@@ -313,8 +306,13 @@ public class MCMCMainTab extends MCMCStandardTab {
 				        for(int i = 0; i < numValues; i++ ) {
 				            sum += Math.pow(Math.log((Double)data[i]), 2);
 				        }
-				        double result = Math.abs(Math.exp(Math.sqrt(sum/(numValues-1) - ((numValues/(numValues-1))*Math.pow(Math.log(values),2)))));
-
+				        double result;
+				        if(numValues <= 1) {
+				        	result = 0;
+				        } else {
+				        	result = Math.abs(Math.exp(Math.sqrt(sum/(numValues-1) - ((numValues/(numValues-1))*Math.pow(Math.log(values),2)))));
+				        }
+				        
 						displaypanelLock.lock();
 						if(Double.isNaN(result))
 							mathPanel.labels.get(3).setText("NaN");
@@ -381,71 +379,69 @@ public class MCMCMainTab extends MCMCStandardTab {
 				//Thread updating bayesian confidence interval
 				workerThreads[7] = new Thread() {
 					public void run() {
-						double values = 0;
+						Arrays.sort(data);
+						
+						double values 		= 0;
 
 						for(int i = 0; i < data.length; i++)
-							values+= (Double)data[i];
-
-						double aritMean = values/data.length;
+							values			+= (Double)data[i];
 						
-						Arrays.sort(data);
-						double comp, nearest=(Double)data[0];
-						int equalStart = 0, equalEnd = 0, tempHolder;
+						double aritMean 	= values/data.length;
+						double comp;
+						double nearest		=(Double)data[0];
+						int equalStart 		= 0;
+						int equalEnd 		= 0;
+						int tempHolder;
 
-						for(int i = 0; i < data.length-1; i++){
-
+						for(int i = 0; i < data.length-1; i++) {
 							comp = Math.abs(aritMean-nearest) - Math.abs(aritMean-(Double)data[i+1]);
-							if(comp > 0) {nearest = (Double)data[i+1]; equalStart = i+1;}
-							if(comp == 0){equalEnd = i+1;}
+							if(comp > 0) {
+								nearest	 	= (Double)data[i+1]; 
+								equalStart 	= i+1;
+							}
+							if(comp == 0) 
+								equalEnd 	= i+1;
 						}
 						if(equalEnd == 0)
-							tempHolder = equalStart;
+							tempHolder 		= equalStart;
 						else
-							tempHolder = equalStart + (equalEnd - equalStart)/2;
-						double[] start = {nearest, tempHolder};
-						
-						int intervalLength = (int) ((double)(data.length)*(confidencelevel));
+							tempHolder 		= equalStart + (equalEnd - equalStart)/2;
 
-						int startPos = (int)start[1]; 
-						double startNum = start[0];
-						int leftIndex = startPos-1, rightIndex = startPos+1;
-						double tempHolder1, tempHolder2;
+						double[] start 		= {nearest, tempHolder};
+						int intervalLength 	= (int) ((double)(data.length)*(confidencelevel));
+						int startPos 		= (int)start[1]; 
+						int leftIndex 		= startPos-1;
+						int rightIndex 		= startPos+1;
+						double startNum 	= start[0];
+						double tempHolder1;
+						double tempHolder2;
 
-						if(data.length == 0) 
-						{
-							tempHolder1 = Double.NaN;
-							tempHolder2 = Double.NaN;
+						if(data.length == 0) {
+							tempHolder1 	= Double.NaN;
+							tempHolder2 	= Double.NaN;
 							double[] result = {tempHolder1, tempHolder2};
 
 							displaypanelLock.lock();
 							mathPanel.labels.get(8).setText(String.valueOf(result[0] + " ; " + result[1]));
 							displaypanelLock.unlock();
-						}
-						else if(data.length == 1)
-						{
-							tempHolder1 = (Double) data[0];
-							tempHolder2 = (Double) data[0];
+						} else if(data.length == 1) {
+							tempHolder1 	= (Double) data[0];
+							tempHolder2 	= (Double) data[0];
 							double[] result = {tempHolder1, tempHolder2};
 
 							displaypanelLock.lock();
 							mathPanel.labels.get(8).setText(String.valueOf(result[0] + " ; " + result[1]));
 							displaypanelLock.unlock();
-						}
-						else if(data.length == 2) 
-						{
-							tempHolder1 = (Double) data[0];
-							tempHolder2 = (Double) data[1];
+						} else if(data.length == 2) {
+							tempHolder1 	= (Double) data[0];
+							tempHolder2 	= (Double) data[1];
 							double[] result = {tempHolder1, tempHolder2};
 
 							displaypanelLock.lock();
 							mathPanel.labels.get(8).setText(String.valueOf(result[0] + " ; " + result[1]));
 							displaypanelLock.unlock();
-						}	
-						else
-						{
-							for(int i = 0 ; i < intervalLength ; i++) 
-							{
-
+						} else {
+							for(int i = 0 ; i < intervalLength ; i++) {
 								if(leftIndex == 0)
 									if(rightIndex < data.length-1)
 										rightIndex++;
@@ -455,9 +451,7 @@ public class MCMCMainTab extends MCMCStandardTab {
 										leftIndex--;
 
 								if(leftIndex > 0 && Math.abs((Double)data[leftIndex] - startNum) <= Math.abs((Double)data[rightIndex] - startNum))
-								{
 									leftIndex--;
-								}
 								else if(rightIndex < data.length-1 && Math.abs((Double)data[leftIndex] - startNum) > Math.abs((Double)data[rightIndex] - startNum))
 									rightIndex++;
 							}
@@ -470,10 +464,9 @@ public class MCMCMainTab extends MCMCStandardTab {
 					}
 				};
 				workerThreads[7].start();
-			}
-			else{
+			} else {
 				//If burn in includes all data points set the following default values:
-				String[] values = {"0","0","0","0", "0", "0", "0",  String.valueOf(confidencelevel*100 + "%"), "0 ; 0"};
+				String[] values 			= {"0","0","0","0", "0", "0", "0",  String.valueOf(confidencelevel*100 + "%"), "0 ; 0"};
 				mathPanel.update(values);
 
 				burninPanel.getValueLabel(0).setText(String.valueOf(numPoints));
@@ -482,10 +475,14 @@ public class MCMCMainTab extends MCMCStandardTab {
 		}
 	}
 
-	public MCMCDisplayPanel getFilePanel() {return filePanel;}
-	public MCMCDisplayPanel getMathPanel() {return mathPanel;}
-	public MCMCDisplayPanel getBurnInPanel() {return burninPanel;}
-	public JComboBox getDropList() {return droplist;}
-	public JTextField getBurnInField() {return burninField;}
-	public MCMCGraphToolPanel getGraphTool() {return graphtoolPanel;}
+	public MCMCDisplayPanel getFilePanel() 		{return filePanel;}
+	public MCMCDisplayPanel getMathPanel() 		{return mathPanel;}
+	public MCMCDisplayPanel getBurnInPanel() 	{return burninPanel;}
+	public JComboBox getDropList() 				{return droplist;}
+	public JTextField getBurnInField() 			{return burninField;}
+	public MCMCGraphToolPanel getGraphTool() 	{return graphtoolPanel;}
+	
+	/* **************************************************************************** *
+	 * 							END OF CLASS										*
+	 * **************************************************************************** */
 }

@@ -19,7 +19,6 @@ import org.biojava3.core.sequence.template.Sequence;
 import org.biojava3.core.util.ConcurrencyTools;
 import org.biojava3.phylo.ProgessListenerStub;
 import org.biojava3.phylo.TreeConstructionAlgorithm;
-import org.biojava3.phylo.TreeConstructor;
 import org.biojava3.phylo.TreeType;
 
 import se.cbb.jprime.io.NewickTree;
@@ -147,6 +146,7 @@ public class NeighbourJoiningTreeGenerator {
 	    	nw = nw.replaceAll(name.getKey(), name.getValue());
 	    }
 	    return nw;
+		//return null;
 	}
 	
 	/**
