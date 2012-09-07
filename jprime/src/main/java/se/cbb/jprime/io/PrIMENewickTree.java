@@ -55,7 +55,7 @@ public class PrIMENewickTree extends NewickTree {
 		VERTEX_WEIGHTS   ("NW=\"?([0-9\\+\\-\\.e]+)\"?"),
 		VERTEX_TIMES     ("NT=\"?([0-9\\+\\-\\.e]+)\"?"),
 		ARC_TIMES        ("ET=\"?([0-9\\+\\-\\.e]+)\"?"),
-		IS_DUPLICATION   ("DUP=\"?(\\w+)\"?");
+		IS_DUPLICATION   ("\\sD=\"?([0-9]+)\"?");
 		
 		public static final String REGEXP_PREFIX = "\\[&&PRIME [^\\]]*";
 		public static final String REGEXP_SUFFIX = "[^\\]]*\\]";
@@ -238,7 +238,8 @@ public class PrIMENewickTree extends NewickTree {
 		}
 		val = MetaProperty.IS_DUPLICATION.getValue(meta);
 		if  (val != null) {
-			setDuplicationFlag(x, Integer.parseInt(val));
+			int dupval = Integer.parseInt(val);
+			setDuplicationFlag(x, dupval==1 ? 0: 1);
 		}
 	}
 	
