@@ -82,7 +82,7 @@ public class MSAData implements InfoProvider {
 		int i = 0;
 		for (Entry<String, ? extends Sequence<? extends Compound>> seq : sequences.entrySet()) {
 			// HACK: Apparently, some BioJava helpers will hash a sequence on accession plus more,
-			// (at least for FASTA), so we truncate after the first encountered word, and hope its the ID.
+			// (at least for FASTA), so we truncate after the first encountered word, and hope it's the ID.
 			String name = seq.getKey().trim().split("[,\\s]+")[0];
 			this.addData(name, seq.getValue().getSequenceAsString(), i);
 			i++;
