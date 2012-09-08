@@ -84,8 +84,8 @@ public class Delirious {
 						"References:\n" +
 						"    Simultaneous Bayesian gene tree reconstruction and reconciliation analysis,\n" +
 						"    Akerborg et al., PNAS, 2009.\n\n" +
-						"URL: http://code.google.com/p/jprime/wiki/DLRS\n\n" +
-						"License: JPrIME and accompanying apps are available under the New BSD License.\n" +
+						"Releases, source code and tutorial: http://code.google.com/p/jprime/wiki/DLRS\n\n" +
+						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +
 						"    java -cp jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious [options] <args>\n");
