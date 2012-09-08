@@ -393,3 +393,7 @@ A6) No, not at this point. Only empirical and fixed-parameter substitution model
 *Q7) Does Delirious support separate partitions of MSA data corresponding to multiple loci (having separate substitution models / parameters)?*
 
 A7) No, not yet, although this may be included in the future.
+
+*Q8) How do I set the stem edge time and discretisation density?*
+
+A8) The time of the stem edge should be set to some reasonable
