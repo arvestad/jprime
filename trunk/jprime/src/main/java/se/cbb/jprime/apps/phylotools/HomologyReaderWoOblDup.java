@@ -173,15 +173,14 @@ public class HomologyReaderWoOblDup {
                     if (token.length == 1)
                         trueFile = token[0].trim();
                     else
-                        trueFile = token[4].trim();
+                        trueFile = token[token.length-1].trim();
                     bw.write(trueFile);
-                    bw.flush();
-                    bw.close();
-                    buf.close();
-
+                    bw.flush();                    
                     // return gfileName;
                 }
             }
+            bw.close();
+            buf.close();
         } catch (Exception ex) {
             System.err.println("Error in reading reconciliation file");
             System.err.println("Reason: " + ex.getMessage());
@@ -212,7 +211,6 @@ public class HomologyReaderWoOblDup {
     }
 
     private String getLeafIdsRecursive(NewickVertex vertex) {
-        // TODO Auto-generated method stub
         if (vertex.isLeaf())
             return vertex.getNumber() + "";
         else {
