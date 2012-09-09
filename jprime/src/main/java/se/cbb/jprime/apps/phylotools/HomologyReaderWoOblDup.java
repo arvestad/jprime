@@ -107,16 +107,22 @@ public class HomologyReaderWoOblDup {
     }
 
     private void findNonObligateVertices(String trueFile)
-            throws IOException, NewickIOException {
-        String mprOutFile = (new File(".")).getCanonicalPath() + "/mpr.out";
+            throws IOException, NewickIOException {    	
         String dirPath = trueFile.substring(0, trueFile.lastIndexOf('/')) + "/";
         String inputTree = trueFile.substring(trueFile.lastIndexOf('/')+1);
-        String geneTree = dirPath + inputTree.substring(0, inputTree.lastIndexOf('.')) + ".tree";        
+        String commonPrefix = inputTree.substring(0, inputTree.lastIndexOf('.'));
+        String geneTree = dirPath + commonPrefix + ".tree";        
         String specieTree = dirPath + "abca.stree";
         String gsFile = specieTree + "_" + inputTree.substring(0,inputTree.lastIndexOf('.')) + ".tree.gs";
+        String mprOutFile = dirPath + commonPrefix + ".mprvertices";
         String command = "mprOrthology " + geneTree + " ";
         command += specieTree + " " + gsFile + " " + mprOutFile;
         String waitMessage = "Please wait while MPR computations are done...";
+        
+        File mprf = new File(mprOutFile);
+        if(mprf.exists())
+        	mprf.delete();
+        
         executeProgram("", command, waitMessage);
 
         File gFile = new File(mprOutFile);
