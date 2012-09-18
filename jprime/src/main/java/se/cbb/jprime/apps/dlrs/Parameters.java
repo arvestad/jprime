@@ -11,6 +11,7 @@ import com.beust.jcommander.Parameter;
  * Handles all regular application parameters.
  * 
  * @author Joel Sjöstrand.
+ * @author Vincent Llorens.
  */
 public class Parameters {
 
@@ -117,6 +118,11 @@ public class Parameters {
 	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix branch lengths of guest tree.")
 	public Boolean lengthsFixed = false;
 	
+	/** Maximum no of implied losses for a viable placement. */
+	@Parameter(names = {"-maxlosses", "--maximpliedlosses"}, description = "Maximum allowed no. of implied losses for a duplication placement to " +
+			"be considered viable.")
+	public Integer maxLosses = 3;
+	
 	/** Sample guest trees among a fixed set of Newick trees. */
 	@Parameter(names = {"-gtset", "--guesttreeset"}, description = "Sample guest trees among a fixed set of Newick trees in the specified <file>.")
 	public String guestTreeSet = null;
@@ -198,11 +204,11 @@ public class Parameters {
 	/** Tuning parameter: duplication rate proposer weight. */
 	@Parameter(names = {"-tngwdup", "--tuningweightduplicationrate"}, description = "Tuning parameter: Relative activation weight for duplication rate proposer" +
 			" as [w_start,w_end], where start and end refer to the first and last iteration respectively.")
-	public String tuningWeightDupRate = "[2.0,2.0]";
+	public String tuningWeightDupRate = "[1.0,1.0]";
 	
 	/** Tuning parameter: loss rate proposer weight. */
 	@Parameter(names = {"-tngwloss", "--tuningweightlossrate"}, description = "Tuning parameter: Relative activation weight for loss rate proposer.")
-	public String tuningWeightLossRate = "[2.0,2.0]";
+	public String tuningWeightLossRate = "[1.0,1.0]";
 	
 	/** Tuning parameter: edge rate mean proposer weight. */
 	@Parameter(names = {"-tngwerm", "--tuningweightedgeratemean"}, description = "Tuning parameter: Relative activation weight for edge rate mean proposer.")
@@ -214,7 +220,7 @@ public class Parameters {
 	
 	/** Tuning parameter: site rate shape proposer weight. */
 	@Parameter(names = {"-tngwsrshape", "--tuningweightsiterateshape"}, description = "Tuning parameter: Relative activation weight for site rate shape proposer.")
-	public String tuningWeightSiteRateShape = "[0.5,0.5]";
+	public String tuningWeightSiteRateShape = "[0.25,0.25]";
 	
 	/** Tuning parameter: guest tree proposer weight. */
 	@Parameter(names = {"-tngwg", "--tuningweightguesttree"}, description = "Tuning parameter: Relative activation weight for guest tree topology proposer.")

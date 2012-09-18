@@ -63,6 +63,7 @@ import se.cbb.jprime.topology.UniformRBTreeGenerator;
  * A bit messy, code-wise.
  * 
  * @author Joel Sjöstrand.
+ * @author Vincent Llorens.
  */
 public class ParameterParser {
 
@@ -508,6 +509,21 @@ public class ParameterParser {
 	public static LinearProposerWeight getProposerWeight(String weights, Iteration iter) {
 		double[] ws = SampleDoubleArray.toDoubleArray(weights);
 		return new LinearProposerWeight(iter, ws[0], ws[1]);
+	}
+
+	/**
+	 * Returns a reconciliation helper.
+	 * @param params parameters.
+	 * @param g guest tree.
+	 * @param s host tree.
+	 * @param dtimes disc. times.
+	 * @param mprMap MPR map.
+	 * @return the helper.
+	 */
+	public static ReconciliationHelper getReconciliationHelper(
+			Parameters params, RBTree g, RBTree s, RBTreeArcDiscretiser dtimes,
+			MPRMap mprMap) {
+		return new ReconciliationHelper(g, s, dtimes, mprMap, params.maxLosses);
 	}
 	
 }

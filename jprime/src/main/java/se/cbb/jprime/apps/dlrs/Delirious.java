@@ -82,8 +82,10 @@ public class Delirious {
 						"is a known species tree with divergence times and a multiple sequence alignment,\n" +
 						"and the output is a posterior distribution over gene trees and model parameters.\n\n" +
 						"References:\n" +
+						"    DLRS: Gene tree evolution in light of a species tree,\n" +
+						"    Sjostrand et al., Bioinformatics, 2012, doi: 10.1093/bioinformatics/bts548.\n\n" +
 						"    Simultaneous Bayesian gene tree reconstruction and reconciliation analysis,\n" +
-						"    Akerborg et al., PNAS, 2009.\n\n" +
+						"    Akerborg et al., PNAS, 2009, doi: 10.1073/pnas.0806251106.\n\n" +
 						"Releases, source code and tutorial: http://code.google.com/p/jprime/wiki/DLRS\n\n" +
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
@@ -151,6 +153,9 @@ public class Delirious {
 			// Create discretisation of S.
 			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.third, gNamesLengths.first);
 			
+			// Create reconciliation helper.
+			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
+			
 			// Duplication-loss probabilities over discretised S.
 			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
 			
@@ -166,7 +171,7 @@ public class Delirious {
 			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true);
 			
 			// DLRS model.
-			DLRSModel dlrs = new DLRSModel(gNamesLengths.first, sNamesTimes.first, mprMap, gNamesLengths.third, dtimes, dupLoss.third, edgeRatePD.third);
+			DLRSModel dlrs = new DLRSModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
 			
 			// Proposers.
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);

@@ -46,10 +46,11 @@ public class TestDLRSModel {
 		NamesMap gNames = gRaw.getVertexNamesMap(false, "G.names");
 		url = this.getClass().getResource("/phylogenetics/simple.09.to.simple.05.gs");
 		MPRMap gsMap = new MPRMap(GuestHostMapReader.readGuestHostMap(new File(url.getFile())), g, gNames, s, sNames);
+		ReconciliationHelper rHelper = new ReconciliationHelper(g, s, times, gsMap, 100);
 		DoubleMap lengths = new DoubleMap("Lengths", g.getNoOfVertices(), 0.1);
 		GammaDistribution pd = new GammaDistribution(new DoubleParameter("m", 0.1),
 				new DoubleParameter("v", 0.05));
-		DLRSModel mod = new DLRSModel(g, s, gsMap, lengths, times, dupLoss, pd);
+		DLRSModel mod = new DLRSModel(g, s, rHelper, lengths, dupLoss, pd);
 		//System.out.println(mod);
 		//TODO: We could use better tests on more realistic data.
 		assertTrue(mod != null);

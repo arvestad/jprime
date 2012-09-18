@@ -8,12 +8,8 @@ import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.Model;
-import se.cbb.jprime.misc.IntPair;
 import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
-import se.cbb.jprime.topology.IntMap;
-import se.cbb.jprime.topology.MPRMap;
-import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
 
@@ -45,27 +41,17 @@ public class DLRSModel implements Model {
 	/** The host tree S. */
 	protected RootedBifurcatingTreeParameter s;
 	
-	/** G-S reconciliation info. */
-	protected MPRMap gsMap;
+	/** Reconciliations helper. */
+	protected ReconciliationHelper reconcHelper;
 	
 	/** The branch lengths l. */
 	protected DoubleMap lengths;
-	
-	/** The divergence times t for the discretised tree S'. */
-	protected RBTreeArcDiscretiser times;
 	
 	/** P11 and similar info. */
 	protected DupLossProbs dupLossProbs;
 	
 	/** Substitution rate distribution. */
 	protected Continuous1DPDDependent substPD;
-	
-	/**
-	 * For each vertex u of G, the lowermost placement x_i in S where u can be placed.
-	 * HACK: Right now we store the tuple x_i as a single int, with x in the rightmost
-	 * bits, and i shifted 16 bits to the left.
-	 */
-	protected IntMap loLims;
 	
 	/**
 	 * Probability of rooted subtree G_u for each valid placement of u in S'.
@@ -82,23 +68,20 @@ public class DLRSModel implements Model {
 	 * Constructor.
 	 * @param g the guest tree G.
 	 * @param s the host tree S.
-	 * @param gsMap the guest-to-host leaf map.
+	 * @param reconcHelper the reconciliations helper.
 	 * @param lengths the branch lengths of G.
-	 * @param times the times (and discretisation) of S.
 	 * @param dupLossProbs the duplication-loss probabilities over discretised S.
 	 * @param substPD the iid rate probability distribution over arcs of G,
 	 *  (relaxing the molecular clock).
 	 */
-	public DLRSModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, MPRMap gsMap,
-			DoubleMap lengths, RBTreeArcDiscretiser times, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD) {
+	public DLRSModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
+			DoubleMap lengths, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD) {
 		this.g = g;
 		this.s = s;
-		this.gsMap = gsMap;
+		this.reconcHelper = reconcHelper;
 		this.lengths = lengths;
-		this.times = times;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
-		this.loLims = new IntMap("DLRS.lolims", g.getNoOfVertices());
 		this.ats = new DoubleArrayMap("DLRS.ats", g.getNoOfVertices());
 		this.belows = new DoubleArrayMap("DLRS.belows", g.getNoOfVertices());
 				
@@ -108,16 +91,15 @@ public class DLRSModel implements Model {
 	
 	@Override
 	public Dependent[] getParentDependents() {
-		return new Dependent[] {this.g, this.s, this.gsMap, this.lengths, this.times, this.dupLossProbs, this.substPD };
+		return new Dependent[] {this.g, this.s, this.reconcHelper, this.lengths, this.dupLossProbs, this.substPD };
 	}
 
 	@Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
 		ChangeInfo gci = changeInfos.get(this.g);
 		ChangeInfo sci = changeInfos.get(this.s);
-		ChangeInfo gsci = changeInfos.get(this.gsMap);
+		ChangeInfo rhci = changeInfos.get(this.reconcHelper);
 		ChangeInfo lci = changeInfos.get(this.lengths);
-		ChangeInfo tci = changeInfos.get(this.times);
 		ChangeInfo dpci = changeInfos.get(this.dupLossProbs);
 		ChangeInfo rci = changeInfos.get(this.substPD);
 
@@ -125,7 +107,7 @@ public class DLRSModel implements Model {
 		// time perturbations involved, possibly combined with length perturbations.
 		// However, it is easy to make algorithmic mistakes in such situations,
 		// so at the only moment solitary length changes result in a partial DP update.
-		if (gci == null && sci == null && gsci == null && tci == null && dpci == null && rci == null) {
+		if (gci == null && sci == null && rhci == null && dpci == null && rci == null) {
 			if (lci != null && lci.getAffectedElements() != null) {
 				// Only certain branch lengths have changed. We do a partial update.
 				
@@ -135,14 +117,12 @@ public class DLRSModel implements Model {
 				this.partialUpdate(affected);
 				changeInfos.put(this, new ChangeInfo(this, "Partial DLRS update", affected));
 			} else if (lci != null) {
-				this.loLims.cache(null);
 				this.ats.cache(null);
 				this.belows.cache(null);
 				this.fullUpdate();
 				changeInfos.put(this, new ChangeInfo(this, "Full DLRS update."));
 			}
 		} else {
-			this.loLims.cache(null);
 			this.ats.cache(null);
 			this.belows.cache(null);
 			this.fullUpdate();
@@ -152,14 +132,12 @@ public class DLRSModel implements Model {
 
 	@Override
 	public void clearCache(boolean willSample) {
-		this.loLims.clearCache();
 		this.ats.clearCache();
 		this.belows.clearCache();
 	}
 
 	@Override
 	public void restoreCache(boolean willSample) {
-		this.loLims.restoreCache();
 		this.ats.restoreCache();
 		this.belows.restoreCache();
 	}
@@ -184,99 +162,22 @@ public class DLRSModel implements Model {
 		return new LogDouble(this.belows.get(this.g.getRoot(), 0));
 	}
 	
-	/**
-	 * Recursively computes the lowermost viable placement of each guest tree vertex.
-	 * @param u the subtree of G rooted at u.
-	 */
-	protected void updateLoLims(int u) {
-		
-		// HACK: At the moment we store a point x_i in a single int v by having x in the
-		// rightmost bits, and i shifted 16 bits left.
-		// Insert thus:   v = x + (i << 16);
-		// Extract thus:  x = (v << 16) >>> 16;   i = v >>> 16;
-		
-		int sigma = this.gsMap.getSigma(u);
-
-		if (this.g.isLeaf(u)) {
-			this.loLims.set(u, sigma + (0 << 16));
-		} else {
-			int lc = this.g.getLeftChild(u);
-			int rc = this.g.getRightChild(u);
-
-			// Update children first.
-			this.updateLoLims(lc);
-			this.updateLoLims(rc);
-
-			int lcLo = this.loLims.get(lc);
-			int rcLo = this.loLims.get(rc);
-
-			// Set the lowest point above the left child to begin with.
-			IntPair lo = new IntPair((lcLo << 16) >>> 16, (lcLo >>> 16) + 1);
-
-			// Start at the left child.
-			int curr = lo.first;
-
-			// Start at the lowest placement of the left child and move
-			// on the path from u towards the root.
-			while (curr != RootedBifurcatingTreeParameter.NULL) {
-				// If we are at sigma(u) and we haven't marked it as
-				// the lowest point of u, do so.
-				if (curr == sigma && lo.first != sigma) {
-					lo = new IntPair(sigma, 0);
-				}
-
-				// If we are at the same lowest edge as the right child.
-				if (curr == ((rcLo << 16) >>> 16)) {
-					if (lo.first == curr) {
-						// u also has this edge as its lowest point.
-						lo = new IntPair(lo.first, Math.max(lo.second, (rcLo >>> 16) + 1));
-						break;
-					}
-					else {
-						// The right child is higher up in the tree
-						// than the left child.
-						lo = new IntPair((rcLo << 16) >>> 16, (rcLo >>> 16) + 1);
-						break;
-					}
-				}
-
-				curr = this.s.getParent(curr);
-			}
-
-			// If we have moved outside edge's points, choose next pure disc. pt.
-			if (lo.second > this.times.getNoOfSlices(lo.first)) {
-				lo = new IntPair(this.s.getParent(lo.first), 1);
-				if (lo.first == RootedBifurcatingTreeParameter.NULL) {
-					throw new RuntimeException("Insufficient no. of discretization points.\n" +
-	        				      "Try using denser discretization for 1) top edge, 2) remaining vertices.");
-				}
-			}
-			this.loLims.set(u, lo.first + (lo.second << 16));
-		}
-	}
+	
 	
 	/**
-	 * Recursively creates (thus clearing) the DP data structures.
-	 * Precondition: upper limits must be up-to-date.
+	 * Creates (and thus clears) the DP data structures.
 	 * @param u the root of the subtree of G.
 	 * @param noOfAncestors the number of ancestors of u.
 	 */
-	protected void clearAtsAndBelows(int u, int noOfAncestors) {
-		if (this.g.isLeaf(u)) {
-			this.ats.set(u, new double[1]);
-			this.belows.set(u, new double[this.ats.get(this.g.getParent(u)).length]);
-		} else {
-			int x = (this.loLims.get(u) << 16) >>> 16;
-			int i = this.loLims.get(u) >>> 16;
-			int cnt = this.times.getNoOfSlicesForRootPath(x) - i + 1 - noOfAncestors;
-			this.ats.set(u, new double[cnt]);			
+	protected void clearAtsAndBelows() {
+		int[] nos = this.reconcHelper.getNoOfPlacements();
+		for (int u = 0; u < this.g.getNoOfVertices(); ++u) {
+			this.ats.set(u, new double[nos[u]]);
 			if (this.g.isRoot(u)) {
-				this.belows.set(u, new double[1]);
+				this.belows.set(u, new double[1]);  // Only tip of host tree.
 			} else {
-				this.belows.set(u, new double[this.ats.get(this.g.getParent(u)).length]);
-			}
-			this.clearAtsAndBelows(this.g.getLeftChild(u), noOfAncestors + 1);
-			this.clearAtsAndBelows(this.g.getRightChild(u), noOfAncestors + 1);
+				this.belows.set(u, new double[nos[this.g.getParent(u)]]);
+			}	
 		}
 	}
 	
@@ -285,8 +186,7 @@ public class DLRSModel implements Model {
 	 */
 	protected void fullUpdate() {
 		int r = this.g.getRoot();
-		this.updateLoLims(r);
-		this.clearAtsAndBelows(r, 0);
+		this.clearAtsAndBelows();
 		this.updateAtProbs(r, true);
 	}
 	
@@ -323,8 +223,7 @@ public class DLRSModel implements Model {
 			}
 
 			// Retrieve placement start.
-			int x = (this.loLims.get(u) << 16) >>> 16;  // Current arc.
-			int xi = this.loLims.get(u) >>> 16;         // Current arc index.
+			int[] x_i = this.reconcHelper.getLoLim(u);
 			int idx = 0;                                // No. of processed viable placements.
 
 			double[] uAts = this.ats.get(u);
@@ -332,23 +231,18 @@ public class DLRSModel implements Model {
 			double[] rcBelows = this.belows.get(rc);
 			
 			// First placement might correspond to a speciation.
-			if (xi == 0) {
+			if (x_i[1] == 0) {
 				uAts[0] = lcBelows[0] * rcBelows[0];
 				++idx;
-				++xi;
+				++x_i[1];
 			}
 			
 			// Remaining placements correspond to duplications for sure.
 			for (; idx < uAts.length; ++idx) {
 				uAts[idx] = lcBelows[idx] * rcBelows[idx] *
-					2 * this.dupLossProbs.getDuplicationRate() * this.times.getSliceTime(x);
+					2 * this.dupLossProbs.getDuplicationRate() * this.reconcHelper.getSliceTime(x_i);
 				// Move onto next pure discretisation point above.
-				if (xi == this.times.getNoOfSlices(x)) {
-					x = this.s.getParent(x);
-					xi = 1;
-				} else {
-					++xi;
-				}
+				this.reconcHelper.incrementPt(x_i);
 			}
 		}
 
@@ -371,46 +265,26 @@ public class DLRSModel implements Model {
 		double[] uBelows = this.belows.get(u);
 		
 		// Get limits.
-		int x;
-		int xi;
-		if (this.g.isRoot(u)) {
-			// Only very tip of host tree viable.
-			x = this.s.getRoot();
-			xi = this.times.getNoOfSlices(x) + 1;
-		} else {
-			x = (this.loLims.get(this.g.getParent(u)) << 16) >>> 16;
-			xi = this.loLims.get(this.g.getParent(u)) >>> 16;
-		}
+		int[] x_i = (this.g.isRoot(u) ? this.reconcHelper.getTipPt() : this.reconcHelper.getLoLim(this.g.getParent(u)));
 		
 		// For each x_i.
 		for (int xcnt = 0; xcnt < uBelows.length; ++xcnt) {
 			// Clear old value.
 			uBelows[xcnt] = 0.0;
 			// For each y_j strictly below x_i.
-			int y = (this.loLims.get(u) << 16) >>> 16;
-			int yj = this.loLims.get(u) >>> 16;
-			double xt = this.times.getDiscretisationTime(x, xi);
+			int[] y_j = this.reconcHelper.getLoLim(u);
+			double xt = this.reconcHelper.getDiscretisationTime(x_i);
 			for (int ycnt = 0; ycnt < uAts.length; ++ycnt) {
-				double yt = this.times.getDiscretisationTime(y, yj);
+				double yt = this.reconcHelper.getDiscretisationTime(y_j);
 				// Note: We now allow edge rates over stem arc as well.
 				double rateDens = this.substPD.getPDF(length / (xt - yt));
-				uBelows[xcnt] += rateDens * this.dupLossProbs.getP11Probability(x, xi, y, yj) * uAts[ycnt];
+				uBelows[xcnt] += rateDens * this.dupLossProbs.getP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]) * uAts[ycnt];
 				// Move y_j onto next pure discretisation point above.
-				if (yj == this.times.getNoOfSlices(y)) {
-					y = this.s.getParent(y);
-					yj = 1;
-				} else {
-					++yj;
-				}
-				if (y == x && yj >= xi) { break; }
+				this.reconcHelper.incrementPt(y_j);
+				if (y_j[0] == x_i[0] && y_j[1] >= x_i[1]) { break; }
 			}
 			// Move x_i onto next pure discretisation point above.
-			if (xi == this.times.getNoOfSlices(x)) {
-				x = this.s.getParent(x);
-				xi = 1;
-			} else {
-				++xi;
-			}
+			this.reconcHelper.incrementPt(x_i);
 		}
 	}
 	
@@ -420,10 +294,10 @@ public class DLRSModel implements Model {
 		sb.append("Guest tree vertex:\tLower limit:\tNo of placements:\tType:\tDP ats:\tDP belows:\n");
 		for (int u = 0; u < this.g.getNoOfVertices(); ++u) {
 			sb.append(u).append('\t');
-			sb.append((this.loLims.get(u) << 16) >>> 16).append('_').append(this.loLims.get(u) >>> 16).append('\t');
+			sb.append(this.reconcHelper.getLoLimAsString(u)).append('\t');
 			sb.append(this.ats.get(u).length).append('\t');
 			//sb.append((this.upLims.get(u) << 16) >>> 16).append('_').append(this.upLims.get(u) >>> 16).append('\t');
-			sb.append(this.g.isLeaf(u) ? "Leaf" : (this.gsMap.isDuplication(u) ? "Duplication" : "Speciation/duplication")).append('\t');
+			sb.append(this.g.isLeaf(u) ? "Leaf" : (this.reconcHelper.isDuplication(u) ? "Duplication" : "Speciation/duplication")).append('\t');
 			sb.append(Arrays.toString(this.ats.get(u))).append('\t');
 			sb.append(Arrays.toString(this.belows.get(u))).append('\n');
 		}
@@ -437,14 +311,15 @@ public class DLRSModel implements Model {
 		sb.append(prefix).append("Number of vertices of host tree: ").append(this.s.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("Number of vertices of guest tree: ").append(this.g.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("IID edge rate distribution: ").append(this.substPD.getName()).append('\n');
-		sb.append(prefix).append("Host tree discretization:\n");
-		sb.append(this.times.getPreInfo(prefix + '\t'));
+		sb.append(prefix).append("Reconciliation helper:\n");
+		sb.append(this.reconcHelper.getPreInfo(prefix + '\t'));
+		//sb.append(this.toString());
 		return sb.toString();
 	}
 
 	@Override
 	public String getPostInfo(String prefix) {
-		StringBuilder sb = new StringBuilder(1024);
+		StringBuilder sb = new StringBuilder(64);
 		sb.append(prefix).append("DLRS MODEL\n");
 		return sb.toString();
 	}
