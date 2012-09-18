@@ -43,16 +43,15 @@ public class HomologyReaderWoOblDup {
     }
 
     public void init(String[] args) throws IOException, NewickIOException {
-        if (args.length != 1) {
-            System.err
-                    .println("Usage: java -classpath jprime.jar se.cbb.jprime.apps.phylotools.GeneTreeHomologyReader gene_tree_name");
+        if (args.length != 2) {
+            System.err.println("Usage: java -classpath jprime.jar se.cbb.jprime.apps.phylotools.GeneTreeHomologyReader gene_tree_name specie_tree_name");
             System.out.println("Exiting now...");
             System.exit(1);
         }
 
         // compute non-obligate vertices via MPR
         // String mprPath = "treeFromMPR.tree";
-        findNonObligateVertices(args[0]);
+        findNonObligateVertices(args[0], args[1]);
         System.out.println("Input true reconciliation file is " + args[0]);
         String treepath = "treeFromReconFile.tree";
         parseTreeFromReconciliationFile(args[0], treepath);
@@ -106,13 +105,14 @@ public class HomologyReaderWoOblDup {
         return false;
     }
 
-    private void findNonObligateVertices(String trueFile)
+    private void findNonObligateVertices(String trueFile, String specieTree)
             throws IOException, NewickIOException {    	
         String dirPath = trueFile.substring(0, trueFile.lastIndexOf('/')) + "/";
         String inputTree = trueFile.substring(trueFile.lastIndexOf('/')+1);
         String commonPrefix = inputTree.substring(0, inputTree.lastIndexOf('.'));
         String geneTree = dirPath + commonPrefix + ".tree";        
-        String specieTree = dirPath + "abca.stree";
+        //String specieTree = dirPath + "abca.stree";
+        //String specieTree = spFile.substring(spFile.lastIndexOf('/')+1);
         String gsFile = specieTree + "_" + inputTree.substring(0,inputTree.lastIndexOf('.')) + ".tree.gs";
         String mprOutFile = dirPath + commonPrefix + ".mprvertices";
         String command = "mprOrthology " + geneTree + " ";
