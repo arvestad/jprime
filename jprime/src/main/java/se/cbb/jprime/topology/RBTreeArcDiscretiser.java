@@ -68,7 +68,8 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 	 * @param nmin minimum number of slices per arc.
 	 * @param nmax maximum number of slices per arc.
 	 * @param deltat approximate timestep. Not used if nmin==nmax.
-	 * @param nroot overriding exact number of slices for arc leading into root.
+	 * @param nroot overriding exact number of slices for arc leading into root. Set to 0 for
+	 * ordinary discretisation.
 	 */
 	public RBTreeArcDiscretiser(RBTree S, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
 		if (nmin <= 1 || nmax < nmin) {
@@ -79,7 +80,7 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 			throw new IllegalArgumentException("Invalid discretisation timestep for RBTreeDiscretiser.");
 		}
 		if (nmin == nmax) {
-			deltat = Integer.MAX_VALUE;
+			deltat = Double.MAX_VALUE;
 		}
 		this.S = S;
 		this.times = times;
@@ -318,9 +319,7 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(this.S.getNoOfVertices() * 1024);
-		
-		return sb.toString();
+		return this.getPreInfo("");
 	}
 
 	@Override
