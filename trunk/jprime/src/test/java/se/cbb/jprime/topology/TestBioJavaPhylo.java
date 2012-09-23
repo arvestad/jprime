@@ -25,6 +25,11 @@ public class TestBioJavaPhylo {
 	
 	@Test
 	public void testNJ() throws Exception {
+		
+		// NOTE: This class causes some forester jar-hell errors.
+		// It can probably be resolved if one just figures out a way
+		// to manually create the MSA instance without actually performing the alignment.
+		
 		// Create multialignment.
 /*		ProteinSequence p1 = new ProteinSequence(
 				"MNVILSVMLFSSPSCVNINSFDILIVGAGISGIVLANILANHNKRVLIVEKRDHIGGNCY" +

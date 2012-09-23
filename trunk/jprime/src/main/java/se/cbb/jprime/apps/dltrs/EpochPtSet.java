@@ -1,5 +1,9 @@
 package se.cbb.jprime.apps.dltrs;
 
+import java.util.List;
+
+import org.jfree.util.PublicCloneable;
+
 /**
  * Represents discretisation information on the part of a host tree spanning <b>one</b> epoch.
  * <p/>
@@ -20,7 +24,7 @@ package se.cbb.jprime.apps.dltrs;
  * 
  * @author Joel Sjöstrand.
  */
-public class EpochPtSet {
+public class EpochPtSet implements PublicCloneable {
 	
 	/** Vector of intersecting arcs in the epoch (defined via head vertex). */
 	private int[] m_arcs;
@@ -39,8 +43,12 @@ public class EpochPtSet {
 	 * @param noOfIvs the number of sub-intervals to slice epoch into.
 	 *        Must be greater than zero.
 	 */
-	public EpochPtSet(int[] arcs, double loTime, double upTime, int noOfIvs) {
-		m_arcs = arcs;
+	public EpochPtSet(List<Integer> arcs, double loTime, double upTime, int noOfIvs) {
+		m_arcs = new int[arcs.size()];
+		int i = 0;
+		for (int arc : arcs) {
+			m_arcs[i++] = arc;
+		}
 		m_times = new double[noOfIvs + 2];
 		m_timestep = (upTime - loTime) / noOfIvs;
 	
@@ -48,14 +56,26 @@ public class EpochPtSet {
 		
 		// Add times. Treat endpoints separately.
 		m_times[0] = loTime;
-		for (int i = 0; i < noOfIvs; ++i) {
+		for (i = 0; i < noOfIvs; ++i) {
 			m_times[i+1] = (loTime + m_timestep / 2.0 + i * m_timestep);
 		}
 		m_times[m_times.length-1] = upTime;
 	}
 	
 	/**
-	 * Returns the discretized times of the epoch including endpoints,
+	 * Copy-constructor.
+	 * @param orig original.
+	 */
+	public EpochPtSet(EpochPtSet orig) {
+		this.m_arcs = new int[orig.m_arcs.length];
+		System.arraycopy(orig.m_arcs, 0, this.m_arcs, 0, orig.m_arcs.length);
+		this.m_times = new double[orig.m_times.length];
+		System.arraycopy(orig.m_times, 0, this.m_times, 0, orig.m_times.length);
+		this.m_timestep = orig.m_timestep;
+	}
+	
+	/**
+	 * Returns the discretised times of the epoch including endpoints,
 	 * implying that the latter coincide with end times of epochs above/below.
 	 * Also please note that e.g. for a 4-interval epoch with discretization
 	 * times (t0,t1,t2,t3,t4,t5) and timestep dt we have t1-t0 = t5-t4 = dt/2,
@@ -67,7 +87,7 @@ public class EpochPtSet {
 	}
 	
 	/**
-	 * Returns a discretized time.
+	 * Returns a discretised time.
 	 * @param index the time index.
 	 * @return the time.
 	 */
@@ -120,10 +140,10 @@ public class EpochPtSet {
 	}
 	
 	/**
-	 * Returns the entire time span of the epoch.
+	 * Returns the entire timespan of the epoch.
 	 * @return the time span.
 	 */
-	public double getTimeSpan() {
+	public double getTimespan() {
 		return (m_times[m_times.length-1] - m_times[0]);
 	}
 	
@@ -162,6 +182,11 @@ public class EpochPtSet {
 	 */
 	public int getNoOfPoints() {
 		return (m_times.length * m_arcs.length);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new EpochPtSet(this);
 	}
 }
 

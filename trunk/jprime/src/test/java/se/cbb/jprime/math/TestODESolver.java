@@ -66,12 +66,12 @@ public class TestODESolver {
 		assertEquals(ODESolver.SolverResult.SUCCESSFUL, res);
 		
 		// Print stats.
-		int[] stats = ode.getStatistics();
-		System.out.println("Function evals: " + stats[0]
-			+ ", iterations: " + stats[1]
-			+ ", acc. steps: " + stats[2]
-			+ ", rej. steps: " + stats[3]
-			+ "\n");
+//		int[] stats = ode.getStatistics();
+//		System.out.println("Function evals: " + stats[0]
+//			+ ", iterations: " + stats[1]
+//			+ ", acc. steps: " + stats[2]
+//			+ ", rej. steps: " + stats[3]
+//			+ "\n");
 	}
 	
 	@Test
@@ -85,12 +85,12 @@ public class TestODESolver {
 		assertEquals(ODESolver.SolverResult.SUCCESSFUL, res);
 		
 		// Print stats.
-		int[] stats = ode.getStatistics();
-		System.out.println("Function evals: " + stats[0]
-			+ ", iterations: " + stats[1]
-			+ ", acc. steps: " + stats[2]
-			+ ", rej. steps: " + stats[3]
-			+ "\n");
+//		int[] stats = ode.getStatistics();
+//		System.out.println("Function evals: " + stats[0]
+//			+ ", iterations: " + stats[1]
+//			+ ", acc. steps: " + stats[2]
+//			+ ", rej. steps: " + stats[3]
+//			+ "\n");
 	}
 	
 	@Test
@@ -104,12 +104,12 @@ public class TestODESolver {
 		assertEquals(ODESolver.SolverResult.SUCCESSFUL, res);
 		
 		// Print stats.
-		int[] stats = ode.getStatistics();
-		System.out.println("Function evals: " + stats[0]
-			+ ", iterations: " + stats[1]
-			+ ", acc. steps: " + stats[2]
-			+ ", rej. steps: " + stats[3]
-			+ "\n");
+//		int[] stats = ode.getStatistics();
+//		System.out.println("Function evals: " + stats[0]
+//			+ ", iterations: " + stats[1]
+//			+ ", acc. steps: " + stats[2]
+//			+ ", rej. steps: " + stats[3]
+//			+ "\n");
 	}
 }
 
