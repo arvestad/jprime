@@ -24,7 +24,7 @@ import org.jfree.util.PublicCloneable;
  * 
  * @author Joel Sjöstrand.
  */
-public class EpochPtSet implements PublicCloneable {
+public class Epoch implements PublicCloneable {
 	
 	/** Vector of intersecting arcs in the epoch (defined via head vertex). */
 	private int[] m_arcs;
@@ -43,7 +43,7 @@ public class EpochPtSet implements PublicCloneable {
 	 * @param noOfIvs the number of sub-intervals to slice epoch into.
 	 *        Must be greater than zero.
 	 */
-	public EpochPtSet(List<Integer> arcs, double loTime, double upTime, int noOfIvs) {
+	public Epoch(List<Integer> arcs, double loTime, double upTime, int noOfIvs) {
 		m_arcs = new int[arcs.size()];
 		int i = 0;
 		for (int arc : arcs) {
@@ -66,7 +66,7 @@ public class EpochPtSet implements PublicCloneable {
 	 * Copy-constructor.
 	 * @param orig original.
 	 */
-	public EpochPtSet(EpochPtSet orig) {
+	public Epoch(Epoch orig) {
 		this.m_arcs = new int[orig.m_arcs.length];
 		System.arraycopy(orig.m_arcs, 0, this.m_arcs, 0, orig.m_arcs.length);
 		this.m_times = new double[orig.m_times.length];
@@ -186,7 +186,7 @@ public class EpochPtSet implements PublicCloneable {
 	
 	@Override
 	public Object clone() throws CloneNotSupportedException {
-		return new EpochPtSet(this);
+		return new Epoch(this);
 	}
 }
 

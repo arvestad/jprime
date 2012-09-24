@@ -61,7 +61,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	private int nroot;
 	
 	/** Epochs. */
-	private EpochPtSet[] epochs;
+	private Epoch[] epochs;
 	
 	/** For each epoch, the index of the arc in the epoch leading to split below. */
 	private int[] splits;
@@ -70,7 +70,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	private IntMap vertexToEpoch;
 	
 	/** Cache. */
-	private EpochPtSet[] epochsCache = null;
+	private Epoch[] epochsCache = null;
 	
 	/** Cache. */
 	private int[] splitsCache = null;
@@ -111,7 +111,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 * Updates the discretisation based on the underlying host tree.
 	 */
 	public void update() {
-		epochs = new EpochPtSet[(S.getNoOfVertices()+1)/2];
+		epochs = new Epoch[(S.getNoOfVertices()+1)/2];
 		splits = new int[epochs.length];
 		
 		// Lowermost epoch contains all leaf arcs. Use these as starting point.
@@ -151,7 +151,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 			
 			// Create epoch, etc.
 			int noOfIvs = Math.min(Math.max(this.nmin, (int) Math.ceil((tUp - tLo) / this.deltat - 1e-6)), this.nmax);
-			epochs[epochNo] = new EpochPtSet(q, tLo, tUp, noOfIvs);
+			epochs[epochNo] = new Epoch(q, tLo, tUp, noOfIvs);
 			splits[epochNo + 1] = xUpIdx;
 			vertexToEpoch.set(xLo, epochNo);
 			
@@ -175,7 +175,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 		assert(tLo < tUp);
 		int noOfIvs = this.nroot > 0 ? this.nroot :
 				Math.min(Math.max(this.nmin, (int) Math.ceil((tUp - tLo) / this.deltat - 1e-6)), this.nmax);
-		epochs[epochNo] = new EpochPtSet(q, tLo, tUp, noOfIvs);
+		epochs[epochNo] = new Epoch(q, tLo, tUp, noOfIvs);
 		vertexToEpoch.set(xLo, epochNo);      // Actually undefined, since top time arc.
 	}
 	
@@ -185,7 +185,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 * @param epochNo the epoch identifier.
 	 * @return the epoch discretisation.
 	 */
-	public EpochPtSet getEpoch(int epochNo) {
+	public Epoch getEpoch(int epochNo) {
 		return epochs[epochNo];
 	}
 		
@@ -278,7 +278,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 */
 	public double getMinTimestep() {
 		double rec = Double.MAX_VALUE;
-		for (EpochPtSet ep : this.epochs) {
+		for (Epoch ep : this.epochs) {
 			if (ep.getTimestep() < rec) {
 				rec = ep.getTimestep();
 			}
@@ -295,7 +295,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 */
 	public int getTotalNoOfTimes(boolean unique) {
 		int sum = 0;
-		for (EpochPtSet ep : this.epochs) {
+		for (Epoch ep : this.epochs) {
 			sum += ep.getTimes().length;
 		}
 		if (unique) { sum -= (epochs.length - 1); } 
@@ -310,7 +310,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 */
 	public int getTotalNoOfPoints() {
 		int sum = 0;
-		for (EpochPtSet ep : this.epochs) {
+		for (Epoch ep : this.epochs) {
 			sum += ep.getNoOfPoints();
 		}
 		return sum;
@@ -452,7 +452,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 		prefix += '\t';
 		sb.append(prefix).append("Epoch:\tNo. of pts:\tTimestep:\tTimespan:\tArcs:\tSplit index:\n");
 		for (int i = getNoOfEpochs()-1; i >= 0; --i) {
-			EpochPtSet ep = this.epochs[i];
+			Epoch ep = this.epochs[i];
 			sb.append(prefix).append(i).append('\t');
 			sb.append(prefix).append(ep.getNoOfArcs() + '*' + ep.getNoOfTimes() + '=' + ep.getNoOfPoints()).append('\t');
 			sb.append(prefix).append(ep.getTimestep()).append('\t');
