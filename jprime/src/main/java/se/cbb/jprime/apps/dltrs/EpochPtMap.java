@@ -57,7 +57,7 @@ class EpochPtMap {
 				m_vals[k++] = new double[noOfEdges];
 			}
 		}
-}
+	}
 	
 	/**
 	 * Copy-constructor. Cached values are not copied.
@@ -191,8 +191,7 @@ class EpochPtMap {
 	}
 	
 	/**
-	 * Restores cached values. Has no effect if
-	 * invalidateCache() has been invoked since call to cache().
+	 * Restores cached values.
 	 */
 	public void restoreCache() {
 		m_vals = m_valsCache;
