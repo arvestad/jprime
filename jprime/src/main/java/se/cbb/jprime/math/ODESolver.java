@@ -15,33 +15,32 @@ package se.cbb.jprime.math;
  * Fortran code DOPRI5(). As such, it pretty much uses the same short variable names and
  * outline, but a slightly different invokation style.
  * <p/>
- * The user creates a subclass of this class where the virtual evaluation function f(x,y)
- * is defined. Scalar tolerances are specified in the constructor. One may change various
- * default settings if required. Actual integration is made by calling dopri5().
- * If the initial step size is set to 0, the solver will make a qualified guess.
+ * The user creates an evaluation function f(x,y) and passes that as input to the instance of this class.
+ * Scalar tolerances are specified in the constructor. One may change various
+ * default settings if required. Actual integration is made by calling <code>dopri5()</code>.
+ * If the initial step size is set to 0, the solver will make a qualified start guess.
  * <p/>
- * Additionally, one has the ability to define a callback function ("external solution
+ * Additionally, one has the ability to input an external callback function ("external solution
  * provider") </code>solout</code> which will be invoked after every accepted solver iteration.
  * This function can, if desired, alter the solution before next step. It may also call the
  * convenience function <code>contd5()</code> to get an interpolated estimate of the solution
  * between the old and current x-values, e.g. for fine-coarsed output.
  * However, such estimates are only available if a flag has been set to make
  * interpolation coefficients computed.
- * 
+ * <p/>
  * In essence, use like this:
- * <ul>
- * <li>Create subclass of ODESolver and pass in scalar
- *     tolerances etc. to superclass constructor.
+ * <ol>
+ * <li>Create the evaluation function by implementing <code>ODEFunction</code>.</li>
+ * <li>If required, create an external solution provider by implementing <code>ODEExternalSolutionProvider</code>.</li>
+ * <li>Create an instance of this class.</li>
  * <li>If required, change default settings.
- * <li>Override (i.e. implement) evaluation method <code>fcn()</code>.
- * <li>If required, override external solution provider <code>solout()</code>.
- * <li>...
- * <li>Solve one or multiple times by calling <code>dopri5()</code>.
- * </ul>
+ * <li>Solve one or multiple ODEs by calling <code>dopri5()</code>.
+ * </ol>
  * 
+ * @author Hairer, Nörsett, Wanner.
  * @author Joel Sjöstrand.
  */
-public abstract class ODESolver {
+public class ODESolver {
 	
 	/** Return values from solver function dopri5(). */
 	public enum SolverResult {
@@ -51,14 +50,6 @@ public abstract class ODESolver {
 		/** Aborted. Specified max no. of steps were insufficient. */ 	INSUFFICIENT_NMAX,
 		/** Aborted, Step size became to small. */						TOO_SMALL_GEN_STEP_SIZE,
 		/** Aborted. Evaluation function was deemed stiff. */			PROBABLY_STIFF;
-	}
-		
-	/** Return values from external solution provider solout(). */
-	public enum ExtSolResult {
-		/** External provider returned interrupt request. */			INTERRUPT_SOLVER,  
-		/** External provider was not called. */						NOT_INVOKED,  
-		/** External provider returned without changing solution. */	SOLUTION_NOT_CHANGED,  
-		/** External provider returned with altered solution. */		SOLUTION_CHANGED;
 	}
 	
 	/** Fifth-order Runge-Kutta method. */
@@ -105,7 +96,13 @@ public abstract class ODESolver {
     private static final double D7 =      69997945.0 /     29380423.0;
 	
     /** The evaluation function y' = f(x,y). */
-	protected ODEFunction fcn;
+    protected ODEFunction fcn;
+    
+    /** External solution provider. Null if not used. */
+    protected ODEExternalSolutionProvider m_solout;
+    
+    /** Flag indicating if to compute dense output. Only applicable if m_solout != null. */
+    protected boolean m_doDense;
     
     /** Scalar relative tolerance. */
     protected double m_rtol;
@@ -148,18 +145,12 @@ public abstract class ODESolver {
     
     /** Number of rejected steps of last run (rejections in first step excluded). */
     protected int m_nrejct;
-	
-    /** Flag indicating if external solution provider should be called. */
-    protected boolean m_hasSolout;
-    
-    /** Flag indicating if to compute dense output. */
-	protected boolean m_doDense;
     
 	/** Storage for dense output, concat. for all 5 coefficients. */
-	protected double[] m_cont;
+    protected double[] m_cont;
     
     /** Work var.: System size (no of comps.). */
-    private int m_n;
+    protected int m_n;
     
     /** Work var.: x-value of last iteration. */
     private double m_xold;
@@ -192,30 +183,30 @@ public abstract class ODESolver {
     private double[] m_ysti;
     
     /**
-	 * Constructor for a subclass that do not override solout() and do not require interpolated values.
+	 * Constructor for when interpolated values or external solution provider is not required.
 	 * @param fcn the ODE evaluation function.
 	 * @param rtol the relative tolerance.
 	 * @param atol the absolute tolerance.
 	 */
-	protected ODESolver(ODEFunction fcn, double rtol, double atol) {
-		this(fcn, rtol, atol, false, false);
+	public ODESolver(ODEFunction fcn, double rtol, double atol) {
+		this(fcn, null, false, rtol, atol);
 	}
     
 	/**
-	 * Constructor.
+	 * Constructor for when external solution provider is indeed provided. This must be the case for e.g. obtaining interpolated values.
 	 * @param fcn the ODE evaluation function.
+	 * @param solout the external solution provider.
+ 	 * @param doDense set to true if solout() calls contd5() to get interpolated values.
 	 * @param rtol the relative tolerance.
 	 * @param atol the absolute tolerance.
-	 * @param hasSolout set to true if subclass overrides solout().
-	 * @param doDense set to true if solout() calls contd5() to get interpolated values.
 	 */
-	protected ODESolver(ODEFunction fcn, double rtol, double atol, boolean hasSolout, boolean doDense) {
+	public ODESolver(ODEFunction fcn, ODEExternalSolutionProvider solout, boolean doDense, double rtol, double atol) {
 		if (fcn == null) {
 			throw new IllegalArgumentException("Missing ODE evaluation function.");
 		}
 		this.fcn = fcn;
-		m_hasSolout = hasSolout;
-		m_doDense = doDense && hasSolout;
+		m_solout = solout;
+		m_doDense = doDense && (solout != null);
 		m_cont = null;
 		m_rtol = rtol;
 		m_atol = atol;
@@ -275,7 +266,7 @@ public abstract class ODESolver {
 	 * [3] number of rejected steps (rejections in first step excluded).
 	 */
 	public int[] getStatistics() {
-		return new int[] { m_nfcn, m_nstep, m_naccpt, m_nrejct};
+		return new int[] { m_nfcn, m_nstep, m_naccpt, m_nrejct };
 	}
 	
 	/**
@@ -305,23 +296,21 @@ public abstract class ODESolver {
 	}		
 	
 	/**
-	 * Gets the external solution provider flag.
-	 * @return true if solver invokes external solution provider
-	 * after accepted solver steps.
+	 * Gets the external solution provider.
+	 * @return the external solution provider.
 	 */
-	public boolean getHasSolout() {
-		return m_hasSolout;
+	public ODEExternalSolutionProvider getSolout() {
+		return m_solout;
 	}
 	
 	/**
-	 * Sets flag indicating if external solution provider should
-	 * be invoked.
-	 * @param hasSolout true to make solver invoke solout() after
-	 *        accepted solver steps.
+	 * Sets external solution provider.
+	 * @param provider provider.
+	 * @boolean doDense set to true if solout() calls contd5() to get interpolated values.
 	 */
-	public void setHasSolout(boolean hasSolout) {
-		m_hasSolout = hasSolout;
-		if (!hasSolout) { m_doDense = false; }
+	public void setSolout(ODEExternalSolutionProvider solout, boolean doDense) {
+		m_solout = solout;
+		m_doDense = doDense && (solout != null);
 	}
 	
 	/**
@@ -334,12 +323,12 @@ public abstract class ODESolver {
 	
 	/**
 	 * Sets the dense output flag. Setting to true only has an effect if
-	 * hasSolout flag is true.
+	 * there is an external solution provider.
 	 * @param doDense true to make solver compute dense output
 	 *        coefficients.
 	 */
 	public void setDenseOutput(boolean doDense) {
-		m_doDense = (doDense && m_hasSolout);
+		m_doDense = doDense && (m_solout != null);
 	}
 
 	/**
@@ -471,24 +460,6 @@ public abstract class ODESolver {
 	public void setMaxStepSize(double maxStepSize) {
 		m_hmax = Math.abs(maxStepSize);
 	}
-		
-	/**
-	 * External callback function which will be invoked after each (accepted) solver step.
-	 * This function may change the solution, in which case it should make use of the
-	 * corresponding return code. Additionally, it may call the method contd5() if it
-	 * seeks an interpolated solution for a value in the range [xold,x] (albeit only if
-	 * the hasDense flag has been set to true).
-	 * Note: Make sure to set the flag hasSolout to true if overriding this method.
-	 * @param no the current iteration number (accepted steps).
-	 * @param xold the previous x-value of the solver.
-	 * @param x the current x-value of the solver.
-	 * @param y the current solution at x.
-	 * @param icomp list of component indiced for which there are continuous output.
-	 * @return a suitable return code.
-	 */
-	protected ExtSolResult solout(int no, double xold, double x, double[] y) {
-		return ODESolver.ExtSolResult.NOT_INVOKED;
-	}
 	
 
 	/**
@@ -499,7 +470,7 @@ public abstract class ODESolver {
 	 * @param xend the value of x where the solution is sought.
 	 * @param y the initial value of y. Updated during solving, and containing the solution
 	 * after successful return.
-	 * @param h the initial step size. Udated during solving. Set to 0 for auto-estimation.
+	 * @param h the initial step size. Updated during solving. Set to 0 for auto-estimation.
 	 * @return a code stating solver's success or failure.
 	 */
 	public SolverResult dopri5(double x, double xend, double[] y, double h) {
@@ -514,7 +485,7 @@ public abstract class ODESolver {
 	 * @param xend the value of x where the solution is sought.
 	 * @param y the initial value of y. Updated during solving, and containing the solution
 	 * after successful return.
-	 * @param h the initial step size. Udated during solving. Set to 0 for auto-estimation.
+	 * @param h the initial step size. Updated during solving. Set to 0 for auto-estimation.
 	 * @param rtol per-component relative tolerances. Set to override scalar value.
 	 * @param atol per-component absolute tolerances. Set to override scalar value.
 	 * @return a code stating solver's success or failure.
@@ -568,16 +539,16 @@ public abstract class ODESolver {
 		m_hout = h;
 		
 		// Return-code from external solution provider.
-		ExtSolResult irtrn;
+		ODEExternalSolutionProvider.SolutionProviderResult irtrn;
 
 		// Call external solution provider for first time if such exists.
-		if (m_hasSolout) {
-			irtrn = solout(m_naccpt + 1, m_xold, x, y);
-			if (irtrn == ExtSolResult.INTERRUPT_SOLVER) {
+		if (m_solout != null) {
+			irtrn = m_solout.solout(m_naccpt + 1, m_xold, x, y);
+			if (irtrn == ODEExternalSolutionProvider.SolutionProviderResult.INTERRUPT_SOLVER) {
 				return SolverResult.SUCCESSFUL_INTERRUPTED;
 			}
 		} else {
-			irtrn = ExtSolResult.NOT_INVOKED;
+			irtrn = ODEExternalSolutionProvider.SolutionProviderResult.NOT_INVOKED;
 		}
 
 		// BASIC INTEGRATION STEP.
@@ -597,7 +568,7 @@ public abstract class ODESolver {
 			m_nstep++;
 
 			// The first 6 stages.
-			if (irtrn == ExtSolResult.SOLUTION_CHANGED) {
+			if (irtrn == ODEExternalSolutionProvider.SolutionProviderResult.SOLUTION_CHANGED) {
 				// Recompute, since solution externally changed.
 				fcn.evaluate(x, y, m_k1);
 			}
@@ -708,9 +679,9 @@ public abstract class ODESolver {
 				m_xold = x;
 				m_hout = h;
 				x = xph;
-				if (m_hasSolout) {
-					irtrn = solout(m_naccpt + 1, m_xold, x, y);
-					if (irtrn == ExtSolResult.INTERRUPT_SOLVER) {
+				if (m_solout != null) {
+					irtrn = m_solout.solout(m_naccpt + 1, m_xold, x, y);
+					if (irtrn == ODEExternalSolutionProvider.SolutionProviderResult.INTERRUPT_SOLVER) {
 						return SolverResult.SUCCESSFUL_INTERRUPTED;
 					}
 				}
@@ -746,7 +717,7 @@ public abstract class ODESolver {
 	 * @param hmax the absolute value of the maximum step size.
 	 * @param rtol per-component relative tolerances.
 	 * @param atol per-component absolute tolerances.
-	 * @return [0] the suggested initial step size (with sign), [1] x.
+	 * @return the suggested initial step size (with sign).
 	 */
 	protected double hinit(double x, double[] y, int posneg, double hmax, double[] rtol, double[] atol) {
 		double[] f0 = m_k1;
@@ -811,7 +782,7 @@ public abstract class ODESolver {
 
 	/**
 	 * Used for e.g. continuous output in connection with an external solution provider.
-	 * After a solver iteration has finished and the external provider is called(back),
+	 * After a solver iteration has finished and the external provider is invoked,
 	 * the latter may invoke this method to get an approximation of a component of the
 	 * solution at a specified value in the range [xold,x]. This is only possible if there
 	 * is dense output (see hasDense flag).
@@ -820,7 +791,10 @@ public abstract class ODESolver {
 	 *        component is sought.
 	 * @return an interpolation of the i-th component of the solution at xCont.
 	 */
-	protected double contd5(int i, double xCont) {
+	public double contd5(int i, double xCont) {
+		if (!this.m_doDense) {
+			throw new IllegalArgumentException("Cannot interpolate ODE solution: the do-dense-flag has not been set.");
+		}
 		double theta = (xCont - m_xold) / m_hout;
 		double theta1 = 1.0 - theta;
 		return (m_cont[i] + theta * (m_cont[m_n + i] + theta1 * (m_cont[2 * m_n + i] +
@@ -831,16 +805,18 @@ public abstract class ODESolver {
 	/**
 	 * Works similarly to <code>contd5(int i, double xCont)</code>, but returns
 	 * all components.
-	 * @param yIpl a vector where the interpolated solution will be stored.
+	 * @param yIpl a vector where the interpolated solution will be stored. Must have sufficient number of elements.
 	 * @param xCont the value in the current range [xold,x] for which the solution
 	 *        is sought. 
 	 */
-	protected void contd5(double[] yIpl, double xCont) {
-		yIpl = new double[m_n];
+	public void contd5(double[] yIpl, double xCont) {
+		if (!this.m_doDense) {
+			throw new IllegalArgumentException("Cannot interpolate ODE solution: the do-dense-flag has not been set.");
+		}
+		// yIpl must have size m_n (or more).
 		double theta = (xCont - m_xold) / m_hout;
 		double theta1 = 1.0 - theta;
-		for (int i = 0; i < m_n; ++i)
-		{
+		for (int i = 0; i < m_n; ++i) {
 			yIpl[i] = m_cont[i] + theta * (m_cont[m_n + i] + theta1 * (m_cont[2 * m_n + i] +
 					theta * (m_cont[3 * m_n + i] + theta1 * m_cont[4 * m_n + i])));
 		}
