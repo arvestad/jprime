@@ -6,7 +6,7 @@ package se.cbb.jprime.apps.dltrs;
  * Values are stored as follows:
  * For each discretised time (of which there may be two since adjacent
  * epochs each have points on the border), there is a vector of values
- * corresponding to each edge at that time.
+ * corresponding to each arc at that time.
  * These vectors are stored in an enclosing vector which covers the times
  * of all epochs appended after each other.
  * <p/>
@@ -14,7 +14,7 @@ package se.cbb.jprime.apps.dltrs;
  * changes, the map is invalidated (and a new map must be created).
  * <p/>
  * Points are referenced by triplets: epoch number, time index in epoch
- * and edge index in epoch.
+ * and arc index in epoch.
  * <p/>
  * The map includes functionality for caching and restoring values.
  * 
@@ -77,7 +77,7 @@ class EpochPtMap {
 	 * Returns the value at a certain point.
 	 * @param i the epoch index.
 	 * @param j the time index in epoch.
-	 * @param k the edge index in epoch.
+	 * @param k the arc index in epoch.
 	 * @return the value at the point.
 	 */
 	public double get(int i, int j, int k) {
@@ -88,7 +88,7 @@ class EpochPtMap {
 	 * Returns all values for a certain time in a certain epoch.
 	 * @param i the epoch index.
 	 * @param j the time index in epoch.
-	 * @return the values for all concerned edges.
+	 * @return the values for all concerned arcs.
 	 */
 	public double[] get(int i, int j) {
 		return (m_vals[m_offsets[i] + j]);
@@ -98,11 +98,12 @@ class EpochPtMap {
 	 * Sets values for all points for a certain time in an epoch.
 	 * @param i the epoch index.
 	 * @param j the time index in epoch.
+	 * @param start the start index in vec.
 	 * @param vec the vector to copy from.
 	 */
-	public void set(int i, int j, double[] vec) {
+	public void set(int i, int j, double[] vec, int start) {
 		double[] v = m_vals[m_offsets[i] + j];
-		System.arraycopy(vec, 0, v, 0, v.length);
+		System.arraycopy(vec, start, v, 0, v.length);
 	}
 	
 	/**
@@ -112,12 +113,13 @@ class EpochPtMap {
 	 * @param i the epoch index.
 	 * @param j the time index in epoch.
 	 * @param vec the vector to copy from.
+	 * @param start the start index in vec.
 	 * @param lowerBound the lower bound.
 	 */
-	public void setWithMin(int i, int j, double[] vec, double lowerBound) {
+	public void setWithMin(int i, int j, double[] vec, int start, double lowerBound) {
 		double[] v = m_vals[m_offsets[i] + j];
-		for (int a = 0; a < v.length; ++a) {
-			v[a] = Math.max(vec[a], lowerBound);
+		for (int a = 0; a < v.length; ++a, ++start) {
+			v[a] = Math.max(vec[start], lowerBound);
 		}
 	}
 	
@@ -128,20 +130,32 @@ class EpochPtMap {
 	 * @param i the epoch index.
 	 * @param j the time index in epoch.
 	 * @param vec the vector to copy from.
+	 * @param start the start index in vec.
 	 * @param upperBound the upper bound.
 	 */
-	public void setWithMax(int i, int j, double[] vec, double upperBound) {
+	public void setWithMax(int i, int j, double[] vec, int start, double upperBound) {
 		double[] v = m_vals[m_offsets[i] + j];
-		for (int a = 0; a < v.length; ++a) {
-			v[a] = Math.min(vec[a], upperBound);
+		for (int a = 0; a < v.length; ++a, ++start) {
+			v[a] = Math.min(vec[start], upperBound);
 		}
 	}
 	
 	/**
-	 * Returns the value for a specified edge for
+	 * Sets the value of a certain time and arc in a certain epoch.
+	 * @param i the epoch index.
+	 * @param j the time index in epoch.
+	 * @param k the arc index in epoch.
+	 * @param val the value.
+	 */
+	public void set(int i, int j, int k, double val) {
+		m_vals[m_offsets[i] + j][k] = val;
+	}
+	
+	/**
+	 * Returns the value for a specified arc for
 	 * the last time of a specified epoch.
 	 * @param i the epoch index.
-	 * @param k the edge index in epoch.
+	 * @param k the arc index in epoch.
 	 * @return the value.
 	 */
 	public double getForLastTime(int i, int k) {
@@ -151,7 +165,7 @@ class EpochPtMap {
 	/**
 	 * Returns the values for a time below a specified one.
 	 * @param i the epoch index.
-	 * @param k the edge index in epoch.
+	 * @param k the arc index in epoch.
 	 * @return the values.
 	 */
 	public double[] getBelow(int i, int k) {

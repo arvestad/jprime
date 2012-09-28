@@ -6,11 +6,11 @@ package se.cbb.jprime.apps.dltrs;
  * i.e. one value for every pair of points (well, not quite, only for
  * the upper point to the lower, as in a triangular matrix).
  * <p/>
- * Data is stored in a matrix where element (i,j) contains all map values
+ * Data is stored in a (concatenated triangular) matrix where element (i,j) contains all map values
  * from time i to time j.
- * Such an element is in turn a matrix (internally concatenated into a vector)
+ * Such an element is in turn a (concatenated) matrix
  * containing the values from all points at time i to all points at
- * time j.
+ * time j with respect to the different arcs.
  * <p/>
  * If the discretisation topology of the epochs on which the map is
  * based changes, the map is invalidated and a new instance replacing
@@ -95,12 +95,13 @@ class EpochPtPtMap {
 	 * @param j epoch index of upper time 2.
 	 * @param t time index in epoch of time 2.
 	 * @param vec vector to copy from.
+	 * @param start the start index in vec.
 	 */
-	public void set(int i, int s, int j, int t, double[] vec) {
+	public void set(int i, int s, int j, int t, double[] vec, int start) {
 		int it = m_offsets[i] + s;
 		int jt = m_offsets[j] + t;
 		double[] v = m_vals[it * (2 * noOfTimes - it - 1) / 2 + jt];
-		System.arraycopy(vec, 0, v, 0, v.length);
+		System.arraycopy(vec, start, v, 0, v.length);
 	}
 	
 	/**
@@ -114,15 +115,16 @@ class EpochPtPtMap {
 	 * @param j epoch index of upper time 2.
 	 * @param t time index in epoch of time 2.
 	 * @param vec vector to copy from.
+	 * @param start the start index in vec.
 	 * @param lowerBound the lower bound.
 	 */
-	public void setWithMin(int i, int s, int j, int t, double[] vec, double lowerBound)
+	public void setWithMin(int i, int s, int j, int t, double[] vec, int start, double lowerBound)
 	{
 		int it = m_offsets[i] + s;
 		int jt = m_offsets[j] + t;
 		double[] v = m_vals[it * (2 * noOfTimes - it - 1) / 2 + jt];
-		for (int k = 0; k < v.length; ++k) {
-			v[k] = Math.max(vec[k], lowerBound);
+		for (int k = 0; k < v.length; ++k, ++start) {
+			v[k] = Math.max(vec[start], lowerBound);
 		}
 	}
 	
@@ -137,14 +139,15 @@ class EpochPtPtMap {
 	 * @param j epoch index of upper time 2.
 	 * @param t time index in epoch of time 2.
 	 * @param vec vector to copy from.
+	 * @param start the start index in vec.
 	 * @param upperBound the upper bound.
 	 */
-	public void setWithMax(int i, int s, int j, int t, double[] vec, double upperBound) {
+	public void setWithMax(int i, int s, int j, int t, double[] vec, int start, double upperBound) {
 		int it = m_offsets[i] + s;
 		int jt = m_offsets[j] + t;
 		double[] v = m_vals[it * (2 * noOfTimes - it - 1) / 2 + jt];
-		for (int k = 0; k < v.length; ++k) {
-			v[k] = Math.min(vec[k], upperBound);
+		for (int k = 0; k < v.length; ++k, ++start) {
+			v[k] = Math.min(vec[start], upperBound);
 		}
 	}
 	
@@ -176,6 +179,24 @@ class EpochPtPtMap {
 		double[] v = m_vals[it * (2 * noOfTimes - it - 1) / 2 + jt];
 		int noOfArcs = m_offsets.length - 1 - j;
     	return v[a * noOfArcs + b];
+    }
+	
+	/**
+	 * Sets a certain point-to-point value.
+	 * @param i epoch index of lower time 1.
+	 * @param s time index in epoch of time 1.
+	 * @param a edge index in epoch of time 1.
+	 * @param j epoch index of upper time 2.
+	 * @param t time index in epoch of time 2.
+	 * @param b edge index in epoch of time 2.
+	 * @param val the value.
+	 */
+	public void set(int i, int s, int a, int j, int t, int b, double val) {
+		int it = m_offsets[i] + s;
+		int jt = m_offsets[j] + t;
+		double[] v = m_vals[it * (2 * noOfTimes - it - 1) / 2 + jt];
+		int noOfArcs = m_offsets.length - 1 - j;
+    	v[a * noOfArcs + b] = val;
     }
 	
 	/**

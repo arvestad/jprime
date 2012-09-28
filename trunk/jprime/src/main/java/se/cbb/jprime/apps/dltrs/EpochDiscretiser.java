@@ -179,7 +179,6 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 		vertexToEpoch.set(xLo, epochNo);      // Actually undefined, since top time arc.
 	}
 	
-	
 	/**
 	 * Returns the epoch at a specified index. Index 0 corresponds to epoch at leaves.
 	 * @param epochNo the epoch identifier.
@@ -196,6 +195,15 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 */
 	public double getRootToLeafTime() {
 		return epochs[epochs.length-1].getLowerTime();
+	}
+	
+	/**
+	 * Returns the discretised tip-to-leaf-time. Note: Don't use the tree's own value
+	 * directly, since it may not be exactly the same as the discretised value.
+	 * @return the discretised tip-of-stem-to-leaf time.
+	 */
+	public double getTipToLeafTime() {
+		return epochs[epochs.length-1].getUpperTime();
 	}
 	
 	/**
