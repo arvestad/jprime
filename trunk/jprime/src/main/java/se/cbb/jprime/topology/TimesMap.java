@@ -104,6 +104,18 @@ public class TimesMap extends DoubleMap {
 		return this.arcTimes;
 	}
 	
+	/**
+	 * Returns the total arc time of the entire tree.
+	 * @return the total timespan.
+	 */
+	public double getTotalArcTime() {
+		double tot = 0.0;
+		for (double at : this.arcTimes) {
+			tot += at;
+		}
+		return tot;
+	}
+	
 	@Override
 	public void cache(int[] vertices) {
 		super.cache(vertices);

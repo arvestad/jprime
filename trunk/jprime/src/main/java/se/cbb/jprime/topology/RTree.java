@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
+import se.cbb.jprime.io.SampleNewickTree;
 import se.cbb.jprime.misc.IntQueue;
 
 /**
@@ -430,17 +431,49 @@ public class RTree implements RootedTreeParameter {
 
 	@Override
 	public Class<?> getSampleType() {
-		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
+		return SampleNewickTree.class;
 	}
 
 	@Override
 	public String getSampleHeader() {
-		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
+		// Only prints internal vertex labels.
+		// Use RBTreeSampleWrapper for proper output.
+		return (this.name + "InternalLabels");
 	}
 
 	@Override
 	public String getSampleValue() {
-		throw new UnsupportedOperationException("Cannot serialise RTree topology alone without access to vertex or leaf names.");
+		// Only prints internal vertex labels.
+		// Use RBTreeSampleWrapper for proper output.
+		return this.toString();
+	}
+	
+	@Override
+	public String toString() {
+		// Only prints internal vertex labels.
+		// Use RBTreeSampleWrapper for proper output.
+		StringBuilder sb = new StringBuilder(1024);
+		this.writeInternalNewickSubtree(sb, this.root);
+		sb.append(';');
+		return sb.toString();
+	}
+	
+	/**
+	 * Recursively writes a Newick tree with the internal integer vertex labels.
+	 * @param sb string buffer to append to.
+	 * @param x current vertex.
+	 */
+	private void writeInternalNewickSubtree(StringBuilder sb, int x) {
+		if (!this.isLeaf(x)) {
+			sb.append('(');
+			this.writeInternalNewickSubtree(sb, this.children[x][0]);
+			for (int i = 1; i < this.children[x].length; ++i) {
+				sb.append(',');
+				this.writeInternalNewickSubtree(sb, this.children[x][i]);
+			}
+			sb.append(')');
+		}
+		sb.append('v').append(x);
 	}
 
 	@Override

@@ -33,7 +33,12 @@ public class TestEpochDLTProbs {
 		DoubleParameter loss = new DoubleParameter("Loss", 0.05);
 		DoubleParameter trans = new DoubleParameter("Trans", 0.07);
 		EpochDLTProbs probs = new EpochDLTProbs(disc, dup, loss, trans);
-		System.out.print(probs.toString());
+		//System.out.print(probs.toString());
+		assertEquals(0.0, probs.getExtinctionProbs().get(0, 0, 0), 1e-6);
+		assertTrue(probs.getExtinctionProbs().get(1, 1, 0) > 0.0);
+		assertEquals(1.0, probs.getOneToOneProbs().get(1, 0, 0, 1, 0, 0), 1e-6);
+		assertEquals(0.0, probs.getOneToOneProbs().get(1, 0, 0, 1, 0, 1), 1e-6);
+		assertTrue(probs.getOneToOneProbs().get(0, 1, 2, 2, 3, 0) > 0.0);
 	}
 	
 }

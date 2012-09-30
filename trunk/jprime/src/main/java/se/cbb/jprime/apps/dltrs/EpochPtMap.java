@@ -1,5 +1,7 @@
 package se.cbb.jprime.apps.dltrs;
 
+import org.jfree.util.PublicCloneable;
+
 /**
  * Map for storing data for each point of a discretised epoch tree.
  * <p/>
@@ -20,7 +22,7 @@ package se.cbb.jprime.apps.dltrs;
  * 
  * @author Joel Sjöstrand.
  */
-class EpochPtMap {
+class EpochPtMap implements PublicCloneable {
 	
 	/** For each epoch, the offset in value vector with regard to times. */
 	private int[] m_offsets;
@@ -242,4 +244,8 @@ class EpochPtMap {
     	return oss.toString();
     }
 	
+	@Override
+	public Object clone() {
+		return new EpochPtMap(this);
+	}
 }

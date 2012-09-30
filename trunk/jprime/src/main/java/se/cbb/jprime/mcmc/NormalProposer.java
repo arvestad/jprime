@@ -279,7 +279,9 @@ public class NormalProposer implements Proposer {
 		sb.append(prefix).append("Perturbed parameter: ").append(this.param.getName()).append('\n');
 		sb.append(prefix).append("Is active: ").append(this.isEnabled).append("\n");
 		sb.append(prefix).append("Domain: ").append(this.interval.toString()).append('\n');
-		sb.append(prefix).append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
+		if (this.param.getNoOfSubParameters() > 1) {
+			sb.append(prefix).append("Cumulative sub-parameter weights: ").append(Arrays.toString(this.cumSubParamWeights)).append("\n");
+		}
 		sb.append(prefix).append("Tuning parameter governing proposal CV:\n").append(this.proposalCV.getPreInfo(prefix + '\t'));
 		if (this.stats != null) {
 			sb.append(prefix).append("Statistics:\n").append(this.stats.getPreInfo(prefix + '\t'));

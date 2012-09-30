@@ -184,7 +184,7 @@ public class MPRMap implements ProperDependent {
 	}
 	
 	/**
-	 * Returns the total number of implied duplications of G in a parsimonious
+	 * Returns the total number of obligate duplications of G in a parsimonious
 	 * reconciliation of G and S.
 	 * @return the number of duplications.
 	 */
@@ -199,7 +199,7 @@ public class MPRMap implements ProperDependent {
 	}
 	
 	/**
-	 * Returns the total number of implied losses of G in a parsimonious
+	 * Returns the total number of obligate losses of G in a parsimonious
 	 * reconciliation of G and S.
 	 * @return the number of losses.
 	 */
