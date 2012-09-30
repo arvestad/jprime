@@ -462,12 +462,19 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	public String getSampleValue() {
 		// Only prints internal vertex labels.
 		// Use RBTreeSampleWrapper for proper output.
+		return this.toString();
+	}
+
+	
+	@Override
+	public String toString() {
+		// Only prints internal vertex labels.
+		// Use RBTreeSampleWrapper for proper output.
 		StringBuilder sb = new StringBuilder(512);
 		this.writeInternalNewickSubtree(sb, this.root);
 		sb.append(';');
 		return sb.toString();
 	}
-
 	
 	/**
 	 * Recursively writes a Newick tree with the internal integer vertex labels.

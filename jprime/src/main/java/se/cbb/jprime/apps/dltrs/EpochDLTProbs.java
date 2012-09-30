@@ -10,7 +10,6 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
-import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Holder of duplication, loss and lateral transfer rates for a
@@ -20,6 +19,9 @@ import org.apache.commons.lang3.ArrayUtils;
  * within each epoch with aid of an ODE solver. Probabilities
  * between points of different epochs are then assembled without need of
  * the solver.
+ * <p/>
+ * The original of this class was written in an inhumanly pace prior to Ali's
+ * dissertation, so bear with me on the incomprehensibility of certain parts.
  * 
  * @author Joel Sjöstrand.
  */
@@ -313,8 +315,13 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 			++wi;
 			int split = discTree.getSplitIndex(wi);
 			Q[split] = Q[split] * Q[split + 1];   // Works due to arc indexing.
-			Q = ArrayUtils.remove(Q, split + 1);
+			// Resize for next generation.
 			--wn;
+			double[] tmp = Q;
+			Q = new double[wn + wn * wn];
+			for (int i = 0; i < wn + 1; ++i) {
+				if (i != split + 1) { Q[i < split + 1 ? i : i - 1] = tmp[i]; }
+			}
 			wlast = discTree.getEpoch(wi).getNoOfTimes() - 1;
 			wnorm = transRate.getValue() / (wn - 1);
 			setInitVals(Q);
@@ -515,5 +522,13 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 		oss.append("# Extinction probs Qe:\n").append(m_Qe.toString()).append('\n');
 		oss.append("# One-to-one probs Qef:\n").append(m_Qef.toString()).append('\n');
 		return oss.toString();
+	}
+	
+	/**
+	 * Returns the total arc time of the entire tree.
+	 * @return the total timespan.
+	 */
+	public double getTotalArcTime() {
+		return this.discTree.getTotalArcTime();
 	}
 }

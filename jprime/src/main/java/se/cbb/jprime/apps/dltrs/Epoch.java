@@ -148,8 +148,8 @@ public class Epoch implements PublicCloneable {
 	}
 	
 	/**
-	 * Returns the vector of arcs which intersect the epoch.
-	 * Arcs are referenced via their lower vertex in the tree.
+	 * Returns the vector of host tree arcs which intersect the epoch. These appear in the order used to reference a specific arc.
+	 * Arcs are defined via their lower vertex in the host tree.
 	 */
 	public int[] getArcs() {
 		return m_arcs;

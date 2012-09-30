@@ -52,7 +52,7 @@ public class ReconciliationHelper implements ProperDependent, InfoProvider {
 	 * @param s host tree.
 	 * @param times host tree discretisation.
 	 * @param gsMap G-S MPR map.
-	 * @param maxImpliedLosses
+	 * @param maxImpliedLosses max number of allowed losses on the way for a guest tree vertex.
 	 */
 	public ReconciliationHelper(RBTree g, RBTree s, RBTreeArcDiscretiser times, MPRMap gsMap, int maxImpliedLosses) {
 		this.g = g;
@@ -233,6 +233,7 @@ public class ReconciliationHelper implements ProperDependent, InfoProvider {
 		StringBuilder sb = new StringBuilder(65536);
 		sb.append(prefix).append("RECONCILIATION HELPER\n");
 		sb.append(prefix).append("Max number of implied losses: ").append(this.maxImpliedLosses).append('\n');
+		sb.append(prefix).append("Discretisation:\n");
 		sb.append(this.times.getPreInfo(prefix + '\t'));
 		return sb.toString();
 	}

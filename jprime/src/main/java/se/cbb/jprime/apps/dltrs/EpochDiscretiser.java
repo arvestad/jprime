@@ -88,10 +88,10 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	public EpochDiscretiser(RBTree S, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
 		if (nmin <= 1 || nmax < nmin) {
 			// We must have least two points for other classes to work safely...
-			throw new IllegalArgumentException("Invalid discretisation bounds for EpochDiscretiser.");
+			throw new IllegalArgumentException("Invalid discretisation bounds. Must have 2 <= nmin <= nmax.");
 		}
 		if (nmin != nmax && deltat <= 0) {
-			throw new IllegalArgumentException("Invalid discretisation timestep for EpochDiscretiser.");
+			throw new IllegalArgumentException("Invalid discretisation timestep. Must be greater than 0.");
 		}
 		if (nmin == nmax) {
 			deltat = Double.MAX_VALUE;
@@ -462,18 +462,18 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 		for (int i = getNoOfEpochs()-1; i >= 0; --i) {
 			Epoch ep = this.epochs[i];
 			sb.append(prefix).append(i).append('\t');
-			sb.append(prefix).append(ep.getNoOfArcs() + '*' + ep.getNoOfTimes() + '=' + ep.getNoOfPoints()).append('\t');
-			sb.append(prefix).append(ep.getTimestep()).append('\t');
-			sb.append(prefix).append(ep.getLowerTime() + "--" + ep.getUpperTime()).append('\t');
-			sb.append(prefix).append(Arrays.toString(ep.getArcs())).append('\t');
-			sb.append(prefix).append(this.splits[i]).append('\n');
+			sb.append("" + ep.getNoOfArcs() + '*' + ep.getNoOfTimes() + '=' + ep.getNoOfPoints()).append('\t');
+			sb.append(ep.getTimestep()).append('\t');
+			sb.append(ep.getLowerTime() + "--" + ep.getUpperTime()).append('\t');
+			sb.append(Arrays.toString(ep.getArcs())).append('\t');
+			sb.append(this.splits[i]).append('\n');
 		}
 		sb.append(prefix).append("Vertex:\tDiscretisation time:\tEpoch above:\tEpoch below:\n");
 		for (int x : this.S.getTopologicalOrdering()) {
 			sb.append(prefix).append(x).append('\t');
-			sb.append(prefix).append(this.getTime(x)).append('\t');
-			sb.append(prefix).append(this.getEpochAbove(x)).append('\t');
-			sb.append(prefix).append(this.getEpochBelow(x)).append('\n');
+			sb.append(this.getTime(x)).append('\t');
+			sb.append(this.getEpochAbove(x)).append('\t');
+			sb.append(this.getEpochBelow(x)).append('\n');
 		}
 		return sb.toString();
 	}
@@ -530,5 +530,13 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	@Override
 	public String toString() {
 		return this.getPreInfo("");
+	}
+
+	/**
+	 * Returns the total arc time of the entire tree.
+	 * @return the total timespan.
+	 */
+	public double getTotalArcTime() {
+		return this.times.getTotalArcTime();
 	}
 }

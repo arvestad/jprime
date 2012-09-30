@@ -163,7 +163,6 @@ public class DLRSModel implements Model {
 	}
 	
 	
-	
 	/**
 	 * Creates (and thus clears) the DP data structures.
 	 * @param u the root of the subtree of G.
