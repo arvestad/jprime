@@ -83,6 +83,17 @@ Output is virtually identical to Delirious output, see [DLRS#OUTPUT here]. The o
 
 == RUNNING ==
 
+=== Starting the application===
+
+Deleterious is started as a command-line Java application. It is possible that future versions will come with a graphical user interface, a command-line based environment for managing options, or similarly. However, at the moment, you would start Deleterious by running e.g.:
+{{{
+java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dltrs/Deleterious [options] <host tree> <msa> <leaf map>
+}}}
+where the path and version of course refer to your current setup. See also the section on options below. We recommend using Oracle's HotSpot Java Virtual Machines due to their good performance.
+
+As in most MCMC applications, you typically conduct: 1) pilot runs to assess acceptance ratios, mixing, and running time, 2) if required, change tuning parameters to improve mixing, 3) perform the actual runs, often starting 2-4 parallel chains. We refer to the [DLRS#RUNNING section on running Delirious] for more information.
+
+
 
 ----
 ----
