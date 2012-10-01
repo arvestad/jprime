@@ -171,6 +171,29 @@ Should the default discretization settings not be satisfactory, you can change t
 
 == EXAMPLES ==
 
+=== 1: Mollicutes ===
+A microbial gene family of Mollicutes within the Firmicutes phylum. These typically lack a cell wall, and are often pathogenic, such as _Mycoplasma_.
+
+  * [http://jprime.googlecode.com/files/dltrs_example_1.stree dltrs_example_1.stree] (host tree)
+  * [http://jprime.googlecode.com/files/dltrs_example_1.fa dltrs_example_1.fa] (protein MSA)
+  * [http://jprime.googlecode.com/files/dltrs_example_1.map dltrs_example_1.map] (guest-to-host leaf map)
+
+Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we may get something like:
+{{{
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
+}}}
+
+=== 2: More Mollicutes ===
+Another Mollicutes gene family.
+
+  * [http://jprime.googlecode.com/files/dltrs_example_2.stree dltrs_example_2.stree] (host tree)
+  * [http://jprime.googlecode.com/files/dltrs_example_2.fa dltrs_example_2.fa] (protein MSA)
+  * [http://jprime.googlecode.com/files/dltrs_example_2.map dltrs_example_2.map] (guest-to-host leaf map)
+
+Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we may get something like:
+{{{
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
+}}}
 
 ----
 ----
