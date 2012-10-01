@@ -63,7 +63,7 @@ DLTRS is currently under review.
 
 == INPUT ==
 
-The required Input files to DLTRS are exactly the same as for DLRS. Therefore, please consult the [DLRS#INPUT DLRS input tutorial] for details. As mentioned above, these consist of 1) a host tree with divergence times on the Newick format, 2) a multiple sequence alignment on the FASTA format, and 3) a file relating each sequence to each extant taxon.
+The required input files to Deleterious are exactly the same as for Delirious. Therefore, please consult the [DLRS#INPUT Delirious input tutorial] for details. As mentioned above, these consist of 1) a host tree with divergence times on the Newick format, 2) a multiple sequence alignment on the FASTA format, and 3) a file relating each sequence to each extant taxon.
 
 There is, however, a difference in the way that the host tree is discretized.
 
@@ -89,7 +89,7 @@ Deleterious is started as a command-line Java application. It is possible that f
 {{{
 java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dltrs/Deleterious [options] <host tree> <msa> <leaf map>
 }}}
-where the path and version of course refer to your current setup. See also the section on options below. We recommend using Oracle's HotSpot Java Virtual Machines due to their good performance.
+where the path and version of course refer to your current setup. See also the section on options below. We recommend using Oracle's HotSpot Java Virtual Machines due to their excellent performance.
 
 As in most MCMC applications, you typically conduct: 1) pilot runs to assess acceptance ratios, mixing, and running time, 2) if required, change tuning parameters to improve mixing, 3) perform the actual runs, often starting 2-4 parallel chains. We refer to the [DLRS#RUNNING section on running Delirious] for more information.
 
