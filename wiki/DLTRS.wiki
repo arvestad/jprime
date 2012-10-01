@@ -113,3 +113,9 @@ There is, however, a difference in the way that the host tree is discretized.
 
 
 == FAQ ==
+
+Since Deleterious shares most aspects with its sibling application Delirious, we refer to the [DLRS#FAQ FAQ of Delirious] for most issues. There are, however some differences, notably in discretization and running time.
+
+*Q1) What is a reasonable discretization for Deleterious?*
+
+A1) That depends. Deleterious is an advanced and already fairly optimized application, which solves systems of ordinary differential equations and performs sophisticated dynamic programming during MCMC iterations. As such, it is time-consuming, and you will have to strike a balance between speed and precision in terms of discretization density. Note, however, that the discretization is carried out on an edge generation-basis (see the figure above). Therefore, an edge generation typically needs fewer points than an edge in Delirious. Also, since transfer events are supported, Deleterious does not need as many points as Delirious on the stem edge in order to cope with odd trees during tree exploration.
