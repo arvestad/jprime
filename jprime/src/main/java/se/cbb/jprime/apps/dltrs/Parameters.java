@@ -164,27 +164,27 @@ public class Parameters {
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
 		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
-	public String tuningDupRate = "[0.75,0.75]";
+	public String tuningDupRate = "[0.8,0.8]";
 	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngloss", "--tuninglossrate"}, description = "Tuning parameter: Governs loss rate proposal distribution's CV.")
-	public String tuningLossRate = "[0.75,0.75]";
+	public String tuningLossRate = "[0.8,0.8]";
 	
 	/** Tuning parameter: transfer rate proposal distribution variance. */
 	@Parameter(names = {"-tngtrans", "--tuningtransferrate"}, description = "Tuning parameter: Governs transfer rate proposal distribution's CV.")
-	public String tuningTransferRate = "[0.75,0.75]";
+	public String tuningTransferRate = "[0.7,0.7]";
 	
 	/** Tuning parameter: edge rate mean proposal distribution variance. */
 	@Parameter(names = {"-tngerm", "--tuningedgeratemean"}, description = "Tuning parameter: Governs edge rate mean proposal distribution's CV.")
-	public String tuningEdgeRateMean = "[0.25,0.25]";
+	public String tuningEdgeRateMean = "[0.2,0.2]";
 	
 	/** Tuning parameter: edge rate CV proposal distribution variance. */
 	@Parameter(names = {"-tngercv", "--tuningedgeratecv"}, description = "Tuning parameter: Governs edge rate CV proposal distribution's CV.")
-	public String tuningEdgeRateCV = "[0.25,0.25]";
+	public String tuningEdgeRateCV = "[0.2,0.2]";
 	
 	/** Tuning parameter: site rate shape proposal distribution variance. */
 	@Parameter(names = {"-tngsrshape", "--tuningsiterateshape"}, description = "Tuning parameter: Governs site rate shape proposal distribution's CV.")
-	public String tuningSiteRateShape = "[0.10,0.10]";
+	public String tuningSiteRateShape = "[0.1,0.1]";
 	
 	/** Tuning parameter: branch lengths proposal distribution variance. */
 	@Parameter(names = {"-tngl", "--tuninglengths"}, description = "Tuning parameter: Governs branch lengths proposal distribution's CV.")

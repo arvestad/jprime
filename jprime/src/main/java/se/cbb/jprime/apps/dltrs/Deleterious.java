@@ -253,7 +253,7 @@ public class Deleterious {
 			info.write("# =========================================================================\n");
 			info.write("# ||                             POST-RUN INFO                           ||\n");
 			info.write("# =========================================================================\n");
-			info.write("# DELIRIOUS\n");
+			info.write("# DELETERIOUS\n");
 			info.write("# MCMC manager:\n");
 			info.write(manager.getPostInfo("# \t"));
 			info.flush();

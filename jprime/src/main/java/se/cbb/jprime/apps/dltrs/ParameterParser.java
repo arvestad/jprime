@@ -396,7 +396,7 @@ public class ParameterParser {
 			// duplications in the stem during G perturbation. Not really necessary since LGT supported...
 			int k = G.getNoOfLeaves();
 			int h = (int) Math.round(Math.log((double) k) / Math.log(2.0)); // Height of balanced tree...
-			ps.discStem = Math.min(Math.min(h + 6, k), 30);
+			ps.discStem = Math.min(Math.min(h, k), 10);
 		}
 		return new EpochDiscretiser(S, times, ps.discMin, ps.discMax, Double.parseDouble(ps.discTimestep), ps.discStem);
 	}
