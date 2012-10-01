@@ -1,4 +1,113 @@
 #summary Tutorial for DLTRS and Deleterious
 
-= Introduction =
-TBD
+=DLTRS and Deleterious =
+
+[http://jprime.googlecode.com/files/DLRS_3.png]
+
+== CONTENTS ==
+  # [DLTRS#INTRODUCTION Introduction]
+  # [DLTRS#REFERENCES References]
+  # [DLTRS#INPUT Input]
+  # [DLTRS#OUTPUT Output]
+  # [DLTRS#RUNNING Running]
+  # [DLTRS#ANALYSIS Analysis]
+  # [DLTRS#OPTIONS Options]
+  # [DLTRS#EXAMPLES Examples]
+  # [DLTRS#FAQ FAQ]
+
+----
+----
+----
+
+
+== INTRODUCTION ==
+
+*DLTRS [=the model]* is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication, loss, lateral transfer events, and sequence evolution with a relaxed molecular clock. It is strongly related to its sibling model, [DLRS DLRS], but extends the latter by incorporating support for transfer events.
+
+The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as occurring in separate phases:
+  # _G_ is created by evolving down _S_ by means of duplication, loss and transfer events according to a birth-death-like process. Lineages branch deterministically at speciations. In case of a transfer, a receiving species lineage contemporary with (but excluding) the donor lineage is uniformly selected.
+  # Using the clock-like times of _G_, relaxed branch lengths are obtained by multiplying each branch timespan with an _iid_ substitution rate according to a suitable distribution.
+  # Using _G_ and its branch lengths, sequence evolution occurs over the tree according to a substitution model of choice to produce guest family sequences. Possibly, site rate variation occurs according to a gamma distribution.
+
+Hence the name DLTRS = duplications, losses, transfers, rates & sequence evolution.
+
+*JPrIME-DLTRS [=the software application]*, colloquially known as *Deleterious*, is the Java application corresponding to the DLTRS model, and is used for inferring an unknown guest tree in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+
+*Input:*
+  * a file with a dated host tree.
+  * a file with a multiple sequence alignment (MSA) of guest tree leaf sequences.
+  * a file with a simple map relating the guest tree leaves to host tree leaves.
+
+*Output:*
+  * a file with samples drawn from the posterior distribution.
+  * a supplementary info file with settings, proposal acceptance ratios, etc.
+
+<font color='red'>
+*Below, you will find information on the input and output of the application, while explanations of vital program options and some sample files can be found at the end of the document. If you want to get started quickly, we suggest that you download and try [DLTRS#EXAMPLES Example 1], and have a look at it while reading through the other parts of the guide.*
+</font>
+
+----
+----
+----
+
+
+== REFERENCES ==
+
+DLTRS is currently under review.
+
+
+----
+----
+----
+
+
+== INPUT ==
+
+
+----
+----
+----
+
+
+ == OUTPUT ==
+
+
+----
+----
+----
+
+
+== RUNNING ==
+
+
+----
+----
+----
+
+ 
+== ANALYSIS ==
+
+
+----
+----
+----
+
+
+== OPTIONS ==
+
+
+----
+----
+----
+
+
+ == EXAMPLES ==
+
+
+----
+----
+----
+
+
+ == FAQ ==
+
