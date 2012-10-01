@@ -147,7 +147,6 @@ only the initial part `custom` will be interpreted as the ID.
 ----
 ----
 ----
-----
 
 
 == OUTPUT ==
@@ -218,7 +217,6 @@ Notably, at the end of the info file, you can find statistics for acceptance rat
 ----
 ----
 ----
-----
 
 
 == RUNNING ==
@@ -241,7 +239,6 @@ Before performing your real runs, you should make pilot runs to assess the MCMC 
 ===Final runs===
 For your final runs, the number of iterations required and a suitable thinning factor will depend on the size of your input. No exact numbers can be provided; you will have to rely on "common sense", and analyses (see below) ;-)  You probably want to perform 2 - 4 independent "parallel" MCMC chains to be able to conduct proper convergence diagnostics.
 
-----
 ----
 ----
 ----
@@ -271,7 +268,6 @@ To get a quick glimpse of the tree space, you could even use a shell such as bas
 $ cut -f9 myoutput.mcmc | tail -5000 | sort | uniq -c | sort -n
 }}}
 
-----
 ----
 ----
 ----
@@ -325,7 +321,6 @@ Should the default discretization settings not be satisfactory, you can change t
 ----
 ----
 ----
-----
 
 
 == EXAMPLES ==
@@ -370,7 +365,6 @@ java -cp mypath/jprime-X.Y.Z.jar -Xms768m -Xmx1536m se/cbb/jprime/apps/dlrs/Deli
 Note: This will be a long and time-consuming MCMC chain.
 
 
-----
 ----
 ----
 ----
