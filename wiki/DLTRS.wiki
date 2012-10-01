@@ -192,7 +192,7 @@ Another Mollicutes gene family. This family has a weak signal, resulting in many
 
 Here, we might try to improve the MCMC mixing a bit by reducing the duplication and loss rate suggestion boldness, and increasing the relative proportion of branch-swapping operations:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dltrs/Deleterious -o dltrs_example_2.mcmc -i 100000 -tngdup [0.4,0.4] -tngloss [0.4,0.4] -tngwg [4,4] dltrs_example_2.stree dltrs_example_2.fa dltrs_example_2.map
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dltrs/Deleterious -o dltrs_example_2.mcmc -i 1000000 -t 200 -sm JTT -tngdup [0.4,0.4] -tngloss [0.4,0.4] -tngwg [4,4] dltrs_example_2.stree dltrs_example_2.fa dltrs_example_2.map
 }}}
 
 ----
