@@ -74,7 +74,7 @@ There is, however, a difference in the way that the host tree is discretized.
 
 == OUTPUT ==
 
-Output is virtually identical to Delirious output, see [DLRS#OUTPUT here]. The only major difference is the inclusion of an additional column for the LGT rate.
+Output is virtually identical to Delirious output, see [DLRS#OUTPUT here]. The only major difference is the inclusion of an additional column for the LGT rate. The accompanying "info file" should be inspected for determining that MCMC mixing is performing adequately.
 
 ----
 ----
