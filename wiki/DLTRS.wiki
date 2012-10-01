@@ -22,10 +22,10 @@
 
 == INTRODUCTION ==
 
-*DLTRS [=the model]* is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication, loss, lateral transfer events, and sequence evolution with a relaxed molecular clock. It is strongly related to its sibling model, [DLRS DLRS], but extends the latter by incorporating support for transfer events.
+*DLTRS [=the model]* is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication, loss, lateral transfer (LGT) events, and sequence evolution with a relaxed molecular clock. It is strongly related to its sibling model, [DLRS DLRS], but extends the latter by incorporating support for transfer events.
 
 The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as occurring in separate phases:
-  # _G_ is created by evolving down _S_ by means of duplication, loss and transfer events according to a birth-death-like process. Lineages branch deterministically at speciations. In case of a transfer, a receiving species lineage contemporary with (but excluding) the donor lineage is uniformly selected.
+  # _G_ is created by evolving down _S_ by means of duplication, loss and transfer events according to a birth-death-like process. Lineages branch deterministically at speciations. In case of an LGT, a receiving species lineage contemporary with (but excluding) the donor species lineage is uniformly selected.
   # Using the clock-like times of _G_, relaxed branch lengths are obtained by multiplying each branch timespan with an _iid_ substitution rate according to a suitable distribution.
   # Using _G_ and its branch lengths, sequence evolution occurs over the tree according to a substitution model of choice to produce guest family sequences. Possibly, site rate variation occurs according to a gamma distribution.
 
@@ -118,4 +118,8 @@ Since Deleterious shares most aspects with its sibling application Delirious, we
 
 *Q1) What is a reasonable discretization for Deleterious?*
 
-A1) That depends. Deleterious is an advanced and already fairly optimized application, which solves systems of ordinary differential equations and performs sophisticated dynamic programming during MCMC iterations. As such, it is time-consuming, and you will have to strike a balance between speed and precision in terms of discretization density. Note, however, that the discretization is carried out on an edge generation-basis (see the figure above). Therefore, an edge generation typically needs fewer points than an edge in Delirious. Also, since transfer events are supported, Deleterious does not need as many points as Delirious on the stem edge in order to cope with odd trees during tree exploration.
+A1) That depends. Deleterious is an advanced and already fairly optimized application, which solves systems of ordinary differential equations and performs sophisticated dynamic programming during MCMC iterations. As such, it is time-consuming, and you will have to strike a balance between speed and precision in terms of discretization density. Note, however, that the discretization is carried out on an edge generation-basis (see the figure above). Therefore, an edge generation typically needs fewer points than an edge in Delirious. Also, since transfer events are supported, Deleterious does not need as many points as Delirious on the stem edge in order to cope with odd trees during tree exploration. Try using the default discretization, and if it is too demanding, decrease the density gradually.
+
+*Q2) LGT events always occurs between disjoint donor- and recipient species lineages. What about intra-species transfer?*
+
+A2) This is an interesting question. Such events will appear as duplication in the model. Therefore, the inferred duplication rate will encompass both intra-species transfer and, e.g., tandem duplications.
