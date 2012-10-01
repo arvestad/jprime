@@ -63,6 +63,7 @@ DLTRS is currently under review.
 
 == INPUT ==
 
+Input to DLTRS is exactly the same as for DLRS. Therefore, please consult the [DLRS#INPUT DLRS input tutorial] for details. As mentioned above, input consists of a host tree with divergence times on the Newick format, a multiple sequence alignment on the FASTA format, and a file relating each sequence to each extant taxon.
 
 ----
 ----
