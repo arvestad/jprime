@@ -6,9 +6,32 @@
 
 VMCMC is an application for analyzing output of MCMC chains. It deals with various metrics for assessing MCMC convergence, as well as summary statistics of inferred real-valued parameters, tree topologies, etc. VMCMC can be used with output from the C++ version of PrIME, and general tab-delimited files such as those produced by JPrIME applications [DLRS Delirious] or [DLTRS Deleterious]. 
 
+VMCMC supports two modes for analyzing an MCMC chain:
+  # Graphical user interface (GUI) for showing trace plots, etc.
+  # Command-line summary of important statistics.
+
 = Running =
-
-
+ 
+You start the GUI version of VMCMC by running e.g.:
+{{{
+java -cp myfolder/jprime-x.y.z.jar se/cbb/jprime/apps/vmcmc/MCMCApplication
+}}}
+where the details of course refer to your current setup. You can always show all available options by typing e.g.:
+{{{
+java -cp myfolder/jprime-x.y.z.jar se/cbb/jprime/apps/vmcmc/MCMCApplication -h
+}}}
+If you run out of memory when using Oracle's HotSpot Java VM, you can allocate more memory by specifying e.g. (these are not options of VMCMC):
+{{{
+java -Xms768m -Xmx1536m -cp myfolder/jprime-x.y.z.jar se/cbb/jprime/apps/vmcmc/MCMCApplication
+}}}
+To initialize the GUI directly for a specific file, type e.g.:
+{{{
+java -cp myfolder/jprime-x.y.z.jar se/cbb/jprime/apps/vmcmc/MCMCApplication -f myfile.mcmc
+}}}
+To suppress the GUI and only output summary statistics of the chain in the terminal, typ e.g.:
+{{{
+java -cp myfolder/jprime-x.y.z.jar se/cbb/jprime/apps/vmcmc/MCMCApplication -f myfile.mcmc -n
+}}}
 
 = Details =
 
