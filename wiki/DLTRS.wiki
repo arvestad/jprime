@@ -122,4 +122,4 @@ A1) That depends. Deleterious is an advanced and already fairly optimized applic
 
 *Q2) LGT events always occur between disjoint donor- and recipient species lineages. What about intra-species transfer?*
 
-A2) This is an interesting question. Such events will appear as duplication in the model. Therefore, the inferred duplication rate will encompass both intra-species transfer and, e.g., tandem duplications.
+A2) This is an interesting question. Such events will appear as duplications in the model. Therefore, the inferred duplication rate will encompass both intra-species transfers and, e.g., tandem duplications, whereas the transfer rate will capture inter-species transfer.
