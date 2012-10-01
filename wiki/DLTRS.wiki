@@ -2,7 +2,7 @@
 
 =DLTRS and Deleterious =
 
-[http://jprime.googlecode.com/files/DLRS_3.png]
+[http://jprime.googlecode.com/files/DLTRS.png]
 
 == CONTENTS ==
   # [DLTRS#INTRODUCTION Introduction]
