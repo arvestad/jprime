@@ -1,6 +1,6 @@
 #summary Tutorial for using JPrIME-VMCMC.
 
-*VMCMC has not yet been released, and the information below is not guaranteed to be up-to-date. Feedback is much appreciated, should you want to try VMCMC out. We hope to be able offer a stable first release in a near future.*
+*VMCMC has not yet been released, and the information below is not guaranteed to be up-to-date. Feedback is much appreciated, should you want to try VMCMC out. We hope to be able offer a stable first release in the near future.*
 
 = Introduction =
 
