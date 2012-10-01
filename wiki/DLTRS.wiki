@@ -180,19 +180,19 @@ A microbial gene family of Mollicutes within the Firmicutes phylum. These typica
 
 Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we may get something like:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dltrs/Deleterious -o dltrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dltrs_example_1.stree dltrs_example_1.fa dltrs_example_1.map
 }}}
 
 === 2: More Mollicutes ===
-Another Mollicutes gene family.
+Another Mollicutes gene family. This family has a weak signal, resulting in many low-probability trees.
 
   * [http://jprime.googlecode.com/files/dltrs_example_2.stree dltrs_example_2.stree] (host tree)
   * [http://jprime.googlecode.com/files/dltrs_example_2.fa dltrs_example_2.fa] (protein MSA)
   * [http://jprime.googlecode.com/files/dltrs_example_2.map dltrs_example_2.map] (guest-to-host leaf map)
 
-Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we may get something like:
+Here, we might try to improve the MCMC mixing a bit by reducing the duplication and loss rate suggestion boldness, and increasing the relative proportion of branch-swapping operations:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dlrs/Delirious -o dlrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dlrs_example_1.stree dlrs_example_1.fa dlrs_example_1.map
+java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dltrs/Deleterious -o dltrs_example_2.mcmc -i 100000 -tngdup [0.4,0.4] -tngloss [0.4,0.4] -tngwg [4,4] dltrs_example_2.stree dltrs_example_2.fa dltrs_example_2.map
 }}}
 
 ----
