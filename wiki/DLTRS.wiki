@@ -102,6 +102,7 @@ As in most MCMC applications, you typically conduct: 1) pilot runs to assess acc
  
 == ANALYSIS ==
 
+Analysis is carried out in the same way as with Delirious; please see the corresponding [DLRS#ANALYSIS section] for more details. MCMC chain output consists of a tab-delimited file which can be read with e.g. CRAN R, Matlab, or Octave. Note that under typical settings, Deleterious will output one column more than Delirious, namely the LGT rate. Trees are output as sorted Newick strings, and can easily be counted, analyzed for common clades etc. using external software (or even a shell). As always, one should discard an initial portion of the output as burn-in to make sure analyzed samples have converged to the posterior distribution.
 
 ----
 ----
