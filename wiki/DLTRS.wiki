@@ -65,7 +65,10 @@ DLTRS is currently under review.
 
 The required input files to Deleterious are exactly the same as for Delirious. Therefore, please consult the [DLRS#INPUT Delirious input tutorial] for details. As mentioned above, these consist of 1) a host tree with divergence times on the Newick format, 2) a multiple sequence alignment on the FASTA format, and 3) a file relating each sequence to each extant taxon.
 
-There is, however, a difference in the way that the host tree is discretized.
+There is, however, a difference in the way that the host tree is discretized. As with Delirious, the host tree must be clock-like (ultrametric), with time 0 at the leaves and time >0 at the root, and a "stem" with timespan >0. The scale of the dates can be any unit: *they will be rescaled internally prior to running so that the root time is 1.0, and the output will refer to this scaling*, and not the original values. The scale factor is included in the info output file. The algorithm will use a discretization of the host tree based on sub-dividing contemporary "edge generations". The default settings may be changed according to the options shown below.
+
+ 
+[http://jprime.googlecode.com/files/Deleterious_discretization.png]
 
 ----
 ----
