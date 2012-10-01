@@ -101,7 +101,7 @@ DLTRS is currently under review.
 ----
 
 
- == EXAMPLES ==
+== EXAMPLES ==
 
 
 ----
@@ -109,5 +109,4 @@ DLTRS is currently under review.
 ----
 
 
- == FAQ ==
-
+== FAQ ==
