@@ -24,7 +24,7 @@ import se.cbb.jprime.mcmc.TuningParameter;
  * to simple heuristics.
  * <p/>
  * Currently, the tree is perturbed using NNI, SPR (also superset of NNI), and
- * rerooting. By default, these are selected probability [0.5,0,3,0,2], but
+ * rerooting. By default, these are selected using default probabilities, e.g., [0.5,0,3,0,2], but
  * this may be substituted using <code>setOperationWeights(...)</code>.
  * 
  * @author Lars Arvestad.
