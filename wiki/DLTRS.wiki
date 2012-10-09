@@ -22,7 +22,7 @@
 
 == INTRODUCTION ==
 
-*DLTRS [=the model]* is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication, loss, lateral transfer (LGT) events, and sequence evolution with a relaxed molecular clock. It is strongly related to its sibling model, [DLRS DLRS], but extends the latter by incorporating support for transfer events. However, there are some fairly large differences in how the underlying probabilities are computed, and Deleterious is more computationally demanding than Delirious.
+*DLTRS [=the model]* is a phylogenetic model for the evolution of a guest tree (_gene family_) inside a host tree (_species tree_). It models duplication, loss, lateral transfer (LGT) events, and sequence evolution with a relaxed molecular clock. It is strongly related to its sibling model, [DLRS DLRS], but extends the latter by incorporating support for transfer events.
 
 The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as occurring in separate phases:
   # _G_ is created by evolving down _S_ by means of duplication, loss and transfer events according to a birth-death-like process. Lineages branch deterministically at speciations. In case of an LGT, a receiving species lineage contemporary with (but excluding) the donor species lineage is uniformly selected.
@@ -31,7 +31,7 @@ The evolution of the guest tree _G_ over the host tree _S_ can be envisioned as 
 
 Hence the name DLTRS = duplications, losses, transfers, rates & sequence evolution.
 
-*JPrIME-DLTRS [=the software application]*, colloquially known as *Deleterious*, is the Java application corresponding to the DLTRS model, and is used for inferring an unknown guest tree in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters.
+*JPrIME-DLTRS [=the software application]*, colloquially known as *Deleterious*, is the Java application corresponding to the DLTRS model, and is used for inferring an unknown guest tree in light of a known and dated host tree and known sequence data for the leaves. The method relies on Bayesian inference using an MCMC framework. Thus, it will yield a posterior distribution of guest tree topologies and remaining parameters. *Note, however, that in comparison with its sibling tool, [DLRS Delirious], there are some fairly significant differences in how the underlying probabilities are computed, and Deleterious is more computationally demanding than Delirious. Thus, if lateral gene transfer is unlikely to occur, Delirious will be more efficient.*
 
 *Input:*
   * a file with a dated host tree.
