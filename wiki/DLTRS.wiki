@@ -120,7 +120,7 @@ Analysis is carried out in the same way as with Delirious; please see the corres
 
 Delirious comes with a large number of user options; please don't feel overwhelmed! Some of the more commonly used ones are detailed below. You can always type
 {{{
-java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dlrs/Delirious -h
+java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dltrs/Deleterious -h
 }}}
 to get a more up-to-date description of all available options.
 
