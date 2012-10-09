@@ -410,6 +410,10 @@ A8) The timespan of the stem edge should be set to some reasonable value, e.g. 2
 
 A9) Not at the moment. It is possible that future versions will include support for multiple cores (in particular when Java 7+ has become sufficiently adopted). MPI support for multiple compute nodes seems more unlikely. In such a scenario, we might opt instead for inclusion of a Hadoop/Map-Reduce framework
 
-*Q10 Does Delirious support Markov-coupled MCMC (MC^3)?*
+*Q10) Does Delirious support Markov-coupled MCMC (MC^3)?*
 
 A10) Not at the moment. We are, however, pursuing efforts of improving exploration of the tree space for large trees.
+
+*Q11) I'm providing my own initial guest tree, but it seems to cause issues. Why?*
+
+A11) As stated above, the guest tree must be rooted and provided on the Newick format. Many applications will generate unrooted trees such as "(A,B,C)". In this case make a qualified guess, or simply pick an arbitrary root such as "((A,B),C)". If the tree contains branch lengths, it might be easiest just to remove them first.
