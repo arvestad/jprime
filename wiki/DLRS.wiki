@@ -259,7 +259,7 @@ Several MCMC-tailored analysis softwares exist, among them:
 
 === Hello world parameter analysis ===
 
-Generally, CRAN R is suitable for many types of analysis. For instance, you could read and plot the duplication rate in R thus:
+Generally, CRAN R is suitable for many types of analyses. For instance, you could read and plot the duplication rate in R thus:
 {{{
 > burnInLim <- 250000;
 > chain <- read.table('myoutput.mcmc', header=TRUE);
@@ -280,9 +280,9 @@ In general, we have the following recommendations for some common analyses:
 
 *Guest tree variance:*There are a number of potential variants here. One can, e.g., look at posterior clade probabilities, or treat the topology as a discrete variable and just look at its distribution or Shannon entropy. A different approach is to compute a tree distance metric such as Robinson-Foulds, which can be visualized with, for instance, multidimensional scaling (MDS) techniques.
 
- *Continuous parameter point estimate:* We recommend obtaining a smoothed _maximum a posteriori_ (MAP) estimate. The reason for this is that the distribution is often highly skewed by being bounded at (and close to) zero. It may be advisable to perform some sort of boundary correction such as mirroring when smoothing to actually find MAP values at zero, since the sampling is sparser there. The mean or median is an alternative, if the distribution is not too skewed and pronounced at zero. In this case, consider doing some outlier filtering, such as removing values based on the interquartile range (IQR). Note that the event rates are typically highly correlated with each other and with the guest tree topology. It may therefore be reasonable to estimate them jointly.
+*Continuous parameter point estimate:* We recommend obtaining a smoothed _maximum a posteriori_ (MAP) estimate. The reason for this is that the distribution is often highly skewed by being bounded at (and close to) zero. It may be advisable to perform some sort of boundary correction such as mirroring when smoothing to actually find MAP values at zero, since the sampling is sparser there. The mean or median is an alternative, if the distribution is not too skewed and pronounced at zero. In this case, consider doing some outlier filtering, such as removing values based on the interquartile range (IQR). Note that the event rates are typically highly correlated with each other and with the guest tree topology. It may therefore be reasonable to estimate them jointly.
 
-*Continuous parameter variance:*This is straightforward. Typically, the variance, standard deviation or coefficient of variation suffices. However, consider doing some outlier filtering first, as above.
+*Continuous parameter variance:* This is straightforward. Typically, the variance, standard deviation or coefficient of variation suffices. However, consider doing some outlier filtering first, as above.
 
 ----
 ----
