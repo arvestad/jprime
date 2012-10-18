@@ -249,11 +249,15 @@ As in most MCMC inference tools, you will need to verify that the chain has been
 
 You should discard an initial proportion of the samples as burn-in. Convergence statistics may assist you in determining how many. Such measures typically include Gelman-Rubin diagnostics, effective sample size (ESS), potential scale reduction factor (PSRF), sample autocorrelation, and manual inspection of the agreement of log-likelihoods, trees and parameter estimates for parallel chains.
 
+=== Convergence diagnostics and analysis tools ===
+
 Several MCMC-tailored analysis softwares exist, among them:
   * The [http://cran.r-project.org CRAN R] package [http://cran.r-project.org/web/packages/coda/index.html CODA].
   * [VMCMC VMCMC]. Includes many of CODA's diagnostics, but is easier to use.
   * [http://tree.bio.ed.ac.uk/software/tracer/ Tracer].
   * [http://ceb.csit.fsu.edu/awty/ AWTY]. Particularly tailored for inspecting clade convergence diagnostics.
+
+=== Hello world parameter analysis ===
 
 Generally, CRAN R is suitable for many types of analysis. For instance, you could read and plot the duplication rate in R thus:
 {{{
@@ -269,10 +273,16 @@ $ cut -f9 myoutput.mcmc | tail -5000 | sort | uniq -c | sort -n
 }}}
 This will quickly identify the maximum probability tree among the 5,000 samples.
 
+=== Common tasks ===
 In general, we have the following recommendations for some common analyses:
-  * Guest tree point estimate: If you need a point estimate, pick the maximum probability tree. Unless coinciding with this tree, another candidate is the tree with the highest unnormalized posterior density, but this is often "noisier" and may just be a reasonably good tree with haphazard well-tuning of branch lengths, etc. Of course, one may find scenarios where the actual MAP tree is from a "narrow region" and is not the same as the maximum probability tree. An entirely different approach may be to obtain a consensus tree of some sort, preferably weighted by the abundance of the different input trees (i.e. the samples).
-  * Guest tree variance: There are a number of potential variants here. One can, e.g., look at posterior clade probabilities, or treat the topology as a discrete variable and just look at its distribution or Shannon entropy. A different approach is to compute a tree metric such as Robinson-Foulds, which can be visualized with, for instance, multidimensional scaling (MDS) techniques.
-  * Rate point estimate: 
+
+*Guest tree point estimate:* If you need a point estimate, pick the maximum probability tree. Unless coinciding with this tree, another candidate is the tree with the highest unnormalized posterior density, but this is often "noisier" and may just be a reasonably good tree with haphazard well-tuning of branch lengths, etc. Of course, one may find scenarios where the actual MAP tree is from a "narrow region" and is not the same as the maximum probability tree. An entirely different approach may be to obtain a consensus tree of some sort, preferably weighted by the abundance of the different input trees (i.e. the samples).
+
+*Guest tree variance:*There are a number of potential variants here. One can, e.g., look at posterior clade probabilities, or treat the topology as a discrete variable and just look at its distribution or Shannon entropy. A different approach is to compute a tree distance metric such as Robinson-Foulds, which can be visualized with, for instance, multidimensional scaling (MDS) techniques.
+
+ *Continuous parameter point estimate:* We recommend obtaining a smoothed _maximum a posteriori_ (MAP) estimate. The reason for this is that the distribution is often highly skewed by being bounded at (and close to) zero. It may be advisable to perform some sort of boundary correction such as mirroring when smoothing to actually find MAP values at zero, since the sampling is sparser there. The mean or median is an alternative, if the distribution is not too skewed and pronounced at zero. In this case, consider doing some outlier filtering, such as removing values based on the interquartile range (IQR). Note that the event rates are typically highly correlated with each other and with the guest tree topology. It may therefore be reasonable to estimate them jointly.
+
+*Continuous parameter variance:*This is straightforward. Typically, the variance, standard deviation or coefficient of variation suffices. However, consider doing some outlier filtering first, as above.
 
 ----
 ----
