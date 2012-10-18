@@ -267,6 +267,12 @@ To get a quick glimpse of the tree space, you could even use a shell such as bas
 {{{
 $ cut -f9 myoutput.mcmc | tail -5000 | sort | uniq -c | sort -n
 }}}
+This will quickly identify the maximum probability tree among the 5,000 samples.
+
+In general, we have the following recommendations for some common analyses:
+  * Guest tree point estimate: If you need a point estimate, pick the maximum probability tree. Unless coinciding with this tree, another candidate is the tree with the highest unnormalized posterior density, but this is often "noisier" and may just be a reasonably good tree with haphazard well-tuning of branch lengths, etc. Of course, one may find scenarios where the actual MAP tree is from a "narrow region" and is not the same as the maximum probability tree. An entirely different approach may be to obtain a consensus tree of some sort, preferably weighted by the abundance of the different input trees (i.e. the samples).
+  * Guest tree variance: There are a number of potential variants here. One can, e.g., look at posterior clade probabilities, or treat the topology as a discrete variable and just look at its distribution or Shannon entropy. A different approach is to compute a tree metric such as Robinson-Foulds, which can be visualized with, for instance, multidimensional scaling (MDS) techniques.
+  * Rate point estimate: 
 
 ----
 ----
