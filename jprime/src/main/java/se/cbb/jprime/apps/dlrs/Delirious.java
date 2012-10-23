@@ -52,7 +52,7 @@ import com.beust.jcommander.JCommander;
 /**
  * Java version of the Delirious application (previously known as GSR and GSRf)
  * for simultaneous reconciliation and inference
- * of a guest tree evolving inside a dated host tree. Based on the DLRS model.
+ * of a guest tree evolving inside a dated host tree. Based on the DLRS model. 
  * 
  * @author Joel Sjöstrand.
  */
