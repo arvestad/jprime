@@ -242,7 +242,7 @@ public class Delirious {
 			// ================ WRITE PRE-INFO ================
 			info.write("# MCMC manager:\n");
 			info.write(manager.getPreInfo("# \t"));
-			info.flush();   // Don't close, maybe using stdout for both sampling and info...
+			info.flush();   // Don't close, maybe use stdout for both sampling and info...
 			
 			// ================ RUN ================
 			manager.run();
