@@ -45,6 +45,7 @@ import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
 import se.cbb.jprime.seqevo.MultiAlignment;
 import se.cbb.jprime.seqevo.SequenceType;
+import se.cbb.jprime.topology.BiasedRBTreeBranchSwapper;
 import se.cbb.jprime.topology.BifurcateTree;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
@@ -483,10 +484,14 @@ public class ParameterParser {
 	 * @param samples guest tree samples.
 	 * @return branch swapper.
 	 */
-	public static Proposer getBranchSwapper(Parameters ps, RBTree tree, DoubleMap lengths, Iteration iter, PRNG prng, NewickRBTreeSamples samples) {
+	public static Proposer getBranchSwapper(Parameters ps, RBTree tree, DoubleMap lengths, MPRMap mpr, Iteration iter, PRNG prng, NewickRBTreeSamples samples) {
 		Proposer mrGardener;
 		if (ps.guestTreeSet == null) {
-			mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
+			if (ps.guestTreeBiasedSwapping == null) {
+				mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
+			} else {
+				mrGardener = new BiasedRBTreeBranchSwapper(tree, lengths, null, prng, mpr, 1, 1);
+			}
 			double[] moves = SampleDoubleArray.toDoubleArray(ps.tuningGuestTreeMoveWeights);
 			((RBTreeBranchSwapper) mrGardener).setOperationWeights(moves[0], moves[1], moves[2]);
 		} else {
