@@ -107,6 +107,14 @@ public class MPRMap implements ProperDependent {
 		}
 	}
 
+	/**
+	 * Forces an update, without caching. DO NOT USE in case the instance
+	 * is part of a dependency DAG!.
+	 */
+	public void forceUpdate() {
+		this.computeSigma(this.G.getRoot());
+	}
+	
 	@Override
 	public void clearCache(boolean willSample) {
 		this.sigmaCache = null;

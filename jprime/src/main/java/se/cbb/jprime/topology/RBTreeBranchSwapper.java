@@ -142,7 +142,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * Asserts that all vertices are present and unique.
 	 * @return true if all presents
 	 */
-	private boolean verticesAreUnique() {
+	protected boolean verticesAreUnique() {
 		String nw = this.T.toString().replace(")", ",").replace("(", "").replace(";", "");
 		String[] vertices = nw.split(",");
 		if (vertices.length != this.T.getNoOfVertices()) {
@@ -278,7 +278,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param r root of subtree.
 	 * @return true if v is in the subtree rooted at r; otherwise false.
 	 */
-	private boolean isInSubtree(int v, int r) {
+	protected boolean isInSubtree(int v, int r) {
 		while (v != RBTree.NULL) {
 			if (v == r) { return true; }
 			v = this.T.getParent(v);
@@ -293,7 +293,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param v the sink.
 	 */
 	@SuppressWarnings("unused")
-	private void setRootOn(int v) {
+	protected void setRootOn(int v) {
 		if (T.isRoot(v)) {
 			return;
 		}
@@ -346,7 +346,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * scramble the nodes round the root, this might not be optimal, 
 	 * see rotate-methods.
 	 */
-	private void doReroot() {
+	protected void doReroot() {
 		int treeSize = this.T.getNoOfVertices();
 		if (treeSize <= 3) {
 			throw new UnsupportedOperationException("Cannot perform re-rooting on tree topology with 2 leaves or less.");
@@ -369,7 +369,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * For example, <code>((a,b),(c,d)) => ((a,d),(b,c))</code> somewhere in the tree.
 	 * Precondition: if the number of leaves is 4, input tree must not be symmetric.
 	 */
-	private void doNNI() {
+	protected void doNNI() {
 		// Disallow symmetric 4-leaf trees.
 		if (this.T.getNoOfLeaves() == 4 && this.T.isLeaf(this.T.getLeftChild(this.T.getRoot())) && this.T.isLeaf(this.T.getRightChild(this.T.getRoot()))) {
 			throw new UnsupportedOperationException("Cannot perform NNI on symmetric tree topology with 4 leaves.");
@@ -478,7 +478,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 *   /___\ /___\  /___\/___\  /___\ /___\  /___\/___\         .
 	 * </pre>
 	 */
-	private void doSPR() {
+	protected void doSPR() {
 
 		int treeSize = this.T.getNoOfVertices();
 		
@@ -638,7 +638,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param lengths the lengths of the tree (if any).
 	 * @param times the times of the tree (if any).
 	 */
-	private static void rotate(RBTree T, int v, int v_child, DoubleMap lengths, TimesMap times) {
+	protected static void rotate(RBTree T, int v, int v_child, DoubleMap lengths, TimesMap times) {
 		assert(v != RBTree.NULL);
 		assert(v_child != RBTree.NULL);
 	
@@ -744,7 +744,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * @param v the subtree root.
 	 * @param scaleFactor the scale factor which all times of T_u are rescaled with.
 	 */
-	private static void recursiveEdgeTimeScaling(RBTree T, TimesMap times, int v, double scaleFactor) {
+	protected static void recursiveEdgeTimeScaling(RBTree T, TimesMap times, int v, double scaleFactor) {
 		assert(times != null);
 
 		double[] vts = times.getVertexTimes();
