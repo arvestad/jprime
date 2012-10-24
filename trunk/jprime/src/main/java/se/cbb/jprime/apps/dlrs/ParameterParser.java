@@ -43,6 +43,7 @@ import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
+import se.cbb.jprime.seqevo.MSAData;
 import se.cbb.jprime.seqevo.MultiAlignment;
 import se.cbb.jprime.seqevo.SequenceType;
 import se.cbb.jprime.topology.BiasedRBTreeBranchSwapper;
@@ -57,6 +58,7 @@ import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RBTreeBranchSwapper;
 import se.cbb.jprime.topology.RBTreeBranchSwapperSampler;
 import se.cbb.jprime.topology.TimesMap;
+import se.cbb.jprime.topology.TreeSequenceIdentity;
 import se.cbb.jprime.topology.UniformRBTreeGenerator;
 
 /**
@@ -215,7 +217,7 @@ public class ParameterParser {
 	 * @return guest tree, names and branch lengths.
 	 */
 	public static Triple<RBTree, NamesMap, DoubleMap>
-		getGuestTreeAndLengths(Parameters ps, GuestHostMap gsMap, PRNG prng, LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs, BufferedWriter info, NewickRBTreeSamples samples) {
+		getGuestTreeAndLengths(Parameters ps, GuestHostMap gsMap, PRNG prng, LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs, BufferedWriter info, NewickRBTreeSamples samples, MSAData msa) {
 		Triple<RBTree, NamesMap, DoubleMap> guestTreeAndLengths = null;
 		if (ps.msaFastPhyloTree && ps.guestTreeSet != null) {
 			throw new IllegalArgumentException("Cannot use a fixed guest tree set and Fast Phylo at the same time.");
@@ -224,7 +226,7 @@ public class ParameterParser {
 		} else if (ps.guestTreeSet != null) {
 			guestTreeAndLengths = getGuestTreeAndLengthsFromSet(ps, prng, info, samples);
 		} else {
-			guestTreeAndLengths = getGuestTreeAndLengthsSimple(ps, gsMap, prng, seqs, info);
+			guestTreeAndLengths = getGuestTreeAndLengthsSimple(ps, gsMap, prng, seqs, info, msa);
 		}
 		return guestTreeAndLengths;
 	}
@@ -239,7 +241,8 @@ public class ParameterParser {
 	 * @param info information output.
 	 * @return guest tree, names and branch lengths.
 	 */
-	private static Triple<RBTree, NamesMap, DoubleMap> getGuestTreeAndLengthsSimple(Parameters ps, GuestHostMap gsMap, PRNG prng, LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs, BufferedWriter info) {
+	private static Triple<RBTree, NamesMap, DoubleMap> getGuestTreeAndLengthsSimple(Parameters ps, GuestHostMap gsMap, PRNG prng, LinkedHashMap<String, ? extends Sequence<? extends Compound>> seqs,
+			BufferedWriter info, MSAData msa) {
 		RBTree g = null;
 		NamesMap gNames = null;
 		DoubleMap gLengths = null;
@@ -251,14 +254,14 @@ public class ParameterParser {
 				NewickTree gRaw = NeighbourJoiningTreeGenerator.createNewickTree(new MultiAlignment(seqs, false));
 				g = new RBTree(gRaw, "GuestTree");
 				gNames = gRaw.getVertexNamesMap(true, "GuestTreeNames");
-				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+				gLengths = getBranchLengths(g, gNames, msa);
 			} else if (ps.guestTree.equalsIgnoreCase("UNIFORM")) {
 				// Uniformly drawn tree.
 				info.append("# Initial guest tree: Uniformly selected random unlabelled tree.\n");
 				Pair<RBTree, NamesMap> gn = UniformRBTreeGenerator.createUniformTree("GuestTree", new ArrayList<String>(gsMap.getAllGuestLeafNames()), prng);
 				g = gn.first;
 				gNames = gn.second;
-				gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+				gLengths = getBranchLengths(g, gNames, msa);
 			} else {
 				// Read tree from file.
 				info.append("# Initial guest tree: User-specified from file ").append(ps.guestTree).append(".\n");
@@ -268,13 +271,33 @@ public class ParameterParser {
 				if (GRaw.hasProperty(MetaProperty.BRANCH_LENGTHS)) {
 					gLengths = GRaw.getBranchLengthsMap("BranchLengths");
 				} else {
-					gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+					gLengths = getBranchLengths(g, gNames, msa);
 				}
 			}
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid guest tree parameter or file.", e);
 		}
 		return new Triple<RBTree, NamesMap, DoubleMap>(g, gNames, gLengths);
+	}
+	
+	/**
+	 * Heuristic for branch lengths.
+	 * @param g guest tree.
+	 * @param gNames leaf names.
+	 * @param msa data.
+	 * @return branch lengths.
+	 */
+	private static DoubleMap getBranchLengths(RBTree g, NamesMap gNames, MSAData msa) {
+		TreeSequenceIdentity id = new TreeSequenceIdentity(g, gNames, msa);
+		DoubleMap pids = id.getPercentIdentityLengths();
+		DoubleMap gLengths = new DoubleMap("BranchLengths", g.getNoOfVertices(), 0.1);
+		for (int x = 0; x < gLengths.getSize(); ++x) {
+			double pid = pids.get(x);
+			if (pid > 0.9) {
+				gLengths.set(x, 1.0 - pid + 1e-6);
+			}
+		}
+		return gLengths;
 	}
 	
 	/**

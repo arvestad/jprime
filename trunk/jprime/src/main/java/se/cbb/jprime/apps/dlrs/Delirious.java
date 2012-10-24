@@ -138,7 +138,7 @@ public class Delirious {
 							params.guestTreeSetFileRelColNo, burninProp, minCvg);
 				}
 			}
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
 			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
