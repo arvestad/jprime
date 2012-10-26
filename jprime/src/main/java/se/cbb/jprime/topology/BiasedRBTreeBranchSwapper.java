@@ -49,12 +49,16 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		
 		double dupScore = this.mprMap.getTotalNoOfDuplications() * this.dupWeight;
 		double lossScore = this.mprMap.getTotalNoOfLosses() * this.lossWeight;
+		// The higher the score is, the less parsimonious the tree is
 		double oldScore = dupScore + lossScore;
-		int cpt = 0;
-		// BEGIN LOOP
+		
+		//To see how selective 'treeIsOK' method is
+		//int cpt = 0;
+		
+		// Loop to be selective on the tree we propose
+		// according to the score
 		while(true) {
-			cpt++;
-			//System.out.println("\n" + oldScore);
+			//cpt++;
 			// Cache everything.
 			this.T.cache();
 			if (this.lengths != null) {
@@ -81,17 +85,13 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 			// NOT OK - RESTORE, PERTURB AGAIN.
 			// OK, END-OF-LOOP.
 			if (treeIsOK(oldScore)){
-				System.out.println(1.0/cpt);
+				//System.out.println(1.0/cpt);
 				break;
 			}else{
 				this.restoreCache();
 			}
 		}
-		
-		
-		
-		// END LOOP.
-		
+				
 		// Note changes. Just say that all sub-parameters have changed.
 		ArrayList<StateParameter> affected = new ArrayList<StateParameter>(3);
 		changeInfos.put(this.T, new ChangeInfo(this.T));
@@ -119,7 +119,7 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		double lossScore = mpr.getTotalNoOfLosses() * this.lossWeight;
 		double score = dupScore + lossScore;
 		
-		//Probability to choose the new Tree
+		//Probability to choose the new tree
 		double pbb = 0;
 		
 		//Let's see how it behaves with this:
