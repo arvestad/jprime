@@ -50,34 +50,45 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		double dupScore = this.mprMap.getTotalNoOfDuplications() * this.dupWeight;
 		double lossScore = this.mprMap.getTotalNoOfLosses() * this.lossWeight;
 		double oldScore = dupScore + lossScore;
-		
+		int cpt = 0;
 		// BEGIN LOOP
-		
-		// Cache everything.
-		this.T.cache();
-		if (this.lengths != null) {
-			this.lengths.cache(null);
+		while(true) {
+			cpt++;
+			//System.out.println("\n" + oldScore);
+			// Cache everything.
+			this.T.cache();
+			if (this.lengths != null) {
+				this.lengths.cache(null);
+			}
+			if (this.times != null) {
+				this.times.cache(null);
+			}
+			
+			
+			// Perturb!
+			//System.out.println("\n" + this.T.getSampleValue());
+			if (w < this.operationWeights[0]) {
+				this.doNNI();
+				this.lastOperationType = "NNI";
+			} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
+				this.doSPR();
+				this.lastOperationType = "SPR";
+			} else {
+				this.doReroot();
+				this.lastOperationType = "Reroot";
+			}
+			
+			// NOT OK - RESTORE, PERTURB AGAIN.
+			// OK, END-OF-LOOP.
+			if (treeIsOK(oldScore)){
+				System.out.println(1.0/cpt);
+				break;
+			}else{
+				this.restoreCache();
+			}
 		}
-		if (this.times != null) {
-			this.times.cache(null);
-		}
 		
 		
-		// Perturb!
-		//System.out.println("\n" + this.T.getSampleValue());
-		if (w < this.operationWeights[0]) {
-			this.doNNI();
-			this.lastOperationType = "NNI";
-		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
-			this.doSPR();
-			this.lastOperationType = "SPR";
-		} else {
-			this.doReroot();
-			this.lastOperationType = "Reroot";
-		}
-		
-		// NOT OK - RESTORE, PERTURB AGAIN.
-		// OK, END-OF-LOOP.
 		
 		// END LOOP.
 		
@@ -108,7 +119,22 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		double lossScore = mpr.getTotalNoOfLosses() * this.lossWeight;
 		double score = dupScore + lossScore;
 		
-		return false;
+		//Probability to choose the new Tree
+		double pbb = 0;
+		
+		//Let's see how it behaves with this:
+		if(score < oldScore){
+			pbb = 1;
+		}else{
+			pbb = oldScore / score;
+		}
+		
+		//The tree is OK according to the pbb
+		if(this.prng.nextDouble() < pbb){
+			return true;	
+		}else{
+			return false;
+		}
 	}
 	
 }

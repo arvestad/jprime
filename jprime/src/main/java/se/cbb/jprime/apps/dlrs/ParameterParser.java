@@ -510,7 +510,7 @@ public class ParameterParser {
 	public static Proposer getBranchSwapper(Parameters ps, RBTree tree, DoubleMap lengths, MPRMap mpr, Iteration iter, PRNG prng, NewickRBTreeSamples samples) {
 		Proposer mrGardener;
 		if (ps.guestTreeSet == null) {
-			if (ps.guestTreeBiasedSwapping == null) {
+			if (ps.guestTreeBiasedSwapping == false) {
 				mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
 			} else {
 				mrGardener = new BiasedRBTreeBranchSwapper(tree, lengths, null, prng, mpr, 1, 1);
