@@ -2,6 +2,8 @@
 
 *VMCMC has not yet been released, and the information below is not guaranteed to be up-to-date. Feedback is much appreciated, should you want to try VMCMC out. We hope to be able offer a stable first release in the near future.*
 
+
+
 = Introduction =
 
 VMCMC is an application for analyzing output of MCMC chains. It deals with various metrics for assessing MCMC convergence, as well as summary statistics of inferred real-valued parameters, tree topologies, etc. VMCMC can be used with output from the C++ version of PrIME, and general tab-delimited files such as those produced by JPrIME some applications (e.g., [DLRS Delirious] and [DLTRS Deleterious]). 
