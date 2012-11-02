@@ -7,6 +7,7 @@
 == CONTENTS ==
   # [DLTRS#INTRODUCTION Introduction]
   # [DLTRS#REFERENCES References]
+  # [DLTRS#WORKFLOW Workflow]
   # [DLTRS#INPUT Input]
   # [DLTRS#OUTPUT Output]
   # [DLTRS#RUNNING Running]
@@ -44,9 +45,6 @@ Hence the name DLTRS = duplications, losses, transfers, rates & sequence evoluti
 
 *Since so many properties of Deleterious are shared with Delirious, we will often refer to the [DLRS tutorial of the latter] in order to keep information comprehensive and up-to-date. If you want to get started quickly, we suggest that you download and try [DLTRS#EXAMPLES Example 1], which can be found below, and have a look at it while reading through the other parts of the guide.*
 
-*Typical workflow:*
-
-[http://jprime.googlecode.com/files/DLTRS_workflow.png]
 
 ----
 ----
@@ -56,6 +54,17 @@ Hence the name DLTRS = duplications, losses, transfers, rates & sequence evoluti
 == REFERENCES ==
 
 DLTRS is currently under review.
+
+
+----
+----
+----
+
+
+== WORKFLOW ==
+A typical workflow may look like this. More details are found below.
+
+[http://jprime.googlecode.com/files/DLTRS_workflow.png]
 
 
 ----
