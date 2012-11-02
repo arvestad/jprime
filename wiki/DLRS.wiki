@@ -47,7 +47,7 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
 
 *Typical workflow:*
 
-[http://jprime.googlecode.com/files/DLTRS_workflow.png]
+[http://jprime.googlecode.com/files/DLRS_workflow.png]
 
 ----
 ----
