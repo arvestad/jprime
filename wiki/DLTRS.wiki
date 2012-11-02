@@ -42,9 +42,9 @@ Hence the name DLTRS = duplications, losses, transfers, rates & sequence evoluti
   * a file with samples drawn from the posterior distribution.
   * a supplementary info file with settings, proposal acceptance ratios, etc.
 
-<font color='red'>
 *Since so many properties of Deleterious are shared with Delirious, we will often refer to the [DLRS tutorial of the latter] in order to keep information comprehensive and up-to-date. If you want to get started quickly, we suggest that you download and try [DLTRS#EXAMPLES Example 1], which can be found below, and have a look at it while reading through the other parts of the guide.*
-</font>
+
+
 
 ----
 ----
