@@ -1,5 +1,6 @@
 package se.cbb.jprime.topology;
 
+/*
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -16,10 +17,11 @@ import org.biojava3.core.util.ConcurrencyTools;
 import org.biojava3.phylo.ProgessListenerStub;
 import org.biojava3.phylo.TreeConstructionAlgorithm;
 import org.biojava3.phylo.TreeConstructor;
-import org.biojava3.phylo.TreeType;
+import org.biojava3.phylo.TreeType;*/
 import org.junit.Test;
 
-import se.cbb.jprime.seqevo.MultiAlignment;
+
+//import se.cbb.jprime.seqevo.MultiAlignment;
 
 public class TestBioJavaPhylo {
 	

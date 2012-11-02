@@ -2,11 +2,10 @@ package se.cbb.jprime.mcmc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-
 import se.cbb.jprime.math.NormalDistribution;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.math.LogDouble;
@@ -95,9 +94,9 @@ public class NormalProposer implements Proposer {
 	
 	@Override
 	public Set<StateParameter> getParameters() {
-		TreeSet<StateParameter> s = new TreeSet<StateParameter>();
-		s.add(this.param);
-		return s;
+		HashSet<StateParameter> ps = new HashSet<StateParameter>(1);
+		ps.add(this.param);
+		return ps;
 	}
 
 	@Override

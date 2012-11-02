@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
+import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
@@ -56,13 +57,15 @@ import com.beust.jcommander.JCommander;
  * 
  * @author Joel Sjöstrand.
  */
-public class Deleterious {
+public class Deleterious implements JPrIMEApp {
 	
-	/**
-	 * Starter.
-	 * @param args.
-	 */
-	public static void main(String[] args) {
+	@Override
+	public String getAppName() {
+		return "Deleterious";
+	}
+	
+	@Override
+	public void main(String[] args) {
 		BufferedWriter info = null;
 		Parameters params = null;
 		try {

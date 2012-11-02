@@ -371,7 +371,7 @@ public class DLTRSModel implements Model {
 
 	@Override
 	public String getSampleHeader() {
-		return "DLTRSModelProbability";
+		return "DLTRSModelDensity";
 	}
 
 	@Override

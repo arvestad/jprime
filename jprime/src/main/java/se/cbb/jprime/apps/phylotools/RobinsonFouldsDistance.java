@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 
 import com.beust.jcommander.JCommander;
+
+import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.consensus.day.RobinsonFoulds;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickTree;
@@ -18,13 +20,18 @@ import se.cbb.jprime.io.NewickTreeReader;
  * 
  * @author Joel Sjöstrand.
  */
-public class RobinsonFouldsDistance {
+public class RobinsonFouldsDistance implements JPrIMEApp {
+	
+	@Override
+	public String getAppName() {
+		return "RobinsonFouldsDistance";
+	}
 	
 	/**
 	 * Starter.
 	 * @param args.
 	 */
-	public static void main(String[] args) {
+	public void main(String[] args) {
 		try {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================

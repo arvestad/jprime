@@ -132,6 +132,13 @@
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
+	<dependency>
+		<groupId>org.reflections</groupId>
+		<artifactId>reflections</artifactId>
+		<version>0.9.8</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
   </dependencies>
   <build>
 	  <pluginManagement>
@@ -166,6 +173,19 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-jar-plugin</artifactId>
+        		<version>2.4</version>
+        		<configuration>
+          			<archive>
+			            <manifest>
+			              <addClasspath>true</addClasspath>
+			              <mainClass>se.cbb.jprime.apps.JPrIMEStarter</mainClass>
+			            </manifest>
+          			</archive>
+        		</configuration>
+       		</plugin>
 		</plugins>
 	</build>
 </project>

@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.cbb.jprime.apps.dlrs.Delirious;
 import se.cbb.jprime.io.NewickIOException;
 
 /**
@@ -38,10 +37,11 @@ public class TestDeleterious {
 	
 	@Test
 	public void testUsage() {
-		Deleterious.main(new String[]{});
+		Deleterious del = new Deleterious();
+		del.main(new String[]{});
 		assertTrue(out.toString().startsWith("========="));
 		out.reset();
-		Delirious.main(new String[]{ "-h" });
+		del.main(new String[]{ "-h" });
 		assertTrue(out.toString().startsWith("========="));
 		out.reset();
 	}
@@ -51,7 +51,8 @@ public class TestDeleterious {
 		URL sURL = this.getClass().getResource("/phylogenetics/molli.host.nw");
 		URL dURL = this.getClass().getResource("/phylogenetics/HBG562580.aln-gb");
 		URL sigmaURL = this.getClass().getResource("/phylogenetics/HBG562580.gs");
-		Deleterious.main(new String[] {"-uncatch", "-dmin", "3", "-dmax", "3", "-dstem", "4", "-i", "10", sURL.getPath(), dURL.getPath(), sigmaURL.getPath()});
+		Deleterious del = new Deleterious();
+		del.main(new String[] {"-uncatch", "-dmin", "3", "-dmax", "3", "-dstem", "4", "-i", "10", sURL.getPath(), dURL.getPath(), sigmaURL.getPath()});
 		out.reset();
 	}
 }

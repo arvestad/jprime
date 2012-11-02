@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickVertex;
@@ -23,7 +24,12 @@ import se.cbb.jprime.topology.TopologyException;
  * 
  * @author Joel Sjöstrand.
  */
-public class FilterInparalogues {
+public class FilterInparalogues implements JPrIMEApp {
+	
+	@Override
+	public String getAppName() {
+		return "FilterInparalogues";
+	}
 	
 	/**
 	 * Starter.
@@ -32,7 +38,7 @@ public class FilterInparalogues {
 	 * @throws IOException.
 	 * @throws NewickIOException.
 	 */
-	public static void main(String[] args) throws NewickIOException, IOException, TopologyException {
+	public void main(String[] args) throws NewickIOException, IOException, TopologyException {
 		if (args.length != 3) {
 			System.err.println("Expecting 3 arguments.");
 			usage();

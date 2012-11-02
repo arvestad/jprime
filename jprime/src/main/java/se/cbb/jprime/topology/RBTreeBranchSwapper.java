@@ -105,7 +105,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	
 	@Override
 	public Set<StateParameter> getParameters() {
-		HashSet<StateParameter> ps = new HashSet<StateParameter>();
+		HashSet<StateParameter> ps = new HashSet<StateParameter>(7);
 		ps.add(this.T);
 		if (this.lengths != null) { ps.add(this.lengths); }
 		if (this.times != null) { ps.add(this.times); }
@@ -292,7 +292,6 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * root and iteratively rotating the tree at the top.
 	 * @param v the sink.
 	 */
-	@SuppressWarnings("unused")
 	protected void setRootOn(int v) {
 		if (T.isRoot(v)) {
 			return;
