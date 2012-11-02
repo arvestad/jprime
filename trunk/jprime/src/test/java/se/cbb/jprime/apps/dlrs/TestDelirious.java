@@ -35,10 +35,11 @@ public class TestDelirious {
 	
 	@Test
 	public void testUsage() {
-		Delirious.main(new String[]{});
+		Delirious del = new Delirious();
+		del.main(new String[]{});
 		assertTrue(out.toString().startsWith("========="));
 		out.reset();
-		Delirious.main(new String[]{ "-h" });
+		del.main(new String[]{ "-h" });
 		assertTrue(out.toString().startsWith("========="));
 		out.reset();
 	}

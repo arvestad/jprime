@@ -7,12 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -37,14 +34,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.lang3.text.WordUtils;
-
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterDescription;
-
 import se.cbb.jprime.apps.vmcmc.libs.*;
 import se.cbb.jprime.apps.vmcmc.gui.*;
-import se.cbb.jprime.misc.Triple;
 
 /**																							
  * 	The main class for VMCMC. It is responsible for efficiently co-ordinating calls between various GUI classes, Data handling classes, User requirements and MCMC statistics computation and convergence test classes. 
@@ -992,88 +983,6 @@ public class MCMCApplication {
 	 */
 	public MCMCWindow getWindow() {return window;}
 
-	/** Definition: 			Main function for VMCMC.										
-	<p>Usage: 				Initialize the application from command line.						
- 	<p>Function:			Gets the inputs from command line, parses them and calls the appropriate constructor of MCMCWindow. 				
- 	<p>Classes:				Parameters, JCommander, JCommanderUserWrapper, Triple.
- 	<p>Internal Functions: 	MCMCApplication(),  		
- 	@return 				(A new graphical window)/(command line) statistical and/or convergence test analysis.					
-	 */
-	public static void main(String[] args) {
-		if (args.length == 0)
-			new MCMCApplication();
-		else {
-			Parameters params = new Parameters();
-			JCommander vmcmc = new JCommander(params, args);
-
-			if (params.help) {
-				StringBuilder sb = new StringBuilder(65536);
-				sb.append("Usage: java vmcmc [options] ").append('\n');
-				
-				ParameterDescription mainParam = vmcmc.getMainParameter();
-				if (mainParam != null) {
-					sb.append("Required arguments\n");
-					sb.append("     ").append(mainParam.getDescription()).append('\n');
-				}
-				List<ParameterDescription> params1 = vmcmc.getParameters();
-				Field[] fields = params.getClass().getFields();
-				for (Field f : fields) {
-					for (ParameterDescription p : params1) {
-						if (f.getName().equals(p.getField().getName())) {
-							sb.append(p.getNames()).append('\n');
-							String def = (p.getDefault() == null ? "" : " Default: " + p.getDefault().toString() + '.');
-							String desc = WordUtils.wrap(p.getDescription() + def, 120);
-							desc = "     " + desc;
-							desc = desc.replaceAll("\n", "\n     ") + '\n';
-							sb.append(desc);
-							break;
-						}
-					}
-				}
-				System.out.println(sb.toString());
-			}
-			else if (args.length == 1)
-				new MCMCApplication(args[0]);
-			else if (params.filename == null)
-				System.out.println("File Name not provided. Use -f for inputting filename or see -h for valid options.");
-			else if ((params.nogui == false) && (params.test == false) && (params.stats == false) && (params.ess == false) && (params.geweke == false) && (params.gr == false))
-				new MCMCApplication(params.filename);
-			else {
-				Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
-				try {
-					if (params.nogui == true) {
-						System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
-						new MCMCApplication(2, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
-
-						System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-						new MCMCApplication(3, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
-					} else if (params.test == true) {
-						System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
-						new MCMCApplication(2, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
-					} else if (params.stats == true) {
-						System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-						new MCMCApplication(3, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
-					} else if (params.geweke == true) {
-						System.out.println("            ****** GEWEKE TEST BURN-IN INDICATOR ******");
-						new MCMCApplication(4, paramData.first, paramData.second, paramData.third);
-					} else if (params.ess == true) {
-						System.out.println("            ****** EFFECTIVE SAMPLE SIZE BURN-IN INDICATOR ******");
-						new MCMCApplication(5, paramData.first, paramData.second, paramData.third);
-					} else if (params.gr == true) {
-						System.out.println("            ******* GELMAN-RUBIN CONVERGENCE TEST *******");
-						new MCMCApplication(6, paramData.first, paramData.second, paramData.third);
-					}
-				} catch (Exception e) {
-					System.out.println("Error : " + e.getMessage());
-					System.exit(-1);
-				}
-			}
-		}
-	}
 	
 	/* **************************************************************************** *
 	 * 							END OF CLASS										*

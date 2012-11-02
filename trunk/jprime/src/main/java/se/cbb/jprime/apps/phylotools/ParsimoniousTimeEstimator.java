@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
+import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.PrIMENewickTree;
@@ -28,7 +29,7 @@ import se.cbb.jprime.topology.TopologyException;
  * 
  * @author Joel Sjöstrand
  */
-public class ParsimoniousTimeEstimator {
+public class ParsimoniousTimeEstimator implements JPrIMEApp {
 
 	/**
 	 * Starter.
@@ -37,7 +38,7 @@ public class ParsimoniousTimeEstimator {
 	 * @throws IOException.
 	 * @throws NewickIOException.
 	 */
-	public static void main(String[] args) throws NewickIOException, IOException, TopologyException {
+	public void main(String[] args) throws NewickIOException, IOException, TopologyException {
 		if (args.length != 2) {
 			System.err.println("Expecting 2 arguments.");
 			usage();
@@ -71,9 +72,14 @@ public class ParsimoniousTimeEstimator {
 	/**
 	 * Prints usage.
 	 */
-	public static void usage() {
+	public void usage() {
 		System.out.println(
 				"Computes the time spanned by the subtree of a host tree induced by a set of guest tree leaves.\n" +
 				"usage:    ParsimouniousTimeEstimator <host tree> <guest-host leaf map>");
+	}
+
+	@Override
+	public String getAppName() {
+		return "ParsimoniousTimeEstimator";
 	}
 }

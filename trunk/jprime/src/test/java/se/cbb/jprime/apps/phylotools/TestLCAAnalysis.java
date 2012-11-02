@@ -42,7 +42,8 @@ public class TestLCAAnalysis {
 		String[] args = new String[2];
 		args[0] = sURL.getFile();
 		args[1] = gsURL.getFile();
-		LCAAnalysis.main(args);
+		LCAAnalysis lcaan = new LCAAnalysis();
+		lcaan.main(args);
 		assertEquals("LCA ID: 26\n" +
 				"LCA time: 1.0\n" +
 				"LCA number of leaves of sub-tree: 14\n" +
@@ -53,7 +54,7 @@ public class TestLCAAnalysis {
 		out.reset();
 		gsURL = this.getClass().getResource("/phylogenetics/molli.fam2.gs");
 		args[1] = gsURL.getFile();
-		LCAAnalysis.main(args);
+		lcaan.main(args);
 		assertEquals("LCA ID: 7\n" +
 				"LCA time: 0.27\n" +
 				"LCA number of leaves of sub-tree: 3\n" +

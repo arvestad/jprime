@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
+import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.*;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.MPRMap;
@@ -21,7 +22,7 @@ import se.cbb.jprime.topology.TopologyException;
  * 
  * @author Joel Sjöstrand
  */
-public class LCAAnalysis {
+public class LCAAnalysis implements JPrIMEApp {
 
 	/**
 	 * Starter.
@@ -30,7 +31,8 @@ public class LCAAnalysis {
 	 * @throws IOException .
 	 * @throws NewickIOException.
 	 */
-	public static void main(String[] args) throws NewickIOException, IOException, TopologyException {
+	@Override
+	public void main(String[] args) throws NewickIOException, IOException, TopologyException {
 		if (args.length != 2 && args.length != 3) {
 			System.err.println("Expecting 2 or 3 arguments.");
 			usage();
@@ -85,5 +87,10 @@ public class LCAAnalysis {
 				"If a guest tree is provided, it will also output whether the root of the guest tree is\n" +
 				"a duplication or not.\n" +
 				"usage:    LCAAnalysis <host tree> <GS map> [guest tree]");
+	}
+
+	@Override
+	public String getAppName() {
+		return "LCAAnalysis";
 	}
 }

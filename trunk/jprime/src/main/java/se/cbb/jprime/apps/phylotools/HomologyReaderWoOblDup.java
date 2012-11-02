@@ -231,7 +231,8 @@ public class HomologyReaderWoOblDup {
         try {
             System.out.println(waitMessage);
             // ExecComman ecom = new ExecCommand(scriptPath + path, "STDIN");
-            ExecCommand ecom = new ExecCommand(scriptPath + path, "log.out");
+            @SuppressWarnings("unused")
+			ExecCommand ecom = new ExecCommand(scriptPath + path, "log.out");
             System.out.println("Completed...");
         } catch (Exception e) {
             System.err.println("Could not execute the file " + path);
