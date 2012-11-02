@@ -42,9 +42,12 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
   * a file with samples drawn from the posterior distribution.
   * a supplementary info file with settings, proposal acceptance ratios, etc.
 
-<font color='red'>
+
 *Below, you will find information on the input and output of the application, while explanations of vital program options and some sample files can be found at the end of the document. If you want to get started quickly, we suggest that you download and try [DLRS#EXAMPLES Example 1], and have a look at it while reading through the other parts of the guide.*
-</font>
+
+*Typical workflow:*
+
+[http://jprime.googlecode.com/files/DLTRS_workflow.png]
 
 ----
 ----
