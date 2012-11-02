@@ -268,6 +268,10 @@ Several MCMC-tailored analysis softwares exist, among them:
   * [http://tree.bio.ed.ac.uk/software/tracer/ Tracer].
   * [http://ceb.csit.fsu.edu/awty/ AWTY]. Particularly tailored for inspecting clade convergence diagnostics.
 
+The following shows a trace of the unnormalized posterior density of a short MCMC chain obtained in [VMCMC VMCMC], along with a potential choince of burn-in cut-off.
+
+[http://jprime.googlecode.com/files/DLRS_convergence.png]
+
 === Hello world parameter analysis ===
 
 Generally, CRAN R is suitable for many types of analyses. For instance, you could read and plot the duplication rate in R thus:
