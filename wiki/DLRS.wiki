@@ -7,6 +7,7 @@
 == CONTENTS ==
   # [DLRS#INTRODUCTION Introduction]
   # [DLRS#REFERENCES References]
+  # [DLRS#WORKFLOW Workflow]
   # [DLRS#INPUT Input]
   # [DLRS#OUTPUT Output]
   # [DLRS#RUNNING Running]
@@ -45,9 +46,6 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
 
 *Below, you will find information on the input and output of the application, while explanations of vital program options and some sample files can be found at the end of the document. If you want to get started quickly, we suggest that you download and try [DLRS#EXAMPLES Example 1], and have a look at it while reading through the other parts of the guide.*
 
-*Typical workflow:*
-
-[http://jprime.googlecode.com/files/DLRS_workflow.png]
 
 ----
 ----
@@ -63,6 +61,16 @@ DLRS has been published [http://www.pnas.org/content/106/14/5714 here] and [http
 or alternatively:
 
 *Åkerborg, Ö, Sennblad, B, Arvestad, L, Lagergren, J (2009) Simultaneous Bayesian gene tree reconstruction and reconciliation analysis. PNAS. 106(14):5714-5719.*
+
+----
+----
+----
+
+== WORKFLOW ==
+A typical workflow may look like this. More details are found below.
+
+[http://jprime.googlecode.com/files/DLRS_workflow.png]
+
 
 ----
 ----
