@@ -90,11 +90,11 @@ Output is virtually identical to Delirious output, see [DLRS#OUTPUT here]. The o
 
 Deleterious is started as a command-line Java application. It is possible that future versions will come with a graphical user interface, a command-line based environment for managing options, or similarly. However, at the moment, you would start Deleterious by running e.g.:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/dltrs/Deleterious [options] <host tree> <msa> <leaf map>
+java -jar jprime-X.Y.Z.jar Deleterious [options] <host tree> <msa> <leaf map>
 }}}
-where the path and version of course refer to your current setup. See also the section on options below. We recommend using Oracle's HotSpot Java Virtual Machines due to their excellent performance, in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
+where the JAR file of course refer to your current setup. See also the section on options below. We recommend using Oracle's HotSpot Java Virtual Machines due to their excellent performance, in which case a recommended heap size of 512 MB and a maximum heap size of 1024 MB would be specified with:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms512m -Xmx1024m se/cbb/jprime/apps/dltrs/Deleterious [options] <host tree> <msa> <leaf map>
+java -Xms512m -Xmx1024m -jar jprime-X.Y.Z.jar Deleterious [options] <host tree> <msa> <leaf map>
 }}}
 Note that these options refer to Java's VM itself, and are not options of Deleterious.
 
@@ -180,7 +180,7 @@ A microbial gene family of Mollicutes within the Firmicutes phylum. These typica
 
 Fancying 1,000,000 iterations, sampling every 200th iteration, and using the JTT substitution model, we may get something like:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dltrs/Deleterious -o dltrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dltrs_example_1.stree dltrs_example_1.fa dltrs_example_1.map
+java -Xms128m -Xmx256m -jar jprime-X.Y.Z.jar Deleterious -o dltrs_example_1.mcmc -i 1000000 -t 200 -sm JTT dltrs_example_1.stree dltrs_example_1.fa dltrs_example_1.map
 }}}
 
 === 2: More Mollicutes ===
@@ -192,7 +192,7 @@ Another Mollicutes gene family. This family has a weak signal, resulting in many
 
 Here, we might try to improve the MCMC mixing a bit by reducing the duplication and loss rate suggestion boldness, and increasing the relative proportion of branch-swapping operations:
 {{{
-java -cp mypath/jprime-X.Y.Z.jar -Xms128m -Xmx256m se/cbb/jprime/apps/dltrs/Deleterious -o dltrs_example_2.mcmc -i 1000000 -t 200 -sm JTT -tngdup [0.3,0.3] -tngloss [0.3,0.3] -tngwg [4,4] dltrs_example_2.stree dltrs_example_2.fa dltrs_example_2.map
+java -Xms128m -Xmx256m -jar mypath/jprime-X.Y.Z.jar Deleterious -o dltrs_example_2.mcmc -i 1000000 -t 200 -sm JTT -tngdup [0.3,0.3] -tngloss [0.3,0.3] -tngwg [4,4] dltrs_example_2.stree dltrs_example_2.fa dltrs_example_2.map
 }}}
 
 ----
