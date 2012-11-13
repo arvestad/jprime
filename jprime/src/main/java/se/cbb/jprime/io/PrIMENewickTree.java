@@ -55,7 +55,9 @@ public class PrIMENewickTree extends NewickTree {
 		VERTEX_WEIGHTS   ("NW=\"?([0-9\\+\\-\\.e]+)\"?"),
 		VERTEX_TIMES     ("NT=\"?([0-9\\+\\-\\.e]+)\"?"),
 		ARC_TIMES        ("ET=\"?([0-9\\+\\-\\.e]+)\"?"),
-		IS_DUPLICATION   ("\\sD=\"?([0-9]+)\"?");
+		IS_DUPLICATION   ("\\sD=\"?([0-9]+)\"?"),
+		VERTEX_TYPE      ("VERTEXTYPE=\"?(Leaf|Speciation|Duplication|Transfer)\"?"),
+		DISC_PT          ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?");
 		
 		public static final String REGEXP_PREFIX = "\\[&&PRIME [^\\]]*";
 		public static final String REGEXP_SUFFIX = "[^\\]]*\\]";

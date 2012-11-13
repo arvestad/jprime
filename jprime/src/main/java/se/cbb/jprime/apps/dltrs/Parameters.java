@@ -161,6 +161,11 @@ public class Parameters {
 	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output an additional Newick guest tree with branch lengths.")
 	public Boolean outputLengths = false;
 	
+	// TODO: Investigate!
+	///** Adjust for contemporary edges. */
+	//@Parameter(names = {"-adjust", "--adjusttransfer"}, description = "In the model, adjust probability of transfer by normalising with number of disjoint contemporary host tree edges.")
+	//public Boolean adjust = false;
+	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
 		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")

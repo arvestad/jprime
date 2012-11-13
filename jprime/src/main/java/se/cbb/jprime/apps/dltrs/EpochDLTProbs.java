@@ -49,6 +49,12 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 	private DoubleParameter transRate;
 	
 	/**
+	 * Affects model characteristics: true to let transfer probability be normalised
+	 * by 1 / # of contemp. species in S; false to perform no normalisation w.r.t. S.
+	 */
+	private boolean adjustTransferProbabilityOverS;
+	
+	/**
 	 * "Extinction probabilities": prob. of a sole lineage starting at a point
 	 * having no descendants at leaves. Stored for every point in the tree.
 	 */
@@ -76,7 +82,7 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 	/** ODE work var.: number of arcs in epoch. */
 	private int wn;
 	
-	/** ODE work var.: transferRate/(wn-1). */
+	/** ODE work var.: transferRate/(wn-1) or simply transferRate depending on adjustment flag. */
 	private double wnorm;
 	
 	/**
@@ -85,8 +91,9 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 	 * @param dup the duplication rate.
 	 * @param loss the loss rate.
 	 * @param trans the lateral transfer rate.
+	 * @param adjust true to adjust the probability of transfer by normalising with the number of contemporary host tree arcs.
 	 */
-	public EpochDLTProbs(EpochDiscretiser ed, DoubleParameter dup, DoubleParameter loss, DoubleParameter trans) {
+	public EpochDLTProbs(EpochDiscretiser ed, DoubleParameter dup, DoubleParameter loss, DoubleParameter trans, boolean adjust) {
 		this.solver = new ODESolver(this, this, true, REL_TOL, ABS_TOL);
 		this.discTree = ed;
 		this.dupRate = dup;
@@ -100,6 +107,7 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 		this.wlast = 0;
 		this.wn = 0;
 		this.wnorm = 0;
+		this.adjustTransferProbabilityOverS = adjust;
 		
 		this.update();
 	}
@@ -270,7 +278,7 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 		wi = 0;
 		wlast = discTree.getEpoch(0).getNoOfTimes() - 1;
 		wn = discTree.getEpoch(0).getNoOfArcs();
-		wnorm = transRate.getValue() / (wn - 1);
+		wnorm = (this.adjustTransferProbabilityOverS ? transRate.getValue() / (wn - 1) : transRate.getValue());
 		
 		// The vector of components used in ODE solving, Q, is concatenated this way
 		// (all with respect to the single current epoch):
@@ -323,7 +331,7 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 				if (i != split + 1) { Q[i < split + 1 ? i : i - 1] = tmp[i]; }
 			}
 			wlast = discTree.getEpoch(wi).getNoOfTimes() - 1;
-			wnorm = transRate.getValue() / (wn - 1);
+			wnorm = (this.adjustTransferProbabilityOverS ? transRate.getValue() / (wn - 1) : transRate.getValue());
 			setInitVals(Q);
 		}
 		
@@ -530,5 +538,23 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 	 */
 	public double getTotalArcTime() {
 		return this.discTree.getTotalArcTime();
+	}
+	
+	/**
+	 * Returns the transfer model characteristics flag: true means transfer probability is normalised
+	 * by 1 / # of contemp. species in host tree; false means perform no normalisation w.r.t. host tree.
+	 * @return the flag.
+	 */
+	public boolean getTransferProbabilityAdjustment() {
+		return this.adjustTransferProbabilityOverS;
+	}
+	
+	/**
+	 * Sets the transfer model characteristics flag: true means transfer probability is normalised
+	 * by 1 / # of contemp. species in host tree; false means perform no normalisation w.r.t. host tree.
+	 * @param doAdjust the flag.
+	 */
+	public void setTransferProbabilityAdjustment(boolean doAdjust) {
+		this.adjustTransferProbabilityOverS = doAdjust;
 	}
 }

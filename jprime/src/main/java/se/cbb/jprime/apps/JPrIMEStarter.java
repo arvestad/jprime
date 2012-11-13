@@ -63,8 +63,9 @@ public class JPrIMEStarter {
 			// No app specified.
 			System.out.println(
 					"================================================================================\n" +
-					"JPrIME is a Java library for primarily phylogenetics by groups in computational\n" +
-					"biology at Science for Life Laboratory (SciLifeLab) in Stockholm.\n\n" +
+					"JPrIME is a Java library for primarily phylogenetics developed by groups working\n" +
+					"with computational biology at Science for Life Laboratory (SciLifeLab) in\n" +
+					"Stockholm, Sweden.\n\n" +
 					"Releases, source code and tutorial: http://code.google.com/p/jprime\n\n" +
 					"License: JPrIME is available under the New BSD License.\n"
 					);
@@ -73,11 +74,12 @@ public class JPrIMEStarter {
 			for (String k : map.keySet()) {
 				System.out.println("    " + k);
 			}
-			System.out.println("You can usually obtain app-specific help thus: jprime-x.y.z.jar <application> -h");
+			System.out.println("You can usually obtain app-specific help thus:\n" +
+					"    java -jar jprime-x.y.z.jar <application> -h");
 			System.out.println("================================================================================\n");
 		} else if (!map.containsKey(args[0])) {
 			System.out.println("Unknown application. Use -h to show help.");
-			System.out.println("Usage: jprime-x.y.z.jar <application> [options] <arguments>");
+			System.out.println("Usage: java -jar jprime-x.y.z.jar <application> [options] <arguments>");
 		} else {
 			// Start app. Remove app name first, though.
 			String[] appArgs = new String[args.length - 1];

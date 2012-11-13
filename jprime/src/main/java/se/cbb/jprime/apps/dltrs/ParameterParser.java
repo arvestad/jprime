@@ -422,11 +422,12 @@ public class ParameterParser {
 		double lambda = (ps.dupRate == null ? 0.5 * dups / totTime + 1e-3 : Double.parseDouble(ps.dupRate.replaceFirst("FIXED|Fixed|fixed", "")));
 		double mu = (ps.lossRate == null ? dups / totTime + 1e-3 : Double.parseDouble(ps.lossRate.replaceFirst("FIXED|Fixed|fixed", "")));
 		double tau = (ps.transRate == null ? 0.5 * dups / totTime + 1e-3 : Double.parseDouble(ps.transRate.replaceFirst("FIXED|Fixed|fixed", "")));
+		boolean adjust = true;  //ps.adjust;  //TODO: Investigate behaviour!
 		
 		DoubleParameter dr = new DoubleParameter("DuplicationRate", lambda);
 		DoubleParameter lr = new DoubleParameter("LossRate", mu);
 		DoubleParameter tr = new DoubleParameter("TransferRate", tau);
-		EpochDLTProbs dltProbs = new EpochDLTProbs(times, dr, lr, tr);
+		EpochDLTProbs dltProbs = new EpochDLTProbs(times, dr, lr, tr, adjust);
 		return new Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs>(dr, lr, tr, dltProbs);
 	}
 	
