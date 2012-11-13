@@ -227,7 +227,8 @@ public class DLTRSModel implements Model {
 		
 		double[] ats = this.ats.get(u).get(s[0], s[1]);
 		double dupFact = 2 * dltProbs.getDuplicationRate();
-		double trFact = dltProbs.getTransferRate() / (ats.length - 1);
+		int adjFact = (this.dltProbs.getTransferProbabilityAdjustment() ? ats.length - 1 : 1);   // Adjust for contemporary species or not.
+		double trFact = this.dltProbs.getTransferRate() / adjFact;
 		
 		// Compute probs for all planted subtrees G^lc and G^rc with
 		// lineages starting at time s.
@@ -407,5 +408,5 @@ public class DLTRSModel implements Model {
 		double p = this.belows.get(uRoot).getTopmost();
 		return new LogDouble(p);
 	}
-
+	
 }

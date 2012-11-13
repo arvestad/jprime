@@ -4,7 +4,7 @@ import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.NamesMap;
-import se.cbb.jprime.topology.RBTree;
+import se.cbb.jprime.topology.RootedBifurcatingTree;
 import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
@@ -14,10 +14,10 @@ import se.cbb.jprime.topology.TimesMap;
  * <p/>
  * A realisation is presented on PrIME-Newick format, with times
  * as branch lengths, and additional vertex PrIME tags for leaf/speciation/loss
- * status:<br/>
- * <code>(A:1.0[&&PrIME VertexType=Leaf],
- * (B:0.2[&&PrIME VertexType=Leaf],
- * C:0.2[&&PrIME VertexType=Leaf]):0.8[&&PrIME VertexType=Duplication]):1.0[&&PrIME VertexType=Speciation];
+ * status and the internal discretization point:<br/>
+ * <code>(A:1.0[&&PrIME VERTEXTYPE=Leaf DiscPt=0,0)],
+ * (B:0.2[&&PrIME VERTEXTYPE=Leaf DISCPT=(1,0)],
+ * C:0.2[&&PrIME VERTEXTYPE=Leaf DISCPT=(1,0)]):0.8[&&PrIME VERTEXTYPE=Duplication DISCPT=(1,5)]):1.0[&&PrIME VERTEXTYPE=Speciation DISCPT=(2,0)];
  * </code>.
  * 
  * @author Joel Sjöstrand.
@@ -25,7 +25,7 @@ import se.cbb.jprime.topology.TimesMap;
 public class Realisation {
 
 	/** Guest tree. */
-	private RBTree G;
+	private RootedBifurcatingTree G;
 	
 	/** Leaf names of G. */
 	private NamesMap names;
@@ -36,18 +36,23 @@ public class Realisation {
 	/** For each vertex v of G, states whether it corresponds to a duplication or not. */
 	private BooleanMap isDuplication;
 	
+	/** Placement info of the vertex in the discretised host tree. */
+	private StringMap placements;
+	
 	/**
 	 * Constructor.
 	 * @param G tree topology.
 	 * @param names names of G.
 	 * @param times times of G.
 	 * @param isDup for each vertex v of G: true if v corresponds to a duplication; false if v corresponds to a speciation or leaf.
+	 * @param placements for each vertex v of G: discretisation placement info.
 	 */
-	public Realisation(RBTree G, NamesMap names, TimesMap times, BooleanMap isDup) {
+	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup, StringMap placements) {
 		this.G = G;
 		this.names = names;
 		this.times = times;
 		this.isDuplication = isDup;
+		this.placements = placements;
 	}
 
 	/**
@@ -64,13 +69,16 @@ public class Realisation {
 			// e.g., "[&&PrIME VertexType=Duplication]".
 			StringMap meta = new StringMap("Meta", sz);
 			for (int v = 0; v < sz; ++v) {
+				StringBuilder sb = new StringBuilder(256);
 				if (this.G.isLeaf(v)) {
-					meta.set(v, "[&&PrIME VertexType=Leaf]");
+					sb.append("[&&PrIME VERTEXTYPE=Leaf");
 				} else if (this.isDuplication.get(v)) {
-					meta.set(v, "[&&PrIME VertexType=Duplication]");
+					sb.append("[&&PrIME VERTEXTYPE=Duplication");
 				} else {
-					meta.set(v, "[&&PrIME VertexType=Speciation]");
+					sb.append("[&&PrIME VERTEXTYPE=Speciation");
 				}
+				sb.append(" DISCPT=").append(placements.get(v)).append("]");
+				meta.set(v, sb.toString());
 			}
 			
 			// Convert realisation into Newick string.

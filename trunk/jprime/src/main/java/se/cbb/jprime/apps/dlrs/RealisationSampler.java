@@ -1,15 +1,23 @@
 package se.cbb.jprime.apps.dlrs;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.cbb.jprime.io.SampleInt;
+import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.math.PRNG;
+import se.cbb.jprime.mcmc.Iteration;
 import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.NamesMap;
-import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
+import se.cbb.jprime.topology.RootedBifurcatingTree;
+import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
@@ -18,16 +26,22 @@ import se.cbb.jprime.topology.TimesMap;
  * 
  * @author Joel Sjöstrand.
  */
-public class RealisationSampler {
+public class RealisationSampler implements Sampleable {
+	
+	/** Output stream. */
+	private BufferedWriter out;
+	
+	/** Iteration. */
+	private Iteration iteration;
 	
 	/** PRNG. */
 	private PRNG prng;
 	
 	/** Host tree. */
-	private RBTree S;
+	private RootedBifurcatingTree S;
 	
 	/** Guest tree. */
-	private RBTree G;
+	private RootedBifurcatingTree G;
 	
 	/** Guest tree names. */
 	private NamesMap names;
@@ -44,8 +58,13 @@ public class RealisationSampler {
 	/** At-probabilities for vertices v of G. */
 	private DoubleArrayMap atsProbs;
 	
+	/** No. of realisations per sampling round. */
+	private int noOfRealisations;
+	
 	/**
 	 * Constructor.
+	 * @param file f the output file.
+	 * @param iteration iteration.
 	 * @param prng pseudo-random number generator.
 	 * @param S host tree S.
 	 * @param G guest tree G.
@@ -54,17 +73,24 @@ public class RealisationSampler {
 	 * @param loLims lowest possible placement of u of V(G) in discretised S'.
 	 * @param dupLossProbs p11, etc.
 	 * @param ats rooted subtree G_u probability for u of V(G).
+	 * @param noOfRealisations number of realisations per sampling round.
+	 * @throws IOException.
 	 */
-	public RealisationSampler(PRNG prng, RBTree S, RBTree G, NamesMap names, RBTreeArcDiscretiser times,
-			IntMap loLims, DupLossProbs dupLossProbs, DoubleArrayMap atsProbs) {
+	public RealisationSampler(File f, int noOfRealisations, Iteration iteration, PRNG prng, DLRSModel model, NamesMap names) throws IOException {
+		this.out = new BufferedWriter(new FileWriter(f));
+		this.noOfRealisations = noOfRealisations;
+		this.iteration = iteration;
 		this.prng = prng;
-		this.S = S;
-		this.G = G;
+		this.S = model.s;
+		this.G = model.g;
 		this.names = names;
-		this.times = times;
-		this.loLims = loLims;
-		this.dupLossProbs = dupLossProbs;
-		this.atsProbs = atsProbs;
+		this.times = model.reconcHelper.times;
+		this.loLims = model.reconcHelper.loLims;
+		this.dupLossProbs = model.dupLossProbs;
+		this.atsProbs = model.ats;
+		
+		// Write header.
+		this.out.write("RealisationID\tSubsample\tRealisation\n");
 	}
 	
 
@@ -83,12 +109,14 @@ public class RealisationSampler {
 		boolean[] isDups = new boolean[n];  // Type of point.
 		
 		// For each vertex v of G.
+		String[] placementss = new String[n];
 		for (int v : vertices) {
 			samplePoint(v, placements, abst, arct, isDups);
+			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}
 		
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups));
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss));
 	}
 	
 	/**
@@ -166,6 +194,22 @@ public class RealisationSampler {
 	}
 	
 	/**
+	 * Closes the underlying buffer.
+	 * @throws IOException 
+	 */
+	public void close() throws IOException {
+		this.out.close();
+	}
+	
+	/**
+	 * Flushes the underlying buffer.
+	 * @throws IOException 
+	 */
+	public void flush() throws IOException {
+		this.out.flush();
+	}
+	
+	/**
 	 * Returns a proper representation of a lower limit.
 	 * @param loLim the lower limit, holding arc and discretisation point in one int.
 	 * @return [arc in S, discretisation point].
@@ -175,6 +219,42 @@ public class RealisationSampler {
 		prop[0] = ((loLim << 16) >>> 16);   // Arc (=head vertex of arc).
 		prop[1] = (loLim >>> 16);           // Discretisation point.
 		return prop;
+	}
+
+	@Override
+	public Class<?> getSampleType() {
+		return SampleInt.class;
+	}
+
+
+	@Override
+	public String getSampleHeader() {
+		return "RealisationID";
+	}
+
+
+	@Override
+	public String getSampleValue() {
+		
+		// Use current iteration as ID.
+		String id = "" + this.iteration.getIteration(); 
+		
+		// Do sampling to own file.
+		for (int i = 0; i < this.noOfRealisations; ++i) {
+			try {
+				this.out.write(id);
+				this.out.write('\t');
+				this.out.write(i);
+				this.out.write('\t');
+				Realisation real = this.sample();
+				this.out.write(real.toString());
+				this.out.write('\n');
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+				
+		return id;
 	}
 
 }
