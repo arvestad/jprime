@@ -30,7 +30,7 @@ public class TestDupLossProbs {
 		PrIMENewickTree rawTree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		RBTree s = new RBTree(rawTree, "S");
 		TimesMap pureTimes = rawTree.getTimesMap("Times");
-		RBTreeArcDiscretiser times = new RBTreeArcDiscretiser(s, pureTimes, 3, 3, 0.05, 4);
+		RBTreeArcDiscretiser times = new RBTreeArcDiscretiser(s, rawTree.getVertexNamesMap(true, "SNames"), pureTimes, 3, 3, 0.05, 4);
 		DupLossProbs dupLoss = new DupLossProbs(s, times, new DoubleParameter("Lambda", 0.5), new DoubleParameter("Mu", 0.4));
 		//System.out.println(dupLoss.toString());
 		assertEquals(dupLoss.getP11Probability(0, 4, 0, 0), dupLoss.getP11Probability(2, 0, 0, 0), 1e-6);

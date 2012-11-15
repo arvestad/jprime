@@ -1,7 +1,6 @@
 package se.cbb.jprime.apps.dlrs;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class RealisationSampler implements Sampleable {
 	
 	/**
 	 * Constructor.
-	 * @param file f the output file.
+	 * @param file f the output str.
 	 * @param iteration iteration.
 	 * @param prng pseudo-random number generator.
 	 * @param S host tree S.
@@ -76,8 +75,8 @@ public class RealisationSampler implements Sampleable {
 	 * @param noOfRealisations number of realisations per sampling round.
 	 * @throws IOException.
 	 */
-	public RealisationSampler(File f, int noOfRealisations, Iteration iteration, PRNG prng, DLRSModel model, NamesMap names) throws IOException {
-		this.out = new BufferedWriter(new FileWriter(f));
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLRSModel model, NamesMap names) throws IOException {
+		this.out = new BufferedWriter(new FileWriter(filename));
 		this.noOfRealisations = noOfRealisations;
 		this.iteration = iteration;
 		this.prng = prng;
@@ -90,7 +89,10 @@ public class RealisationSampler implements Sampleable {
 		this.atsProbs = model.ats;
 		
 		// Write header.
-		this.out.write("RealisationID\tSubsample\tRealisation\n");
+		this.out.write("# Host tree: " + this.times.toString() + "\n");
+		if (this.noOfRealisations > 0) {
+			this.out.write("RealisationID\tSubsample\tRealisation\n");
+		}
 	}
 	
 
@@ -142,7 +144,7 @@ public class RealisationSampler implements Sampleable {
 		// Lowest valid placement of v in S'.
 		int[] y = RealisationSampler.getProperLolim(loLims.get(v));
 		
-		if (!this.S.isLeaf(v)) {
+		if (!this.G.isLeaf(v)) {
 			
 			int i = 0;             // Current point.
 			double tot = 0.0;      // Current cumulative probability.
@@ -155,7 +157,7 @@ public class RealisationSampler implements Sampleable {
 			ArrayList<Double> cps = new ArrayList<Double>(ats.length);
 					
 			// Compute relative cumulative probabilities for all valid placements y beneath x.
-			while (i < ats.length && !(x[0] == y[0] && x[1] == y[1])) {
+			while (i < ats.length && !(x[0] == y[0] && x[1] <= y[1])) {
 				double p = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]) * ats[i];
 				tot += p;
 				ys.add(y);
@@ -244,7 +246,7 @@ public class RealisationSampler implements Sampleable {
 			try {
 				this.out.write(id);
 				this.out.write('\t');
-				this.out.write(i);
+				this.out.write("" + i);
 				this.out.write('\t');
 				Realisation real = this.sample();
 				this.out.write(real.toString());

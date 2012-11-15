@@ -71,11 +71,11 @@ public class Realisation {
 			for (int v = 0; v < sz; ++v) {
 				StringBuilder sb = new StringBuilder(256);
 				if (this.G.isLeaf(v)) {
-					sb.append("[&&PrIME VERTEXTYPE=Leaf");
+					sb.append("[&&PRIME VERTEXTYPE=Leaf");
 				} else if (this.isDuplication.get(v)) {
-					sb.append("[&&PrIME VERTEXTYPE=Duplication");
+					sb.append("[&&PRIME VERTEXTYPE=Duplication");
 				} else {
-					sb.append("[&&PrIME VERTEXTYPE=Speciation");
+					sb.append("[&&PRIME VERTEXTYPE=Speciation");
 				}
 				sb.append(" DISCPT=").append(placements.get(v)).append("]");
 				meta.set(v, sb.toString());

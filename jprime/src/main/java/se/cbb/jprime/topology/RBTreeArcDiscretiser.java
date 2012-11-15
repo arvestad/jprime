@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import se.cbb.jprime.io.NewickIOException;
+import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.InfoProvider;
@@ -29,6 +31,9 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 
 	/** Tree. */
 	private RBTree S;
+	
+	/** Host tree names. */
+	private NamesMap names;
 	
 	/** Ultrametric times (or similarly) of tree. */
 	private TimesMap times;
@@ -64,6 +69,7 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 	/**
 	 * Constructor.
 	 * @param S host tree.
+	 * @param names names of host tree.
 	 * @param times times of host tree.
 	 * @param nmin minimum number of slices per arc.
 	 * @param nmax maximum number of slices per arc.
@@ -71,7 +77,7 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 	 * @param nroot overriding exact number of slices for arc leading into root. Set to 0 for
 	 * ordinary discretisation.
 	 */
-	public RBTreeArcDiscretiser(RBTree S, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
+	public RBTreeArcDiscretiser(RBTree S, NamesMap names, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
 		if (nmin <= 1 || nmax < nmin) {
 			// We must have least two points for other classes to work safely...
 			throw new IllegalArgumentException("Invalid discretisation bounds for RBTreeDiscretiser.");
@@ -83,6 +89,7 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 			deltat = Double.MAX_VALUE;
 		}
 		this.S = S;
+		this.names = names;
 		this.times = times;
 		this.nmin = nmin;
 		this.nmax = nmax;
@@ -96,13 +103,14 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 	/**
 	 * Constructor.
 	 * @param S host tree.
+	 * @param names names of host tree.
 	 * @param times times of host tree.
 	 * @param nmin minimum number of slices per arc.
 	 * @param nmax maximum number of slices per arc.
 	 * @param deltat approximate timestep. Not used if nmin==nmax.
 	 */
-	public RBTreeArcDiscretiser(RBTree S, TimesMap times, int nmin, int nmax, double deltat) {
-		this(S, times, nmin, nmax, deltat, -1);
+	public RBTreeArcDiscretiser(RBTree S, NamesMap names, TimesMap times, int nmin, int nmax, double deltat) {
+		this(S, names, times, nmin, nmax, deltat, -1);
 	}
 
 	/**
@@ -319,7 +327,18 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 	
 	@Override
 	public String toString() {
-		return this.getPreInfo("");
+//		StringMap metas = new StringMap("Meta", this.S.getNoOfVertices());
+//		for (int x = 0; x < this.S.getNoOfVertices(); ++x) {
+//			String pts = Arrays.toString(this.discTimes[x]);
+//			pts = "(" + pts.substring(1, pts.length()-1) + ')';   // [...] => (...)
+//			metas.set(x, "[&&PrIME ID=" + x + " NT=" + this.getVertexTime(x) + " DISCTIMES=" + pts + "]");
+//		}
+		try {
+			String treeMeta = "[&&PRIME NAME=" + this.S.getName() + " DISCTYPE=RBTreeArcDiscretiser NMIN=" + this.nmin + " NMAX=" + this.nmax + " DELTAT=" + this.deltat + " NROOT=" + this.nroot + ']';
+			return NewickTreeWriter.write(this.S, this.names, this.times, null, treeMeta, false);
+		} catch (NewickIOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

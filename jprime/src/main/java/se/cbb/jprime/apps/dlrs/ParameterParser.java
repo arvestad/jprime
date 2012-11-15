@@ -3,6 +3,7 @@ package se.cbb.jprime.apps.dlrs;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -413,7 +414,7 @@ public class ParameterParser {
 	 * @param G guest tree.
 	 * @return the discretisation.
 	 */
-	public static RBTreeArcDiscretiser getDiscretizer(Parameters ps, RBTree S, TimesMap times, RBTree G) {
+	public static RBTreeArcDiscretiser getDiscretizer(Parameters ps, RBTree S, NamesMap names, TimesMap times, RBTree G) {
 		if (ps.discStem == null) {
 			// Try to find a small but sufficient number of stem points to accommodate all
 			// duplications in the stem during G perturbation.
@@ -421,7 +422,7 @@ public class ParameterParser {
 			int h = (int) Math.round(Math.log((double) k) / Math.log(2.0)); // Height of balanced tree...
 			ps.discStem = Math.min(Math.min(h + 12, k), 30);
 		}
-		return new RBTreeArcDiscretiser(S, times, ps.discMin, ps.discMax, Double.parseDouble(ps.discTimestep), ps.discStem);
+		return new RBTreeArcDiscretiser(S, names, times, ps.discMin, ps.discMax, Double.parseDouble(ps.discTimestep), ps.discStem);
 	}
 		
 	/**
@@ -554,4 +555,20 @@ public class ParameterParser {
 		return new ReconciliationHelper(g, s, dtimes, mprMap, params.maxLosses);
 	}
 	
+	/**
+	 * Returns a realisation sampler.
+	 * @param ps parameters.
+	 * @param iter iteration.
+	 * @param prng PRNG.
+	 * @param model DLRS model.
+	 * @param names names of guest tree leaves.
+	 * @return the sampler.
+	 * @throws IOException.
+	 */
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLRSModel model, NamesMap names) throws IOException {
+		if (ps.sampleRealisations == null) { return null; }
+		String fn = ps.sampleRealisations.get(0);
+		int n = Integer.parseInt(ps.sampleRealisations.get(1));
+		return new RealisationSampler(fn, n, iter, prng, model, names);
+	}
 }
