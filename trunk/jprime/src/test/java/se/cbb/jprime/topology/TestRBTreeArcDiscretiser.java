@@ -24,7 +24,7 @@ public class TestRBTreeArcDiscretiser {
 		PrIMENewickTree rawTree = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		RBTree tree = new RBTree(rawTree, "Molli.Tree");
 		TimesMap times = rawTree.getTimesMap("Molli.Times");
-		RBTreeArcDiscretiser disc = new RBTreeArcDiscretiser(tree, times, 3, 7, 0.05, 10);
+		RBTreeArcDiscretiser disc = new RBTreeArcDiscretiser(tree, rawTree.getVertexNamesMap(true, "SNames"), times, 3, 7, 0.05, 10);
 		//System.out.println(disc);
 		double[] d22 = disc.getDiscretisationTimes(22);
 		assertEquals(d22[0], 0.51, 1e-6);

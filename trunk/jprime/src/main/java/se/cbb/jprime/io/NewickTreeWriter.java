@@ -71,6 +71,24 @@ public class NewickTreeWriter {
 	}
 	
 	/**
+	 * Converts a rooted tree into a Newick string.
+	 * @param T the tree.
+	 * @param names the vertex/leaf names.
+	 * @param branchLengths the branch lengths.
+	 * @param metas the meta info (e.g., PrIME tags).
+	 * @param treeMeta the meta info for the tree itself (e.g., a PrIME tag).
+	 * @param doSort true to sort according to vertex names; false to leave unsorted. Sorting requires unique
+	 *        vertex names (no bootstrap values or similarly as names!).
+	 * @return a Newick tree.
+	 * @throws NewickIOException.
+	 */
+	public static String write(RootedTree T, NamesMap names, DoubleMap branchLengths, StringMap metas, String treeMeta, boolean doSort) throws NewickIOException {
+		NewickVertex nv = createNewickTree(T, T.getRoot(), names, branchLengths, metas);
+		NewickTree nt = new NewickTree(nv, treeMeta, false, doSort);
+		return nt.toString();
+	}
+	
+	/**
 	 * Creates a NewickVertex tree for the subtree of T rooted at x.
 	 * @param T the rooted tree.
 	 * @param x the subtree of T rooted at x.

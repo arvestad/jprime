@@ -37,7 +37,7 @@ public class TestDLRSModel {
 		PrIMENewickTree sRaw = PrIMENewickTreeReader.readTree(new File(url.getFile()), false, true);
 		RBTree s = new RBTree(sRaw, "S");
 		TimesMap pureTimes = sRaw.getTimesMap("Times");
-		RBTreeArcDiscretiser times = new RBTreeArcDiscretiser(s, pureTimes, 3, 8, 0.05, 5);
+		RBTreeArcDiscretiser times = new RBTreeArcDiscretiser(s, sRaw.getVertexNamesMap(true, "SNames"), pureTimes, 3, 8, 0.05, 5);
 		NamesMap sNames = sRaw.getVertexNamesMap(true, "S.names");
 		DupLossProbs dupLoss = new DupLossProbs(s, times, new DoubleParameter("Lambda", 0.5), new DoubleParameter("Mu", 0.4));
 		url = this.getClass().getResource("/phylogenetics/simple.09.guest.nw");

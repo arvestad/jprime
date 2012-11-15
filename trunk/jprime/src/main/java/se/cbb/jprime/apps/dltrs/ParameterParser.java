@@ -523,5 +523,4 @@ public class ParameterParser {
 			Parameters params, RBTree g, RBTree s, EpochDiscretiser dtimes, LeafLeafMap llMap) {
 		return new ReconciliationHelper(g, s, dtimes, llMap);
 	}
-	
 }

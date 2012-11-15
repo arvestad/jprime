@@ -114,6 +114,29 @@ public class Parameters {
 	@Parameter(names = {"-gfix", "--guesttreefixed"}, description = "Fix topology of guest tree.")
 	public Boolean guestTreeFixed = false;
 	
+	/** Fix guest tree branch lengths. */
+	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix branch lengths of guest tree.")
+	public Boolean lengthsFixed = false;
+	
+	/** Maximum no of implied losses for a viable placement. */
+	@Parameter(names = {"-maxlosses", "--maximpliedlosses"}, description = "Maximum allowed no. of implied losses for a duplication placement to " +
+			"be considered viable.")
+	public Integer maxLosses = 3;
+	
+	/** MSA that will be used to generate a starting gene tree */
+	@Parameter(names = {"-fp", "--fastphylo"}, description = "Generate a good starting tree by calling FastPhylo on a specified MSA <file>." + 
+			" If --guesttree is specified it inhibits this parameter.")
+	public boolean msaFastPhyloTree = false;
+	
+	/** Sample (output) branch lengths in additional Newick tree. */
+	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output an additional Newick guest tree with branch lengths.")
+	public Boolean outputLengths = false;
+	
+	/** Sample realisations. */
+	@Parameter(names = {"-real", "--samplerealisations"}, arity = 2, description = "When sampling, output dated reconciliations to a file. " +
+			"Takes two arguments: <file> <no of realisations per sample>.")
+	public List<String> sampleRealisations = null;
+	
 	/** Biased branch-swapper. */
 	@Parameter(names = {"-gbiased", "--guesttreebiasedbranchswapper"}, description = "Use biased branch-swapper " +
 			"for better exploration of guest tree space.")
@@ -147,24 +170,6 @@ public class Parameters {
 	/** Minimum coverage for a topology to be included among the samples */
 	@Parameter(names = {"-gtsetcvg"}, description = "Minimum coverage for a topology to be included among the samples in the guest tree set, e.g. 0.01.")
 	public String guestTreeSetMinCvg = "0.01";
-	
-	/** Fix guest tree branch lengths. */
-	@Parameter(names = {"-lfix", "--lengthsfixed"}, description = "Fix branch lengths of guest tree.")
-	public Boolean lengthsFixed = false;
-	
-	/** Maximum no of implied losses for a viable placement. */
-	@Parameter(names = {"-maxlosses", "--maximpliedlosses"}, description = "Maximum allowed no. of implied losses for a duplication placement to " +
-			"be considered viable.")
-	public Integer maxLosses = 3;
-	
-	/** MSA that will be used to generate a starting gene tree */
-	@Parameter(names = {"-fp", "--fastphylo"}, description = "Generate a good starting tree by calling FastPhylo on a specified MSA <file>." + 
-			" If --guesttree is specified it inhibits this parameter.")
-	public boolean msaFastPhyloTree = false;
-	
-	/** Sample (output) branch lengths in additional Newick tree. */
-	@Parameter(names = {"-lout", "--outputlengths"}, description = "When sampling, output an additional Newick guest tree with branch lengths.")
-	public Boolean outputLengths = false;
 	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +

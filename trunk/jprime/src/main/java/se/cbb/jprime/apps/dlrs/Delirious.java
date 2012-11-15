@@ -154,7 +154,7 @@ public class Delirious implements JPrIMEApp {
 			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = ParameterParser.getEdgeRatePD(params);
 			
 			// Create discretisation of S.
-			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.third, gNamesLengths.first);
+			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
 			
 			// Create reconciliation helper.
 			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
@@ -175,6 +175,9 @@ public class Delirious implements JPrIMEApp {
 			
 			// DLRS model.
 			DLRSModel dlrs = new DLRSModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
+			
+			// Realisation sampler.
+			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlrs, gNamesLengths.second);
 			
 			// Proposers.
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
@@ -241,6 +244,9 @@ public class Delirious implements JPrIMEApp {
 			if (params.outputLengths) {
 				manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second, gNamesLengths.third));
 			}
+			if (realisationSampler != null) {
+				manager.addSampleable(realisationSampler);
+			}
 			
 			// ================ WRITE PRE-INFO ================
 			info.write("# MCMC manager:\n");
@@ -260,6 +266,8 @@ public class Delirious implements JPrIMEApp {
 			info.flush();
 			sampler.close();
 			info.close();
+			if (realisationSampler != null) { realisationSampler.close(); }
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
