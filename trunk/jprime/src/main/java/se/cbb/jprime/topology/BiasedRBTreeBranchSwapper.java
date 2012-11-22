@@ -2,8 +2,10 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.Map;
+import  java.lang.Math;
 
 import se.cbb.jprime.math.LogDouble;
+
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
@@ -85,7 +87,6 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 			// NOT OK - RESTORE, PERTURB AGAIN.
 			// OK, END-OF-LOOP.
 			if (treeIsOK(oldScore)){
-				//System.out.println(1.0/cpt);
 				break;
 			}else{
 				this.restoreCache();
@@ -108,8 +109,15 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 			no += this.getNoOfSubParameters();
 		}
 		
+		MPRMap mpr = new MPRMap(this.mprMap);
+		mpr.forceUpdate();
+		double dupScore1 = mpr.getTotalNoOfDuplications() * this.dupWeight;
+		double lossScore1 = mpr.getTotalNoOfLosses() * this.lossWeight;
+		double score1 = dupScore1 + lossScore1;
 		// Right now, we consider forward-backward probabilities as equal.
-		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), affected, no);
+		//LogDouble1 = forward pbb
+		//LogDouble2 = backward pbb
+		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(oldScore/score1), affected, no);
 	}
 	
 	private boolean treeIsOK(double oldScore) {
@@ -126,7 +134,7 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		if(score < oldScore){
 			pbb = 1;
 		}else{
-			pbb = oldScore / score;
+			pbb = Math.pow(oldScore, 8) / Math.pow(score, 8);
 		}
 		
 		//The tree is OK according to the pbb
