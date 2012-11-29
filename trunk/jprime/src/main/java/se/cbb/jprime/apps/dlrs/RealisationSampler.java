@@ -95,14 +95,35 @@ public class RealisationSampler implements Sampleable {
 		}
 	}
 	
+	/**
+	 * Retrieves the maximum probability realisation given the current guest tree, "at-probabilities", p11-probabilities, etc.
+	 * @param vertices vertices of G in topological ordering from root to leaves.
+	 */
+	public Realisation getMaximumProbabilityRealisation(List<Integer> vertices) {
+		int n = vertices.size();
+		int[][] placements = new int[n][];  // Sampled points.
+		double[] abst = new double[n];      // Absolute times.
+		double[] arct = new double[n];      // Arc times.
+		boolean[] isDups = new boolean[n];  // Type of point.
+		
+		// For each vertex v of G.
+		String[] placementss = new String[n];
+		for (int v : vertices) {
+			getMaxPoint(v, placements, abst, arct, isDups);
+			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
+		}
+		
+		// Finally, generate guest tree with times.
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss));
 
+	}
+	
+	
 	/**
 	 * Samples a realisation given the current guest tree, "at-probabilities", p11-probabilities, etc.
+	 * @param vertices vertices of G in topological ordering from root to leaves.
 	 */
-	public Realisation sample() {
-				
-		// Vertices of G in topological ordering from root to leaves.
-		List<Integer> vertices = this.G.getTopologicalOrdering();
+	public Realisation sample(List<Integer> vertices) {
 		
 		int n = vertices.size();
 		int[][] placements = new int[n][];  // Sampled points.
@@ -141,7 +162,7 @@ public class RealisationSampler implements Sampleable {
 			x = placements[this.G.getParent(v)];
 		}
 		
-		// Lowest valid placement of v in S'.
+		// Start with lowest valid placement of v in S'.
 		int[] y = RealisationSampler.getProperLolim(loLims.get(v));
 		
 		if (!this.G.isLeaf(v)) {
@@ -196,6 +217,64 @@ public class RealisationSampler implements Sampleable {
 	}
 	
 	/**
+	 * Gets the maximum probability point y in S' for placement of vertex v of G, given that the parent of v has been sampled already.
+	 * @param v vertex of G.
+	 * @param placements placements in S'
+	 * @param absTimes absolute times of sampled tree.
+	 * @param arcTimes arc times of sampled tree.
+	 * @param isDups type of point.
+	 */
+	private void getMaxPoint(int v, int[][] placements, double[] absTimes, double[] arcTimes, boolean[] isDups) {
+		
+		// Get placement of parent of v in S'.
+		int[] x;
+		if (this.G.isRoot(v)) {
+			x = new int[2];
+			x[0] = this.S.getRoot();
+			x[1] = this.times.getNoOfSlices(x[0]) + 1;
+		} else {
+			x = placements[this.G.getParent(v)];
+		}
+		
+		// Start with lowest valid placement of v in S'.
+		int[] y = RealisationSampler.getProperLolim(loLims.get(v));
+		
+		if (!this.G.isLeaf(v)) {
+			
+			int i = 0;                        // Current point.
+			double maxp = -Double.MAX_VALUE;  // Max value seen so far.
+			int[] maxy = null;                // Point for max value. 
+			double[] ats = this.atsProbs.get(v);
+					
+			// Compute relative cumulative probabilities for all valid placements y beneath x.
+			while (i < ats.length && !(x[0] == y[0] && x[1] <= y[1])) {
+				double p = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]) * ats[i];
+				if (p > maxp) {
+					maxp = p;
+					maxy = new int[] {y[0], y[1]};
+				}
+				
+				// Move to point above.
+				++i;
+				if (y[1] == times.getNoOfSlices(y[0])) {
+					y = new int[] { S.getParent(y[0]), 1 };  // Onto next arc.
+				} else {
+					y = new int[] { y[0], y[1]+1 };
+				}
+			}
+			
+			// This is it.
+			y = maxy;
+		}
+		
+		// Finally, store the properties.
+		placements[v] = y;
+		absTimes[v] = this.times.getDiscretisationTime(y[0], y[1]);
+		arcTimes[v] = this.times.getDiscretisationTime(x[0], x[1]) - absTimes[v];
+		isDups[v] = (y[1] > 0);    // 0 for speciations and leaves.
+	}
+	
+	/**
 	 * Closes the underlying buffer.
 	 * @throws IOException 
 	 */
@@ -231,15 +310,24 @@ public class RealisationSampler implements Sampleable {
 
 	@Override
 	public String getSampleHeader() {
-		return "RealisationID";
+		return "RealisationID\tMaxProbabilityRealisation";
 	}
 
 
 	@Override
 	public String getSampleValue() {
+		StringBuilder str = new StringBuilder(1024);
 		
-		// Use current iteration as ID.
-		String id = "" + this.iteration.getIteration(); 
+		// Use current iteration as ID to be able to tie MCMC sample and realisation samples together.
+		String id = "" + this.iteration.getIteration();
+		str.append(id);
+		
+		// Vertices of G in topological ordering from root to leaves.
+		List<Integer> vertices = this.G.getTopologicalOrdering();
+		
+		// Output max prob. realisation in ordinary file.
+		Realisation real = this.getMaximumProbabilityRealisation(vertices);
+		str.append('\t').append(real.toString());
 		
 		// Do sampling to own file.
 		for (int i = 0; i < this.noOfRealisations; ++i) {
@@ -248,7 +336,7 @@ public class RealisationSampler implements Sampleable {
 				this.out.write('\t');
 				this.out.write("" + i);
 				this.out.write('\t');
-				Realisation real = this.sample();
+				real = this.sample(vertices);
 				this.out.write(real.toString());
 				this.out.write('\n');
 			} catch (IOException e) {
@@ -256,7 +344,7 @@ public class RealisationSampler implements Sampleable {
 			}
 		}
 				
-		return id;
+		return str.toString();
 	}
 
 }
