@@ -92,7 +92,7 @@ public class Deleterious implements JPrIMEApp {
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +
-						"    java -cp jprime-X.Y.Z.jar se/cbb/jprime/apps/dltrs/Deleterious [options] <args>\n");
+						"    java -jar jprime-X.Y.Z.jar Deleterious [options] <args>\n");
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				System.out.println(sb.toString());
 				return;
