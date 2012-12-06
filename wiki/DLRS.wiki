@@ -448,3 +448,7 @@ A10) Not at the moment. We are, however, pursuing efforts of improving explorati
 *Q11) I'm providing my own initial guest tree, but it seems to cause issues. Why?*
 
 A11) As stated above, the guest tree must be rooted and provided on the Newick format. Many applications will generate unrooted trees such as "(A,B,C)". In this case make a qualified guess, or simply pick an arbitrary root such as "((A,B),C)". If the tree contains branch lengths, it might be easiest just to remove them first.
+
+*Q12) Why do I get an error about "Compound not found" when I try to start the application?*
+
+A12) You probably have peptide data but are using a nucleotide substitution model. Set a suitable model with option -sm <model>.
