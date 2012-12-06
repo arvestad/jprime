@@ -451,4 +451,4 @@ A11) As stated above, the guest tree must be rooted and provided on the Newick f
 
 *Q12) Why do I get an error about "Compound not found" when I try to start the application?*
 
-A12) You probably have peptide data but are using a nucleotide substitution model. Set a suitable model with option -sm <model>.
+A12) You probably have peptide data but are using a nucleotide substitution model. Set a suitable model with option -sm.
