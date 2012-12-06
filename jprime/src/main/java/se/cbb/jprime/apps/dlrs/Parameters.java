@@ -50,7 +50,7 @@ public class Parameters {
 	
 	/** Substitution model. */
 	@Parameter(names = {"-sm", "--substitutionmodel"}, description = SubstitutionMatrixHandlerFactory.USER_MESSAGE)
-	public String substitutionModel = "JTT";
+	public String substitutionModel = "JC69";
 
 	/** Duplication rate. */
 	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no " +
@@ -199,7 +199,7 @@ public class Parameters {
 	/** Tuning parameter: guest tree move weights. */
 	@Parameter(names = {"-tnggw", "--tuningguesttreeweights"}, description = "Tuning parameter: Governs how often a particular " +
 			"branch swap operation is carried out as [NNI,SPR,Rerooting].")
-	public String tuningGuestTreeMoveWeights = "[0.5,0.3,0.2]";
+	public String tuningGuestTreeMoveWeights = "[0.70,0.25,0.05]";
 	
 	/** Tuning parameter: branch lengths selector weights. */
 	@Parameter(names = {"-tnglw", "--tuninglengthsweights"}, description = "Tuning parameter: Governs how often 1,2,... branch lengths " +

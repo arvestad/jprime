@@ -98,7 +98,11 @@ public class RBTreeBranchSwapper implements Proposer {
 		this.lengths = lengths;
 		this.times = times;
 		this.prng = prng;
-		this.operationWeights = new double[] {0.5, 0.3, 0.2};
+		if (this.T.getNoOfLeaves() <= 4) {
+			this.operationWeights = new double[] {0, 0.5, 0.5};
+		} else {
+			this.operationWeights = new double[] {0.7, 0.25, 0.05};
+		}
 		this.isActive = true;
 		this.lastOperationType = null;
 	}
@@ -228,9 +232,15 @@ public class RBTreeBranchSwapper implements Proposer {
 		if (nni < 0.0 || spr < 0.0 || rerooting < 0.0) {
 			throw new IllegalArgumentException("Must set non-negative operation weight in branch-swapper.");
 		}
-		this.operationWeights[0] = nni;
-		this.operationWeights[1] = spr;
-		this.operationWeights[2] = rerooting;
+		if (this.T.getNoOfLeaves() <= 4) {
+			this.operationWeights[0] = 0;
+			this.operationWeights[1] = 0.5;
+			this.operationWeights[2] = 0.5;
+		} else {
+			this.operationWeights[0] = nni;
+			this.operationWeights[1] = spr;
+			this.operationWeights[2] = rerooting;
+		}
 	}
 	
 
@@ -369,8 +379,8 @@ public class RBTreeBranchSwapper implements Proposer {
 	 * Precondition: if the number of leaves is 4, input tree must not be symmetric.
 	 */
 	protected void doNNI() {
-		// Disallow symmetric 4-leaf trees.
-		if (this.T.getNoOfLeaves() == 4 && this.T.isLeaf(this.T.getLeftChild(this.T.getRoot())) && this.T.isLeaf(this.T.getRightChild(this.T.getRoot()))) {
+		// Disallow 4-leaf trees.
+		if (this.T.getNoOfLeaves() <= 4) {
 			throw new UnsupportedOperationException("Cannot perform NNI on symmetric tree topology with 4 leaves.");
 		}
 		

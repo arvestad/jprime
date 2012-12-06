@@ -50,7 +50,7 @@ public class Parameters {
 	
 	/** Substitution model. */
 	@Parameter(names = {"-sm", "--substitutionmodel"}, description = SubstitutionMatrixHandlerFactory.USER_MESSAGE)
-	public String substitutionModel = "JTT";
+	public String substitutionModel = "JC69";
 
 	/** Duplication rate. */
 	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no " +

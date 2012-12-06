@@ -52,7 +52,7 @@ public class TestDeleterious {
 		URL dURL = this.getClass().getResource("/phylogenetics/HBG562580.aln-gb");
 		URL sigmaURL = this.getClass().getResource("/phylogenetics/HBG562580.gs");
 		Deleterious del = new Deleterious();
-		del.main(new String[] {"-uncatch", "-dmin", "3", "-dmax", "3", "-dstem", "4", "-i", "10", sURL.getPath(), dURL.getPath(), sigmaURL.getPath()});
+		del.main(new String[] {"-uncatch", "-sm", "JTT", "-dmin", "3", "-dmax", "3", "-dstem", "4", "-i", "10", sURL.getPath(), dURL.getPath(), sigmaURL.getPath()});
 		out.reset();
 	}
 }
