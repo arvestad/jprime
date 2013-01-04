@@ -108,7 +108,7 @@ public class RealParameterUniformPrior implements Model {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return this.priorProbability.toString();
 	}
 

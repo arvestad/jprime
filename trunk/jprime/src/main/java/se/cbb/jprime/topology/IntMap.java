@@ -168,7 +168,7 @@ public class IntMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleIntArray.toString(this.values);
 	}
 

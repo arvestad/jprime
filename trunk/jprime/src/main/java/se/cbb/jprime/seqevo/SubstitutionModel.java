@@ -330,7 +330,7 @@ public class SubstitutionModel implements Model {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleLogDouble.toString(this.modelLikelihood);
 	}
 

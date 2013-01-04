@@ -22,9 +22,10 @@ public interface Sampler {
 	/**
 	 * Writes a sample of the current state.
 	 * @param sampleables the objects to sample from (processed in list order).
+	 * @param mode sampling mode.
 	 * @throws IOException.
 	 */
-	public void writeSample(List<Sampleable> sampleables) throws IOException;
+	public void writeSample(List<Sampleable> sampleables, Sampleable.SamplingMode mode) throws IOException;
 
 	/**
 	 * Writes a specified string. May be used e.g. for outputting debugging info.
@@ -43,7 +44,8 @@ public interface Sampler {
 	/**
 	 * Returns a sample of the current state.
 	 * @param sampleables the objects to sample from (processed in list order).
+	 * @param mode sampling mode.
 	 * @return the sample.
 	 */
-	public String getSample(List<Sampleable> sampleables);
+	public String getSample(List<Sampleable> sampleables, Sampleable.SamplingMode mode);
 }

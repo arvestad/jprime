@@ -52,7 +52,7 @@ public class RBTreeSampleWrapper implements Sampleable {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		try {
 			if (this.lengths == null) {
 				return SampleNewickTree.toString(tree, names);

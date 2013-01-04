@@ -376,7 +376,7 @@ public class DLTRSModel implements Model {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return this.getDataProbability().toString();
 	}
 

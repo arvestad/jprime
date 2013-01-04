@@ -8,6 +8,13 @@ package se.cbb.jprime.io;
  */
 public interface Sampleable {
 
+	/** For distinguishing between certain cases when obtaining a value. */
+	public enum SamplingMode {
+		ORDINARY,
+		MIN_RECORD,
+		MAX_RECORD
+	}
+	
 	/**
 	 * Returns the sample type.
 	 * Must not return null.
@@ -27,6 +34,6 @@ public interface Sampleable {
 	 * Must not return null.
 	 * @return the value.
 	 */
-	public String getSampleValue();
+	public String getSampleValue(SamplingMode mode);
 	
 }

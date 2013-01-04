@@ -442,7 +442,7 @@ public class RTree implements RootedTreeParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		// Only prints internal vertex labels.
 		// Use RBTreeSampleWrapper for proper output.
 		return this.toString();

@@ -256,10 +256,10 @@ public class MCMCManager implements Sampleable, InfoProvider {
 			this.posteriorDensity.mult(m.getDataProbability());
 		}
 		if (willSample) {
-			this.sampler.writeSample(this.sampleables);
+			this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
 		}
 		this.bestPosteriorDensity = this.posteriorDensity;
-		this.bestState = this.sampler.getSample(this.sampleables);
+		this.bestState = this.sampler.getSample(this.sampleables, SamplingMode.MAX_RECORD);
 		
 		// Iterate.
 		this.startTime = System.nanoTime();
@@ -333,7 +333,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					this.posteriorDensity = newPosteriorDensity;
 					if (this.bestPosteriorDensity.lessThan(newPosteriorDensity)) {
 						this.bestPosteriorDensity = newPosteriorDensity;
-						this.bestState = this.sampler.getSample(this.sampleables);
+						this.bestState = this.sampler.getSample(this.sampleables, SamplingMode.MAX_RECORD);
 					}
 				} else {
 					stats.increment(false, "" + shakeItBaby.size() + " used proposers");
@@ -354,7 +354,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				
 				// Sample, if desired.
 				if (willSample) {
-					this.sampler.writeSample(this.sampleables);
+					this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
 				}
 			}
 		} catch (RunAbortedException rae) {
@@ -376,7 +376,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return this.posteriorDensity.toString();
 	}
 
