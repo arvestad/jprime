@@ -315,7 +315,7 @@ public class RealisationSampler implements Sampleable {
 
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		StringBuilder str = new StringBuilder(1024);
 		
 		// Use current iteration as ID to be able to tie MCMC sample and realisation samples together.
@@ -329,18 +329,20 @@ public class RealisationSampler implements Sampleable {
 		Realisation real = this.getMaximumProbabilityRealisation(vertices);
 		str.append('\t').append(real.toString());
 		
-		// Do sampling to own file.
-		for (int i = 0; i < this.noOfRealisations; ++i) {
-			try {
-				this.out.write(id);
-				this.out.write('\t');
-				this.out.write("" + i);
-				this.out.write('\t');
-				real = this.sample(vertices);
-				this.out.write(real.toString());
-				this.out.write('\n');
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+		// Do sampling to own file, in ordinary cases.
+		if (mode == SamplingMode.ORDINARY) {
+			for (int i = 0; i < this.noOfRealisations; ++i) {
+				try {
+					this.out.write(id);
+					this.out.write('\t');
+					this.out.write("" + i);
+					this.out.write('\t');
+					real = this.sample(vertices);
+					this.out.write(real.toString());
+					this.out.write('\n');
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 				

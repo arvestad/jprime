@@ -81,7 +81,7 @@ public class DoubleParameter implements RealParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return (this.scale == null ? SampleDouble.toString(this.value) :
 			SampleDouble.toString(this.scale.getUnscaled(this.value)));
 	}

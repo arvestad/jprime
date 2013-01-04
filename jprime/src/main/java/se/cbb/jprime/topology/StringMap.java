@@ -163,7 +163,7 @@ public class StringMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleStringArray.toString(this.values);
 	}
 

@@ -146,8 +146,8 @@ public class SampleWriter implements Sampler {
 	}
 	
 	@Override
-	public void writeSample(List<Sampleable> sampleables) throws IOException {
-		String[] sample = this.getValue(sampleables, this.conciseSymbol != null);
+	public void writeSample(List<Sampleable> sampleables, Sampleable.SamplingMode mode) throws IOException {
+		String[] sample = this.getValue(sampleables, this.conciseSymbol != null, mode);
 		
 		for (int i = 0; i < sample.length - 1; ++i) {
 			this.out.write(sample[i]);
@@ -184,15 +184,16 @@ public class SampleWriter implements Sampler {
 	 * Retrieves the sample values.
 	 * @param sampleables the sampleable objects.
 	 * @param doConcise true to shorten repeats.
+	 * @param mode sampling mode.
 	 * @return the sample.
 	 */
-	private String[] getValue(List<Sampleable> sampleables, boolean doConcise) {
+	private String[] getValue(List<Sampleable> sampleables, boolean doConcise, Sampleable.SamplingMode mode) {
 		if (sampleables.size() == 0) { return new String[0]; }
 		
 		// Retrieve all current parameters.
 		String[] sample = new String[sampleables.size()];
 		for (int i = 0; i < sample.length; ++i) {
-			sample[i] = sampleables.get(i).getSampleValue();
+			sample[i] = sampleables.get(i).getSampleValue(mode);
 		}
 		
 		// If desired, exchange unchanged parameters for symbol.
@@ -229,8 +230,8 @@ public class SampleWriter implements Sampler {
 	}
 
 	@Override
-	public String getSample(List<Sampleable> sampleables) {
-		String[] sample = this.getValue(sampleables, false);
+	public String getSample(List<Sampleable> sampleables, Sampleable.SamplingMode mode) {
+		String[] sample = this.getValue(sampleables, false, mode);
 		StringBuilder sb = new StringBuilder(sample.length * 32);
 		for (int i = 0; i < sample.length - 1; ++i) {
 			sb.append(sample[i]);

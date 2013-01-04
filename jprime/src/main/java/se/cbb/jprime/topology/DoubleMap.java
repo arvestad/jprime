@@ -158,7 +158,7 @@ public class DoubleMap implements GraphMap, RealParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleDoubleArray.toString(this.values);
 	}
 

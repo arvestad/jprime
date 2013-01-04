@@ -68,7 +68,7 @@ public class IntParameter implements StateParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleInt.toString(this.value);
 	}
 

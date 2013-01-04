@@ -196,7 +196,7 @@ public class GenericMap<T extends PublicCloneable> implements GraphMap, StatePar
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		StringBuilder sb = new StringBuilder(this.values.size() * 128);
 		sb.append('[');
 		for (T val : this.values) {

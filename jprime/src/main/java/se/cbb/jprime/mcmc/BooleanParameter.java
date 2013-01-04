@@ -68,7 +68,7 @@ public class BooleanParameter implements StateParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleBoolean.toString(this.value);
 	}
 

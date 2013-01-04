@@ -158,7 +158,7 @@ public class BooleanMap implements GraphMap, StateParameter {
 	}
 
 	@Override
-	public String getSampleValue() {
+	public String getSampleValue(SamplingMode mode) {
 		return SampleBooleanArray.toString(this.values);
 	}
 
