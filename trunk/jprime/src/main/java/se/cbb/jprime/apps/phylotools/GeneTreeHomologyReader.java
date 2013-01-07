@@ -41,7 +41,7 @@ public class GeneTreeHomologyReader{
 		System.out.println("Extracting true reconciliation events...");
 		System.out.println("The tree is : " + sRaw);
 		List<NewickVertex> vertices = sRaw.getVerticesAsList();
-		int[] dupStatus = sRaw.getDuplicationValues();
+		int[] dupStatus = sRaw.getVertexDuplicationValues();
 		for (NewickVertex v : vertices) {
 			int id = v.getNumber();
 			if(dupStatus[id] != Integer.MAX_VALUE){

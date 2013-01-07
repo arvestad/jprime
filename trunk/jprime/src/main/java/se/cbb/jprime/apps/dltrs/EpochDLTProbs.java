@@ -10,6 +10,7 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 
 /**
  * Holder of duplication, loss and lateral transfer rates for a
@@ -37,7 +38,7 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 	private ODESolver solver;
 	
 	/** The discretised tree. */
-	private EpochDiscretiser discTree;
+	private RBTreeEpochDiscretiser discTree;
 	
 	/** Duplication rate. */
 	private DoubleParameter dupRate;
@@ -93,7 +94,7 @@ public class EpochDLTProbs implements ProperDependent, ODEFunction, ODEExternalS
 	 * @param trans the lateral transfer rate.
 	 * @param adjust true to adjust the probability of transfer by normalising with the number of contemporary host tree arcs.
 	 */
-	public EpochDLTProbs(EpochDiscretiser ed, DoubleParameter dup, DoubleParameter loss, DoubleParameter trans, boolean adjust) {
+	public EpochDLTProbs(RBTreeEpochDiscretiser ed, DoubleParameter dup, DoubleParameter loss, DoubleParameter trans, boolean adjust) {
 		this.solver = new ODESolver(this, this, true, REL_TOL, ABS_TOL);
 		this.discTree = ed;
 		this.dupRate = dup;

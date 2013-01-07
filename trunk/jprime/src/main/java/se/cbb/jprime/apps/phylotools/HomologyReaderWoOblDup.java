@@ -66,7 +66,7 @@ public class HomologyReaderWoOblDup {
         System.out.println("Extracting true reconciliation events...");
         System.out.println("The tree is : " + sRaw);
         List<NewickVertex> vertices = sRaw.getVerticesAsList();
-        int[] dupStatus = sRaw.getDuplicationValues();
+        int[] dupStatus = sRaw.getVertexDuplicationValues();
 
         for (NewickVertex v : vertices) {
             int id = v.getNumber();
@@ -129,7 +129,7 @@ public class HomologyReaderWoOblDup {
         PrIMENewickTree sMpr = PrIMENewickTreeReader.readTree(gFile, false,
                 true);
         System.out.println("Input tree is " + sMpr.toString());
-        int[] mprDupStatus = sMpr.getDuplicationValues();
+        int[] mprDupStatus = sMpr.getVertexDuplicationValues();
         List<NewickVertex> vertices = sMpr.getVerticesAsList();
         for (NewickVertex v : vertices) {
             int id = v.getNumber();

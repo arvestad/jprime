@@ -10,6 +10,7 @@ import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.Model;
 import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
@@ -346,7 +347,7 @@ public class DLTRSModel implements Model {
 	 * @param noOfAncestors the number of ancestors of u.
 	 */
 	protected void clearAtsAndBelows() {
-		EpochDiscretiser disc = reconcHelper.getDiscretisation();
+		RBTreeEpochDiscretiser disc = reconcHelper.getDiscretisation();
 		for (int u = 0; u < this.g.getNoOfVertices(); ++u) {
 			this.ats.set(u, new EpochPtMap(disc));
 			this.belows.set(u, new EpochPtMap(disc));

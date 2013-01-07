@@ -3,6 +3,8 @@ package se.cbb.jprime.topology;
 /**
  * Specialisation of a DoubleMap to hold times of an ultrametric tree.
  * Provides access to both absolute times of vertices and time span of arcs.
+ * Observe that the ordinary values holds the absolute vertex times. If you
+ * need the arc times, there is a convenience method that returns such a map.
  * 
  * @author Joel Sjöstrand.
  */
@@ -149,6 +151,14 @@ public class TimesMap extends DoubleMap {
 			this.cacheArcTimes = null;
 		}
 		super.restoreCache();
+	}
+	
+	/**
+	 * Returns a map of the arc times for when such a specific need arises.
+	 * @return the arc times in a map.
+	 */
+	public DoubleMap getArcTimesMap() {
+		return new DoubleMap(name, this.arcTimes);
 	}
 	
 }

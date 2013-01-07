@@ -2,6 +2,8 @@ package se.cbb.jprime.apps.dltrs;
 
 import org.jfree.util.PublicCloneable;
 
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
+
 /**
  * Map for storing data for each point of a discretised epoch tree.
  * <p/>
@@ -40,7 +42,7 @@ class EpochPtMap implements PublicCloneable {
 	 * Constructor. Creates a map filled with default elements.
 	 * @param ed the discretised tree.
 	 */
-	public EpochPtMap(EpochDiscretiser ed) {
+	public EpochPtMap(RBTreeEpochDiscretiser ed) {
 	
 		// Compute offsets.
 		m_offsets = new int[ed.getNoOfEpochs() + 1];

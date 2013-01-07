@@ -27,8 +27,11 @@ import se.cbb.jprime.mcmc.ProperDependent;
  * 
  * @author Joel Sjöstrand.
  */
-public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
+public class RBTreeArcDiscretiser implements RootedTreeDiscretiser, ProperDependent, InfoProvider {
 
+	/** Discretisation type. */
+	public static final String DISC_TYPE = "RBTreeArcDiscretiser";
+	
 	/** Tree. */
 	private RBTree S;
 	
@@ -334,8 +337,8 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 			metas.set(x, "[&&PRIME ID=" + x + " NT=" + this.getVertexTime(x) + " DISCTIMES=" + pts + "]");
 		}
 		try {
-			String treeMeta = "[&&PRIME NAME=" + this.S.getName() + " DISCTYPE=RBTreeArcDiscretiser NMIN=" + this.nmin + " NMAX=" + this.nmax + " DELTAT=" + this.deltat + " NROOT=" + this.nroot + ']';
-			return NewickTreeWriter.write(this.S, this.names, this.times, metas, treeMeta, false);
+			String treeMeta = "[&&PRIME NAME=" + this.S.getName() + " DISCTYPE=" + DISC_TYPE + " NMIN=" + this.nmin + " NMAX=" + this.nmax + " DELTAT=" + this.deltat + " NROOT=" + this.nroot + ']';
+			return NewickTreeWriter.write(this.S, this.names, this.times.getArcTimesMap(), metas, treeMeta, false);
 		} catch (NewickIOException e) {
 			throw new RuntimeException(e);
 		}
@@ -367,5 +370,16 @@ public class RBTreeArcDiscretiser implements ProperDependent, InfoProvider {
 		sb.append(prefix).append("RBTREE ARC-DISCRETISER\n");
 		return sb.toString();
 	}
+
+	@Override
+	public String getDiscretisationType() {
+		return "RBTreeArcDiscretiser";
+	}
+
+	@Override
+	public String serializeToNewickTree() {
+		return this.toString();
+	}
+	
 	
 }

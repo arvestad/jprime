@@ -337,6 +337,22 @@ public class NewickTree {
 	}
 	
 	/**
+	 * Returns a specific branch length. If this is lacking altogether, Double.NaN is returned.
+	 * @param x the vertex.
+	 * @return the branch length.
+	 */
+	public double getBranchLength(int x) {
+		List<NewickVertex> vertices = this.getVerticesAsList();
+		for (NewickVertex v : vertices) {
+			if (v.getNumber() == x) {
+				Double bl = v.getBranchLength();
+				return (bl == null ? Double.NaN : bl);
+			}
+		}
+		return Double.NaN;
+	}
+	
+	/**
 	 * Returns a map with a couple NewickVertex as key and its branch length as value.
 	 * @return a map with a couple NewickVertex as key and its branch length as value.
 	 * @throws NewickIOException
