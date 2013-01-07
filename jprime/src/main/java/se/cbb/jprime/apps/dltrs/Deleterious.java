@@ -42,6 +42,7 @@ import se.cbb.jprime.seqevo.SubstitutionMatrixHandler;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
 import se.cbb.jprime.seqevo.SubstitutionModel;
 import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.LeafLeafMap;
 import se.cbb.jprime.topology.NamesMap;
@@ -150,7 +151,7 @@ public class Deleterious implements JPrIMEApp {
 			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = ParameterParser.getEdgeRatePD(params);
 			
 			// Create discretisation of S.
-			EpochDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.third, gNamesLengths.first);
+			RBTreeEpochDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
 			
 			// Create reconciliation helper.
 			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes,

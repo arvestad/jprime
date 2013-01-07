@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.text.WordUtils;
+
+import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.IntArrayMap;
+import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
@@ -24,7 +29,7 @@ import se.cbb.jprime.topology.TimesMap;
  * an arc time of the root. However, one may verify compatibility of such properties (see
  * also <code>PrIMENewickTreeVerifier</code>).
  * <p/>
- * The following properties are handled:
+ * The following old PrIME properties are handled:
  * <pre>
  * Property         "Pure Newick":  PrIME meta:   Note:
  * ---------------------------------------------------------------------
@@ -38,26 +43,33 @@ import se.cbb.jprime.topology.TimesMap;
  * Vertex times                     Y             This class.
  * Arc times                        Y             This class.
  * </pre>
+ * In addition, several new properties have been added.
  * 
- * @author Joel Sjöstrand.
+ * @author Joel Sjöstrand, Ikram Ullah.
  */
 public class PrIMENewickTree extends NewickTree {
 	
 	/**
-	 * Tree properties.
+	 * Tree properties. TODO: Create a more dynamic way of adding and parsing these.
 	 */
 	public enum MetaProperty {
-		TREE_NAME        ("NAME=\"?(\\w+)\"?"),
-		TREE_TOP_TIME    ("TT=\"?([0-9\\+\\-\\.e]+)\"?"),
-		VERTEX_NUMBERS   ("ID=\"?([0-9]+)\"?"),
-		VERTEX_NAMES     ("NAME=\"?(\\w+)\"?"),
-		BRANCH_LENGTHS   ("BL=\"?([0-9\\+\\-\\.e]+)\"?"),
-		VERTEX_WEIGHTS   ("NW=\"?([0-9\\+\\-\\.e]+)\"?"),
-		VERTEX_TIMES     ("NT=\"?([0-9\\+\\-\\.e]+)\"?"),
-		ARC_TIMES        ("ET=\"?([0-9\\+\\-\\.e]+)\"?"),
-		IS_DUPLICATION   ("\\sD=\"?([0-9]+)\"?"),
-		VERTEX_TYPE      ("VERTEXTYPE=\"?(Leaf|Speciation|Duplication|Transfer)\"?"),
-		DISC_PT          ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?");
+		TREE_NAME         ("NAME=\"?(\\w+)\"?"),
+		TREE_TOP_TIME     ("TT=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_NUMBERS    ("ID=\"?([0-9]+)\"?"),
+		VERTEX_NAMES      ("NAME=\"?(\\w+)\"?"),
+		BRANCH_LENGTHS    ("BL=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_WEIGHTS    ("NW=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_TIMES      ("NT=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		ARC_TIMES         ("ET=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_IS_DUPLICATIONS  ("\\sD=\"?([0-9]+)\"?"),
+		VERTEX_TYPES      ("VERTEXTYPE=\"?([Ll]eaf|[Ss]peciation|[Dd]uplication|[Tt]ransfer)\"?"),
+		VERTEX_DISC_PTS   ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?"),
+		VERTEX_DISC_TIMES ("DISCTIMES=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
+		TREE_DISC_TYPE    ("DISCTYPE=\"?(RBTreeArcDiscretiser|EpochDiscretiser)\"?"),
+		TREE_N_MIN        ("NMIN=\"?([0-9]+)\"?"),
+		TREE_N_MAX        ("NMAX=\"?([0-9]+)\"?"),
+		TREE_N_ROOT       ("NROOT=\"?([0-9]+)\"?"),
+		TREE_DELTA_T      ("DELTAT=\"?([0-9\\+\\-\\.eE]+)\"?");
 		
 		public static final String REGEXP_PREFIX = "\\[&&PRIME [^\\]]*";
 		public static final String REGEXP_SUFFIX = "[^\\]]*\\]";
@@ -72,13 +84,20 @@ public class PrIMENewickTree extends NewickTree {
 		 * Returns the value contained in a meta tag corresponding to this property.
 		 * If not found or input is null, null is returned.
 		 * @param meta the complete meta string.
-		 * @return the value, null if not found or input is null.
+		 * @return the value, null if not found or input is null. Enclosing quotation marks are removed.
 		 */
 		public String getValue(String meta) {
 			if (meta == null)
 				return null;
 			Matcher m = this.pattern.matcher(meta);
-			return (m.find() ? m.group(1) : null);
+			if (m.find()) {
+				// Remove quotation marks.
+				String s = m.group(1);
+				if (s.startsWith("\"")) { s = s.substring(1); }
+				if (s.endsWith("\""))   { s = s.substring(0,s.length()-1); }
+				return s;
+			}
+			return null;
 		}
 	}
 	
@@ -114,11 +133,35 @@ public class PrIMENewickTree extends NewickTree {
 	/** Vertex weights. */
 	private double[] vertexTimes = null;
 	
-	/** Whether a node is a duplication or speciation */
-	private int[] isDuplication = null;
+	/** Vertex types. */
+	private String[] vertexTypes = null;
+	
+	/** Whether a vertex is a duplication or speciation. */
+	private int[] isDuplications = null;
 	
 	/** Arc times. Implicitly defines vertex times. */
 	private double[] arcTimes = null;
+
+	/** Identification type for tree discretisations. */
+	private String treeDiscType = null;
+
+	/** Minimum number for tree discretisation. */
+	private Integer nmin = null;
+
+	/** Maximum number for tree discretisation. */
+	private Integer nmax = null;
+
+	/** Stem number for tree discretisation. */
+	private Integer nroot = null;
+
+	/** Timestep for tree discretisation. */
+	private Double deltat = null;
+
+	/** Arc discretisation times. */
+	private double[][] discTimes = null;
+
+	/** Vertex discretisation points. */
+	private int[][] discPts = null;
 	
 	/**
 	 * Constructor. Note: there are also factory methods available in NewickTreeReader.
@@ -173,13 +216,31 @@ public class PrIMENewickTree extends NewickTree {
 			return (this.vertexTimes != null);
 		case ARC_TIMES:
 			return (this.arcTimes != null);
+		case VERTEX_IS_DUPLICATIONS:
+			return (this.isDuplications != null);
+		case VERTEX_TYPES:
+			return (this.vertexTypes != null);
+		case VERTEX_DISC_PTS:
+			return (this.discPts != null);
+		case VERTEX_DISC_TIMES:
+			return (this.discTimes != null);
+		case TREE_DISC_TYPE:
+			return (this.treeDiscType != null);
+		case TREE_N_MIN:
+			return (this.nmin != null);
+		case TREE_N_MAX:
+			return (this.nmax != null);
+		case TREE_N_ROOT:
+			return (this.nroot != null);
+		case TREE_DELTA_T:
+			return (this.deltat != null);
 		default:
 			return false;
 		}
 	}
 
 	/**
-	 * Parses PrIME meta info corresponding to the tree.
+	 * Parses PrIME meta info corresponding to the tree itself (as opposed to its vertices).
 	 */
 	private void parseTreeData() {
 		String val;
@@ -192,6 +253,26 @@ public class PrIMENewickTree extends NewickTree {
 		if (val != null) {
 			this.treeTopTime = Double.parseDouble(val);
 		}
+		val = MetaProperty.TREE_DISC_TYPE.getValue(this.meta);
+		if (val != null) {
+			this.treeDiscType = val;
+		}
+		val = MetaProperty.TREE_N_MIN.getValue(this.meta);
+		if (val != null) {
+			this.nmin = Integer.parseInt(val);
+		}
+		val = MetaProperty.TREE_N_MAX.getValue(this.meta);
+		if (val != null) {
+			this.nmax = Integer.parseInt(val);
+		}
+		val = MetaProperty.TREE_N_ROOT.getValue(this.meta);
+		if (val != null) {
+			this.nroot = Integer.parseInt(val);
+		}
+		val = MetaProperty.TREE_DELTA_T.getValue(this.meta);
+		if (val != null) {
+			this.deltat = Double.parseDouble(val);
+		}	
 	}
 	
 	/**
@@ -238,13 +319,29 @@ public class PrIMENewickTree extends NewickTree {
 		if  (val != null) {
 			setArcTime(x, Double.parseDouble(val));
 		}
-		val = MetaProperty.IS_DUPLICATION.getValue(meta);
+		val = MetaProperty.VERTEX_IS_DUPLICATIONS.getValue(meta);
 		if  (val != null) {
 			int dupval = Integer.parseInt(val);
 			setDuplicationFlag(x, dupval==1 ? 0: 1);
 		}
+		val = MetaProperty.VERTEX_TYPES.getValue(meta);
+		if  (val != null) {
+			setVertexTypes(x, val);
+		}
+		val = MetaProperty.VERTEX_DISC_TIMES.getValue(meta);
+		if  (val != null) {
+			// Exchange (...) for [...].
+			val = "[" + val.substring(1, val.length() - 1) + ']';
+			setDiscTimes(x, SampleDoubleArray.toDoubleArray(val));
+		}
+		val = MetaProperty.VERTEX_DISC_PTS.getValue(meta);
+		if  (val != null) {
+			val = val.substring(1, val.length() - 1);
+			String[] pt = val.split(",");
+			setDiscPt(x, new int[] {Integer.parseInt(pt[0]), Integer.parseInt(pt[1])});
+		}
 	}
-	
+
 	/**
 	 * Sets a vertex weight. All empty values are NaN
 	 * (for which one checks by Double.isNaN(val)).
@@ -302,13 +399,49 @@ public class PrIMENewickTree extends NewickTree {
 	 * @param value the value (0 or 1).
 	 */
 	private void setDuplicationFlag(int x, int value) {
-		if (this.isDuplication == null) {
-			this.isDuplication = new int[this.noOfVertices];
-			for (int i = 0; i < this.isDuplication.length; ++i) {
-				this.isDuplication[i] = Integer.MAX_VALUE;
+		if (this.isDuplications == null) {
+			this.isDuplications = new int[this.noOfVertices];
+			for (int i = 0; i < this.isDuplications.length; ++i) {
+				this.isDuplications[i] = Integer.MAX_VALUE;
 			}
 		}
-		this.isDuplication[x] = value;
+		this.isDuplications[x] = value;
+	}
+	
+	/**
+	 * Sets the vertex type.
+	 * @param x the vertex.
+	 * @param value the value (Duplication, Speciation, etc).
+	 */
+	private void setVertexTypes(int x, String val) {
+		if (this.vertexTypes == null) {
+			this.vertexTypes = new String[this.noOfVertices];
+		}
+		this.vertexTypes[x] = WordUtils.capitalize(val);
+	}
+	
+	/**
+	 * Sets the discretisation times. All empty values are null.
+	 * @param x the vertex.
+	 * @param value the value.
+	 */
+	private void setDiscTimes(int x, double[] value) {
+		if (this.discTimes == null) {
+			this.discTimes = new double[this.noOfVertices][];
+		}
+		this.discTimes[x] = value;
+	}
+	
+	/**
+	 * Sets the discretisation point. All empty values are null.
+	 * @param x the vertex.
+	 * @param value the value.
+	 */
+	private void setDiscPt(int x, int[] value) {
+		if (this.discPts == null) {
+			this.discPts = new int[this.noOfVertices][];
+		}
+		this.discPts[x] = value;
 	}
 	
 	/**
@@ -326,6 +459,46 @@ public class PrIMENewickTree extends NewickTree {
 	 */
 	public Double getTreeTopTime() {
 		return this.treeTopTime;
+	}
+	
+	/**
+	 * Returns the tree discretisation type.
+	 * @return the type.
+	 */
+	public String getTreeDiscType() {
+		return this.treeDiscType;
+	}
+	
+	/**
+	 * Returns the tree discretisation minimum number.
+	 * @return the number.
+	 */
+	public Integer getTreeNMin() {
+		return this.nmin;
+	}
+	
+	/**
+	 * Returns the tree discretisation maximum number.
+	 * @return the number.
+	 */
+	public Integer getTreeNMax() {
+		return this.nmax;
+	}
+	
+	/**
+	 * Returns the tree discretisation stem number.
+	 * @return the number.
+	 */
+	public Integer getTreeNRoot() {
+		return this.nroot;
+	}
+	
+	/**
+	 * Returns the tree discretisation delta t.
+	 * @return the delta t.
+	 */
+	public Double getTreeDeltaT() {
+		return this.deltat;
 	}
 	
 	/**
@@ -367,8 +540,32 @@ public class PrIMENewickTree extends NewickTree {
 	 * (for which one checks by comparing with Integer.MAX_VALUE).
 	 * @return array of duplication flags.
 	 */
-	public int[] getDuplicationValues() {
-		return this.isDuplication;
+	public int[] getVertexDuplicationValues() {
+		return this.isDuplications;
+	}
+	
+	/**
+	 * Returns the vertex types.
+	 * @return array of vertex types.
+	 */
+	public String[] getVertexTypes() {
+		return this.vertexTypes;
+	}
+	
+	/**
+	 * Returns the vertex discretisation points.
+	 * @return array of points.
+	 */
+	public int[][] getVertexDiscPts() {
+		return this.discPts;
+	}
+	
+	/**
+	 * Returns the vertex discretisation times.
+	 * @return array of times.
+	 */
+	public double[][] getVertexDiscTimes() {
+		return this.discTimes;
 	}
 	
 	/**
@@ -429,7 +626,12 @@ public class PrIMENewickTree extends NewickTree {
 		if (consVT && this.vertexTimes != null) {
 			vt = this.vertexTimes;
 			at = PrIMENewickTreeVerifier.absoluteToRelative(this.getVerticesAsList(), vt);
-			if (this.arcTimes != null) { at[this.root.getNumber()] = this.arcTimes[this.root.getNumber()]; }
+			// Vertex times have precedence, but they cannot specify stem time if such exists.
+			if (this.arcTimes != null) {
+				at[this.root.getNumber()] = this.arcTimes[this.root.getNumber()];
+			} else if (this.hasBranchLengths) {
+				at[this.root.getNumber()] = this.getBranchLength(this.root.getNumber());
+			}
 		} else if (consAT && this.arcTimes != null) {
 			at = this.arcTimes;
 			vt = PrIMENewickTreeVerifier.relativeToAbsolute(this.getVerticesAsList(), at);
@@ -441,8 +643,37 @@ public class PrIMENewickTree extends NewickTree {
 		}
 		
 		// Explicit top time has precedence.
-		if (this.treeTopTime != null) { at[this.root.getNumber()] = this.treeTopTime.doubleValue(); }
+		if (this.treeTopTime != null) {
+			at[this.root.getNumber()] = this.treeTopTime.doubleValue();
+		}
 		return new TimesMap(name, vt, at);
+	}
+	
+	/**
+	 * Returns the vertex types as a map.
+	 * @param name the map's name.
+	 * @return the map.
+	 */
+	public StringMap getVertexTypesMap(String name) {
+		return (this.vertexTypes == null ? null : new StringMap(name, this.vertexTypes));
+	}
+	
+	/**
+	 * Returns the vertex discretisaton points as a map.
+	 * @param name the map's name.
+	 * @return the map.
+	 */
+	public IntArrayMap getVertexDiscPtsMap(String name) {
+		return (this.discPts == null ? null : new IntArrayMap(name, this.discPts));
+	}
+	
+	/**
+	 * Returns the vertex discretisaton times as a map.
+	 * @param name the map's name.
+	 * @return the map.
+	 */
+	public DoubleArrayMap getVertexDiscTimesMap(String name) {
+		return (this.discTimes == null ? null : new DoubleArrayMap(name, this.discTimes));
 	}
 	
 }

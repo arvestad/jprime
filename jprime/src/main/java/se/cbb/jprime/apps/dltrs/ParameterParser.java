@@ -48,6 +48,7 @@ import se.cbb.jprime.seqevo.MultiAlignment;
 import se.cbb.jprime.seqevo.SequenceType;
 import se.cbb.jprime.topology.BifurcateTree;
 import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.LeafLeafMap;
 import se.cbb.jprime.topology.MPRMap;
@@ -386,11 +387,12 @@ public class ParameterParser {
 	 * Creates a discretisation of the host tree.
 	 * @param ps parameters.
 	 * @param S host tree.
+	 * @param names names of the host tree.
 	 * @param times times of the host tree.
 	 * @param G guest tree.
 	 * @return the discretisation.
 	 */
-	public static EpochDiscretiser getDiscretizer(Parameters ps, RBTree S, TimesMap times, RBTree G) {
+	public static RBTreeEpochDiscretiser getDiscretizer(Parameters ps, RBTree S, NamesMap names, TimesMap times, RBTree G) {
 		if (ps.discStem == null) {
 			// Try to find a small but sufficient number of stem points to accommodate all
 			// duplications in the stem during G perturbation. Not really necessary since LGT supported...
@@ -398,7 +400,7 @@ public class ParameterParser {
 			int h = (int) Math.round(Math.log((double) k) / Math.log(2.0)); // Height of balanced tree...
 			ps.discStem = Math.min(Math.min(h, k), 10);
 		}
-		return new EpochDiscretiser(S, times, ps.discMin, ps.discMax, Double.parseDouble(ps.discTimestep), ps.discStem);
+		return new RBTreeEpochDiscretiser(S, names, times, ps.discMin, ps.discMax, Double.parseDouble(ps.discTimestep), ps.discStem);
 	}
 		
 	/**
@@ -412,7 +414,7 @@ public class ParameterParser {
 	 * @param sNames 
 	 * @return duplication rate, loss rate, transfer rate, duplication-loss-transfer probabilities.
 	 */
-	public static Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs> getDLTProbs(Parameters ps, RBTree s, NamesMap sNames, RBTree g, NamesMap gNames, GuestHostMap gsMap, EpochDiscretiser times) {
+	public static Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs> getDLTProbs(Parameters ps, RBTree s, NamesMap sNames, RBTree g, NamesMap gNames, GuestHostMap gsMap, RBTreeEpochDiscretiser times) {
 						
 		// Set initial rates based on number of inferred MPR duplications divided by total time tree span.
 		MPRMap mpr = new MPRMap(gsMap, g, gNames, s, sNames);
@@ -520,7 +522,7 @@ public class ParameterParser {
 	 * @return the helper.
 	 */
 	public static ReconciliationHelper getReconciliationHelper(
-			Parameters params, RBTree g, RBTree s, EpochDiscretiser dtimes, LeafLeafMap llMap) {
+			Parameters params, RBTree g, RBTree s, RBTreeEpochDiscretiser dtimes, LeafLeafMap llMap) {
 		return new ReconciliationHelper(g, s, dtimes, llMap);
 	}
 }

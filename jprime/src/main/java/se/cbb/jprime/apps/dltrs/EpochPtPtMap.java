@@ -1,5 +1,7 @@
 package se.cbb.jprime.apps.dltrs;
 
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
+
 /**
  * Consider the point set of a discretised epoch tree. This map
  * stores data for the Cartesian product of two such sets,
@@ -42,7 +44,7 @@ class EpochPtPtMap {
 	 * Constructor.
 	 * @param ed the discretised epoch tree.
 	 */
-	public EpochPtPtMap(EpochDiscretiser ed) {
+	public EpochPtPtMap(RBTreeEpochDiscretiser ed) {
 		
 		int noOfEps = ed.getNoOfEpochs();
 		

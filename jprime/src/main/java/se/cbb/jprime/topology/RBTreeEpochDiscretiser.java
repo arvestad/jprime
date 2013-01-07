@@ -1,19 +1,19 @@
-package se.cbb.jprime.apps.dltrs;
+package se.cbb.jprime.topology;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 
+import se.cbb.jprime.apps.dltrs.Epoch;
+import se.cbb.jprime.io.NewickIOException;
+import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
-import se.cbb.jprime.topology.IntMap;
-import se.cbb.jprime.topology.RBTree;
-import se.cbb.jprime.topology.TimesMap;
 
 /**
- * Encapsulates a host tree where the tip of the top time arc and interior vertices
+ * Encapsulates a rooted bifurcating (host) tree where the tip of the top time arc and interior vertices
  * have given rise to a slicing of the tree into contemporary "epochs" of arcs (every epoch
  * is bounded above or below of a vertex or the host tree tip, and no vertices appear
  * within an epoch). 
@@ -33,8 +33,11 @@ import se.cbb.jprime.topology.TimesMap;
  * 
  * @author Joel Sjöstrand.
  */
-public class EpochDiscretiser implements ProperDependent, InfoProvider {
-		
+public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDependent, InfoProvider {
+	
+	/** Discretisation type. */
+	public static final String DISC_TYPE = "RBTreeEpochDiscretiser";
+	
 	/**
 	 * Minimum time span for a epoch. If smaller than this, one of the "time-colliding"
 	 * epoch borders is moved slightly. Should work for any number of time-colliding vertices
@@ -44,6 +47,9 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	
 	/** The underlying original tree. */
 	private RBTree S;
+	
+	/** Host tree names. */
+	private NamesMap names;
 	
 	/** Ultrametric times (or similarly) of tree. */
 	private TimesMap times;
@@ -78,6 +84,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	/**
 	 * Constructor. The user specifies a discretisation sub-division of each epoch.
 	 * @param S host tree.
+	 * @param names names of host tree.
 	 * @param times times of host tree.
 	 * @param nmin minimum number of slices per epoch.
 	 * @param nmax maximum number of slices per epoch.
@@ -85,7 +92,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 * @param nroot overriding exact number of slices for arc/epoch leading into root. Set to 0
 	 * for normal discretisation.
 	 */
-	public EpochDiscretiser(RBTree S, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
+	public RBTreeEpochDiscretiser(RBTree S, NamesMap names, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
 		if (nmin <= 1 || nmax < nmin) {
 			// We must have least two points for other classes to work safely...
 			throw new IllegalArgumentException("Invalid discretisation bounds. Must have 2 <= nmin <= nmax.");
@@ -97,6 +104,7 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 			deltat = Double.MAX_VALUE;
 		}
 		this.S = S;
+		this.names = names;
 		this.times = times;
 		this.nmin = nmin;
 		this.nmax = nmax;
@@ -529,7 +537,16 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 		
 	@Override
 	public String toString() {
-		return this.getPreInfo("");
+		StringMap metas = new StringMap("Meta", this.S.getNoOfVertices());
+		for (int x = 0; x < this.S.getNoOfVertices(); ++x) {
+			metas.set(x, "[&&PRIME ID=" + x + " NT=" + this.times.getVertexTime(x) + "]");
+		}
+		try {
+			String treeMeta = "[&&PRIME NAME=" + this.S.getName() + " DISCTYPE=" + DISC_TYPE + " NMIN=" + this.nmin + " NMAX=" + this.nmax + " DELTAT=" + this.deltat + " NROOT=" + this.nroot + ']';
+			return NewickTreeWriter.write(this.S, this.names, this.times.getArcTimesMap(), metas, treeMeta, false);
+		} catch (NewickIOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -538,5 +555,17 @@ public class EpochDiscretiser implements ProperDependent, InfoProvider {
 	 */
 	public double getTotalArcTime() {
 		return this.times.getTotalArcTime();
+	}
+
+
+	@Override
+	public String getDiscretisationType() {
+		return "RBTreeEpochDiscretiser";
+	}
+
+
+	@Override
+	public String serializeToNewickTree() {
+		return this.toString();
 	}
 }

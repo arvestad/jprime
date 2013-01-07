@@ -6,6 +6,7 @@ import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
+import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.LeafLeafMap;
 import se.cbb.jprime.topology.RBTree;
@@ -25,7 +26,7 @@ public class ReconciliationHelper implements ProperDependent, InfoProvider {
 	protected RBTree s;
 	
 	/** The divergence times t for the discretised tree S'. */
-	protected EpochDiscretiser times;
+	protected RBTreeEpochDiscretiser times;
 	
 	/** Leaf-to-leaf map. */
 	protected LeafLeafMap llMap;
@@ -54,7 +55,7 @@ public class ReconciliationHelper implements ProperDependent, InfoProvider {
 	 * @param times host tree discretisation.
 	 * @param gsMap G-S MPR map.
 	 */
-	public ReconciliationHelper(RBTree g, RBTree s, EpochDiscretiser times, LeafLeafMap llMap) {
+	public ReconciliationHelper(RBTree g, RBTree s, RBTreeEpochDiscretiser times, LeafLeafMap llMap) {
 		this.g = g;
 		this.s = s;
 		this.times = times;
@@ -309,7 +310,7 @@ public class ReconciliationHelper implements ProperDependent, InfoProvider {
 	 * Returns the underlying discretisation.
 	 * @return the discretisation.
 	 */
-	public EpochDiscretiser getDiscretisation() {
+	public RBTreeEpochDiscretiser getDiscretisation() {
 		return this.times;
 	}
 	
