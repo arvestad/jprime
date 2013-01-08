@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * 
  * @author Joel Sjöstrand.
  */
-public class UnparsedTreeRealisation {
+public class UnparsedRealisation {
 
 	/**
 	 * For comparisons with other realisations, provides different types of string representations where various levels
@@ -53,7 +53,7 @@ public class UnparsedTreeRealisation {
 	 * @param subSampleID realisation's subsample within the MCMC sample.
 	 * @throws NewickIOException.
 	 */
-	public UnparsedTreeRealisation(String real, int realID, int subSampleID) throws NewickIOException {
+	public UnparsedRealisation(String real, int realID, int subSampleID) throws NewickIOException {
 		this.tree = PrIMENewickTreeReader.readTree(real, true, true);
 		this.treeAsNewickString = tree.toString();  // Guaranteed to be sorted unlike original string.
 		this.realID = realID;
