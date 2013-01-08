@@ -5,12 +5,9 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import se.cbb.jprime.io.UnparsedRealisation.Representation;
-import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.IntArrayMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;

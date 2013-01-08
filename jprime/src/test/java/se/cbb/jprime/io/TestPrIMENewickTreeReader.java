@@ -65,6 +65,7 @@ public class TestPrIMENewickTreeReader {
 		int nroot = rawt.getTreeNRoot();
 		double deltat = rawt.getTreeDeltaT();
 		RBTreeArcDiscretiser disct = new RBTreeArcDiscretiser(t, names, times, nmin, nmax, deltat, nroot);
+		assertTrue(disct != null);
 		//System.out.println(disct);
 	}
 	
