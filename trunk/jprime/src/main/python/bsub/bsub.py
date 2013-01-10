@@ -191,7 +191,7 @@ class Settings:
 #        if self.ARG_PREFIX_ALL == None:
 #            self.ARG_PREFIX_ALL = ""
         if self.PROC_PER_NODE == None or self.PROC_PER_NODE == "":
-            self.PROC_PER_NODE = 8
+            self.PROC_PER_NODE = 7
         else:
             self.PROC_PER_NODE = max(int(self.PROC_PER_NODE),1)
         if self.SHELLSCRIPT_OUT_DIR == None or self.SHELLSCRIPT_OUT_DIR == "":
@@ -436,27 +436,28 @@ def main():
 ################################################################################
 def showSettingsFile():
     print("""
-Example of a settings file. Fields are prepended with default value or * if
-required. Note: Tag names are case-sensitive.
+Example of a settings file. Note: Tag names are case-sensitive.
+Directories are created automatically prior to submission, so full paths
+or making sure execution takes place in the right folder is recommended.
 
-       <Settings>
-          <Description>Shows bsub settings</Description>
-          <HomeDir>~myname/mydir</HomeDir>
-          <InDir>data</InDir>
-          <OutDir>results/%%DATE</OutDir>
-          <PreCmd>%%HOMEDIR/bin/mypreprocessor</PreCmd>
-          <ShellscriptPreamble>
-             module add easy;
-             module add mpi;
-             cd %%HOMEDIR;
-          </ShellscriptPreamble>
-\\t        <BatchFileDelim>\\t</BatchFileDelim>
-          <BatchFileIgnorePrefix>#</BatchFileIgnorePrefix>
-*         <Cmd>./bin/mymagicexe -abc -o %%OUTDIR/%%0.%%BATCHID.out %%0 %%1</Cmd>
-8         <ProcessesPerNode>8</ProcessesPerNode>
-*         <ShellscriptOutDir>%%HOMEDIR/tmp/%%DATE</ShellscriptOutDir>
-*         <ShellscriptCmd>esubmit -c mycac -t 1000 -m -n 1 %%SHELLSCRIPT</ShellscriptCmd>
-       </Settings>
+<Settings>
+   <Description>Template bsub file.</Description>
+   <HomeDir>~myname/mydir</HomeDir>
+   <InDir>%%HOMEDIR/data</InDir>
+   <OutDir>%%HOMEDIR/results/%%DATE</OutDir>
+   <PreCmd>%%HOMEDIR/bin/mypreprocessor</PreCmd>
+   <ShellscriptPreamble>
+      module add easy;
+      module add mpi;
+      cd %%HOMEDIR;
+   </ShellscriptPreamble>
+   <BatchFileDelim>\\t</BatchFileDelim>
+   <BatchFileIgnorePrefix>#</BatchFileIgnorePrefix>
+   <Cmd>./bin/mymagicexe -abc -o %%OUTDIR/%%0.%%BATCHID.out %%0 %%1</Cmd>
+   <ProcessesPerNode>7</ProcessesPerNode>
+   <ShellscriptOutDir>%%HOMEDIR/tmp/%%DATE</ShellscriptOutDir>
+   <ShellscriptCmd>esubmit -c mycac -t 1000 -m -n 1 %%SHELLSCRIPT</ShellscriptCmd>
+</Settings>
     """)
     return
 
