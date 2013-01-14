@@ -511,10 +511,11 @@ public class ParameterParser {
 	public static Proposer getBranchSwapper(Parameters ps, RBTree tree, DoubleMap lengths, MPRMap mpr, Iteration iter, PRNG prng, NewickRBTreeSamples samples) {
 		Proposer mrGardener;
 		if (ps.guestTreeSet == null) {
-			if (ps.guestTreeBiasedSwapping == false) {
+			if (ps.guestTreeBiasedSwapping == null) {
 				mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
 			} else {
-				mrGardener = new BiasedRBTreeBranchSwapper(tree, lengths, null, prng, mpr, 1, 1);
+				double p = Double.parseDouble(ps.guestTreeBiasedSwapping);
+				mrGardener = new BiasedRBTreeBranchSwapper(tree, lengths, null, prng, mpr, 1, 1, p);
 			}
 			double[] moves = SampleDoubleArray.toDoubleArray(ps.tuningGuestTreeMoveWeights);
 			((RBTreeBranchSwapper) mrGardener).setOperationWeights(moves[0], moves[1], moves[2]);
