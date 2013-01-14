@@ -138,9 +138,9 @@ public class Parameters {
 	public List<String> sampleRealisations = null;
 	
 	/** Biased branch-swapper. */
-	@Parameter(names = {"-gbiased", "--guesttreebiasedbranchswapper"}, description = "Use biased branch-swapper " +
-			"for better exploration of guest tree space.")
-	public Boolean guestTreeBiasedSwapping = false;
+	@Parameter(names = {"-gbiased", "--guesttreebiasedbranchswapper"}, description = "Use parsimony-biased branch-swapper " +
+			"for better exploration of guest tree space. Value indicates proportion of biased moves.")
+	public String guestTreeBiasedSwapping = null;
 	
 	/** Sample guest trees among a fixed set of Newick trees. */
 	@Parameter(names = {"-gtset", "--guesttreeset"}, description = "Sample guest trees among a fixed set of Newick trees in the specified <file>.")
