@@ -7,7 +7,7 @@ import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
-import se.cbb.jprime.mcmc.InverseProblemModel;
+import se.cbb.jprime.mcmc.InferenceModel;
 import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
@@ -33,7 +33,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * 
  * @author Joel Sjöstrand.
  */
-public class DLRSModel implements InverseProblemModel {
+public class DLRSModel implements InferenceModel {
 
 	/** The guest tree G. */
 	protected RootedBifurcatingTreeParameter g;

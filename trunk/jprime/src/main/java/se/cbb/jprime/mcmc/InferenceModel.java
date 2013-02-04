@@ -21,7 +21,7 @@ import se.cbb.jprime.math.LogDouble;
  * 
  * @author Joel Sjöstrand.
  */
-public interface InverseProblemModel extends Model, ProperDependent, Sampleable, InfoProvider {
+public interface InferenceModel extends Model, ProperDependent, Sampleable, InfoProvider {
 
 	/**
 	 * Returns the (often conditional) probability density of the observations (or intermediate parameters)
