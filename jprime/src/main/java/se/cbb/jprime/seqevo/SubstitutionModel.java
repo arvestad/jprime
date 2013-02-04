@@ -11,7 +11,7 @@ import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
-import se.cbb.jprime.mcmc.InverseProblemModel;
+import se.cbb.jprime.mcmc.InferenceModel;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.NamesMap;
@@ -37,7 +37,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * @author Lars Arvestad.
  * @author Joel Sjöstrand.
  */
-public class SubstitutionModel implements InverseProblemModel {
+public class SubstitutionModel implements InferenceModel {
 
 	/** Model name. */
 	private String name;

@@ -19,7 +19,7 @@ import se.cbb.jprime.math.RealInterval;
  * 
  * @author Joel Sjöstrand.
  */
-public class RealParameterUniformPrior implements InverseProblemModel {
+public class RealParameterUniformPrior implements InferenceModel {
 	
 	/** Parameter for prior. */
 	private RealParameter param;
