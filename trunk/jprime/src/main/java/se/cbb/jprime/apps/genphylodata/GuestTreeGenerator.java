@@ -1,4 +1,4 @@
-package se.cbb.jprime.apps.phylodatageneration;
+package se.cbb.jprime.apps.genphylodata;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 

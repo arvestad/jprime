@@ -8,7 +8,7 @@ import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
-import se.cbb.jprime.mcmc.Model;
+import se.cbb.jprime.mcmc.InverseProblemModel;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GenericMap;
@@ -46,7 +46,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * 
  * @author Joel Sjöstrand.
  */
-public class DLTRSModel implements Model {
+public class DLTRSModel implements InverseProblemModel {
 
 	/** The guest tree G. */
 	protected RootedBifurcatingTreeParameter g;
@@ -408,6 +408,11 @@ public class DLTRSModel implements Model {
 		int uRoot = g.getRoot();
 		double p = this.belows.get(uRoot).getTopmost();
 		return new LogDouble(p);
+	}
+
+	@Override
+	public String getModelName() {
+		return "DLTRS";
 	}
 	
 }

@@ -1,17 +1,17 @@
-package se.cbb.jprime.apps.phylodatageneration;
+package se.cbb.jprime.apps.genphylodata;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 
 /**
- * Generates a synthetic multiple sequence alignment using a substitution model.  
+ * Generates a synthetic bifurcating tree ("species tree") by means of a BD process or similarly.
  * 
  * @author Joel Sjöstrand.
  */
-public class SequenceGenerator implements JPrIMEApp {
+public class TreeGenerator implements JPrIMEApp {
 
 	@Override
 	public String getAppName() {
-		return "SequenceGenerator";
+		return "TreeGenerator";
 	}
 
 	@Override
