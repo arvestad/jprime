@@ -19,7 +19,7 @@ import se.cbb.jprime.math.RealInterval;
  * 
  * @author Joel Sjöstrand.
  */
-public class RealParameterUniformPrior implements Model {
+public class RealParameterUniformPrior implements InverseProblemModel {
 	
 	/** Parameter for prior. */
 	private RealParameter param;
@@ -141,6 +141,11 @@ public class RealParameterUniformPrior implements Model {
 	 */
 	public void returnActualPriorProbability(boolean doUseActual) {
 		this.doUseActual = doUseActual;
+	}
+
+	@Override
+	public String getModelName() {
+		return "RealParameterUniformPrior";
 	}
 
 }

@@ -86,7 +86,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	protected ArrayList<ProperDependent> properDependents;
 	
 	/** The models of the overall model. */
-	protected ArrayList<Model> models;
+	protected ArrayList<InverseProblemModel> models;
 	
 	/** The fields included in each sampling-tuple. */
 	protected ArrayList<Sampleable> sampleables;
@@ -135,7 +135,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.prng = prng;
 		this.parameters = new ArrayList<StateParameter>(16);
 		this.properDependents = new ArrayList<ProperDependent>(16);
-		this.models = new ArrayList<Model>(16);
+		this.models = new ArrayList<InverseProblemModel>(16);
 		this.sampleables = new ArrayList<Sampleable>(16);
 		this.posteriorDensity = null;
 		this.bestPosteriorDensity = null;
@@ -150,7 +150,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * to the state parameters.
 	 * @param model the model.
 	 */
-	public void addModel(Model model) {
+	public void addModel(InverseProblemModel model) {
 		this.models.add(model);
 		this.addDependent(model);
 	}
@@ -197,7 +197,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		// Compute topological sorting using Tarjan's BFS technique.
 		HashSet<Dependent> visited = new HashSet<Dependent>(this.parameters.size() + this.properDependents.size());
 		ArrayList<Dependent> sorted = new ArrayList<Dependent>(visited.size());
-		for (Model model : this.models) {
+		for (InverseProblemModel model : this.models) {
 			this.visit(model, visited, sorted);
 		}
 		
@@ -252,7 +252,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		// First time, assume all objects are up-to-date and compute initial posterior density.
 		this.posteriorDensity = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
-		for (Model m : this.models) {
+		for (InverseProblemModel m : this.models) {
 			this.posteriorDensity.mult(m.getDataProbability());
 		}
 		if (willSample) {
@@ -307,7 +307,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				
 				// Get posterior density of proposed state.
 				LogDouble newPosteriorDensity = new LogDouble(1.0);
-				for (Model m : this.models) {
+				for (InverseProblemModel m : this.models) {
 					newPosteriorDensity.mult(m.getDataProbability());
 				}
 				
@@ -395,7 +395,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		sb.append(prefix).append("Proposal acceptor:\n");
 		sb.append(this.proposalAcceptor.getPreInfo(prefix + '\t'));
 		int i = 1;
-		for (Model mod : this.models) {
+		for (InverseProblemModel mod : this.models) {
 			sb.append(prefix).append("Model ").append(i++).append(":\n");
 			sb.append(mod.getPreInfo(prefix + '\t'));
 		}
@@ -435,7 +435,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		sb.append(prefix).append("Proposal acceptor:\n");
 		sb.append(this.proposalAcceptor.getPostInfo(prefix + '\t'));
 		int i = 1;
-		for (Model mod : this.models) {
+		for (InverseProblemModel mod : this.models) {
 			sb.append(prefix).append("Model ").append(i++).append(":\n");
 			sb.append(mod.getPostInfo(prefix + '\t'));
 		}
