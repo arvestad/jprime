@@ -208,5 +208,21 @@ public class LogNormalDistribution implements Continuous1DPDDependent {
 	public double getMode() {
 		return Math.exp(this.mu - this.sigma * this.sigma);
 	}
+	
+	/**
+	 * Returns the mean mu of the underlying normal distribution.
+	 * @return mu.
+	 */
+	public double getUnderlyingMean() {
+		return this.mu;
+	}
+	
+	/**
+	 * Returns the variance sigma^2 of the underlying normal distribution.
+	 * @return sigma2.
+	 */
+	public double getUnderlyingVariance() {
+		return (this.sigma * this.sigma);
+	}
 
 }

@@ -53,23 +53,25 @@ public class PrIMENewickTree extends NewickTree {
 	 * Tree properties. TODO: Create a more dynamic way of adding and parsing these.
 	 */
 	public enum MetaProperty {
-		TREE_NAME         ("NAME=\"?(\\w+)\"?"),
-		TREE_TOP_TIME     ("TT=\"?([0-9\\+\\-\\.eE]+)\"?"),
-		VERTEX_NUMBERS    ("ID=\"?([0-9]+)\"?"),
-		VERTEX_NAMES      ("NAME=\"?(\\w+)\"?"),
-		BRANCH_LENGTHS    ("BL=\"?([0-9\\+\\-\\.eE]+)\"?"),
-		VERTEX_WEIGHTS    ("NW=\"?([0-9\\+\\-\\.eE]+)\"?"),
-		VERTEX_TIMES      ("NT=\"?([0-9\\+\\-\\.eE]+)\"?"),
-		ARC_TIMES         ("ET=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		TREE_NAME               ("NAME=\"?(\\w+)\"?"),
+		TREE_TOP_TIME           ("TT=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_NUMBERS          ("ID=\"?([0-9]+)\"?"),
+		VERTEX_NAMES            ("NAME=\"?(\\w+)\"?"),
+		BRANCH_LENGTHS          ("BL=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		ORIGINAL_BRANCH_LENGTHS ("ORIGBL=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		RATES                   ("RATE=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_WEIGHTS          ("NW=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		VERTEX_TIMES            ("NT=\"?([0-9\\+\\-\\.eE]+)\"?"),
+		ARC_TIMES               ("ET=\"?([0-9\\+\\-\\.eE]+)\"?"),
 		VERTEX_IS_DUPLICATIONS  ("\\sD=\"?([0-9]+)\"?"),
-		VERTEX_TYPES      ("VERTEXTYPE=\"?([Ll]eaf|[Ss]peciation|[Dd]uplication|[Tt]ransfer)\"?"),
-		VERTEX_DISC_PTS   ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?"),
-		VERTEX_DISC_TIMES ("DISCTIMES=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
-		TREE_DISC_TYPE    ("DISCTYPE=\"?(RBTreeArcDiscretiser|EpochDiscretiser)\"?"),
-		TREE_N_MIN        ("NMIN=\"?([0-9]+)\"?"),
-		TREE_N_MAX        ("NMAX=\"?([0-9]+)\"?"),
-		TREE_N_ROOT       ("NROOT=\"?([0-9]+)\"?"),
-		TREE_DELTA_T      ("DELTAT=\"?([0-9\\+\\-\\.eE]+)\"?");
+		VERTEX_TYPES            ("VERTEXTYPE=\"?([Ll]eaf|[Ss]peciation|[Dd]uplication|[Tt]ransfer)\"?"),
+		VERTEX_DISC_PTS         ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?"),
+		VERTEX_DISC_TIMES       ("DISCTIMES=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
+		TREE_DISC_TYPE          ("DISCTYPE=\"?(RBTreeArcDiscretiser|EpochDiscretiser)\"?"),
+		TREE_N_MIN              ("NMIN=\"?([0-9]+)\"?"),
+		TREE_N_MAX              ("NMAX=\"?([0-9]+)\"?"),
+		TREE_N_ROOT             ("NROOT=\"?([0-9]+)\"?"),
+		TREE_DELTA_T            ("DELTAT=\"?([0-9\\+\\-\\.eE]+)\"?");
 		
 		public static final String REGEXP_PREFIX = "\\[&&PRIME [^\\]]*";
 		public static final String REGEXP_SUFFIX = "[^\\]]*\\]";
@@ -126,6 +128,12 @@ public class PrIMENewickTree extends NewickTree {
 	
 	/** Branch lengths flag. */
 	private boolean hasBranchLengths = false;
+	
+	/** Original branch lengths. */
+	private double[] origBranchLengths = null;
+	
+	/** Rates. */
+	private double[] rates = null;
 	
 	/** Vertex weights. */
 	private double[] vertexWeights = null;
@@ -210,6 +218,10 @@ public class PrIMENewickTree extends NewickTree {
 			return this.hasVertexNames;
 		case BRANCH_LENGTHS:
 			return this.hasBranchLengths;
+		case ORIGINAL_BRANCH_LENGTHS:
+			return (this.origBranchLengths != null);
+		case RATES:
+			return (this.rates != null);
 		case VERTEX_WEIGHTS:
 			return (this.vertexWeights != null);
 		case VERTEX_TIMES:
@@ -307,6 +319,14 @@ public class PrIMENewickTree extends NewickTree {
 		}
 		
 		// Read "exclusive" meta properties.
+		val = MetaProperty.ORIGINAL_BRANCH_LENGTHS.getValue(meta);
+		if  (val != null) {
+			setOrigBranchLength(x, Double.parseDouble(val));
+		}
+		val = MetaProperty.RATES.getValue(meta);
+		if  (val != null) {
+			setRate(x, Double.parseDouble(val));
+		}
 		val = MetaProperty.VERTEX_WEIGHTS.getValue(meta);
 		if  (val != null) {
 			setVertexWeight(x, Double.parseDouble(val));
@@ -342,6 +362,38 @@ public class PrIMENewickTree extends NewickTree {
 		}
 	}
 
+	/**
+	 * Sets an original branch length. All empty values are NaN
+	 * (for which one checks by Double.isNaN(val)).
+	 * @param x the vertex.
+	 * @param bl the branch length.
+	 */
+	private void setOrigBranchLength(int x, double bl) {
+		if (this.origBranchLengths == null) {
+			this.origBranchLengths = new double[this.noOfVertices];
+			for (int i = 0; i < this.origBranchLengths.length; ++i) {
+				this.origBranchLengths[i] = Double.NaN;
+			}
+		}
+		this.origBranchLengths[x] = bl;
+	}
+	
+	/**
+	 * Sets a rate. All empty values are NaN
+	 * (for which one checks by Double.isNaN(val)).
+	 * @param x the vertex.
+	 * @param rate the rate.
+	 */
+	private void setRate(int x, double rate) {
+		if (this.rates == null) {
+			this.rates = new double[this.noOfVertices];
+			for (int i = 0; i < this.rates.length; ++i) {
+				this.rates[i] = Double.NaN;
+			}
+		}
+		this.rates[x] = rate;
+	}
+	
 	/**
 	 * Sets a vertex weight. All empty values are NaN
 	 * (for which one checks by Double.isNaN(val)).
@@ -502,6 +554,28 @@ public class PrIMENewickTree extends NewickTree {
 	}
 	
 	/**
+	 * Returns the original branch lengths. If lacking values altogether, returns
+	 * null. Single uninitialised items are set to NaN
+	 * (for which one checks by Double.isNaN(val)).
+	 * See also getOriginalBranchLengthsMap().
+	 * @return the original branch lengths.
+	 */
+	public double[] getOriginalBranchLengths() {
+		return this.origBranchLengths;
+	}
+	
+	/**
+	 * Returns the rates. If lacking values altogether, returns
+	 * null. Single uninitialised items are set to NaN
+	 * (for which one checks by Double.isNaN(val)).
+	 * See also getRatesMap().
+	 * @return the weights.
+	 */
+	public double[] getRates() {
+		return this.rates;
+	}
+	
+	/**
 	 * Returns the vertex weights. If lacking values altogether, returns
 	 * null. Single uninitialised items are set to NaN
 	 * (for which one checks by Double.isNaN(val)).
@@ -650,12 +724,30 @@ public class PrIMENewickTree extends NewickTree {
 	}
 	
 	/**
+	 * Returns the original branch lengths as a map.
+	 * @param name the map's name.
+	 * @return the map.
+	 */
+	public DoubleMap getOriginalBranchLengthsMap(String name) {
+		return (this.origBranchLengths == null ? null : new DoubleMap(name, this.origBranchLengths));
+	}
+	
+	/**
+	 * Returns the rates as a map.
+	 * @param name the map's name.
+	 * @return the map.
+	 */
+	public DoubleMap getRatesMap(String name) {
+		return (this.rates == null ? null : new DoubleMap(name, this.rates));
+	}
+	
+	/**
 	 * Returns the vertex types as a map.
 	 * @param name the map's name.
 	 * @return the map.
 	 */
 	public StringMap getVertexTypesMap(String name) {
-		return (this.vertexTypes == null ? null : new StringMap(name, this.vertexTypes));
+		return (this.rates == null ? null : new StringMap(name, this.vertexTypes));
 	}
 	
 	/**
