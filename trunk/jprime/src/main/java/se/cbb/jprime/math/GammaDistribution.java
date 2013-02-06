@@ -268,5 +268,21 @@ public class GammaDistribution implements Continuous1DPDDependent {
 		}
 		throw new UnsupportedOperationException("Cannot compute gamma distribution mode when shape parameter k < 1.");
 	}
+	
+	/**
+	 * Returns the shape parameter.
+	 * @return the shape parameter k, a.k.a alpha.
+	 */
+	public double getShape() {
+		return this.k;
+	}
+	
+	/**
+	 * Returns the scale parameter theta.
+	 * @return the scale parameter theta, a.k.a beta^-1.
+	 */
+	public double getScale() {
+		return this.theta;
+	}
 
 }

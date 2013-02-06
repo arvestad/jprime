@@ -1,6 +1,6 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for generative models.
@@ -10,8 +10,8 @@ import java.util.List;
 public interface GenerativeModel extends Model {
 	
 	/**
-	 * Returns the state parameters of the model.
-	 * @return the parameters.
+	 * Returns the parameters of the model.
+	 * @return the parameters as key-value pairs.
 	 */
-	public List<StateParameter> getModelParameters();
+	public Map<String, String> getModelParameters();
 }
