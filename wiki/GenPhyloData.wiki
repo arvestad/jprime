@@ -1,3 +1,9 @@
 #summary GenPhyloData tutorial
 
-sdsdfsdf
+=GenPhyloData Tutorial=
+
+JPrIME-GenPhyloData is a suite of tools to generate realistic synthetic phylogenetic species trees and gene trees. The models used conform well with the inference tools included in JPrIME, but may also support other popular models. Currently, the suite comprises 3 tools:
+
+  # HostTreeGenerator - for generating bifurcating trees from scratch.
+  # GuestTreeGenerator - for generating bifurcating trees that evolves w.r.t. a given host tree.
+  # BranchLengthRelaxer - for relaxing on the molecular clock assumptions of 3 (or 2, if desired).
