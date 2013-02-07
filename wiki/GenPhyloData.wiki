@@ -14,21 +14,21 @@ The tools are described below.
 
 ----
 
-==HostTreeGenerator==
+==1. HostTreeGenerator==
 To be announced.
 
 ----
 
-==GuestTreeGenerator==
+==2. GuestTreeGenerator==
 To be announced.
 
 
 ----
 
-==BranchLengthRelaxer==
+==3. BranchLengthRelaxer==
 To be announced.
 
 ----
 
-==Producing sequence data==
+==4. Producing sequence data==
 If you wish to produce synthetic sequence data for your trees, be it species trees or gene trees, you may use e.g. [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen], which supports a wide range of models of popular models of molecular sequence evolution.
