@@ -44,7 +44,7 @@ As an example, the following outputs lengths by applying log-normal IID rates, a
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer "(A:0.5,B:0.5):0.3;" IIDLogNormal 0.0 1.0
 }}}
-If you instead direct output to a file <filename>, you will also obtain an additional file detailing the settings <filename>.info:
+If you instead direct output to a file 'myfile.tree', you will also obtain an additional file detailing the settings 'myfile.tree.info':
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IIDGamma 2.0 0.5
 }}}
