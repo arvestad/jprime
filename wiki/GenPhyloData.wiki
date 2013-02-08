@@ -35,7 +35,7 @@ To execute the application, the general pattern is the following:
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer [options] <tree> <model> <arg1> <arg2> <...>
 }}}
-where <tree> refers to either a string with a Newick tree or a file containing a Newick tree.
+where `<tree>` refers to either a string with a Newick tree or a file containing a Newick tree.
 You can always show the list of supported rate models and options by typing:
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer -h
@@ -44,7 +44,7 @@ As an example, the following outputs lengths by applying log-normal IID rates, a
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer "(A:0.5,B:0.5):0.3;" IIDLogNormal 0.0 1.0
 }}}
-If you instead direct output to a file 'myfile.tree', you will also obtain an additional file detailing the settings 'myfile.tree.info':
+If you instead direct output to a file `myfile.tree`, you will also obtain an additional file detailing the settings `myfile.tree.info`:
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IIDGamma 2.0 0.5
 }}}
