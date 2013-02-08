@@ -4,9 +4,9 @@
 
 JPrIME-GenPhyloData is a suite of tools to generate realistic synthetic phylogenetic species trees and gene trees. The models used conform well with the inference tools included in JPrIME, but may also support other popular models. Currently, the suite comprises 3 tools:
 
-  # HostTreeGenerator - for generating bifurcating trees from scratch.
-  # GuestTreeGenerator - for generating bifurcating trees that evolves w.r.t. a given host tree.
-  # BranchLengthRelaxer - for relaxing on the molecular clock assumptions of (2) or (3).
+  # HostTreeGen - for generating bifurcating trees from scratch.
+  # GuestTreeGen - for generating bifurcating trees that evolves w.r.t. a given host tree.
+  # BranchRelaxer - for relaxing on the molecular clock assumptions of (2) or (3).
 
 Additionally, as a 4th stage, it should be easy to use an external tool for creating realistic artificial sequences for the host or guest tree leaves (i.e. taxa or genes), for example with the popular [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen] application.
 
@@ -14,18 +14,18 @@ The tools are described below.
 
 ----
 
-==(1) HostTreeGenerator==
+==(1) HostTreeGen==
 To be announced.
 
 ----
 
-==(2) GuestTreeGenerator==
+==(2) GuestTreeGen==
 To be announced.
 
 
 ----
 
-==(3) BranchLengthRelaxer==
+==(3) BranchRelaxer==
 The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to obtain more realistic branch lengths, this application enables relaxing the molecular clock by rescaling the lengths by heterogeneous rates. A number of popular techniques are supported, including:
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
@@ -33,20 +33,20 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
 
 To execute the application, the general pattern is the following:
 {{{
-java -jar jprime-x.y.z.jar BranchLengthRelaxer [options] <tree> <model> <arg1> <arg2> <...>
+java -jar jprime-x.y.z.jar BranchRelaxer [options] <tree> <model> <arg1> <arg2> <...>
 }}}
 where `<tree>` refers to either a string with a Newick tree or a file containing a Newick tree.
 You can always show the list of supported rate models and options by typing:
 {{{
-java -jar jprime-x.y.z.jar BranchLengthRelaxer -h
+java -jar jprime-x.y.z.jar BranchRelaxer -h
 }}}
 As an example, the following outputs lengths by applying log-normal IID rates, and outputs the relaxed tree to stdout:
 {{{
-java -jar jprime-x.y.z.jar BranchLengthRelaxer "(A:0.5,B:0.5):0.3;" IIDLogNormal 0.0 1.0
+java -jar jprime-x.y.z.jar BranchRelaxer "(A:0.5,B:0.5):0.3;" IIDLogNormal 0.0 1.0
 }}}
 If you instead direct output to a file `myfile.tree`, you will also obtain an additional file detailing the settings, etc. named `myfile.tree.info`:
 {{{
-java -jar jprime-x.y.z.jar BranchLengthRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IIDGamma 2.0 0.5
+java -jar jprime-x.y.z.jar BranchRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IIDGamma 2.0 0.5
 }}}
 
 It is of course possible to perform multiple rounds of relaxation, should you wish to acquire a combination of models. For instance, you could apply host tree-guided rates first, then relax the lengths further by an IID or auto-correlated process.
