@@ -1,5 +1,7 @@
 package se.cbb.jprime.topology;
 
+import java.util.Arrays;
+
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.mcmc.RealParameter;
 
@@ -176,4 +178,11 @@ public class DoubleMap implements GraphMap, RealParameter {
 	public int getSize() {
 		return this.values.length;
 	}
+
+	@Override
+	public String toString() {
+		return Arrays.toString(this.values);
+	}
+	
+	
 }

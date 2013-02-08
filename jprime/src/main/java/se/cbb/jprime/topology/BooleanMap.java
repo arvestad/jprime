@@ -1,5 +1,7 @@
 package se.cbb.jprime.topology;
 
+import java.util.Arrays;
+
 import se.cbb.jprime.io.SampleBooleanArray;
 import se.cbb.jprime.mcmc.StateParameter;
 
@@ -167,4 +169,9 @@ public class BooleanMap implements GraphMap, StateParameter {
 		return this.values.length;
 	}
 
+	@Override
+	public String toString() {
+		return Arrays.toString(this.values);
+	}
+	
 }

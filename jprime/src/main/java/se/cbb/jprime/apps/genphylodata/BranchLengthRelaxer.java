@@ -1,11 +1,18 @@
 package se.cbb.jprime.apps.genphylodata;
 
+import java.io.BufferedWriter;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.beust.jcommander.JCommander;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
+import se.cbb.jprime.io.PrIMENewickTree;
+import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RTree;
@@ -17,15 +24,23 @@ import se.cbb.jprime.topology.StringMap;
  * @author Joel Sjöstrand.
  */
 public class BranchLengthRelaxer implements JPrIMEApp {
-
-	/** Model used. */
-	public RateModel model;
 	
 	@Override
 	public String getAppName() {
 		return "BranchLengthRelaxer";
 	}
 
+//	@Test
+//	public void test() {
+//		String[] args = new String[] { "(A:0.5,B:0.5):0.3;", "IIDNormal", "100.0", "2.0" };
+//		try {
+//			main(args);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+	
 	@Override
 	public void main(String[] args) throws Exception {
 		try {
@@ -38,9 +53,9 @@ public class BranchLengthRelaxer implements JPrIMEApp {
 				sb.append(
 						"================================================================================\n" +
 						"BranchLengthRelaxer is part of the JPrIME-GenPhyloData suite of tools for\n" +
-						"creating realistic gene families. BranchLengthRelaxer will take a Newick tree" +
-						"with branch lengths (often ultrametric times) and create a replica of the tree" +
-						"with relaxed (non-clock like) branch lengths by applying rates drawn from a" +
+						"creating realistic phylogenetic data. BranchLengthRelaxer will take a Newick tree\n" +
+						"with branch lengths (often ultrametric times) and create a replica of the tree\n" +
+						"with relaxed (non-clock like) branch lengths by applying rates drawn from a\n" +
 						"probability distribution or similarly.\n\n" +
 						"References:\n" +
 						"    In press\n\n" +
@@ -50,10 +65,43 @@ public class BranchLengthRelaxer implements JPrIMEApp {
 				sb.append("Usage:\n" +
 						"    java -jar jprime-X.Y.Z.jar BranchLengthRelaxer [options] <args>\n");
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
+				sb.append(params.getModelsHelpMsg());
 				System.out.println(sb.toString());
 				return;
 			}
 			
+			RateModel model = params.getRateModel();
+			PrIMENewickTree nw = params.getTree();
+			RTree t = new RTree(nw, "RelaxationTree");
+			NamesMap names = nw.getVertexNamesMap(false, "Names");
+			DoubleMap origLengths = nw.getBranchLengthsMap("OrigLengths");
+			if (origLengths == null) {
+				origLengths = nw.getTimesMap("OrigLengths").getArcTimesMap();
+			}
+			DoubleMap rates = model.getRates(t, names, origLengths);
+			DoubleMap relLengths = getRelaxedLengths(origLengths, rates);
+			boolean doMeta = params.doMeta;
+			
+			String outtree = toNewickTree(t, names, relLengths, origLengths, rates, doMeta);
+			if (params.outputfile == null) {
+				System.out.println(outtree);
+			} else {
+				Pair<BufferedWriter, BufferedWriter> out = params.getOutputFiles();
+				out.first.write(outtree + '\n');
+				out.first.close();
+				out.second.write("# BranchLengthRelaxer\n");
+				out.second.write("Arguments:\t" +  Arrays.toString(args) + '\n');
+				out.second.write("Original lengths:\t" + origLengths.toString() + '\n');
+				out.second.write("Rates:\t" + rates.toString() + '\n');
+				out.second.write("Relaxed lengths:\t" + relLengths.toString() + '\n');
+				out.second.write("Model:\t" + model.getModelName() + '\n');
+				out.second.write("Model parameters:\n");
+				Map<String, String> mp = model.getModelParameters();
+				for (Entry<String, String> p : mp.entrySet()) {
+					out.second.write("\t" + p.getKey() + "\t" + p.getValue() + '\n');
+				}
+				out.second.close();
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);

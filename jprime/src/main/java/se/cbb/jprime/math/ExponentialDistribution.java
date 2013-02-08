@@ -153,7 +153,7 @@ public class ExponentialDistribution implements Continuous1DPDDependent {
 	 */
 	@Override
 	public double sampleValue(PRNG prng) {
-		double x = prng.nextGaussian();
+		double x = prng.nextDouble();
 		// No bounds checking for within representable range...
 		return (this.getQuantile(x));
 	}

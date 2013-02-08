@@ -212,4 +212,18 @@ public class GenericMap<T extends PublicCloneable> implements GraphMap, StatePar
 		return this.values.size();
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer(this.values.size() * 16);
+		sb.append('[');
+		for (int i = 0; i < this.values.size() - 1; ++i) {
+			sb.append(this.values.get(i));
+			sb.append(", ");
+		}
+		if (!this.values.isEmpty()) {
+			sb.append(this.values.get(this.values.size() - 1));
+		}
+		sb.append(']');
+		return sb.toString();
+	}
 }
