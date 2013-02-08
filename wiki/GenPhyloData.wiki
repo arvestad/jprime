@@ -26,15 +26,29 @@ To be announced.
 ----
 
 ==(3) BranchLengthRelaxer==
-The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to obtain more realistic branch lengths, this application enables relaxing the molecular clock, by rescaling the lengths with heterogeneous rates. A number of popular techniques are supported, including:
+The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to obtain more realistic branch lengths, this application enables relaxing the molecular clock, by rescaling the lengths by heterogeneous rates. A number of popular techniques are supported, including:
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
   * Auto-correlated rates in accordance with TBD.
 
-To execute the application and show the list of supported rate models and options, type:
+To execute the application, the general pattern is the following:
+{{{
+java -jar jprime-x.y.z.jar BranchLengthRelaxer [options] <tree> <model> <arg1> <arg2> <...>
+}}}
+where <tree> refers to either a string with a Newick tree or a file containing a Newick tree.
+You can always show the list of supported rate models and options by typing:
 {{{
 java -jar jprime-x.y.z.jar BranchLengthRelaxer -h
 }}}
+As an example, the following outputs lengths by applying log-normal IID rates, and outputs the relaxed tree to stdout:
+{{{
+java -jar jprime-x.y.z.jar BranchLengthRelaxer "(A:0.5,B:0.5):0.3;" IIDLogNormal 0.0 1.0
+}}}
+If you instead direct output to a file <filename>, you will also obtain an additional file detailing the settings <filename>.info:
+{{{
+java -jar jprime-x.y.z.jar BranchLengthRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IIDGamma 2.0 0.5
+}}}
+
 
 ----
 
