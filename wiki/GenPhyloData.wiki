@@ -31,6 +31,11 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
   * Auto-correlated rates in accordance with TBD.
 
+To execute the application and show the list of supported rate models and options, type:
+{{{
+java -jar jprime-x.y.z.jar BranchLengthRelaxer -h
+}}}
+
 ----
 
 ==(4) Producing sequence data==
