@@ -22,7 +22,20 @@ The tools of !GenPhyloData are described seperately below.
 ==(1) !HostTreeGen==
 [http://jprime.googlecode.com/files/HostTreeGen.png]
 
-To be announced.
+!HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user typically inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
+
+The general pattern for the tool is thus:
+{{{
+java -jar jprime-x.y.z.jar GenHostTree [options] <timespan> <birth rate> <loss rate>
+}}}
+To execute the application over time 10, with a birth rate of 0.3 events per time unit, loss rates of 0.1 events per time unit, and at least 3 leaves, type the following:
+{{{
+java -jar jprime-x.y.z.jar GenHostTree -min 3 10 0.3 0.1
+}}}
+You can always show the list of options by typing:
+{{{
+java -jar jprime-x.y.z.jar GenHostTree -h
+}}}
 
 ----
 
