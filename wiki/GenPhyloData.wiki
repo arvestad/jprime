@@ -48,9 +48,9 @@ The general pattern for the tool is thus:
 {{{
 java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate>
 }}}
-As an example, the following generates a guest tree over a known tree, with a duplicaton rate of 0.3 events per time unit, loss rate of 0.1 events per time unit, transfer rate of 0.05 events per time unit and at least 4 leaves:
+As an example, the following generates a guest tree over a known tree, with a duplicaton rate of 0.2 events per time unit, loss rate of 0.1 events per time unit, transfer rate of 0.05 events per time unit, at least 4 leaves, and at most 20 leaves:
 {{{
-java -jar jprime-x.y.z.jar GuestTreeGen -min 4 "((A:4.0,B:4.0):6.0,C:10.0):5.0" 0.3 0.1 0.05
+java -jar jprime-x.y.z.jar GuestTreeGen -min 4 -max 20 "((A:4.0,B:4.0):6.0,C:10.0):5.0;" 0.2 0.1 0.05
 }}}
 You can always show the list of options by typing:
 {{{
