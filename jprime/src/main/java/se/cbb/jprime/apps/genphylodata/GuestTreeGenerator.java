@@ -34,6 +34,7 @@ public class GuestTreeGenerator implements JPrIMEApp {
 	 * @param slice species tree stem where BD process has to occur
 	 * @param cur_genes current genes (leaves) in the slice to which 
 	 * BD process has to be applied 
+	 * @param Stats statistics gathering data structure (still to add to signature)
 	 */
 	public void runBDProcess(double time, ArrayList<NewickVertex> slice, ArrayList<NewickVertex> cur_genes) {
 	    
@@ -46,6 +47,7 @@ public class GuestTreeGenerator implements JPrIMEApp {
 	 * @param slice species tree stem
 	 * @param cur_genes current set of genes (leaves) in gene tree
 	 * @param sliceID ID of the slice where speciation is occurring 
+	 * @param Stats statistics gathering data structure (still to add to signature)
 	 */
 	public void speciate(PrIMENewickTree stree, ArrayList<NewickVertex> slice, ArrayList<NewickVertex> cur_genes, int sliceID) {
 	    
