@@ -26,15 +26,15 @@ The tools of !GenPhyloData are described seperately below.
 
 The general pattern for the tool is thus:
 {{{
-java -jar jprime-x.y.z.jar GenHostTree [options] <timespan> <birth rate> <loss rate>
+java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <loss rate>
 }}}
 To execute the application over time 10, with a birth rate of 0.3 events per time unit, loss rates of 0.1 events per time unit, and at least 3 leaves, type the following:
 {{{
-java -jar jprime-x.y.z.jar GenHostTree -min 3 10 0.3 0.1
+java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1
 }}}
 You can always show the list of options by typing:
 {{{
-java -jar jprime-x.y.z.jar GenHostTree -h
+java -jar jprime-x.y.z.jar HostTreeGen -h
 }}}
 
 ----
