@@ -25,7 +25,8 @@ To be announced.
 ----
 
 ==(2) !GuestTreeGen==
-[GuestTreeGen.png]
+[http://jprime.googlecode.com/files/GuestTreeGen.png]
+
 To be announced.
 
 
