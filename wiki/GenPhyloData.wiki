@@ -15,7 +15,7 @@ JPrIME-GenPhyloData is a suite of tools to generate realistic synthetic (a.k.a _
 
 Additionally, as a 4th stage, it should be easy to use an external tool for creating realistic artificial sequences for the host or guest tree leaves (i.e. taxa or genes), for example with the popular [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen] application.
 
-The tools are described below.
+The tools of GenPhyloData are described seperately below.
 
 ----
 
