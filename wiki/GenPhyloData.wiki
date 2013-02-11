@@ -22,13 +22,13 @@ The tools of !GenPhyloData are described seperately below.
 ==(1) !HostTreeGen==
 [http://jprime.googlecode.com/files/HostTreeGen.png]
 
-!HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user typically inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
+!HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
 
 The general pattern for the tool is thus:
 {{{
-java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <loss rate>
+java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <death rate>
 }}}
-To execute the application over time 10, with a birth rate of 0.3 events per time unit, loss rates of 0.1 events per time unit, and at least 3 leaves, type the following:
+To execute the application over time 10, with a birth rate of 0.3 events per time unit, death rate of 0.1 events per time unit, and at least 3 leaves, type the following:
 {{{
 java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1
 }}}
@@ -42,7 +42,20 @@ java -jar jprime-x.y.z.jar HostTreeGen -h
 ==(2) !GuestTreeGen==
 [http://jprime.googlecode.com/files/GuestTreeGen.png]
 
-To be announced.
+!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. Lineages which fail to reach the leaves of the host tree are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
+
+The general pattern for the tool is thus:
+{{{
+java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate>
+}}}
+To execute the application over a known tree, with a duplicaton rate of 0.3 events per time unit, loss rate of 0.1 events per time unit, transfer rate of 0.05 events per time unit and at least 4 leaves, type the following:
+{{{
+java -jar jprime-x.y.z.jar GuestTreeGen -min 4 "((A:4.0,B:4.0):6.0,C:10.0):5.0" 0.3 0.1 0.05
+}}}
+You can always show the list of options by typing:
+{{{
+java -jar jprime-x.y.z.jar GuestTreeGen -h
+}}}
 
 
 ----
