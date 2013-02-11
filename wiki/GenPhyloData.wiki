@@ -9,28 +9,28 @@ Please return soon for non-tentative information.
 
 JPrIME-!GenPhyloData is a suite of tools to generate realistic synthetic (a.k.a _artificial_ or _simulated_) phylogenetic species trees and gene trees. The models used conform well with the inference tools included in JPrIME, but may also support other popular models. Currently, the suite comprises 3 tools:
 
-  # HostTreeGen - for generating bifurcating trees from scratch.
-  # GuestTreeGen - for generating bifurcating trees that evolves w.r.t. a given host tree.
-  # BranchRelaxer - for relaxing on the molecular clock assumptions of (2) or (3).
+  # !HostTreeGen - for generating bifurcating trees from scratch.
+  # !GuestTreeGen - for generating bifurcating trees that evolves w.r.t. a given host tree.
+  # !BranchRelaxer - for relaxing on the molecular clock assumptions of (2) or (3).
 
 Additionally, as a 4th stage, it should be easy to use an external tool for creating realistic artificial sequences for the host or guest tree leaves (i.e. taxa or genes), for example with the popular [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen] application.
 
-The tools of GenPhyloData are described seperately below.
+The tools of !GenPhyloData are described seperately below.
 
 ----
 
-==(1) HostTreeGen==
+==(1) !HostTreeGen==
 To be announced.
 
 ----
 
-==(2) GuestTreeGen==
+==(2) !GuestTreeGen==
 To be announced.
 
 
 ----
 
-==(3) BranchRelaxer==
+==(3) !BranchRelaxer==
 The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to obtain more realistic branch lengths, this application enables relaxing the molecular clock by rescaling the lengths by heterogeneous rates. A number of popular techniques are supported, including:
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
