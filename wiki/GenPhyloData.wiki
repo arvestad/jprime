@@ -33,6 +33,7 @@ To be announced.
 ----
 
 ==(3) !BranchRelaxer==
+[http://jprime.googlecode.com/files/BranchRelaxer.png]
 The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to obtain more realistic branch lengths, this application enables relaxing the molecular clock by rescaling the lengths by heterogeneous rates. A number of popular techniques are supported, including:
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
