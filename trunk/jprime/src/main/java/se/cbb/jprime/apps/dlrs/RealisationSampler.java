@@ -8,10 +8,12 @@ import java.util.List;
 
 import se.cbb.jprime.io.SampleInt;
 import se.cbb.jprime.io.Sampleable;
+import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.Iteration;
 import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.DoubleArrayMap;
+import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
@@ -54,6 +56,12 @@ public class RealisationSampler implements Sampleable {
 	/** P11, etc. */
 	private DupLossProbs dupLossProbs;
 	
+	/** The branch lengths l. */
+	protected DoubleMap lengths;
+	
+	/** Substitution rate distribution. */
+	private Continuous1DPDDependent substPD;
+	
 	/** At-probabilities for vertices v of G. */
 	private DoubleArrayMap atsProbs;
 	
@@ -86,6 +94,7 @@ public class RealisationSampler implements Sampleable {
 		this.times = model.reconcHelper.times;
 		this.loLims = model.reconcHelper.loLims;
 		this.dupLossProbs = model.dupLossProbs;
+		this.substPD = model.substPD;
 		this.atsProbs = model.ats;
 		
 		// Write header.
@@ -176,10 +185,17 @@ public class RealisationSampler implements Sampleable {
 			
 			// Cumulative probabilities for the y's.
 			ArrayList<Double> cps = new ArrayList<Double>(ats.length);
-					
+			
+			// Time of x.
+			double xt = this.times.getDiscretisationTime(x[0], x[1]);
+			double length = this.lengths.get(v);
+			
 			// Compute relative cumulative probabilities for all valid placements y beneath x.
 			while (i < ats.length && !(x[0] == y[0] && x[1] <= y[1])) {
-				double p = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]) * ats[i];
+				double yt = this.times.getDiscretisationTime(y[0], y[1]);				
+				double rateDens = this.substPD.getPDF(length / (xt - yt));
+				double p11 = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]);
+				double p = rateDens * p11 * ats[i];
 				tot += p;
 				ys.add(y);
 				cps.add(tot);

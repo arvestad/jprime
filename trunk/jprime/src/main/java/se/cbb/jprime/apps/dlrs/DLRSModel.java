@@ -277,7 +277,8 @@ public class DLRSModel implements InferenceModel {
 				double yt = this.reconcHelper.getDiscretisationTime(y_j);
 				// Note: We now allow edge rates over stem arc as well.
 				double rateDens = this.substPD.getPDF(length / (xt - yt));
-				uBelows[xcnt] += rateDens * this.dupLossProbs.getP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]) * uAts[ycnt];
+				double p11 = this.dupLossProbs.getP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]);
+				uBelows[xcnt] += rateDens * p11 * uAts[ycnt];
 				// Move y_j onto next pure discretisation point above.
 				this.reconcHelper.incrementPt(y_j);
 				if (y_j[0] == x_i[0] && y_j[1] >= x_i[1]) { break; }
