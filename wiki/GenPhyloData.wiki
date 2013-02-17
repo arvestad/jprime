@@ -91,7 +91,7 @@ If you instead direct output to a file `myfile.tree`, you will also obtain an ad
 java -jar jprime-x.y.z.jar BranchRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IIDGamma 2.0 0.5
 }}}
 
-It is of course possible to perform multiple rounds of relaxation, should you wish to acquire a combination of models. For instance, you could apply host tree-guided rates first, then relax the lengths further by an IID or auto-correlated process.
+It is of course possible to perform multiple rounds of relaxation, should you wish to acquire a combination of models. For instance, you could apply host tree-guided rates first, then relax the lengths further by an IID process. However, some of the included models (in particular the autocorrelated ones) assume that the input lengths be clock-like.
 
 ----
 
