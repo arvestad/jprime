@@ -71,12 +71,16 @@ public class BranchRelaxer implements JPrIMEApp {
 			}
 			
 			RateModel model = params.getRateModel();
-			PrIMENewickTree nw = params.getTree();
+			PrIMENewickTree nw = params.getTree(model.lengthsMustBeUltrametric());
 			RTree t = new RTree(nw, "RelaxationTree");
 			NamesMap names = nw.getVertexNamesMap(false, "Names");
 			DoubleMap origLengths = nw.getBranchLengthsMap("OrigLengths");
 			if (origLengths == null) {
 				origLengths = nw.getTimesMap("OrigLengths").getArcTimesMap();
+			}
+			if (Double.isNaN(origLengths.get(t.getRoot()))) {
+				// Makes non-stem trees easy to handle in most cases.
+				origLengths.set(t.getRoot(), 0.0);
 			}
 			DoubleMap rates = model.getRates(t, names, origLengths);
 			DoubleMap relLengths = getRelaxedLengths(origLengths, rates);

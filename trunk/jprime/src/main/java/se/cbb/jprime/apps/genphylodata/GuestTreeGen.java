@@ -3,9 +3,6 @@ package se.cbb.jprime.apps.genphylodata;
 import java.io.BufferedWriter;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.beust.jcommander.JCommander;
 
 import se.cbb.jprime.apps.JPrIMEApp;
@@ -13,7 +10,6 @@ import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.misc.Pair;
-import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.TimesMap;
