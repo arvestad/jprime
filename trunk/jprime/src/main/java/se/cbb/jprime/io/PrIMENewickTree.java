@@ -67,6 +67,7 @@ public class PrIMENewickTree extends NewickTree {
 		VERTEX_TYPES            ("VERTEXTYPE=\"?([Ll]eaf|[Ss]peciation|[Dd]uplication|[Tt]ransfer)\"?"),
 		VERTEX_DISC_PTS         ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?"),
 		VERTEX_DISC_TIMES       ("DISCTIMES=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
+		VERTEX_PARAMS           ("PARAMS=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
 		TREE_DISC_TYPE          ("DISCTYPE=\"?(RBTreeArcDiscretiser|EpochDiscretiser)\"?"),
 		TREE_N_MIN              ("NMIN=\"?([0-9]+)\"?"),
 		TREE_N_MAX              ("NMAX=\"?([0-9]+)\"?"),
@@ -138,7 +139,7 @@ public class PrIMENewickTree extends NewickTree {
 	/** Vertex weights. */
 	private double[] vertexWeights = null;
 	
-	/** Vertex weights. */
+	/** Vertex times. */
 	private double[] vertexTimes = null;
 	
 	/** Vertex types. */
@@ -167,6 +168,9 @@ public class PrIMENewickTree extends NewickTree {
 
 	/** Arc discretisation times. */
 	private double[][] discTimes = null;
+	
+	/** Vertex/arc parameters. */
+	private double[][] vertexParams = null;
 
 	/** Vertex discretisation points. */
 	private int[][] discPts = null;
@@ -236,6 +240,8 @@ public class PrIMENewickTree extends NewickTree {
 			return (this.discPts != null);
 		case VERTEX_DISC_TIMES:
 			return (this.discTimes != null);
+		case VERTEX_PARAMS:
+			return (this.vertexParams != null);
 		case TREE_DISC_TYPE:
 			return (this.treeDiscType != null);
 		case TREE_N_MIN:
@@ -353,6 +359,12 @@ public class PrIMENewickTree extends NewickTree {
 			// Exchange (...) for [...].
 			val = "[" + val.substring(1, val.length() - 1) + ']';
 			setDiscTimes(x, SampleDoubleArray.toDoubleArray(val));
+		}
+		val = MetaProperty.VERTEX_PARAMS.getValue(meta);
+		if  (val != null) {
+			// Exchange (...) for [...].
+			val = "[" + val.substring(1, val.length() - 1) + ']';
+			setVertexParams(x, SampleDoubleArray.toDoubleArray(val));
 		}
 		val = MetaProperty.VERTEX_DISC_PTS.getValue(meta);
 		if  (val != null) {
@@ -482,6 +494,18 @@ public class PrIMENewickTree extends NewickTree {
 			this.discTimes = new double[this.noOfVertices][];
 		}
 		this.discTimes[x] = value;
+	}
+	
+	/**
+	 * Sets the vertex parameters. All empty values are null.
+	 * @param x the vertex.
+	 * @param value the value.
+	 */
+	private void setVertexParams(int x, double[] value) {
+		if (this.vertexParams == null) {
+			this.vertexParams = new double[this.noOfVertices][];
+		}
+		this.vertexParams[x] = value;
 	}
 	
 	/**
@@ -643,6 +667,14 @@ public class PrIMENewickTree extends NewickTree {
 	}
 	
 	/**
+	 * Returns the vertex parameters.
+	 * @return array of parameters.
+	 */
+	public double[][] getVertexParams() {
+		return this.vertexParams;
+	}
+	
+	/**
 	 * Returns a map of the vertex weights indexed by vertex numbers.
 	 * If weights are lacking altogether, null is returned.
 	 * @param name the name of the map.
@@ -760,7 +792,7 @@ public class PrIMENewickTree extends NewickTree {
 	}
 	
 	/**
-	 * Returns the vertex discretisaton times as a map.
+	 * Returns the vertex discretisation times as a map.
 	 * @param name the map's name.
 	 * @return the map.
 	 */
@@ -768,4 +800,12 @@ public class PrIMENewickTree extends NewickTree {
 		return (this.discTimes == null ? null : new DoubleArrayMap(name, this.discTimes));
 	}
 	
+	/**
+	 * Returns the vertex parameters as a map.
+	 * @param name the map's name.
+	 * @return the map.
+	 */
+	public DoubleArrayMap getVertexParamsMap(String name) {
+		return (this.vertexParams == null ? null : new DoubleArrayMap(name, this.vertexParams));
+	}
 }

@@ -8,11 +8,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.misc.Pair;
+import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.TopologyException;
 
 import com.beust.jcommander.Parameter;
@@ -42,7 +44,7 @@ public class BranchRelaxerParameters {
 	
 	public PRNG prng = null;
 
-	// TODO: Implement.
+	// TODO: Implement some day perhaps.
 //	/** Root constraints. */
 //	@Parameter(names = {"-r", "--root-constraint"}, description = "Enables special treatment of the rate r(...) of ingoing edge e and outgoing edges f and g of the root. 'PC' enforces r(e)=r(f) or r(e)=r(g) with equal probability, " +
 //			"'PCC' enforces r(e)=r(f)=r(g), 'CC' enforces r(f)=r(g).")
@@ -55,8 +57,11 @@ public class BranchRelaxerParameters {
 	/**
 	 * Return rate model.
 	 * @return model.
+	 * @throws TopologyException 
+	 * @throws IOException 
+	 * @throws NewickIOException 
 	 */
-	public RateModel getRateModel() {
+	public RateModel getRateModel() throws NewickIOException, IOException, TopologyException {
 		if (this.prng == null) {
 			this.prng = (this.seed == null ? new PRNG() : new PRNG(new BigInteger(this.seed)));
 		}
@@ -74,14 +79,22 @@ public class BranchRelaxerParameters {
 			return new IIDNormalRateModel(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), this.prng);
 		} else if (model.equalsIgnoreCase("IIDSamplesFromFile")) {
 			return new IIDSamplesFromFileRateModel(new File(args.get(2)), this.prng);
-		}  else if (model.equalsIgnoreCase("IIDUniform")) {
+		} else if (model.equalsIgnoreCase("IIDUniform")) {
 			return new IIDUniformRateModel(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), this.prng);
-		}  else if (model.equalsIgnoreCase("ACTK98")) {
+		} else if (model.equalsIgnoreCase("ACTK98")) {
 			return new ACThorneKishino98RateModel(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), this.prng);
-		}  else if (model.equalsIgnoreCase("ACRY07")) {
+		} else if (model.equalsIgnoreCase("ACRY07")) {
 			return new ACRannalaYang07RateModel(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), this.prng);
-		}  
-		else {
+		} else if (model.equalsIgnoreCase("ACABY02")) {
+			return new ACArisBrosouYang02RateModel(Double.parseDouble(args.get(2)), this.prng);
+		} else if (model.equalsIgnoreCase("ACLBPL07")) {
+			return new ACLepageBryantPhillipeLartillot07RateModel(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), Double.parseDouble(args.get(4)), Double.parseDouble(args.get(5)), this.prng);
+		} else if (model.equalsIgnoreCase("IIDRK07")) {
+			PrIMENewickTree g = getTree(true);
+			PrIMENewickTree s = getTree(args.get(2), true);
+			GuestHostMap gs = GuestHostMapReader.readGuestHostMap(new File(args.get(3)));
+			return new IIDRasmussenKellis07RateModel(s, g, gs, this.prng);
+		} else {
 			throw new IllegalArgumentException("Invalid rate model identifier: ." + model);
 		}
 	}
@@ -96,13 +109,29 @@ public class BranchRelaxerParameters {
 				"    IIDExponential <lambda>         -  IID rates from Exp(lambda).\n" +
 				"    IIDSamplesFromFile <filename>   -  IID rates drawn uniformly (with replacement)\n" +
 				"                                       from a file with a column of samples.\n" +
-				"    ACTK98 <start rate> <v>         -  Autocorrelated rates in accordance with\n" +
+				"    ACTK98 <start rate> <v>         -  Autocorrelated lognormal rates in accordance w.\n" +
 				"                                       Thorne-Kishino '98/'01/'02 but corrected\n" +
 				"                                       to not yield increasing average rates\n" +
 				"                                       in root-to-leaf direction.\n" +
-				"    ACRY07 <start rate> <sigma2>    -  Autocorrelated model in accordance with\n" +
+				"    ACRY07 <start rate> <sigma2>    -  Autocorrelated lognormal rate in accordance w.\n" +
 				"                                       Rannala-Yang '07. The start rate refers to\n" +
-				"                                       tip of host tree in case there is a stem edge."
+				"                                       tip of tree in case there is a stem edge.\n" +
+				"    ACABY02 <start rate>            -  Autocorrelated exponential rates in accordance w.\n" +
+				"                                       Aris-Brosou-Yang '02.\n" +
+				"    ACLBPL07 <start rate> <mu> <theta> <sigma>\n" +
+				"                                    -  Autocorrelated CIR rates in accordance w.\n" +
+				"                                       Lepage-Bryant-Phillipe-Lartillot '07. The\n" +
+				"                                       process is simulated using a discretisation\n" +
+				"                                       across every branch. The start rate refers to\n" +
+				"                                       tip of tree in case there is a stem edge.\n" +
+				"    IIDRK07 <host tree> <guest-to-host map>\n" +
+				"                                    -  IID gamma rates governed by host tree in\n" +
+				"                                       accordance w. Rasmussen-Kellis '07/'11.\n" +
+				"                                       Every guest branch rate is created from a gamma\n" +
+				"                                       distribution specific for each host edge the\n" +
+				"                                       branch passes over. Parameters are stored in the\n" +
+				"                                       host tree thus: (A:0.4[&&PRIME PARAMS=(<k>,<theta>)],..." +
+				"                                       "
 				;
 	}
 	
@@ -115,12 +144,16 @@ public class BranchRelaxerParameters {
 	 * @throws TopologyException
 	 */
 	public PrIMENewickTree getTree(boolean doStrict) throws NewickIOException, IOException, TopologyException {
-		File f = new File(this.args.get(0));
+		return this.getTree(args.get(0), doStrict);
+	}
+	
+	public PrIMENewickTree getTree(String s, boolean doStrict) throws NewickIOException, IOException, TopologyException {
+		File f = new File(s);
 		if (f.exists()) {
 			// We do allow non-ultrametric trees to, if relaxing in multiple rounds.
 			return PrIMENewickTreeReader.readTree(f, false, doStrict);
 		} else {
-			return PrIMENewickTreeReader.readTree(args.get(0), false, doStrict);
+			return PrIMENewickTreeReader.readTree(s, false, doStrict);
 		}
 	}
 	

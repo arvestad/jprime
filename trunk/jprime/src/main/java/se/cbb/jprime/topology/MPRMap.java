@@ -218,4 +218,12 @@ public class MPRMap implements ProperDependent {
 		}
 		return cnt;
 	}
+	
+	/**
+	 * Returns the guest-to-host map.
+	 * @return the map.
+	 */
+	public GuestHostMap getGuestHostMap() {
+		return this.GSMap;
+	}
 }

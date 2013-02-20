@@ -20,4 +20,10 @@ public interface RateModel extends GenerativeModel {
 	 * @return rates.
 	 */
 	public DoubleMap getRates(RootedTree t, NamesMap names, DoubleMap origLengths);
+	
+	/**
+	 * Ultrametricity requirement on original lengths.
+	 * @return true if required; false if arbitrary.
+	 */
+	public boolean lengthsMustBeUltrametric();
 }
