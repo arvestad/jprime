@@ -92,6 +92,7 @@ public class RealisationSampler implements Sampleable {
 		this.G = model.g;
 		this.names = names;
 		this.times = model.reconcHelper.times;
+		this.lengths = model.lengths;
 		this.loLims = model.reconcHelper.loLims;
 		this.dupLossProbs = model.dupLossProbs;
 		this.substPD = model.substPD;
@@ -252,6 +253,10 @@ public class RealisationSampler implements Sampleable {
 			x = placements[this.G.getParent(v)];
 		}
 		
+		// Time of x.
+		double xt = this.times.getDiscretisationTime(x[0], x[1]);
+		double length = this.lengths.get(v);
+		
 		// Start with lowest valid placement of v in S'.
 		int[] y = RealisationSampler.getProperLolim(loLims.get(v));
 		
@@ -264,7 +269,10 @@ public class RealisationSampler implements Sampleable {
 					
 			// Compute relative cumulative probabilities for all valid placements y beneath x.
 			while (i < ats.length && !(x[0] == y[0] && x[1] <= y[1])) {
-				double p = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]) * ats[i];
+				double yt = this.times.getDiscretisationTime(y[0], y[1]);
+				double rateDens = this.substPD.getPDF(length / (xt - yt));
+				double p11 = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]);
+				double p = rateDens * p11 * ats[i];
 				if (p > maxp) {
 					maxp = p;
 					maxy = new int[] {y[0], y[1]};

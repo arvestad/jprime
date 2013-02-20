@@ -100,7 +100,7 @@ public class ExponentialDistribution implements Continuous1DPDDependent {
 
 	@Override
 	public double getMedian() {
-		return (1.0 / this.lambda * LN2);
+		return ((1.0 / this.lambda) * LN2);
 	}
 
 	@Override

@@ -56,4 +56,9 @@ public class IIDUniformRateModel implements RateModel {
 		return rates;
 	}
 
+	@Override
+	public boolean lengthsMustBeUltrametric() {
+		return false;
+	}
+
 }

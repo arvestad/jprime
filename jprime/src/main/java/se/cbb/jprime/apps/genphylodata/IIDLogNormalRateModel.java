@@ -56,4 +56,9 @@ public class IIDLogNormalRateModel implements RateModel {
 		return rates;
 	}
 
+	@Override
+	public boolean lengthsMustBeUltrametric() {
+		return false;
+	}
+
 }

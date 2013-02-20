@@ -42,9 +42,9 @@ public class GuestTreeGen implements JPrIMEApp {
 						"realistic phylogenetic data. GuestTreeGen takes a Newick \"host\" tree with\n" +
 						"ultrametric branch lengths and generates a \"guest\" tree evolving inside the\n" +
 						"host tree. This is achieved through a canonical extension of a birth-death\n" +
-						"process, in which guest tree lineages may be duplicated, lost, or be split with\n" +
-						"one copy being laterally transferred to a contemporanous host edge. Guest\n" +
-						"lineages branch deterministically at host tree vertices.\n\n" +
+						"process, in which guest tree lineages may be duplicated, lost, or laterally\n" +
+						"transferred (be split with one copy being transferred to a contemporanous host\n" +
+						"edge). Guest lineages branch deterministically at host tree vertices.\n\n" +
 						"References:\n" +
 						"    In press\n\n" +
 						"Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData\n\n" +
