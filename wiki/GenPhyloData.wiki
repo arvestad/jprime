@@ -98,6 +98,27 @@ However, some of the included models (in particular the autocorrelated ones) ass
 java -jar jprime-x.y.z.jar BranchRelaxer "(A:0.5,(B:0.2,C:0.2):0.3):0.7;" ACTK98 1.0 0.05
 }}}
 
+The host tree guided rates constitute a particular case, in which one may specify a gamma distribution for every host tree arc as in Rasmussen-Kellis 2007/2011. The rate of a guest tree branch is then determined by the distributions of all the host tree edges the branch passes over. The gamma parameters are stated in the host tree like so: `[&&PRIME PARAMS=(<k>, <theta>)]`. To create such lengths, one would type for example
+{{{
+java -jar jprime-x.y.z.jar BranchRelaxer g.tree IIDRK07 s.tree gs.sigma
+}}}
+where the host tree `s.tree` might look like:
+{{{
+((A:0.5[&&PRIME PARAMS=(10,0.1)],B:0.5[&&PRIME PARAMS=(10,0.1)]):0.4[&&PRIME PARAMS=(5,0.2)],C:0.9[&&PRIME PARAMS=(5,0.2)]):0.3[&&PRIME PARAMS=(10,0.1)];
+}}}
+and the guest tree `g.tree` might look like:
+{{{
+((a1:0.2,a2:0.2):0.8,(b1:0.9,c1:0.9):0.1):0.2;
+}}}
+and the file `gs.sigma` linking the trees together looks like:
+{{{
+a1	A
+a2	A
+b1	B
+c1	C
+}}}
+Note however, that the host tree and guest tree must be temporally compatible, and that the model is currently on applicable on guest trees without transfer events.
+
 ----
 
 ==(4) Producing sequence data==
