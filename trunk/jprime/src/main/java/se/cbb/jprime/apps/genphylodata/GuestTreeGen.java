@@ -2,11 +2,13 @@ package se.cbb.jprime.apps.genphylodata;
 
 import java.io.BufferedWriter;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import com.beust.jcommander.JCommander;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
+import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.misc.Pair;
@@ -109,5 +111,33 @@ public class GuestTreeGen implements JPrIMEApp {
 		}
 	}
 
+	
+	/**
+	 * Advances the gene evolution process during 'time' units of time
+	 * assuming that the process takes place during a slice of the species
+	 * tree, i.e., the only edges present during this time is the edges in
+	 * 'slice'. 
+	 * @param time Time till which current BD process has to proceed
+	 * @param slice species tree stem where BD process has to occur
+	 * @param cur_genes current genes (leaves) in the slice to which 
+	 * BD process has to be applied 
+	 * @param Stats statistics gathering data structure (still to add to signature)
+	 */
+	public void runBDProcess(double time, ArrayList<NewickVertex> slice, ArrayList<NewickVertex> cur_genes) {
+	    
+	}
+	
+	/**
+	 * Creates children for any gene in 'cur_genes' that is labeled by
+	 * 'slice[sliceID]'.
+	 * @param stree species tree
+	 * @param slice species tree stem
+	 * @param cur_genes current set of genes (leaves) in gene tree
+	 * @param sliceID ID of the slice where speciation is occurring 
+	 * @param Stats statistics gathering data structure (still to add to signature)
+	 */
+	public void speciate(PrIMENewickTree stree, ArrayList<NewickVertex> slice, ArrayList<NewickVertex> cur_genes, int sliceID) {
+	    
+	}
 	
 }
