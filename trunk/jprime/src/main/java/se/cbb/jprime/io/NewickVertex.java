@@ -43,6 +43,7 @@ public class NewickVertex {
 	
 	/**
 	 * Constructor.
+	 * @param number the number ID of the vertex.
 	 * @param name vertex name.
 	 * @param branchLength branch length.
 	 * @param meta additional vertex info provided between brackets.

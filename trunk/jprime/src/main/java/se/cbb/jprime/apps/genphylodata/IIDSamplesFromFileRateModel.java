@@ -64,7 +64,7 @@ public class IIDSamplesFromFileRateModel implements RateModel {
 			}
 			sc.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new IllegalArgumentException(e);
 		}
 		for (int x = 0; x < t.getNoOfVertices(); ++x) {
 			int s = prng.nextInt(samples.size());

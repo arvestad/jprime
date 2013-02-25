@@ -1,8 +1,10 @@
-package se.cbb.jprime.apps.dltrs;
+package se.cbb.jprime.topology;
 
 import java.util.List;
 
 import org.jfree.util.PublicCloneable;
+
+import se.cbb.jprime.math.PRNG;
 
 /**
  * Represents discretisation information on the part of a host tree spanning <b>one</b> epoch.
@@ -41,7 +43,6 @@ public class Epoch implements PublicCloneable {
 	 * @param loTime the time of the epoch's lower divergence event.
 	 * @param upTime the time of the epoch's upper divergence event.
 	 * @param noOfIvs the number of sub-intervals to slice epoch into.
-	 *        Must be greater than zero.
 	 */
 	public Epoch(List<Integer> arcs, double loTime, double upTime, int noOfIvs) {
 		m_arcs = new int[arcs.size()];
@@ -187,6 +188,30 @@ public class Epoch implements PublicCloneable {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return new Epoch(this);
+	}
+	
+	/**
+	 * Samples an arc uniformly from the epoch.
+	 * @param prng PRNG.
+	 */
+	public int sampleArc(PRNG prng) {
+		return this.m_arcs[prng.nextInt(this.m_arcs.length)];
+	}
+	
+	/**
+	 * Samples an arc uniformly from the epoch, excluding a given arc.
+	 * @param prng PRNG.
+	 * @param excludeArc arc to exclude.
+	 */
+	public int sampleArc(PRNG prng, int excludeArc) {
+		if (this.m_arcs.length == 1 && excludeArc == m_arcs[0]) {
+			throw new IllegalArgumentException("Cannot exclude arc from sampling (it's the only one!): " + excludeArc);
+		}
+		int arc = this.m_arcs[prng.nextInt(this.m_arcs.length)];
+		while (arc == excludeArc) {
+			arc = this.m_arcs[prng.nextInt(this.m_arcs.length)];
+		}
+		return arc;
 	}
 }
 

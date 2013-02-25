@@ -1,5 +1,6 @@
 package se.cbb.jprime.apps.dltrs;
 
+import se.cbb.jprime.topology.Epoch;
 import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 
 /**
