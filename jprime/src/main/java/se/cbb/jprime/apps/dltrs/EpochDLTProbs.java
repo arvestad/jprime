@@ -10,6 +10,7 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.InfoProvider;
 import se.cbb.jprime.mcmc.ProperDependent;
+import se.cbb.jprime.topology.Epoch;
 import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 
 /**

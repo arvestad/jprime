@@ -15,6 +15,8 @@ import se.cbb.jprime.mcmc.ProperDependent;
  * guest or host topologies may. See also <code>LeafMap</code>.
  * <p/>
  * Note: Only bifurcating trees supported at the moment.
+ * <p/>IMPORTANT NOTE: This class cannot be used when there is lateral gene transfer,
+ * as is assumes only duplication and loss events.
  * 
  * @author Joel Sjöstrand.
  */

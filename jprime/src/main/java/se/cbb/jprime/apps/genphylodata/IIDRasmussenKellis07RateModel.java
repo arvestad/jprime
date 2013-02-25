@@ -22,7 +22,7 @@ import se.cbb.jprime.topology.TimesMap;
  * The rate of a guest tree arc is derived from the distributions of the
  * host tree arcs it passes over.
  * <p>
- * Back-and-forth transfer scenarios are not accounted for.
+ * IMPORTANT NOTE: Currently, this class assumes there are no transfers!
  * 
  * @author Joel Sjöstrand.
  */
@@ -51,8 +51,15 @@ public class IIDRasmussenKellis07RateModel implements RateModel {
 			this.guestTimes = guestTree.getTimesMap("GuestTimes");
 			this.hostTimes = hostTree.getTimesMap("HostTimes");
 			this.hostRateParams = hostTree.getVertexParamsMap("Params");
-			if (hostRateParams.get(this.hostTree.getRoot()) == null) {
-				hostRateParams.set(this.hostTree.getRoot(), new double[] {10, 0.1});
+			int hroot = this.hostTree.getRoot();
+			if (Double.isNaN(hostTimes.getArcTime(hroot))) {
+				hostTimes.getArcTimes()[hroot] = 0.0;
+			}
+			if (hostRateParams.get(hroot) == null) {
+				hostRateParams.set(hroot, new double[] {1000, 0.001});
+			}
+			if (Double.isNaN(guestTimes.getArcTime(this.guestTree.getRoot()))) {
+				guestTimes.getArcTimes()[this.guestTree.getRoot()] = 0.0;
 			}
 			this.prng = prng;
 		} catch (Exception e) {

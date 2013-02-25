@@ -130,7 +130,9 @@ public class BranchRelaxerParameters {
 				"                                       Every guest branch rate is created from a gamma\n" +
 				"                                       distribution specific for each host edge the\n" +
 				"                                       branch passes over. Parameters are stored in the\n" +
-				"                                       host tree thus: (A:0.4[&&PRIME PARAMS=(<k>,<theta>)],..." +
+				"                                       host tree thus: (A:0.4[&&PRIME PARAMS=(<k>,<theta>)],...\n" +
+				"                                       Guest and host tree must be temporally compatible\n" +
+				"                                       and have no lateral transfer events." +
 				"                                       "
 				;
 	}

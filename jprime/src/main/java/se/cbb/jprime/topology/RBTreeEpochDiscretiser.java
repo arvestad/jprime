@@ -2,9 +2,9 @@ package se.cbb.jprime.topology;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import se.cbb.jprime.apps.dltrs.Epoch;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -80,9 +80,28 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	
 	/** Cache. */
 	private int[] splitsCache = null;
-		
+	
+	
 	/**
-	 * Constructor. The user specifies a discretisation sub-division of each epoch.
+	 * Special constructor for when there is a single discretisation interval (leading to one midpoint discretisation point).
+	 * @param S host tree.
+	 * @param names names of host tree.
+	 * @param times times of host tree.
+	 */
+	public RBTreeEpochDiscretiser(RBTree S, NamesMap names, TimesMap times) {
+		this.S = S;
+		this.names = names;
+		this.times = times;
+		this.nmin = 1;
+		this.nmax = 1;
+		this.deltat = Double.NaN;
+		this.nroot = 1;
+		vertexToEpoch = new IntMap("VertexAboveMap", S.getNoOfVertices());
+		update();
+	}
+	
+	/**
+	 * Constructor. The user specifies a discretisation sub-division of each epoch. Requires at least 2 discretisation intervals.
 	 * @param S host tree.
 	 * @param names names of host tree.
 	 * @param times times of host tree.
@@ -220,7 +239,7 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	 * @param x the vertex.
 	 * @return the discretised time of the vertex.
 	 */
-	public double getTime(int x) {
+	public double getVertexTime(int x) {
 		return epochs[vertexToEpoch.get(x)].getLowerTime();
 	}
 	
@@ -232,6 +251,19 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	 */
 	public double getTime(int epochNo, int idx) {
 		return epochs[epochNo].getTime(idx);
+	}
+	
+	/**
+	 * Returns the discretised timespan of an arc. Note: Don't use the underlying tree's own time
+	 * directly, since it may not be exactly the same as the discretised value.
+	 * @param x the arc.
+	 * @return the discretised time of the arc.
+	 */
+	public double getArcTime(int x) {
+		if (this.S.isRoot(x)) {
+			return epochs[vertexToEpoch.get(x)].getTimespan();
+		}
+		return (epochs[vertexToEpoch.get(this.S.getParent(x))].getLowerTime() - epochs[vertexToEpoch.get(x)].getLowerTime());
 	}
 	
 	/**
@@ -248,8 +280,17 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	 * @param x the lower end of the epoch.
 	 * @return the epoch number.
 	 */
-	public int getEpochAbove(int x) {
+	public int getEpochNoAbove(int x) {
 		return vertexToEpoch.get(x);
+	}
+	
+	/**
+	 * Returns the epoch above a specified vertex.
+	 * @param x the lower end of the epoch.
+	 * @return the epoch.
+	 */
+	public Epoch getEpochAbove(int x) {
+		return this.epochs[vertexToEpoch.get(x)];
 	}
 
 	/**
@@ -258,8 +299,18 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	 * @param x the upper end of the epoch.
 	 * @return the epoch number.
 	 */
-	public int getEpochBelow(int x) {
+	public int getEpochNoBelow(int x) {
 		return (vertexToEpoch.get(x) - 1);
+	}
+	
+	/**
+	 * Returns the epoch below a specified vertex.
+	 * Undefined for leaves.
+	 * @param x the upper end of the epoch.
+	 * @return the epoch.
+	 */
+	public Epoch getEpochBelow(int x) {
+		return (this.epochs[vertexToEpoch.get(x) - 1]);
 	}
 		
 	/**
@@ -479,9 +530,8 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 		sb.append(prefix).append("Vertex:\tDiscretisation time:\tEpoch above:\tEpoch below:\n");
 		for (int x : this.S.getTopologicalOrdering()) {
 			sb.append(prefix).append(x).append('\t');
-			sb.append(this.getTime(x)).append('\t');
-			sb.append(this.getEpochAbove(x)).append('\t');
-			sb.append(this.getEpochBelow(x)).append('\n');
+			sb.append(this.getEpochNoAbove(x)).append('\t');
+			sb.append(this.getEpochNoBelow(x)).append('\n');
 		}
 		return sb.toString();
 	}
@@ -568,4 +618,57 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	public String serializeToNewickTree() {
 		return this.toString();
 	}
+	
+	/**
+	 * Returns the root.
+	 * @return the root.
+	 */
+	public int getRoot() {
+		return this.S.getRoot();
+	}
+	
+	/**
+	 * Checks true if root.
+	 * @param x vertex.
+	 * @return true if root; false if not root.
+	 */
+	public boolean isRoot(int x) {
+		return this.S.isRoot(x);
+	}
+	
+	/**
+	 * Checks true if leaf.
+	 * @param x vertex.
+	 * @return true if leaf; false if not root.
+	 */
+	public boolean isLeaf(int x) {
+		return this.S.isLeaf(x);
+	}
+	
+	/**
+	 * Returns the left child of x.
+	 * @param x the vertex.
+	 * @return the left child.
+	 */
+	public int getLeftChild(int x) {
+		return this.S.getLeftChild(x);
+	}
+	
+	/**
+	 * Returns the right child of x.
+	 * @param x the vertex.
+	 * @return the right child.
+	 */
+	public int getRightChild(int x) {
+		return this.S.getRightChild(x);
+	}
+
+	/**
+	 * Returns the leaves.
+	 * @return the leaves.
+	 */
+	public List<Integer> getLeaves() {
+		return this.S.getLeaves();
+	}
+	
 }

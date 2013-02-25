@@ -2,15 +2,16 @@ package se.cbb.jprime.apps.genphylodata;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
-import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.topology.TopologyException;
 
 import com.beust.jcommander.Parameter;
@@ -22,8 +23,8 @@ import com.beust.jcommander.Parameter;
  */
 public class GuestTreeGenParameters {
 
-	/** Required parameters: S, lambda, mu, tau. */
-	@Parameter(description = "<host tree file or string> <duplication rate> <loss rate> <transfer rate>")
+	/** Required parameters: S, lambda, mu, tau, outfile. */
+	@Parameter(description = "<host tree file or string> <dup rate> <loss rate> <trans rate> <out prefix>")
 	public List<String> args = new ArrayList<String>();
 		
 	/** Help. */
@@ -31,8 +32,8 @@ public class GuestTreeGenParameters {
 	public Boolean help = false;
 	
 	/** Output. */
-	@Parameter(names = {"-o", "--output-file"}, description = "Output guest tree to a file. Also writes used model parameters to a file named <filename>.info. Default: stdout.")
-	public String outputfile = null;
+	@Parameter(names = {"-q", "--quiet"}, description = "Suppress creation of auxiliary files and write only pruned tree directly to stdout.")
+	public Boolean doQuiet = false;
 	
 	/** PRNG seed. */
 	@Parameter(names = {"-s", "--seed"}, description = "PRNG seed. Default: Random seed.")
@@ -58,18 +59,25 @@ public class GuestTreeGenParameters {
 	@Parameter(names = {"-sizes", "--leaf-sizes-file"}, description = "Samples the desired number of extant leaves uniformly from a single-column file. This is suitable for mimicking a known leaf size distribution.")
 	public String leafSizes = null;
 	
+	/** Do meta. */
+	@Parameter(names = {"-nox", "--no-auxiliary-tags"}, description = "Exclude auxiliary PrIME tags in output trees and suppress creation of files for the mappings.")
+	public Boolean excludeMeta = false;
+	
 	/** Leaf sampling. */
 	@Parameter(names = {"-p", "--leaf-sampling-probability"}, description = "Governs the probability of observing a guest tree leaf. Lineages that fail to be observed will be pruned away similarly to lineages lost during the evolutionary process.")
-	public Double leafSamplingProb = 1.0;
-	
+	public String leafSamplingProb = "1.0";
 	
 	/** Attempts. */
 	@Parameter(names = {"-a", "--max-attempts"}, description = "Maximum number of attempts at creating random tree that meets requirements. If not met, no tree is output.")
-	public Integer attempts = 10000;
+	public Integer maxAttempts = 10000;
 	
 	/** Stem edge. */
 	@Parameter(names = {"-stem", "--override-host-stem"}, description = "If set, overrides the stem edge of the host tree by the specified value. If no stem edge is desired, this can be set to 0. Default: Value in host tree.")
-	public Integer stem = null;
+	public String stem = null;
+	
+	/** Vertex prefix. */
+	@Parameter(names = {"-vp", "--vertex-prefix"}, description = "Vertex prefix.")
+	public String vertexPrefix = "G";
 	
 	/**
 	 * Returns the host tree.
@@ -91,16 +99,17 @@ public class GuestTreeGenParameters {
 	 * Returns output and info streams.
 	 * @return streams.
 	 */
-	public Pair<BufferedWriter,BufferedWriter> getOutputFiles() {
+	public BufferedWriter getOutputFile(String suffix) {
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(this.outputfile.trim()));
-			BufferedWriter info = new BufferedWriter(new FileWriter(this.outputfile.trim() + ".info"));
-			return new Pair<BufferedWriter, BufferedWriter>(out, info);
+			String outprefix = args.get(4).trim();
+			return new BufferedWriter(new FileWriter(outprefix + suffix));
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Invalid output file.", e);
+			throw new IllegalArgumentException("Invalid output file prefix.", e);
 		}
 	}
 
+	
+	
 	public double getDuplicationRate() {
 		return Double.parseDouble(this.args.get(1));
 	}
@@ -113,6 +122,17 @@ public class GuestTreeGenParameters {
 		return Double.parseDouble(this.args.get(3));
 	}
 	
+	public ArrayList<Integer> getLeafSizes() {
+		// Read file.
+		if (this.leafSizes == null) { return null; }
+		ArrayList<Integer> samples = new ArrayList<Integer>(8192);
+		Scanner sc = new Scanner(this.leafSizes);
+		while (sc.hasNextLine()) {
+			samples.add(Integer.parseInt(sc.nextLine()));
+		}
+		sc.close();
+		return samples;
+	}
 	
 
 }
