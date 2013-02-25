@@ -15,6 +15,7 @@ import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.NamesMap;
+import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.StringMap;
 
@@ -24,6 +25,9 @@ import se.cbb.jprime.topology.StringMap;
  * @author Joel Sjöstrand.
  */
 public class BranchRelaxer implements JPrIMEApp {
+	
+	/** Attempts. */
+	private int attempts = 0;
 	
 	@Override
 	public String getAppName() {
@@ -48,7 +52,7 @@ public class BranchRelaxer implements JPrIMEApp {
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			BranchRelaxerParameters params = new BranchRelaxerParameters();
 			JCommander jc = new JCommander(params, args);
-			if (args.length == 0 || params.help) {
+			if (params.help || args.length < 1) {
 				StringBuilder sb = new StringBuilder(65536);
 				sb.append(
 						"================================================================================\n" +
@@ -56,7 +60,7 @@ public class BranchRelaxer implements JPrIMEApp {
 						"realistic phylogenetic data. BranchRelaxer takes a Newick tree with\n" +
 						"branch lengths (often ultrametric times) and creates a replica of the tree\n" +
 						"with relaxed (non-clock like) branch lengths by applying rates drawn from a\n" +
-						"probability distribution or similarly.\n\n" +
+						"probability distribution or similarly. The tree must have at least two leaves.\n\n" +
 						"References:\n" +
 						"    In press\n\n" +
 						"Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData\n\n" +
@@ -78,11 +82,22 @@ public class BranchRelaxer implements JPrIMEApp {
 			if (origLengths == null) {
 				origLengths = nw.getTimesMap("OrigLengths").getArcTimesMap();
 			}
+			int ignoreVertex = -1;
 			if (Double.isNaN(origLengths.get(t.getRoot()))) {
 				// Makes non-stem trees easy to handle in most cases.
 				origLengths.set(t.getRoot(), 0.0);
+				ignoreVertex = t.getRoot();
 			}
-			DoubleMap rates = model.getRates(t, names, origLengths);
+			DoubleMap rates;
+			do {
+				if (attempts > params.maxAttempts) {
+					System.err.println("Failed to create valid rates within max allowed attempts.");
+					System.exit(0);
+				}
+				rates = model.getRates(t, names, origLengths);
+				attempts++;
+			} while (!isOK(rates, ignoreVertex, Double.parseDouble(params.min), Double.parseDouble(params.max)));
+			
 			DoubleMap relLengths = getRelaxedLengths(origLengths, rates);
 			boolean doMeta = params.doMeta;
 			
@@ -95,6 +110,7 @@ public class BranchRelaxer implements JPrIMEApp {
 				out.first.close();
 				out.second.write("# BranchLengthRelaxer\n");
 				out.second.write("Arguments:\t" +  Arrays.toString(args) + '\n');
+				out.second.write("Attempts:\t" + this.attempts + '\n');
 				out.second.write("Original lengths:\t" + origLengths.toString() + '\n');
 				out.second.write("Rates:\t" + rates.toString() + '\n');
 				out.second.write("Relaxed lengths:\t" + relLengths.toString() + '\n');
@@ -113,6 +129,23 @@ public class BranchRelaxer implements JPrIMEApp {
 		}
 	}
 	
+	/**
+	 * Validates rates.
+	 * @param rates rates.
+	 * @return true if OK; otherwise false.
+	 */
+	private boolean isOK(DoubleMap rates, int ignoreVertex, double min, double max) {
+		for (int x = 0; x < rates.getSize(); ++x) {
+			if (x == ignoreVertex) {
+				continue;
+			}
+			if (rates.get(x) < min || rates.get(x) > max) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Creates relaxed lengths.
 	 * @param origLengths original lengths. Could of course be ultrametric times.

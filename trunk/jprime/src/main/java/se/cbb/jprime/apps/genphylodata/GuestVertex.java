@@ -1,5 +1,7 @@
 package se.cbb.jprime.apps.genphylodata;
 
+import java.util.LinkedList;
+
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.topology.Epoch;
 
@@ -86,5 +88,47 @@ public class GuestVertex extends NewickVertex {
 	 */
 	public GuestVertex getRightChild() {
 		return (GuestVertex) this.getChildren().get(1);
+	}
+	
+	/**
+	 * Helper.
+	 * @param root root.
+	 */
+	public static void setMeta(GuestVertex root) {
+		LinkedList<NewickVertex> vertices = new LinkedList<NewickVertex>();
+		vertices.add(root);
+		while (!vertices.isEmpty()) {
+			GuestVertex v = (GuestVertex) vertices.pop();
+			StringBuilder sb = new StringBuilder(1024);
+			sb.append("[&&PRIME");
+			sb.append(" ID=").append(v.getNumber());
+			switch (v.event) {
+			case DUPLICATION:
+				sb.append(" VERTEXTYPE=Duplication");
+				break;
+			case LOSS:
+				sb.append(" VERTEXTYPE=Loss");
+				break;
+			case TRANSFER:
+				sb.append(" VERTEXTYPE=Transfer");
+				break;
+			case SPECIATION:
+				sb.append(" VERTEXTYPE=Speciation");
+				break;
+			case SAMPLED_LEAF:
+				sb.append(" VERTEXTYPE=Leaf");
+				break;
+			case UNSAMPLED_LEAF:
+				sb.append(" VERTEXTYPE=UnsampledLeaf");
+				break;
+			default:
+				throw new UnsupportedOperationException("Invalid vertex event type.");	
+			}
+			sb.append("]");
+			v.setMeta(sb.toString());
+			if (!v.isLeaf()) {
+				vertices.addAll(v.getChildren());
+			}
+		}
 	}
 }
