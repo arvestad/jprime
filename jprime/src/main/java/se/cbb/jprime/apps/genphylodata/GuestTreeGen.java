@@ -128,23 +128,26 @@ public class GuestTreeGen implements JPrIMEApp {
 			
 			// Meta.
 			if (!params.excludeMeta) {
-				this.setMeta(unprunedRoot);
+				GuestVertex.setMeta(unprunedRoot);
 			}
 			
 			// Finally, some trees.
 			GuestVertex prunedRoot = PruningHelper.prune(unprunedRoot);
-			this.unprunedTree = new PrIMENewickTree(new NewickTree(unprunedRoot, "[&&PRIME NAME=UnprunedTree]", false, false), false);
-			this.prunedTree = new PrIMENewickTree(new NewickTree(prunedRoot, "[&&PRIME NAME=PrunedTree]", false, false), false);;
+			String treeMeta = (params.excludeMeta ? null : "[&&PRIME NAME=UnprunedTree]");
+			this.unprunedTree = new PrIMENewickTree(new NewickTree(unprunedRoot, treeMeta, false, false), false);
+			treeMeta = (params.excludeMeta ? null : "[&&PRIME NAME=PrunedTree]");
+			this.prunedTree = (prunedRoot == null ?
+					null : new PrIMENewickTree(new NewickTree(prunedRoot, treeMeta, false, false), false));
 			
 			// Print output.
 			if (params.doQuiet) {
-				System.out.println(NewickTreeWriter.write(this.prunedTree));
+				System.out.println(this.prunedTree == null ? "[&&PRIME NAME=PrunedTree]; " : NewickTreeWriter.write(this.prunedTree));
 			} else {
 				BufferedWriter out = params.getOutputFile(".unpruned.tree");
 				out.write(NewickTreeWriter.write(this.unprunedTree));
 				out.close();
 				out = params.getOutputFile(".pruned.tree");
-				out.write(NewickTreeWriter.write(this.prunedTree));
+				out.write(this.prunedTree == null ? "[&&PRIME NAME=PrunedTree]; " : NewickTreeWriter.write(this.prunedTree));
 				out.close();
 				out = params.getOutputFile(".info");
 				out.write(this.getInfo());
@@ -167,17 +170,7 @@ public class GuestTreeGen implements JPrIMEApp {
 						
 			// TODO: Implement helpers to create the tree.
 			
-			String outtree = "";
-			int noOfUnprunedSpecs;
-			int noOfPrunedSpecs;
-			int noOfUnprunedDups;
-			int noOfPrunedDups;
-			int noOfUnprunedLosses;
-			int noOfPrunedLosses;
-			int noOfUnprunedTrans;
-			int noOfPrunedTrans;
-			double unprunedTotalTime;
-			double prunedTotalTime;
+			
 			
 			
 			
@@ -203,19 +196,40 @@ public class GuestTreeGen implements JPrIMEApp {
 		}
 	}
 
-	private String getGamma(PrIMENewickTree unprunedTree2) {
+	private String getGamma(PrIMENewickTree tree) {
 		// TODO Auto-generated method stub
 		return "";
 	}
 
-	private String getSigma(PrIMENewickTree unprunedTree2) {
+	private String getSigma(PrIMENewickTree tree) {
 		// TODO Auto-generated method stub
 		return "";
 	}
 
 	private String getInfo() {
-		// TODO Auto-generated method stub
-		return "";
+		StringBuilder sb = new StringBuilder(1024);
+		int noOfUnprunedVertices = 0;
+		int noOfPrunedVertices = 0;
+		int noOfUnprunedLeaves = 0;
+		int noOfPrunedLeaves = 0;
+		int noOfUnprunedSpecs = 0;
+		int noOfPrunedSpecs = 0;
+		int noOfUnprunedDups = 0;
+		int noOfPrunedDups = 0;
+		int noOfUnprunedLosses = 0;
+		int noOfPrunedLosses = 0;
+		int noOfUnprunedTrans = 0;
+		int noOfPrunedTrans = 0;
+		double unprunedTotalTime = 0.0;
+		double unprunedTotalTimeExcStem = 0.0;
+		double prunedTotalTime = 0.0;
+		double prunedTotalTimeExcStem = 0.0;
+		
+		double unprunedDupMLEst = noOfUnprunedDups / unprunedTotalTime;
+		double unprunedLossMLEst = noOfUnprunedLosses / unprunedTotalTime;
+		double unprunedTransMLEst = noOfUnprunedTrans / unprunedTotalTimeExcStem;  // No stem.
+		
+		return sb.toString();
 	}
 
 	/**
@@ -310,46 +324,6 @@ public class GuestTreeGen implements JPrIMEApp {
 		return true;
 	}
 	
-	/**
-	 * 
-	 * @param root
-	 */
-	private void setMeta(GuestVertex root) {
-		LinkedList<NewickVertex> vertices = new LinkedList<NewickVertex>();
-		vertices.add(root);
-		while (!vertices.isEmpty()) {
-			GuestVertex v = (GuestVertex) vertices.pop();
-			StringBuilder sb = new StringBuilder(1024);
-			sb.append("[&&PRIME");
-			sb.append(" ID=").append(v.getNumber());
-			switch (v.event) {
-			case DUPLICATION:
-				sb.append(" VERTEXTYPE=Duplication");
-				break;
-			case LOSS:
-				sb.append(" VERTEXTYPE=Loss");
-				break;
-			case TRANSFER:
-				sb.append(" VERTEXTYPE=Transfer");
-				break;
-			case SPECIATION:
-				sb.append(" VERTEXTYPE=Speciation");
-				break;
-			case SAMPLED_LEAF:
-				sb.append(" VERTEXTYPE=Leaf");
-				break;
-			case UNSAMPLED_LEAF:
-				sb.append(" VERTEXTYPE=UnsampledLeaf");
-				break;
-			default:
-				throw new UnsupportedOperationException("Invalid vertex event type.");	
-			}
-			sb.append("]");
-			v.setMeta(sb.toString());
-			if (!v.isLeaf()) {
-				vertices.addAll(v.getChildren());
-			}
-		}
-	}
+	
 	
 }

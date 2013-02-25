@@ -54,6 +54,18 @@ public class BranchRelaxerParameters {
 	@Parameter(names = {"-x", "--auxiliary-tags"}, description = "Include auxiliary PrIME tags in output tree.")
 	public Boolean doMeta = false;
 	
+	/** Min rate. */
+	@Parameter(names = {"-min", "--min-rate"}, description = "Minimum rate allowed.")
+	public String min = "1e-64";
+	
+	/** Max rate. */
+	@Parameter(names = {"-max", "--max-rate"}, description = "maximum rate allowed.")
+	public String max = "1e64";
+	
+	/** Attempts. */
+	@Parameter(names = {"-a", "--max-attempts"}, description = "Maximum number of attempts at creating random rates that meets requirements. If not met, no tree is output.")
+	public Integer maxAttempts = 10000;
+	
 	/**
 	 * Return rate model.
 	 * @return model.
