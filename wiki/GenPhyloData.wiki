@@ -81,7 +81,23 @@ You can always show the list of options by typing:
 java -jar jprime-x.y.z.jar GuestTreeGen -h
 }}}
 
-
+The generated guest-to-host leaf map may look like this for a vertebrate host tree (Gx refers to the guest tree leaf names):
+{{{
+G25     vv_tnigroviridis3
+G0      mm_tguttata4
+G1      mm_oanatinus4
+G11     vv_acarolinensis3
+G21     mm_oanatinus4
+G3      mm_cfamiliaris2
+G4      vv_tnigroviridis3
+G6      mm_hsapiens5
+G7      mm_mdomestica2
+G12     mm_ggallus2
+G13     vv_tnigroviridis3
+G19     mm_mdomestica2
+G16     mm_hsapiens5
+G17     vv_acarolinensis3
+}}}
 ----
 
 ==(3) !BranchRelaxer==
