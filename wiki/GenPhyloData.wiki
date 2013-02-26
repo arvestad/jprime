@@ -28,8 +28,11 @@ The tools of !GenPhyloData are described seperately below.
   * Overriding stem edge.
   * Leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
   * Requiring an immediate split at the start of the time interval.
+  * Number of attempts to meet requirements before surrending.
 
-By default, both the unpruned and the pruned trees are output, along with info files detailing the process.
+By default, files are produced for both the unpruned and the pruned tree:
+  * the tree itself in Newick format.
+  * an info file detailing the process.
 
 The general pattern for the tool is thus:
 {{{
@@ -45,6 +48,11 @@ java -jar jprime-x.y.z.jar HostTreeGen -h
 }}}
 The produced trees are rooted. You may of course use an external tool to remove the root to obtain unrooted trees.
 
+To force the process to start with a split, use option `-bi`:
+{{{
+java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1
+}}}
+This will also force the produced tree to retain this split after pruning.
 
 ----
 
@@ -57,6 +65,13 @@ The produced trees are rooted. You may of course use an external tool to remove 
   * Guest leaf sampling probability.
   * Overriding stem edge length.
   * Guest leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
+  * Number of attempts to meet requirements before surrending.
+
+By default, files are produced for both the unpruned and the pruned tree:
+  * the guest tree itself in Newick format.
+  * an info file detailing the process.
+  * a detailed guest-to-host map.
+  * a guest-to-host map with leaf names only.
 
 The general pattern for the tool is thus:
 {{{
@@ -85,7 +100,7 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
   * Host tree guided rates in accordance with Rasmussen-Kellis '07.
 
 The input tree must be rooted and bifurcating. Currently, models are employed in a "pure" modeling sense in that rates that concern the edges around the root follow the model without ad hoc constraints.
-It is otherwise common to, during inference, introduce root-constraints to avoid over-parametrization. However, while the latter may be required for computational reasons, it can hardly be argued as sound behavior during the generative process. 
+It is otherwise common to, during inference, introduce root-constraints to avoid over-parameterization. However, while the latter may be required for computational reasons, it can hardly be argued as sound behavior during the generative process. 
 
 To execute the application, the general pattern is the following:
 {{{
