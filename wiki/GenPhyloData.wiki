@@ -71,8 +71,8 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
   * Auto-correlated rates in accordance with Thorne-Kishino '98 and some other popular models.
 
-The input tree must be rooted and bifurcating. Currently, models are employed in a "pure" modeling sense, in that rates that concern the edges around the root follow the model without ad hoc constraints.
-It is otherwise common to, during inference, introduce root-constraints to avoid over-parametrization.
+The input tree must be rooted and bifurcating. Currently, models are employed in a "pure" modeling sense in that rates that concern the edges around the root follow the model without ad hoc constraints.
+It is otherwise common to, during inference, introduce root-constraints to avoid over-parametrization. However, while the latter may be required for computational reasons, it can hardly be argued as sound behavior during the generative process. 
 
 To execute the application, the general pattern is the following:
 {{{
@@ -120,7 +120,7 @@ c1	C
 }}}
 Note however, that the host tree and guest tree must be temporally compatible, and that the model is currently on applicable on guest trees without transfer events.
 
-Another interesting option is to sample rates according to a known empirical distribution. It is also possible to constrain the the rates to stay within a desired range, regardless of the model employed.
+It is possible to constrain the the rates to stay within a desired range, regardless of the model employed.
 
 ----
 
