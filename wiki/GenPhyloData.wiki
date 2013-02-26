@@ -22,7 +22,14 @@ The tools of !GenPhyloData are described seperately below.
 ==(1) !HostTreeGen==
 [http://jprime.googlecode.com/files/HostTreeGen.png]
 
-!HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
+!HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding, e.g:
+  * Desired number of leaves.
+  * Taxon sampling probability.
+  * Overriding stem edge.
+  * Leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
+  * Requiring an immediate split at the start of the time interval.
+
+By default, both the unpruned and the pruned trees are output, along with info files detailing the process.
 
 The general pattern for the tool is thus:
 {{{
@@ -44,7 +51,12 @@ The produced trees are rooted. You may of course use an external tool to remove 
 ==(2) !GuestTreeGen==
 [http://jprime.googlecode.com/files/GuestTreeGen.png]
 
-!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. The host tree must be rooted and bifurcating. Guest tree lineages which fail to reach the leaves of the host tree are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
+!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. The host tree must be rooted and bifurcating. Guest tree lineages which fail to reach the leaves of the host tree are pruned away. There are a plethora of options, such as:
+  * Min/max desired number of guest leaves.
+  * Min/max desired number of guest leaves per host leaf.
+  * Guest leaf sampling probability.
+  * Overriding stem edge length.
+  * Guest leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
 
 The general pattern for the tool is thus:
 {{{
@@ -68,7 +80,7 @@ java -jar jprime-x.y.z.jar GuestTreeGen -h
 The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to obtain more realistic branch lengths, this application enables relaxing the molecular clock by rescaling the lengths by heterogeneous rates. A number of popular techniques are supported, including:
   * Constant rescaling of the clock-like lengths.
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
-  * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
+  * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from a biological MCMC analysis.
   * Auto-correlated rates in accordance with Rannala-Yang '07 and some other popular models.
   * Host tree guided rates in accordance with Rasmussen-Kellis '07.
 
