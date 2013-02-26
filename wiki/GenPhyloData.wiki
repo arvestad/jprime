@@ -1,10 +1,5 @@
 #summary GenPhyloData tutorial
 
-
-=Work in progress!=
-Please return soon for non-tentative information.
-
-
 =!GenPhyloData Tutorial=
 
 JPrIME-!GenPhyloData is a suite of tools to generate realistic synthetic (a.k.a _artificial_ or _simulated_) phylogenetic trees. The models used conform well with the inference tools included in JPrIME, but may also support other popular models. Currently, the suite comprises 3 tools:
@@ -50,9 +45,9 @@ The produced trees are rooted. You may of course use an external tool to remove 
 
 To force the process to start with a split, use option `-bi`:
 {{{
-java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1
+java -jar jprime-x.y.z.jar HostTreeGen -bi -min 3 10 0.3 0.1
 }}}
-This will also force the produced tree to retain this split after pruning.
+This will also force the produced tree to retain this split after pruning, i.e., there will be at least two sampled leaves.
 
 ----
 
