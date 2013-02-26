@@ -44,7 +44,7 @@ The produced trees are rooted. You may of course use an external tool to remove 
 ==(2) !GuestTreeGen==
 [http://jprime.googlecode.com/files/GuestTreeGen.png]
 
-!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. The host tree must be rooted and bifurcating. Gust tree lineages which fail to reach the leaves of the host tree are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
+!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. The host tree must be rooted and bifurcating. Guest tree lineages which fail to reach the leaves of the host tree are pruned away. There are additional options regarding the desired number of leaves, taxon sampling probability, stem edge, etc.
 
 The general pattern for the tool is thus:
 {{{
@@ -118,6 +118,8 @@ b1	B
 c1	C
 }}}
 Note however, that the host tree and guest tree must be temporally compatible, and that the model is currently on applicable on guest trees without transfer events.
+
+Another interesting option is to sample rates according to a known empirical distribution. It is also possible to constrain the the rates to stay within a desired range, regardless of the model employed.
 
 ----
 
