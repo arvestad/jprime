@@ -76,7 +76,7 @@ public class EventCreator {
 			eventTime = lowerTime;
 			branchTime = NumberManipulation.roundToSignificantFigures(startTime - eventTime, 8);
 			if (this.hostTree.isLeaf(X)) {
-				event = (this.prng.nextDouble() < this.rho ? GuestVertex.Event.SAMPLED_LEAF : GuestVertex.Event.UNSAMPLED_LEAF);
+				event = (this.prng.nextDouble() < this.rho ? GuestVertex.Event.LEAF : GuestVertex.Event.UNSAMPLED_LEAF);
 			} else {
 				event = GuestVertex.Event.SPECIATION;
 			}

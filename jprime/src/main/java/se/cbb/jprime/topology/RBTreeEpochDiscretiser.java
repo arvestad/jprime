@@ -178,7 +178,7 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 			
 			// Create epoch, etc.
 			int noOfIvs = Math.min(Math.max(this.nmin, (int) Math.ceil((tUp - tLo) / this.deltat - 1e-6)), this.nmax);
-			epochs[epochNo] = new Epoch(q, tLo, tUp, noOfIvs);
+			epochs[epochNo] = new Epoch(epochNo, q, tLo, tUp, noOfIvs);
 			splits[epochNo + 1] = xUpIdx;
 			vertexToEpoch.set(xLo, epochNo);
 			
@@ -202,7 +202,7 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 		assert(tLo < tUp);
 		int noOfIvs = this.nroot > 0 ? this.nroot :
 				Math.min(Math.max(this.nmin, (int) Math.ceil((tUp - tLo) / this.deltat - 1e-6)), this.nmax);
-		epochs[epochNo] = new Epoch(q, tLo, tUp, noOfIvs);
+		epochs[epochNo] = new Epoch(epochNo, q, tLo, tUp, noOfIvs);
 		vertexToEpoch.set(xLo, epochNo);      // Actually undefined, since top time arc.
 	}
 	
@@ -589,7 +589,8 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 	public String toString() {
 		StringMap metas = new StringMap("Meta", this.S.getNoOfVertices());
 		for (int x = 0; x < this.S.getNoOfVertices(); ++x) {
-			metas.set(x, "[&&PRIME ID=" + x + " NT=" + this.times.getVertexTime(x) + "]");
+			String eps = " EPOCHS=(" + this.getEpochNoAbove(x) + "..." + (this.S.isRoot(x) ? this.getEpochNoAbove(x) : this.getEpochNoBelow(this.S.getParent(x))) + ')';
+			metas.set(x, "[&&PRIME ID=" + x + " NT=" + this.times.getVertexTime(x) + eps + "]");
 		}
 		try {
 			String treeMeta = "[&&PRIME NAME=" + this.S.getName() + " DISCTYPE=" + DISC_TYPE + " NMIN=" + this.nmin + " NMAX=" + this.nmax + " DELTAT=" + this.deltat + " NROOT=" + this.nroot + ']';

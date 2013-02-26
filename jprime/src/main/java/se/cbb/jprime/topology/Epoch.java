@@ -28,6 +28,9 @@ import se.cbb.jprime.math.PRNG;
  */
 public class Epoch implements PublicCloneable {
 	
+	/** Number ID. */
+	private int no;
+	
 	/** Vector of intersecting arcs in the epoch (defined via head vertex). */
 	private int[] m_arcs;
 	
@@ -39,12 +42,14 @@ public class Epoch implements PublicCloneable {
 	
 	/**
 	 * Constructor.
+	 * @param no the number identifier.
 	 * @param arcs the arcs intersecting the epoch's time span.
 	 * @param loTime the time of the epoch's lower divergence event.
 	 * @param upTime the time of the epoch's upper divergence event.
 	 * @param noOfIvs the number of sub-intervals to slice epoch into.
 	 */
-	public Epoch(List<Integer> arcs, double loTime, double upTime, int noOfIvs) {
+	public Epoch(int no, List<Integer> arcs, double loTime, double upTime, int noOfIvs) {
+		this.no = no;
 		m_arcs = new int[arcs.size()];
 		int i = 0;
 		for (int arc : arcs) {
@@ -212,6 +217,14 @@ public class Epoch implements PublicCloneable {
 			arc = this.m_arcs[prng.nextInt(this.m_arcs.length)];
 		}
 		return arc;
+	}
+	
+	/**
+	 * Returns the epoch ID number.
+	 * @return the number.
+	 */
+	public int getNo() {
+		return this.no;
 	}
 }
 

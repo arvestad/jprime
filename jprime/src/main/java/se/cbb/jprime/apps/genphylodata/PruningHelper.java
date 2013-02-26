@@ -23,7 +23,7 @@ public class PruningHelper {
 	public static int labelUnprunableVertices(GuestVertex v, int nextNo) {
 		if (v.event == Event.LOSS || v.event == Event.UNSAMPLED_LEAF) {
 			v.prunability = Prunability.PRUNABLE;
-		} else if (v.event == Event.SAMPLED_LEAF) {
+		} else if (v.event == Event.LEAF) {
 			v.prunability = Prunability.UNPRUNABLE;
 			v.setNumber(nextNo);
 			v.setName("G" + nextNo++);
@@ -78,7 +78,7 @@ public class PruningHelper {
 			return null;
 		}
 		
-		if (unprunedRoot.event == Event.SAMPLED_LEAF) {
+		if (unprunedRoot.event == Event.LEAF) {
 			return new GuestVertex(unprunedRoot);
 		}
 				
