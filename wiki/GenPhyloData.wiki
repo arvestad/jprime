@@ -69,7 +69,8 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
   * Constant rescaling of the clock-like lengths.
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from an MCMC analysis.
-  * Auto-correlated rates in accordance with Thorne-Kishino '98 and some other popular models.
+  * Auto-correlated rates in accordance with Rannala-Yang '07 and some other popular models.
+  * Host tree guided rates in accordance with Rasmussen-Kellis '07.
 
 The input tree must be rooted and bifurcating. Currently, models are employed in a "pure" modeling sense in that rates that concern the edges around the root follow the model without ad hoc constraints.
 It is otherwise common to, during inference, introduce root-constraints to avoid over-parametrization. However, while the latter may be required for computational reasons, it can hardly be argued as sound behavior during the generative process. 
