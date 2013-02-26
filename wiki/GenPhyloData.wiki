@@ -31,11 +31,11 @@ By default, files are produced for both the unpruned and the pruned tree:
 
 The general pattern for the tool is thus:
 {{{
-java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <death rate>
+java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <death rate> <out prefix>
 }}}
 To execute the application over time 10, with a birth rate of 0.3 events per time unit, death rate of 0.1 events per time unit, and at least 3 leaves, type the following:
 {{{
-java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1
+java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1 myhost
 }}}
 You can always show the list of options by typing:
 {{{
@@ -45,7 +45,7 @@ The produced trees are rooted. You may of course use an external tool to remove 
 
 To force the process to start with a split, use option `-bi`:
 {{{
-java -jar jprime-x.y.z.jar HostTreeGen -bi -min 3 10 0.3 0.1
+java -jar jprime-x.y.z.jar HostTreeGen -bi -min 3 10 0.3 0.1 myhost
 }}}
 This will also force the produced tree to retain this split after pruning, i.e., there will be at least two sampled leaves.
 
@@ -70,11 +70,11 @@ By default, files are produced for both the unpruned and the pruned tree:
 
 The general pattern for the tool is thus:
 {{{
-java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate>
+java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate> <host prefix>
 }}}
 As an example, the following generates a guest tree over a known tree, with a duplicaton rate of 0.2 events per time unit, loss rate of 0.1 events per time unit, transfer rate of 0.05 events per time unit, at least 4 leaves, and at most 20 leaves:
 {{{
-java -jar jprime-x.y.z.jar GuestTreeGen -min 4 -max 20 "((A:4.0,B:4.0):6.0,C:10.0):5.0;" 0.2 0.1 0.05
+java -jar jprime-x.y.z.jar GuestTreeGen -min 4 -max 20 "((A:4.0,B:4.0):6.0,C:10.0):5.0;" 0.2 0.1 0.05 myguest
 }}}
 You can always show the list of options by typing:
 {{{
