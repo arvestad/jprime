@@ -1,10 +1,7 @@
 package se.cbb.jprime.apps.genphylodata;
 
 import java.io.BufferedWriter;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.beust.jcommander.JCommander;
@@ -12,16 +9,11 @@ import com.beust.jcommander.JCommander;
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.apps.genphylodata.GuestVertex.Event;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
-import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickTreeWriter;
-import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.math.NumberManipulation;
-import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.topology.NamesMap;
-import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
-import se.cbb.jprime.topology.TimesMap;
 
 /**
  * Generates an ultrametric guest tree ("gene tree") involving inside a host tree ("species tree"),
@@ -31,15 +23,9 @@ import se.cbb.jprime.topology.TimesMap;
  */
 public class GuestTreeGen implements JPrIMEApp {
 
-	private RBTreeEpochDiscretiser hostTree;
-	private NamesMap hostNames;
-	private PRNG prng;
-	private EventCreator mightyGodPlaysDice;
-	private int attempts = 0;
-	private PrIMENewickTree unprunedTree;
-	private PrIMENewickTree prunedTree;
-
-
+	
+	private GuestTree guestTree;
+	
 	@Override
 	public String getAppName() {
 		return "GuestTreeGen";
@@ -52,7 +38,8 @@ public class GuestTreeGen implements JPrIMEApp {
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			GuestTreeGenParameters params = new GuestTreeGenParameters();
 			JCommander jc = new JCommander(params, args);
-			if (args.length == 0 || params.help || params.args.size() != 5) {
+			int noargs = params.doQuiet ? 4 : 5;
+			if (args.length == 0 || params.help || params.args.size() != noargs) {
 				StringBuilder sb = new StringBuilder(65536);
 				sb.append(
 						"================================================================================\n" +
@@ -63,7 +50,7 @@ public class GuestTreeGen implements JPrIMEApp {
 						"process, in which guest tree lineages may be duplicated, lost, or laterally\n" +
 						"transferred (be split with one copy being transferred to a contemporaneous host\n" +
 						"edge). Guest lineages branch deterministically at host tree vertices. Auxiliary\n" +
-						"files detailing the process is also created by default.\n\n" +
+						"files detailing the process are also created by default.\n\n" +
 						"References:\n" +
 						"    In press\n\n" +
 						"Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData\n\n" +
@@ -77,105 +64,66 @@ public class GuestTreeGen implements JPrIMEApp {
 			}
 			
 			// Read host tree.
-			PrIMENewickTree nw = params.getHostTree();
-			RBTree S = new RBTree(nw, "HostTree");
-			this.hostNames = nw.getVertexNamesMap(false, "HostNames");
-			TimesMap STimes = nw.getTimesMap("HostTimes");
-			if (params.stem != null) {
-				STimes.getArcTimes()[S.getRoot()] = Double.parseDouble(params.stem);
-			}
-			// Hack: Set 0 stem to eps.
-			if (STimes.getArcTime(S.getRoot()) <= 0.0) {
-				STimes.getArcTimes()[S.getRoot()] = 1.0e-64;
-			}
-			hostTree = new RBTreeEpochDiscretiser(S, this.hostNames, STimes);
+			PrIMENewickTree host = params.getHostTree();
 			
-			// PRNG.
-			prng = (params.seed == null ? new PRNG() : new PRNG(new BigInteger(params.seed)));
-			
-			// Helper.
-			mightyGodPlaysDice = new EventCreator(hostTree, params.getDuplicationRate(), params.getLossRate(),
-					params.getTransferRate(), Double.parseDouble(params.leafSamplingProb), prng);
-			
-			// Leaf size samples.
-			ArrayList<Integer> leafSizes = params.getLeafSizes();
-			
-			// Produce tree.
-			GuestVertex unprunedRoot;
-			int exact = -1;
-			do {
-				if (attempts > params.maxAttempts) {
-					if (!params.doQuiet) {
-						BufferedWriter outinfo = params.getOutputFile(".info");
-						outinfo.write("Failed to produce valid pruned tree within max allowed attempts.\n");
-						outinfo.close();
-					}
-					System.err.println("Failed to produce valid pruned tree within max allowed attempts.");
-					System.exit(0);
+			// Create guest tree.
+			try {
+				guestTree = new GuestTree(host, params.getStem(), params.seed, params.getDuplicationRate(),
+						params.getLossRate(), params.getTransferRate(), params.getLeafSamplingProb(),
+						params.min, params.max, params.minper, params.maxper,params.getLeafSizes(), params.maxAttempts,
+						params.vertexPrefix, params.excludeMeta);
+			} catch (MaxAttemptsException ex) {
+				if (!params.doQuiet) {
+					BufferedWriter outinfo = params.getOutputFile(".pruned.info");
+					outinfo.write("Failed to produce valid pruned tree within max allowed attempts.\n");
+					outinfo.close();
 				}
-				unprunedRoot = createRawUnprunedTree();
-				int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0);
-				PruningHelper.labelPrunableVertices(unprunedRoot, no, params.vertexPrefix);
-				attempts++;
-				if (leafSizes != null) {
-					exact = leafSizes.get(this.prng.nextInt(leafSizes.size()));
-				}
-			} while (!isOK(unprunedRoot, hostTree, params.min, params.max, params.minper, params.maxper, exact));
-			
-			// Restore 0 length stem.
-			if (unprunedRoot.getBranchLength() <= 1.0e-32) {
-				unprunedRoot.setBranchLength(0.0);
+				System.err.println("Failed to produce valid pruned tree within max allowed attempts.");
+				System.exit(0);
 			}
-			
-			// Meta.
-			if (!params.excludeMeta) {
-				GuestVertex.setMeta(unprunedRoot);
-			}
-			
-			// Finally, some trees.
-			GuestVertex prunedRoot = PruningHelper.prune(unprunedRoot);
-			String treeMeta = (params.excludeMeta ? null : "[&&PRIME NAME=UnprunedTree]");
-			this.unprunedTree = new PrIMENewickTree(new NewickTree(unprunedRoot, treeMeta, false, false), false);
-			treeMeta = (params.excludeMeta ? null : "[&&PRIME NAME=PrunedTree]");
-			this.prunedTree = (prunedRoot == null ?
-					null : new PrIMENewickTree(new NewickTree(prunedRoot, treeMeta, false, false), false));
 			
 			// Print output.
 			if (params.doQuiet) {
 				if (params.excludeMeta) {
-					System.out.println(this.prunedTree == null ? ";" : NewickTreeWriter.write(this.prunedTree));
+					System.out.println(guestTree.prunedTree == null ? ";" : NewickTreeWriter.write(guestTree.prunedTree));
 				} else {
-					System.out.println(this.prunedTree == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(this.prunedTree));
+					System.out.println(guestTree.prunedTree == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(guestTree.prunedTree));
 				}
 			} else {
 				BufferedWriter out = params.getOutputFile(".unpruned.tree");
-				out.write(NewickTreeWriter.write(this.unprunedTree));
+				out.write(NewickTreeWriter.write(guestTree.unprunedTree) + '\n');
 				out.close();
 				out = params.getOutputFile(".pruned.tree");
 				if (params.excludeMeta) {
-					out.write(this.prunedTree == null ? ";" : NewickTreeWriter.write(this.prunedTree));
+					out.write(guestTree.prunedTree == null ? ";\n" : NewickTreeWriter.write(guestTree.prunedTree) + '\n');
 				} else {
-					out.write(this.prunedTree == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(this.prunedTree));
+					out.write(guestTree.prunedTree == null ? "[&&PRIME NAME=PrunedTree];\n" : NewickTreeWriter.write(guestTree.prunedTree) + '\n');
 				}
 				out.close();
 				out = params.getOutputFile(".unpruned.info");
 				out.write("# GUESTTREEGEN\n");
 				out.write("Arguments:\t" +  Arrays.toString(args) + '\n');
-				out.write("Attempts:\t" + this.attempts + '\n');
-				out.write(this.getInfo(this.unprunedTree, true));
+				out.write("Attempts:\t" + guestTree.attempts + '\n');
+				out.write(this.getInfo(guestTree.unprunedTree, guestTree.hostTree, true));
 				out.close();
 				out = params.getOutputFile(".pruned.info");
 				out.write("# GUESTTREEGEN\n");
 				out.write("Arguments:\t" +  Arrays.toString(args) + '\n');
-				out.write("Attempts:\t" + this.attempts + '\n');
-				out.write(this.getInfo(this.prunedTree, false));
+				out.write("Attempts:\t" + guestTree.attempts + '\n');
+				out.write(this.getInfo(guestTree.prunedTree, guestTree.hostTree, false));
 				out.close();
 				if (!params.excludeMeta) {
 					out = params.getOutputFile(".unpruned.guest2host");
-					out.write(this.getSigma(this.unprunedTree));
+					out.write(this.getSigma(guestTree.unprunedTree, guestTree.hostTree));
 					out.close();
 					out = params.getOutputFile(".pruned.guest2host");
-					out.write(this.getSigma(this.prunedTree));
+					out.write(this.getSigma(guestTree.prunedTree, guestTree.hostTree));
+					out.close();
+					out = params.getOutputFile(".unpruned.leafmap");
+					out.write(this.getLeafMap(guestTree.unprunedTree, guestTree.hostNames));
+					out.close();
+					out = params.getOutputFile(".pruned.leafmap");
+					out.write(this.getLeafMap(guestTree.prunedTree, guestTree.hostNames));
 					out.close();
 				}
 			}
@@ -187,13 +135,14 @@ public class GuestTreeGen implements JPrIMEApp {
 
 	/**
 	 * Creates guest-to-host mapping info.
-	 * @param tree the tree.
+	 * @param tree the guest tree.
+	 * @param hostTree host tree.
 	 * @return the info.
 	 */
-	private String getSigma(PrIMENewickTree tree) {
+	private String getSigma(PrIMENewickTree tree, RBTreeEpochDiscretiser hostTree) {
 		StringBuilder sb = new StringBuilder(4096);
 		sb.append("# GUEST-TO-HOST MAP\n");
-		sb.append("Host tree:\t").append(this.hostTree.toString()).append('\n');
+		sb.append("Host tree:\t").append(hostTree.toString()).append('\n');
 		sb.append("Guest vertex name:\tGuest vertex ID:\tGuest vertex type:\tGuest vertex time:\tHost vertex/arc ID:\tHost epoch ID:\n");
 		LinkedList<GuestVertex> vertices = new LinkedList<GuestVertex>();
 		if (tree != null) {
@@ -217,11 +166,12 @@ public class GuestTreeGen implements JPrIMEApp {
 
 	/**
 	 * Creates info.
-	 * @param tree tree.
+	 * @param tree guest tree.
+	 * @param hostTree host tree.
 	 * @param doML include ML estimates.
 	 * @return the info.
 	 */
-	private String getInfo(PrIMENewickTree tree, boolean doML) {
+	private String getInfo(PrIMENewickTree tree, RBTreeEpochDiscretiser hostTree, boolean doML) {
 		StringBuilder sb = new StringBuilder(1024);
 		int noOfVertices = 0;
 		int noOfLeaves = 0;
@@ -236,7 +186,7 @@ public class GuestTreeGen implements JPrIMEApp {
 		if (tree != null) {
 			vertices.add((GuestVertex) tree.getRoot());
 		}
-		double hostRootTime = this.hostTree.getVertexTime(this.hostTree.getRoot());
+		double hostRootTime = hostTree.getVertexTime(hostTree.getRoot());
 		while (!vertices.isEmpty()) {
 			GuestVertex v = vertices.pop();
 			if (!v.isLeaf()) {
@@ -286,99 +236,30 @@ public class GuestTreeGen implements JPrIMEApp {
 		}
 		return sb.toString();
 	}
-
-	/**
-	 * Creates an unpruned tree.
-	 * @return the root.
-	 */
-	private GuestVertex createRawUnprunedTree() {
-		LinkedList<GuestVertex> alive = new LinkedList<GuestVertex>();
-				
-		GuestVertex root = mightyGodPlaysDice.createGuestVertex(this.hostTree.getRoot(), this.hostTree.getTipToLeafTime());
-		alive.add(root);
-		while (!alive.isEmpty()) {
-			GuestVertex lin = alive.pop();
-			if (lin.event == Event.LOSS || lin.event == Event.LEAF || lin.event == Event.UNSAMPLED_LEAF) {
-				continue;	
-			}
-			
-			GuestVertex lc = null;
-			GuestVertex rc = null;
-			if (lin.event == Event.SPECIATION) {
-				lc = mightyGodPlaysDice.createGuestVertex(this.hostTree.getLeftChild(lin.sigma), lin.abstime);
-				rc = mightyGodPlaysDice.createGuestVertex(this.hostTree.getRightChild(lin.sigma), lin.abstime);
-			} else if (lin.event == Event.DUPLICATION) {
-				lc = mightyGodPlaysDice.createGuestVertex(lin.sigma, lin.abstime);
-				rc = mightyGodPlaysDice.createGuestVertex(lin.sigma, lin.abstime);
-			} else if (lin.event == Event.TRANSFER) {
-				if (this.prng.nextDouble() < 0.5) {
-					lc = mightyGodPlaysDice.createGuestVertex(lin.sigma, lin.abstime);
-					rc = mightyGodPlaysDice.createGuestVertex(lin.epoch.sampleArc(this.prng, lin.sigma), lin.abstime);
-				} else {
-					lc = mightyGodPlaysDice.createGuestVertex(lin.epoch.sampleArc(this.prng, lin.sigma), lin.abstime);
-					rc = mightyGodPlaysDice.createGuestVertex(lin.sigma, lin.abstime);
-				}
-			}
-			ArrayList<NewickVertex> children = new ArrayList<NewickVertex>(2);
-			children.add(lc);
-			children.add(rc);
-			lin.setChildren(children);
-			lc.setParent(lin);
-			rc.setParent(lin);
-			alive.add(lc);
-			alive.add(rc);
-		}
-		return root;
-	}
-	
-	
 	
 	/**
-	 * Validates.
-	 * @param root guest tree root.
-	 * @param hostTree host tree.
-	 * @param min min sampled leaves.
-	 * @param max max sampled leaves.
-	 * @param minPer min sampled leaves per host leaf.
-	 * @param maxPer max sampled leaves per host leaf.
-	 * @param exact -1 if not applicable, otherwise exact number of leaves required.
-	 * @return true if OK; otherwise false.
+	 * Creates leaf map.
+	 * @param tree guest tree.
+	 * @param hostNames host names.
+	 * @return the leaf map.
 	 */
-	private boolean isOK(GuestVertex root, RBTreeEpochDiscretiser hostTree, int min, int max, int minPer, int maxPer, int exact) {
-		int sampledLeaves = 0;
-		LinkedList<NewickVertex> vertices = new LinkedList<NewickVertex>();
-		HashMap<Integer, Integer> sigmaCnt = new HashMap<Integer, Integer>(512); 
-		if (root != null) {
-			vertices.add(root);
+	private String getLeafMap(PrIMENewickTree tree, NamesMap hostNames) {
+		StringBuilder sb = new StringBuilder(1024);
+		LinkedList<GuestVertex> vertices = new LinkedList<GuestVertex>();
+		if (tree != null) {
+			vertices.add((GuestVertex) tree.getRoot());
 		}
 		while (!vertices.isEmpty()) {
-			GuestVertex v = (GuestVertex) vertices.pop();
-			if (v.event == Event.LEAF) {
-				sampledLeaves++;
-				Integer cnt = sigmaCnt.get(v.sigma);
-				if (cnt != null) {
-					sigmaCnt.put(v.sigma, cnt + 1);
-				} else {
-					sigmaCnt.put(v.sigma, 1);
+			GuestVertex v = vertices.pop();
+			if (!v.isLeaf()) {
+				vertices.add(v.getLeftChild());
+				vertices.add(v.getRightChild());
+			} else {
+				if (v.event == Event.LEAF || v.event == Event.UNSAMPLED_LEAF) {
+					sb.append(v.getName()).append('\t').append(hostNames.get(v.sigma)).append('\n');
 				}
-			} else if (!v.isLeaf()) {
-				vertices.addAll(v.getChildren());
 			}
 		}
-		if (exact != -1 && sampledLeaves != exact) {
-			return false;
-		}
-		if (sampledLeaves < min || sampledLeaves > max) {
-			return false;
-		}
-		for (int l : hostTree.getLeaves()) {
-			Integer cnt = sigmaCnt.get(l) ;
-			if (cnt == null) { cnt = 0; }
-			if (cnt < minPer || cnt > maxPer) {
-				return false;
-			}
-		}
-		return true;
+		return sb.toString();
 	}
-	
 }

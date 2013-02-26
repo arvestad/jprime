@@ -2,6 +2,7 @@ package se.cbb.jprime.apps.genphylodata;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,8 +55,8 @@ public class GuestTreeGenParameters {
 	@Parameter(names = {"-maxper", "--max-leaves-per-host-leaf"}, description = "Maximum number of extant guest leaves per host leaf allowed.")
 	public Integer maxper = 10;
 	
-	/** Max leaves per host tree leaf. */
-	@Parameter(names = {"-sizes", "--leaf-sizes-file"}, description = "Samples the desired number of extant leaves uniformly from a single-column file. This is suitable for mimicking a known leaf size distribution.")
+	/** Leaf size samples. */
+	@Parameter(names = {"-sizes", "--leaf-sizes-file"}, description = "Samples the desired number of extant leaves uniformly from a single-column file. This is suitable for mimicking a known leaf size distribution. Default: No sampling.")
 	public String leafSizes = null;
 	
 	/** Do meta. */
@@ -121,11 +122,11 @@ public class GuestTreeGenParameters {
 		return Double.parseDouble(this.args.get(3));
 	}
 	
-	public ArrayList<Integer> getLeafSizes() {
+	public ArrayList<Integer> getLeafSizes() throws FileNotFoundException {
 		// Read file.
 		if (this.leafSizes == null) { return null; }
 		ArrayList<Integer> samples = new ArrayList<Integer>(8192);
-		Scanner sc = new Scanner(this.leafSizes);
+		Scanner sc = new Scanner(new File(this.leafSizes));
 		while (sc.hasNextLine()) {
 			samples.add(Integer.parseInt(sc.nextLine()));
 		}
@@ -133,5 +134,12 @@ public class GuestTreeGenParameters {
 		return samples;
 	}
 	
+	public Double getStem() {
+		return (this.stem == null ? null : Double.parseDouble(this.stem));
+	}
+	
+	public Double getLeafSamplingProb() {
+		return Double.parseDouble(this.leafSamplingProb);
+	}
 
 }

@@ -17,22 +17,23 @@ public class PruningHelper {
 	/**
 	 * Labels the unprunable vertices of an unpruned tree.
 	 * @param v the subtree root.
-	 * @param nextNo next available name. 
+	 * @param nextNo next available name.
+	 * @param vertexPrefix vertex prefix.
 	 * @return the next available name.
 	 */
-	public static int labelUnprunableVertices(GuestVertex v, int nextNo) {
+	public static int labelUnprunableVertices(GuestVertex v, int nextNo, String vertexPrefix) {
 		if (v.event == Event.LOSS || v.event == Event.UNSAMPLED_LEAF) {
 			v.prunability = Prunability.PRUNABLE;
 		} else if (v.event == Event.LEAF) {
 			v.prunability = Prunability.UNPRUNABLE;
 			v.setNumber(nextNo);
-			v.setName("G" + nextNo++);
+			v.setName(vertexPrefix + nextNo++);
 		} else {
 			// Label kiddos first.
 			GuestVertex lc = (GuestVertex) v.getChildren().get(0);
 			GuestVertex rc = (GuestVertex) v.getChildren().get(1);
-			nextNo = labelUnprunableVertices(lc, nextNo);
-			nextNo = labelUnprunableVertices(rc, nextNo);
+			nextNo = labelUnprunableVertices(lc, nextNo, vertexPrefix);
+			nextNo = labelUnprunableVertices(rc, nextNo, vertexPrefix);
 			if (lc.prunability == Prunability.PRUNABLE && rc.prunability == Prunability.PRUNABLE) {
 				v.prunability = Prunability.PRUNABLE;
 			} else if (lc.prunability == Prunability.PRUNABLE) {
@@ -42,7 +43,7 @@ public class PruningHelper {
 			} else {
 				v.prunability = Prunability.UNPRUNABLE;
 				v.setNumber(nextNo);
-				v.setName("G" + nextNo++);
+				v.setName(vertexPrefix + nextNo++);
 			}
 		}
 		return nextNo;
