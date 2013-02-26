@@ -15,7 +15,6 @@ import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.NamesMap;
-import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.StringMap;
 
@@ -108,7 +107,7 @@ public class BranchRelaxer implements JPrIMEApp {
 				Pair<BufferedWriter, BufferedWriter> out = params.getOutputFiles();
 				out.first.write(outtree + '\n');
 				out.first.close();
-				out.second.write("# BranchLengthRelaxer\n");
+				out.second.write("# BRANCHLENGTHRELAXER\n");
 				out.second.write("Arguments:\t" +  Arrays.toString(args) + '\n');
 				out.second.write("Attempts:\t" + this.attempts + '\n');
 				out.second.write("Original lengths:\t" + origLengths.toString() + '\n');

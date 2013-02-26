@@ -15,7 +15,7 @@ public class GuestVertex extends NewickVertex {
 	/** Event types. */
 	public enum Event {
 		SPECIATION,
-		SAMPLED_LEAF,
+		LEAF,  // Sampled leaf.
 		UNSAMPLED_LEAF,
 		DUPLICATION,
 		LOSS,
@@ -115,7 +115,7 @@ public class GuestVertex extends NewickVertex {
 			case SPECIATION:
 				sb.append(" VERTEXTYPE=Speciation");
 				break;
-			case SAMPLED_LEAF:
+			case LEAF:
 				sb.append(" VERTEXTYPE=Leaf");
 				break;
 			case UNSAMPLED_LEAF:
