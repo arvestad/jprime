@@ -119,7 +119,7 @@ a2	A
 b1	B
 c1	C
 }}}
-Note however, that the host tree and guest tree must be temporally compatible, and that the model is currently on applicable on guest trees without transfer events.
+Note however, that the host tree and guest tree must be temporally compatible, and that the model is currently only applicable on guest trees which lack transfer events.
 
 It is possible to constrain the the rates to stay within a desired range, regardless of the model employed.
 
