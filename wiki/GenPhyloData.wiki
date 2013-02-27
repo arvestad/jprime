@@ -33,7 +33,7 @@ The general pattern for the tool is thus:
 {{{
 java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <death rate> <out prefix>
 }}}
-To execute the application over time 10, with a birth rate of 0.3 events per time unit, death rate of 0.1 events per time unit, and at least 3 leaves, type the following:
+To execute the application over time 10, with a birth rate of 0.3 and death rate of 0.1 events per time unit and lineage respectively, and having at least 3 leaves, type the following:
 {{{
 java -jar jprime-x.y.z.jar HostTreeGen -min 3 10 0.3 0.1 myhost
 }}}
