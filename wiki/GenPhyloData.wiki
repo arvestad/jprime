@@ -54,7 +54,7 @@ This will also force the produced tree to retain this split after pruning, i.e.,
 ==(2) !GuestTreeGen==
 [http://jprime.googlecode.com/files/GuestTreeGen.png]
 
-!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. The host tree must be rooted and bifurcating. Guest tree lineages which fail to reach the leaves of the host tree are pruned away. There are a plethora of options, such as:
+!GuestTreeGen is a tool to generate bifurcating "guest" trees that evolve over a known "host" tree according to a birth-death-like process. This is particularly well suited for creating realistic artificial gene families in light of a known taxonomy. The user inputs the host tree over which the process should take place, along with duplication, loss, and lateral transfer rates. The host tree must be rooted, bifurcating, and be dated with ultrametric (_clock-like_) branch lengths. Guest tree lineages which fail to reach the leaves of the host tree are pruned away. There are a plethora of options, such as:
   * Min/max desired number of guest leaves.
   * Min/max desired number of guest leaves per host leaf.
   * Guest leaf sampling probability.
