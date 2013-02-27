@@ -109,7 +109,7 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
   * Constant rescaling of the clock-like lengths.
   * Uncorrelated models for IID rates drawn from gamma, log-normal and other distributions.
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from a biological MCMC analysis.
-  * Auto-correlated rates in accordance with Rannala-Yang '07 and some other popular models.
+  * Autocorrelated rates in accordance with Rannala-Yang '07 and some other popular models.
   * Host tree guided rates in accordance with Rasmussen-Kellis '07.
 
 The input tree must be rooted and bifurcating. Currently, models are employed in a "pure" modeling sense in that rates that concern the edges around the root follow the model without ad hoc constraints.
@@ -135,7 +135,7 @@ java -jar jprime-x.y.z.jar BranchRelaxer -o myfile.tree "(A:0.5,B:0.5):0.3;" IID
 
 It is of course possible to perform multiple rounds of relaxation, should you wish to acquire a combination of models. For instance, you could apply host tree-guided rates first, then relax the lengths further by an IID process.
 
-However, some of the included models (in particular the autocorrelated ones) assume that the input lengths be clock-like, for instance the following:
+However, some of the included models (in particular the autocorrelated ones) assume that the input lengths be clock-like, for instance the following, which uses the Thorne-Kishino '98 rate model:
 {{{
 java -jar jprime-x.y.z.jar BranchRelaxer "(A:0.5,(B:0.2,C:0.2):0.3):0.7;" ACTK98 1.0 0.05
 }}}
