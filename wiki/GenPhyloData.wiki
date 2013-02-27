@@ -23,7 +23,7 @@ The tools of !GenPhyloData are described seperately below.
   * Overriding stem edge.
   * Leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
   * Requiring an immediate split at the start of the time interval.
-  * Number of attempts to meet requirements before surrending.
+  * Number of attempts to generate a tree that meet the requirements before surrendering.
 
 By default, files are produced for both the unpruned and the pruned tree:
   * the tree itself in Newick format.
