@@ -60,7 +60,7 @@ This will also force the produced tree to retain this split after pruning, i.e.,
   * Guest leaf sampling probability.
   * Overriding stem edge length.
   * Guest leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
-  * Number of attempts to meet requirements before surrending.
+  * Number of attempts to generate a tree that meet the requirements before surrendering.
 
 By default, files are produced for both the unpruned and the pruned tree:
   * the guest tree itself in Newick format.
