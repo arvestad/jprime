@@ -123,7 +123,7 @@ public class BranchRelaxerParameters {
 				"    IIDSamplesFromFile <filename>   -  IID rates drawn uniformly (with replacement)\n" +
 				"                                       from a file with a column of samples.\n" +
 				"    ACTK98 <start rate> <v>         -  Autocorrelated lognormal rates in accordance w.\n" +
-				"                                       Thorne-Kishino '98/'01/'02 but corrected\n" +
+				"                                       Thorne-Kishino '98 but corrected\n" +
 				"                                       to not yield increasing average rates\n" +
 				"                                       in root-to-leaf direction.\n" +
 				"    ACRY07 <start rate> <sigma2>    -  Autocorrelated lognormal rate in accordance w.\n" +
