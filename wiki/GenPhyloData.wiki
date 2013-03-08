@@ -111,6 +111,7 @@ The trees produced in (1) and (2) are ultrametric (_clock-like_). In order to ob
   * Rates drawn uniformly (with replacement) from a list of samples. This is convenient to mimic rates from a posterior distribution stemming from a biological MCMC analysis.
   * Autocorrelated rates in accordance with Rannala-Yang '07 and some other popular models.
   * Host tree guided rates in accordance with Rasmussen-Kellis '07.
+  * It is possible to constrain the the rates to stay within a desired range, regardless of the model employed.
 
 The input tree must be rooted and bifurcating. Currently, models are employed in a "pure" modeling sense in that rates that concern the edges around the root follow the model without ad hoc constraints.
 It is otherwise common to, during inference, introduce root-constraints to avoid over-parameterization. However, while the latter may be required for computational reasons, it can hardly be argued as sound behavior during the generative process. 
@@ -140,11 +141,11 @@ However, some of the included models (in particular the autocorrelated ones) ass
 java -jar jprime-x.y.z.jar BranchRelaxer "(A:0.5,(B:0.2,C:0.2):0.3):0.7;" ACTK98 1.0 0.05
 }}}
 
-The host tree guided rates constitute a particular case, in which one may specify a gamma distribution for every host tree arc as in Rasmussen-Kellis 2007/2011. The rate of a guest tree branch is then determined by the distributions of all the host tree edges the branch passes over. The gamma parameters are stated in the host tree like so: `[&&PRIME PARAMS=(<k>, <theta>)]`. To create such lengths, one would type for example:
+The host tree guided rates constitute a particular case, in which one may specify a gamma distribution for every host tree arc as in Rasmussen-Kellis '11. The rate of a guest tree branch is then determined by the distributions of all the host tree edges the branch passes over. The gamma parameters are stated in the host tree like so: `[&&PRIME PARAMS=(<k>, <theta>)]`. To create such lengths, one would type for example:
 {{{
-java -jar jprime-x.y.z.jar BranchRelaxer g.tree IIDRK07 s.tree gs.sigma
+java -jar jprime-x.y.z.jar BranchRelaxer g.tree IIDRK11 s.tree gs.sigma 1.2
 }}}
-where the host tree `s.tree` might look like:
+where 1.2 is a simple scale factor applied to all lengths after relaxation. The host tree `s.tree` might look like:
 {{{
 ((A:0.5[&&PRIME PARAMS=(10,0.1)],B:0.5[&&PRIME PARAMS=(10,0.1)]):0.4[&&PRIME PARAMS=(5,0.2)],C:0.9[&&PRIME PARAMS=(5,0.2)]):0.3[&&PRIME PARAMS=(10,0.1)];
 }}}
@@ -160,8 +161,6 @@ b1	B
 c1	C
 }}}
 Note however, that the host tree and guest tree must be ultrametric and temporally compatible, and that the model is currently only applicable on guest trees which lack lateral transfer events.
-
-It is possible to constrain the the rates to stay within a desired range, regardless of the model employed.
 
 ----
 
