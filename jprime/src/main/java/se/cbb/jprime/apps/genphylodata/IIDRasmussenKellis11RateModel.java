@@ -17,32 +17,51 @@ import se.cbb.jprime.topology.RootedTree;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
- * Implements the host-specific rates of Rasmussen-Kellis 2007/2011.
+ * Implements the host-specific rates of Rasmussen-Kellis 2011.
  * Every arc in the host tree is associated with a gamma distribution.
  * The rate of a guest tree arc is derived from the distributions of the
- * host tree arcs it passes over.
+ * host tree arcs it passes over. Also, a simple scale factor is applied
+ * subsequent to the probabilistic relaxation.
  * <p>
  * IMPORTANT NOTE: Currently, this class assumes there are no transfers!
  * 
  * @author Joel Sjöstrand.
  */
-public class IIDRasmussenKellis07RateModel implements RateModel {
+public class IIDRasmussenKellis11RateModel implements RateModel {
 
+	/** Host tree. */
 	private RBTree hostTree;
 
+	/** Guest tree. */
 	private RBTree guestTree;
 	
+	/** "Gene family"-specific scale factor. */
+	private double scaleFact;
+	
+	/** Sigma map. */
 	private MPRMap sigma;
 	
+	/** Guest tree times. */
 	private TimesMap guestTimes;
 	
+	/** Host tree times. */
 	private TimesMap hostTimes;
 	
+	/** Gamma distribution parameters for each host tree arc. */
 	private DoubleArrayMap hostRateParams;
 
+	/** PRNG. */
 	private PRNG prng;
 	
-	public IIDRasmussenKellis07RateModel(PrIMENewickTree hostTree, PrIMENewickTree guestTree, GuestHostMap gs, PRNG prng) {
+	/**
+	 * Constructor.
+	 * @param hostTree host tree.
+	 * @param guestTree guest tree.
+	 * @param gs sigma map.
+	 * @param scaleFact scale factor.
+	 * @param prng PRNG.
+	 */
+	public IIDRasmussenKellis11RateModel(PrIMENewickTree hostTree, PrIMENewickTree guestTree, GuestHostMap gs, double scaleFact, PRNG prng) {
 		try {
 			this.hostTree = new RBTree(hostTree, "HostTree");
 			this.guestTree = new RBTree(guestTree, "GuestTree");
@@ -51,6 +70,7 @@ public class IIDRasmussenKellis07RateModel implements RateModel {
 			this.guestTimes = guestTree.getTimesMap("GuestTimes");
 			this.hostTimes = hostTree.getTimesMap("HostTimes");
 			this.hostRateParams = hostTree.getVertexParamsMap("Params");
+			this.scaleFact = scaleFact;
 			int hroot = this.hostTree.getRoot();
 			if (Double.isNaN(hostTimes.getArcTime(hroot))) {
 				hostTimes.getArcTimes()[hroot] = 0.0;
@@ -80,7 +100,7 @@ public class IIDRasmussenKellis07RateModel implements RateModel {
 
 	@Override
 	public String getModelName() {
-		return "IIDRasmussenKellis07Rates";
+		return "IIDRasmussenKellis11Rates";
 	}
 
 	@Override
@@ -122,6 +142,7 @@ public class IIDRasmussenKellis07RateModel implements RateModel {
 			for (int i = 0; i < ws.size(); ++i) {
 				r += ws.get(i) * rs.get(i);
 			}
+			r *= this.scaleFact;   // Scale factor.
 			rates.set(x, r);
 		}
 		return rates;
