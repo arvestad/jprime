@@ -5,6 +5,7 @@ import java.text.StringCharacterIterator;
 /**
  * Regular queue implementation for chars (avoids
  * wrapper requirement of e.g. LinkedList&lt;Character&gt;).
+ * Also, there is a convenience character returned by peek() even if the queue is empty.
  * 
  * @author Joel Sjöstrand.
  */
@@ -113,5 +114,15 @@ public class CharQueue {
 			++count;
 		}
 		return count;
+	}
+
+	/**
+	 * Adds all chars of a string.
+	 * @param str the string.
+	 */
+	public void put(String str) {
+		for (int i = 0; i < str.length(); ++i) {
+			this.put(str.charAt(i));
+		}
 	}
 }

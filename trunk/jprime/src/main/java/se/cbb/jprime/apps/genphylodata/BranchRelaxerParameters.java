@@ -101,13 +101,14 @@ public class BranchRelaxerParameters {
 			return new ACArisBrosouYang02RateModel(Double.parseDouble(args.get(2)), this.prng);
 		} else if (model.equalsIgnoreCase("ACLBPL07")) {
 			return new ACLepageBryantPhillipeLartillot07RateModel(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), Double.parseDouble(args.get(4)), Double.parseDouble(args.get(5)), this.prng);
-		} else if (model.equalsIgnoreCase("IIDRK07")) {
+		} else if (model.equalsIgnoreCase("IIDRK11")) {
 			PrIMENewickTree g = getTree(true);
 			PrIMENewickTree s = getTree(args.get(2), true);
 			GuestHostMap gs = GuestHostMapReader.readGuestHostMap(new File(args.get(3)));
-			return new IIDRasmussenKellis07RateModel(s, g, gs, this.prng);
+			double scaleFact = Double.parseDouble(args.get(4));
+			return new IIDRasmussenKellis11RateModel(s, g, gs, scaleFact, this.prng);
 		} else {
-			throw new IllegalArgumentException("Invalid rate model identifier: ." + model);
+			throw new IllegalArgumentException("Invalid rate model identifier: " + model);
 		}
 	}
 	
@@ -136,15 +137,17 @@ public class BranchRelaxerParameters {
 				"                                       process is simulated using a discretisation\n" +
 				"                                       across every branch. The start rate refers to\n" +
 				"                                       tip of tree in case there is a stem edge.\n" +
-				"    IIDRK07 <host tree> <guest-to-host map>\n" +
+				"    IIDRK11 <host tree> <guest-to-host map> <scale factor>\n" +
 				"                                    -  IID gamma rates governed by host tree in\n" +
-				"                                       accordance w. Rasmussen-Kellis '07/'11.\n" +
+				"                                       accordance w. Rasmussen-Kellis '11.\n" +
 				"                                       Every guest branch rate is created from a gamma\n" +
 				"                                       distribution specific for each host edge the\n" +
-				"                                       branch passes over. Parameters are stored in the\n" +
-				"                                       host tree thus: (A:0.4[&&PRIME PARAMS=(<k>,<theta>)],...\n" +
+				"                                       branch passes over. The scale factor is then\n" +
+				"                                       applied to all relaxed lengths. Parameters are\n" +
+				"                                       stored in the host tree thus:\n" +
+				"                                       (A:0.4[&&PRIME PARAMS=(<k>,<theta>)],...\n" +
 				"                                       Guest and host tree must be temporally compatible\n" +
-				"                                       and have no lateral transfer events." +
+				"                                       and have no lateral transfer events.\n" +
 				"                                       "
 				;
 	}

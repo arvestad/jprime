@@ -12,7 +12,7 @@ JPrIME is licensed under the New BSD License.
 
 -------------------- DISCLAIMER --------------------
 
-Copyright (c) 2012, Computational biology groups at SciLifeLab Stockholm.
+Copyright (c) 2012, Computational Biology groups at SciLifeLab Stockholm.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -------------------- LICENSE --------------------
 
-BioJava is licensed under LGPL 2.1.
+BioJava is licensed under GNU LGPL 2.1.
 
 
 -------------------- CITATION --------------------
@@ -239,5 +239,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -------------------- CITATION --------------------
 
-Please contact Jean-Marie Dautelle at jean-marie@dautelle.com. 
+Please contact Jean-Marie Dautelle at jean-marie@dautelle.com.
+
+
+
+=============================================
+||                JGRAPHT                  ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+JGraphT is available under GNU LGPL 2.1.
+
+
+-------------------- DISCLAIMER --------------------
+
+Copyright (C) 2012 JGraphT team <perfecthash@users.sf.net>.
+
+This library is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+
+
+-------------------- CITATION --------------------
+
+Please contact Barak Naveh or the JGraphT team at perfecthash@users.sf.net.
+
+
+
+=============================================
+||               GML PARSER                ||
+=============================================
+
+-------------------- LICENSE --------------------
+
+The GML parser is available under GNU LGPL.
+
+
+-------------------- DISCLAIMER --------------------
+
+Copyright (C) 2013 Marcus Raitner & Michael Himsolt.
+
+This library is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+
+
+-------------------- CITATION --------------------
+
+Please contact Marcus Raitner at raitner@fmi.uni-passau.de or Michael Himsolt at himsolt@fmi.uni-passau.de.
 
