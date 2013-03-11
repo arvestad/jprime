@@ -31,14 +31,27 @@ import se.cbb.jprime.misc.Pair;
  * <Sign>       ::= <Empty> | '+' | '-'
  * <Digit>      ::= ['0'-'9']
  * <Mantissa>   ::= <Empty> | E <Sign> <Digit>+ | 'e' <Sign> <Digit>+
- * <Instring>   ::= ASCII excl. {'&', '"'} | '&' <character>* ';'
+ * <Instring>   ::= <ASCII excl. '&'and '"'> | '&' <character>* ';'
  * <Whitespace> ::= <Space> | <Tab> | <Newline>
  * }
  * </pre>
+ * We are a bit more lenient in some cases here, such as:
+ * <pre>
+ * {@code
+ * <String>     ::= '"' <Not '"'>* '"'
+ * }
+ * </pre>
+ * Actual transform of nested GML key-value pairs into a graph is handled elsewhere.
+ * 
  * @author Joel Sjöstrand.
  */
 public class GMLFileReader {
 	
+	/**
+	 * Reads a GML file. Leading and trailing spaces are ignored.
+	 * @param f the input file.
+	 * @return the GML list.
+	 */
 	public static List<GMLKeyValuePair> readGML(File f) throws GMLIOException, IOException {
 		byte[] buffer = new byte[(int) f.length()];
 		FileInputStream fis = null;
@@ -82,6 +95,12 @@ public class GMLFileReader {
 		return readGML(q);
 	}
 	
+	/**
+	 * Parses <code>GML</code>.
+	 * @param q queue.
+	 * @return the list of key-value pairs.
+	 * @throws GMLIOException
+	 */
 	private static List<GMLKeyValuePair> readGML(CharQueue q) throws GMLIOException {
 		try {
 			List<GMLKeyValuePair> list = readList(q);
@@ -94,6 +113,12 @@ public class GMLFileReader {
 		}
 	}
 
+	/**
+	 * Parses <code>List</code>.
+	 * @param q queue.
+	 * @return the list of key-value pairs.
+	 * @throws GMLIOException.
+	 */
 	private static List<GMLKeyValuePair> readList(CharQueue q) throws GMLIOException {
 		ArrayList<GMLKeyValuePair> list = new ArrayList<GMLKeyValuePair>(1024);
 		while (!q.isEmpty()) {
@@ -106,6 +131,12 @@ public class GMLFileReader {
 		return list;
 	}
 
+	/**
+	 * Parses <code>KeyValue</code>.
+	 * @param q queue.
+	 * @return the key-value pair.
+	 * @throws GMLIOException.
+	 */
 	private static GMLKeyValuePair readKeyValue(CharQueue q) throws GMLIOException {
 		String key = readKey(q);
 		// Remove whitespace.
@@ -116,6 +147,12 @@ public class GMLFileReader {
 		return new GMLKeyValuePair(key, val.first, val.second);
 	}
 
+	/**
+	 * Parses <code>Key</code>.
+	 * @param q queue.
+	 * @return the key.
+	 * @throws GMLIOException.
+	 */
 	private static String readKey(CharQueue q) throws GMLIOException {
 		StringBuilder sb = new StringBuilder(64);
 		char c = q.get();
@@ -129,6 +166,12 @@ public class GMLFileReader {
 		return sb.toString();
 	}
 	
+	/**
+	 * Parses <code>Value</code>.
+	 * @param q queue.
+	 * @return the value.
+	 * @throws GMLIOException.
+	 */
 	private static Pair<ValueType, Object> readValue(CharQueue q) throws GMLIOException {
 		if (q.peek() == '[') {
 			// LIST.
@@ -141,13 +184,7 @@ public class GMLFileReader {
 			return new Pair<GMLKeyValuePair.ValueType, Object>(ValueType.LIST, list);
 		}
 		if (q.peek() == '"') {
-			// STRING.
-			q.get();
 			String string = readString(q);
-			if (q.peek() != '"') {
-				throw new GMLIOException("Error parsing GML file. Expected \".");
-			}
-			q.get();
 			return new Pair<GMLKeyValuePair.ValueType, Object>(ValueType.STRING, string);
 		}
 		
@@ -172,25 +209,28 @@ public class GMLFileReader {
 		}
 	}
 
-	
-	private static String readString(CharQueue q) {
+	/**
+	 * Parses <code>String</code>.
+	 * @param q queue.
+	 * @return the string turned into unicode.
+	 * @throws GMLIOException.
+	 */
+	private static String readString(CharQueue q) throws GMLIOException {
+		if (q.peek() != '"') {
+			throw new GMLIOException("Error parsing GML file. Expected \" to start string.");
+		}
+		q.get();
 		StringBuilder sb = new StringBuilder(1024);
-		if (q.peek() == '&') {
-			// ISO 8859 entity.
-			sb.append(q.get());
-			char c;
-			do {
-				c = q.get();
-				sb.append(c);
-			} while (c != ';');
-			String s = sb.toString();
-			return StringEscapeUtils.unescapeHtml4(s);
-		}
-		// Normal case.
-		while (q.peek() >= '\t' && q.peek() <= '~' && q.peek() != '&' && q.peek() != '"') {
+		while (q.peek() != '"' && !q.isEmpty()) {
 			sb.append(q.get());
 		}
-		return sb.toString();
+		if (q.peek() != '"') {
+			throw new GMLIOException("Error parsing GML file. Expected \" to end string.");
+		}
+		q.get();
+		// We translate ISO 8859 entities (&xxx;) into Unicode.
+		String s = sb.toString();
+		return StringEscapeUtils.unescapeHtml4(s);
 	}
 
 	/**
