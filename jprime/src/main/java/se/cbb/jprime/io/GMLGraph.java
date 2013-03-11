@@ -44,6 +44,12 @@ public class GMLGraph {
 	/** Comment. */
 	private String comment = null;
 	
+	/** Creator. */
+	private String creator = null;
+	
+	/** Version. */
+	private Integer version = null;
+	
 	/** Nodes. */
 	private ArrayList<GMLNode> nodes = new ArrayList<GMLNode>(0);
 	
@@ -55,7 +61,7 @@ public class GMLGraph {
 	
 	/** Non-common attributes. */
 	private ArrayList<GMLKeyValuePair> attributes = new ArrayList<GMLKeyValuePair>(0);
-
+	
 	/**
 	 * Constructor.
 	 * @param values all attributes (common and non-common) at the level beneath the graph element.
@@ -115,6 +121,24 @@ public class GMLGraph {
 				} else {
 					this.attributes.add(kv);
 				}
+			} else if (kv.key.equalsIgnoreCase("Creator")) {
+				if (kv.valueType !=  GMLKeyValuePair.ValueType.STRING) {
+					throw new GMLIOException("Invalid attribute for GML Creator: expected string.");
+				}
+				if (this.creator == null) {
+					this.creator = (String) kv.value;
+				} else {
+					this.attributes.add(kv);
+				}
+			} else if (kv.key.equalsIgnoreCase("version")) {
+				if (kv.valueType !=  GMLKeyValuePair.ValueType.INTEGER) {
+					throw new GMLIOException("Invalid attribute for GML version: expected integer.");
+				}
+				if (this.version == null) {
+					this.version = (Integer) kv.value;
+				} else {
+					this.attributes.add(kv);
+				}
 			} else if (kv.key.equalsIgnoreCase("directed")) {
 				if (kv.valueType !=  GMLKeyValuePair.ValueType.INTEGER) {
 					throw new GMLIOException("Invalid attribute for GML directed: expected integer.");
@@ -142,7 +166,7 @@ public class GMLGraph {
 	 * Sets the ID.
 	 * @param id the ID to set.
 	 */
-	public void setID(int id) {
+	public void setID(Integer id) {
 		this.id = id;
 	}
 
@@ -234,5 +258,49 @@ public class GMLGraph {
 		return attributes;
 	}
 	
+	/**
+	 * @return number of nodes (vertices).
+	 */
+	public int getNoOfNodes() {
+		return this.nodes.size();
+	}
 	
+	/**
+	 * @return number of edges (arcs).
+	 */
+	public int getNoOfEdges() {
+		return this.edges.size();
+	}
+	
+	/**
+	 * Returns the version.
+	 * @return the version.
+	 */
+	public Integer getVersion() {
+		return version;
+	}
+
+	/**
+	 * Sets the version.
+	 * @param version the version to set.
+	 */
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+	
+	/**
+	 * Returns the creator.
+	 * @return the creator.
+	 */
+	public String getCreator() {
+		return creator;
+	}
+
+	/**
+	 * Sets the creator.
+	 * @param creator the creator to set.
+	 */
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
 }
