@@ -17,11 +17,11 @@ import se.cbb.jprime.misc.Pair;
  * GML is also known as Graph Meta Language.
  * See <code>GMLGraph</code> documentation for an example.
  * <p/>
- * BNF grammar according to manual:
+ * BNF grammar according to manual (corrected for more whitespace-lenience):
  * <pre>
  * {@code
  * <GML>        ::= <List>
- * <List>       ::= <Empty> | <KeyValue> (<Whitespace>+ <KeyValue>)*
+ * <List>       ::= <Whitespace>* (<Whitespace>+ <KeyValue>)* <Whitespace>*
  * <KeyValue>   ::= <Key> <Whitespace>+ <Value>
  * <Value>      ::= <Integer> | <Real> | <String> | '[' <List> ']'
  * <Key>        ::= ['A'-'Z''a'-'z']['A'-'Z''a'-'z''0'-'9']*
@@ -45,7 +45,7 @@ import se.cbb.jprime.misc.Pair;
  * 
  * @author Joel Sjöstrand.
  */
-public class GMLFileReader {
+public class GMLReader {
 	
 	/**
 	 * Reads a GML file. Leading and trailing spaces are ignored.
@@ -121,12 +121,16 @@ public class GMLFileReader {
 	 */
 	private static List<GMLKeyValuePair> readList(CharQueue q) throws GMLIOException {
 		ArrayList<GMLKeyValuePair> list = new ArrayList<GMLKeyValuePair>(1024);
-		while (!q.isEmpty()) {
+		while (true) {
 			// Remove whitespace.
 			while (Character.isWhitespace(q.peek())) {
 				q.get();
 			}
-			list.add(readKeyValue(q));
+			if (q.isEmpty() || q.peek() == ']') {
+				break;
+			} else {
+				list.add(readKeyValue(q));
+			}
 		}
 		return list;
 	}
@@ -191,7 +195,7 @@ public class GMLFileReader {
 		// INTEGER OR REAL.
 		StringBuilder sb = new StringBuilder(64);
 		// Good enough...
-		while (q.peek() >= '0' && q.peek() <= '9' || q.peek() == 'E' || q.peek() == 'e' || q.peek() == '+' || q.peek() == '-') {
+		while (q.peek() >= '0' && q.peek() <= '9' || q.peek() == '.' || q.peek() == 'E' || q.peek() == 'e' || q.peek() == '+' || q.peek() == '-') {
 			sb.append(q.get());
 		}
 		try {

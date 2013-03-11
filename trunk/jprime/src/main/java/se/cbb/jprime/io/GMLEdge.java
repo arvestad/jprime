@@ -22,7 +22,7 @@ public class GMLEdge {
 
 	/** ID. */
 	private Integer id = null;
-	
+
 	/** Name. */
 	private String name = null;
 	
@@ -41,7 +41,7 @@ public class GMLEdge {
 	/** Graphics. */
 	private GMLGraphics graphics = null;
 	
-	/** Graphics. */
+	/** Label graphics. */
 	private GMLLabelGraphics labelGraphics = null;
 	
 	/** Non-common attributes. */
@@ -131,5 +131,132 @@ public class GMLEdge {
 				this.attributes.add(kv);
 			}
 		}
+	}
+	
+	
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	/**
+	 * @return the comment
+	 */
+	public String getComment() {
+		return comment;
+	}
+
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	/**
+	 * @return the source
+	 */
+	public Integer getSource() {
+		return source;
+	}
+
+	/**
+	 * @param source the source to set
+	 */
+	public void setSource(Integer source) {
+		this.source = source;
+	}
+
+	/**
+	 * @return the target
+	 */
+	public Integer getTarget() {
+		return target;
+	}
+
+	/**
+	 * @param target the target to set
+	 */
+	public void setTarget(Integer target) {
+		this.target = target;
+	}
+
+	/**
+	 * @return the graphics
+	 */
+	public GMLGraphics getGraphics() {
+		return graphics;
+	}
+
+	/**
+	 * @param graphics the graphics to set
+	 */
+	public void setGraphics(GMLGraphics graphics) {
+		this.graphics = graphics;
+	}
+
+	/**
+	 * @return the labelGraphics
+	 */
+	public GMLLabelGraphics getLabelGraphics() {
+		return labelGraphics;
+	}
+
+	/**
+	 * @param labelGraphics the labelGraphics to set
+	 */
+	public void setLabelGraphics(GMLLabelGraphics labelGraphics) {
+		this.labelGraphics = labelGraphics;
+	}
+
+	/**
+	 * @return the attributes
+	 */
+	public ArrayList<GMLKeyValuePair> getAttributes() {
+		return attributes;
+	}
+
+	/**
+	 * @param attributes the attributes to set
+	 */
+	public void setAttributes(ArrayList<GMLKeyValuePair> attributes) {
+		this.attributes = attributes;
 	}
 }
