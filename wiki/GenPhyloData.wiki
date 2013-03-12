@@ -20,7 +20,7 @@ The tools of !GenPhyloData are described seperately below.
 !HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding, e.g:
   * Desired number of leaves.
   * Taxon sampling probability.
-  * Overriding stem edge.
+  * Overriding stem edge time (i.e., the edge predating the root speciation).
   * Leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
   * Requiring an immediate split at the start of the time interval.
   * Number of attempts to generate a tree that meets the requirements before surrendering.
@@ -58,7 +58,6 @@ This will also force the produced tree to retain this split after pruning, i.e.,
   * Min/max desired number of guest leaves.
   * Min/max desired number of guest leaves per host leaf.
   * Guest leaf sampling probability.
-  * Overriding stem edge length.
   * Guest leaf sizes drawn uniformly (with replacement) from a list of samples. This is convenient to mimic biological data more closely.
   * Number of attempts to generate a tree that meets the requirements before surrendering.
 
