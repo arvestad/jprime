@@ -69,9 +69,9 @@ By default, files are produced for both the unpruned and the pruned tree:
 
 The general pattern for the tool is thus:
 {{{
-java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate> <host prefix>
+java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate> <out prefix>
 }}}
-where <host tree> refers to either a string with a Newick tree or a file containing a Newick tree.
+where <host tree> refers to either a string with a Newick tree or a file containing a Newick tree, and <out prefix> refers to the filename prefix of the generated files.
 
 As an example, the following generates a guest tree over a known host tree, with a duplicaton rate of 0.2, loss rate of 0.1, and transfer rate of 0.05 events per time unit and lineage respectively, at least 4 extant guest leaves, and at most 20 extant guest leaves:
 {{{
