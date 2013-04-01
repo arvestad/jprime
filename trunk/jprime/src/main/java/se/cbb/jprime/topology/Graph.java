@@ -1,6 +1,7 @@
 package se.cbb.jprime.topology;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base interface for implementations of graphs, whether directed, partially directed
@@ -59,11 +60,10 @@ public interface Graph {
 	
 	/**
 	 * Returns a list of strong components, i.e. each list element contains
-	 * all vertices of that component. Vertices within a component are
-	 * not guaranteed to be sorted or in any particular order.
+	 * all vertices of that component.
 	 * An empty graph returns an empty list, not null.
 	 * @return all vertices component-wise.
 	 */
-	public List< List<Integer> > getComponents();
+	public List< Set<Integer> > getComponents();
 	
 }

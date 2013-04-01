@@ -1,7 +1,10 @@
 package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.SampleNewickTree;
@@ -272,26 +275,26 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 
 	@Override
-	public List< List<Integer> > getComponents() {
-		ArrayList<Integer> vertices = new ArrayList<Integer>(this.parents.length);
+	public List<Set<Integer>> getComponents() {
+		HashSet<Integer> vertices = new HashSet<Integer>(this.parents.length);
 		for (int i = 0; i < this.parents.length; ++i) {
 			vertices.add(i);
 		}
-		ArrayList< List<Integer> > comp = new ArrayList< List<Integer> >(1);
+		ArrayList< Set<Integer> > comp = new ArrayList< Set<Integer> >(1);
 		comp.add(vertices);
 		return comp;
 	}
 
 	@Override
-	public List<Integer> getSources() {
-		ArrayList<Integer> sources = new ArrayList<Integer>(1);
+	public Set<Integer> getSources() {
+		HashSet<Integer> sources = new HashSet<Integer>(1);
 		sources.add(this.root);
 		return sources;
 	}
 
 	@Override
-	public List<Integer> getSinks() {
-		return this.getLeaves();
+	public Set<Integer> getSinks() {
+		return new HashSet<Integer>(this.getLeaves());
 	}
 
 	@Override
@@ -309,13 +312,13 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 
 	@Override
-	public List<Integer> getDirectSuccessors(int x) {
-		return this.getChildren(x);
+	public Set<Integer> getDirectSuccessors(int x) {
+		return new HashSet<Integer>(this.getChildren(x));
 	}
 
 	@Override
-	public List<Integer> getSuccessors(int x) {
-		return this.getDescendants(x, true);
+	public Set<Integer> getSuccessors(int x) {
+		return new HashSet<Integer>(this.getDescendants(x, true));
 	}
 
 	@Override
@@ -396,8 +399,8 @@ public class RBTree implements RootedTreeParameter, RootedBifurcatingTreeParamet
 	}
 
 	@Override
-	public List<Integer> getSuccessorSinks(int x) {
-		return this.getDescendantLeaves(x, true);
+	public Set<Integer> getSuccessorSinks(int x) {
+		return new HashSet<Integer>(this.getDescendantLeaves(x, true));
 	}
 
 	@Override

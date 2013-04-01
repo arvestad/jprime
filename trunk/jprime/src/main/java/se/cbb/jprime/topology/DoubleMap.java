@@ -11,7 +11,7 @@ import se.cbb.jprime.mcmc.RealParameter;
  * 
  * @author Joel Sjöstrand.
  */
-public class DoubleMap implements GraphMap, RealParameter {
+public class DoubleMap implements VertexMap, RealParameter {
 	
 	/** The name of this map, if any. */
 	protected String name;

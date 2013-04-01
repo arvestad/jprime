@@ -9,7 +9,7 @@ import se.cbb.jprime.mcmc.StateParameter;
  * 
  * @author Joel Sjöstrand.
  */
-public class DoubleArrayMap implements GraphMap, StateParameter {
+public class DoubleArrayMap implements VertexMap, StateParameter {
 	
 	/** The name of this map, if any. */
 	protected String name;
