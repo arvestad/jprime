@@ -131,6 +131,11 @@ public class GMLEdge {
 				this.attributes.add(kv);
 			}
 		}
+		
+		// Source and target are required.
+		if (this.source == null || this.target == null) {
+			throw new GMLIOException("Invalid GML edge with ID" + this.id + ": source and target attributes are required.");
+		}
 	}
 	
 	

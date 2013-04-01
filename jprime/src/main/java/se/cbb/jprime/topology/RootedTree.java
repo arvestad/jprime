@@ -23,7 +23,8 @@ public interface RootedTree extends AcyclicDigraph {
 	 * Returns the immediate children of a vertex.
 	 * If no children exist, an empty list is returned.
 	 * There is no guarantee that the list
-	 * appears sorted or in any particular order.
+	 * appears sorted or in any particular order, although implementations
+	 * could of course see to that.
 	 * Equivalent to getDirectSuccessors();
 	 * @param x the vertex.
 	 * @return all y such that there is an arc (x,y).
@@ -42,7 +43,8 @@ public interface RootedTree extends AcyclicDigraph {
 	 * Returns the descendants of a vertex. If lacking descendants,
 	 * an empty list is returned.
 	 * There is no guarantee that the list
-	 * appears sorted or in any particular order.
+	 * appears sorted or in any particular order, although implementations
+	 * could of course see to that.
 	 * Equivalent to getSuccessors(), but extended with the possibility to
 	 * include the vertex itself.
 	 * @param x the vertex.
@@ -65,7 +67,8 @@ public interface RootedTree extends AcyclicDigraph {
 	 * Returns the descendant leaves of a vertex. If lacking descendants,
 	 * an empty list is returned.
 	 * There is no guarantee that the list
-	 * appears sorted or in any particular order.
+	 * appears sorted or in any particular order, although implementations
+	 * could of course see to that.
 	 * Equivalent to getSuccessorSinks(), but extended with the possibility to
 	 * include the vertex itself.
 	 * @param x the vertex.

@@ -54,10 +54,10 @@ public class RBTreeArcDiscretiser implements RootedTreeDiscretiser, ProperDepend
 	private int nroot;
 	
 	/**
-	 * For each arc, times of discretisation times thus:
+	 * For each arc, discretisation times thus:
 	 * <ul>
 	 * <li>Index 0: head of arc.</li>
-	 * <li>Index 1,..,k: discretisation slice midpoints from head to arc.</li>
+	 * <li>Index 1,..,k: discretisation slice midpoints from head to tail.</li>
 	 * <li>Index k+1: tail of arc (or "tip", if stem arc).</li>
 	 * </ul>
 	 */
@@ -276,7 +276,7 @@ public class RBTreeArcDiscretiser implements RootedTreeDiscretiser, ProperDepend
 	 * Returns the discretisation times for an arc, thus:
 	 * <ul>
 	 * <li>Index 0: head of arc.</li>
-	 * <li>Index 1,..,k: discretisation slice midpoints from head to arc.</li>
+	 * <li>Index 1,..,k: discretisation slice midpoints from head to tail.</li>
 	 * <li>Index k+1: tail of arc (or "tip", if stem arc).</li>
 	 * </ul>
 	 * @param x the head vertex of the arc.

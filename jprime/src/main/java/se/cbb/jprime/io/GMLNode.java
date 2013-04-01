@@ -13,9 +13,10 @@ import java.util.List;
  *     thisIsASampleAttribute 42
  *  ]
  * </pre>
- * The common attributes (ID, name, comment, ...) are handled
+ * The common "official" attributes (ID, name, comment, ...) are handled
  * separately, while all remaining non-standard tags are accessed through a list.
- * Duplicate values of common attributes are treated as non-common.
+ * Duplicate values are allowed, but generally not recommended.
+ * Duplicate values of common attributes end up in the non-common list.
  * 
  * @author Joel Sjöstrand.
  */
@@ -232,6 +233,42 @@ public class GMLNode {
 	 */
 	public void setAttributes(ArrayList<GMLKeyValuePair> attributes) {
 		this.attributes = attributes;
+	}
+	
+	/**
+	 * Returns the value of a specific attribute. Returns null if there is no such key (or the value is in fact null).
+	 * If there are multiple matching attributes, only the first instance is returned.
+	 * @param key the key.
+	 * @return the value.
+	 */
+	public Object getAttributeValue(String key) {
+		if (key.equalsIgnoreCase("id")) {
+			return this.id;
+		}
+		if (key.equalsIgnoreCase("name")) {
+			return this.name;
+		}
+		if (key.equalsIgnoreCase("label")) {
+			return this.label;
+		}
+		if (key.equalsIgnoreCase("comment")) {
+			return this.comment;
+		}
+		if (key.equalsIgnoreCase("edgeAnchor")) {
+			return this.edgeAnchor;
+		}
+		if (key.equalsIgnoreCase("graphics")) {
+			return this.graphics;
+		}
+		if (key.equalsIgnoreCase("labelGraphics")) {
+			return this.labelGraphics;
+		}
+		for (GMLKeyValuePair a : this.attributes) {
+			if (key.equalsIgnoreCase(a.getKey())) {
+				return a.value;
+			}
+		}
+		return null;
 	}
 	
 }

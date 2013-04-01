@@ -16,10 +16,12 @@ import se.cbb.jprime.mcmc.StateParameter;
  * type (which should therefore typically implement <code>SampleType</code>),
  * and <code>getSampleValue()</code> will return a list [v0.toString(),...,vk.toString()]
  * for the values v0,...,vk.
+ * <p/>
+ * See also <code>EnumMap</code> if you want to store enumerated constants.
  * 
  * @author Joel Sjöstrand.
  */
-public class GenericMap<T extends PublicCloneable> implements GraphMap, StateParameter {
+public class GenericMap<T extends PublicCloneable> implements VertexMap, StateParameter {
 	
 	/** The name of this map, if any. */
 	protected String name;

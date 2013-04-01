@@ -16,7 +16,7 @@ package se.cbb.jprime.topology;
  * 
  * @author Joel Sjöstrand.
  */
-public interface GraphMap {
+public interface VertexMap {
 
 	/**
 	 * Returns this map's name, if any.

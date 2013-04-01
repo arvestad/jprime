@@ -1,51 +1,64 @@
 package se.cbb.jprime.topology;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
-import se.cbb.jprime.io.SampleIntArray;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
- * Holds an int for each vertex of a graph. No generics for the sake of speed.
- * See also <code>GenericMap</code>.
+ * Holds an enum for each vertex of a graph.
+ * <p/>
+ * If sampling from this class, <code>getSampleType()</code> will return the stored
+ * type (which should therefore typically implement <code>SampleType</code>),
+ * and <code>getSampleValue()</code> will return a list [v0.toString(),...,vk.toString()]
+ * for the values v0,...,vk.
  * 
  * @author Joel Sjöstrand.
  */
-public class IntMap implements VertexMap, StateParameter {
+public class EnumMap<T extends Enum <T>> implements VertexMap, StateParameter {
 	
 	/** The name of this map, if any. */
 	protected String name;
 	
 	/** The map values. */
-	protected int[] values;
+	protected ArrayList<T> values;
 	
 	/** Cache vertices. */
 	protected int[] cacheVertices = null;
 	
 	/** Cache values for affected vertices. */
-	protected int[] cacheValues = null;
+	protected ArrayList<T> cacheValues = null;
 	
 	/**
-	 * Constructor. Initialises all map values to 0.
+	 * Constructor. Initialises all map values to null.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 */
-	public IntMap(String name, int size) {
+	public EnumMap(String name, int size) {
 		this.name = name;
-		this.values = new int[size];
+		this.values = new ArrayList<T>(size);
+		for (int i = 0; i < size; ++i) {
+			this.values.add(null);
+		}
 	}
 	
 	/**
 	 * Constructor.
 	 * @param name the map's name.
 	 * @param size the size of the map.
-	 * @param defaultVal default value for all elements.
+	 * @param defaultVal default value for all elements. May be null.
 	 */
-	public IntMap(String name, int size, int defaultVal) {
+	public EnumMap(String name, int size, T defaultVal) {
 		this.name = name;
-		this.values = new int[size];
-		for (int i = 0; i < this.values.length; ++i) {
-			values[i] = defaultVal;
+		this.values = new ArrayList<T>(size);
+		if (defaultVal == null) {
+			for (int i = 0; i < size; ++i) {
+				this.values.add(null);
+			}
+		} else {
+			for (int i = 0; i < size; ++i) {
+				this.values.add(defaultVal);
+			}
 		}
 	}
 	
@@ -53,20 +66,20 @@ public class IntMap implements VertexMap, StateParameter {
 	 * Constructor.
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number.
+	 *             The internal list is copied element-wise from input.
 	 */
-	public IntMap(String name, int[] vals) {
+	public EnumMap(String name, List<T> vals) {
 		this.name = name;
-		this.values = vals;
+		this.values = new ArrayList<T>(vals);
 	}
 	
 	/**
-	 * Copy constructor.
+	 * Copy constructor. No cloning of the copied map's objects.
 	 * @param map the map to be copied.
 	 */
-	public IntMap(IntMap map) {
+	public EnumMap(EnumMap<T> map) {
 		this.name = map.name;
-		this.values = new int[map.values.length];
-		System.arraycopy(map.values, 0, this.values, 0, this.values.length);
+		this.values = new ArrayList<T>(map.values);
 	}
 
 	@Override
@@ -81,12 +94,13 @@ public class IntMap implements VertexMap, StateParameter {
 	
 	@Override
 	public Object getAsObject(int x) {
-		return new Integer(this.values[x]);
+		return this.values.get(x);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setAsObject(int x, Object value) {
-		this.values[x] = ((Integer) value).intValue();
+		this.values.set(x, (T) value);
 	}
 
 	/**
@@ -94,8 +108,8 @@ public class IntMap implements VertexMap, StateParameter {
 	 * @param x the vertex.
 	 * @return the value.
 	 */
-	public int get(int x) {
-		return this.values[x];
+	public T get(int x) {
+		return this.values.get(x);
 	}
 	
 	/**
@@ -103,13 +117,13 @@ public class IntMap implements VertexMap, StateParameter {
 	 * @param x the vertex.
 	 * @param val the value.
 	 */
-	public void set(int x, int val) {
-		this.values[x] = val;
+	public void set(int x, T val) {
+		this.values.set(x, val);
 	}
 
 	@Override
 	public int getNoOfSubParameters() {
-		return this.values.length;
+		return this.values.size();
 	}
 
 	/**
@@ -118,14 +132,17 @@ public class IntMap implements VertexMap, StateParameter {
 	 */
 	public void cache(int[] vertices) {
 		if (vertices == null) {
-			this.cacheValues = new int[this.values.length];
-			System.arraycopy(this.values, 0, this.cacheValues, 0, this.values.length);
+			this.cacheValues = new ArrayList<T>(this.values.size());
+			// Clone objects.
+			for (T val  : this.values) {
+				this.cacheValues.add(val);
+			}
 		} else {
 			this.cacheVertices = new int[vertices.length];
 			System.arraycopy(vertices, 0, this.cacheVertices, 0, vertices.length);
-			this.cacheValues = new int[vertices.length];
+			this.cacheValues = new ArrayList<T>(vertices.length);
 			for (int i = 0; i < vertices.length; ++i) {
-				this.cacheValues[i] = this.values[vertices[i]];
+				this.cacheValues.add(this.values.get(vertices[i]));
 			}
 		}
 	}
@@ -152,7 +169,7 @@ public class IntMap implements VertexMap, StateParameter {
 			this.cacheValues = null;
 		} else {
 			for (int i = 0; i < this.cacheVertices.length; ++i) {
-				this.values[this.cacheVertices[i]] = this.cacheValues[i];
+				this.values.set(this.cacheVertices[i], this.cacheValues.get(i));
 			}
 			this.cacheVertices = null;
 			this.cacheValues = null;
@@ -161,7 +178,7 @@ public class IntMap implements VertexMap, StateParameter {
 
 	@Override
 	public Class<?> getSampleType() {
-		return SampleIntArray.class;
+		return (this.values.get(0).getClass());
 	}
 
 	@Override
@@ -171,16 +188,33 @@ public class IntMap implements VertexMap, StateParameter {
 
 	@Override
 	public String getSampleValue(SamplingMode mode) {
-		return SampleIntArray.toString(this.values);
+		StringBuilder sb = new StringBuilder(this.values.size() * 128);
+		sb.append('[');
+		for (T val : this.values) {
+			sb.append(val.toString());
+			sb.append(",");
+		}
+		sb.setCharAt(sb.length()-1, ']');
+		return sb.toString();
 	}
 
 	@Override
 	public int getSize() {
-		return this.values.length;
+		return this.values.size();
 	}
 
 	@Override
 	public String toString() {
-		return Arrays.toString(this.values);
+		StringBuffer sb = new StringBuffer(this.values.size() * 16);
+		sb.append('[');
+		for (int i = 0; i < this.values.size() - 1; ++i) {
+			sb.append(this.values.get(i));
+			sb.append(", ");
+		}
+		if (!this.values.isEmpty()) {
+			sb.append(this.values.get(this.values.size() - 1));
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 }
