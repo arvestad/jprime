@@ -16,6 +16,7 @@ public enum HybridVertexType {
 	SPECIATION,
 	LEAF,
 	HYBRID_DONOR,
+	EXTINCT_HYBRID_DONOR,
 	ALLOPOLYPLOIDIC_HYBRID,
 	AUTOPOLYPLOIDIC_HYBRID;
 	
@@ -64,11 +65,18 @@ public enum HybridVertexType {
 			}
 			
 			if (outdegree == 1) {
-				// AUTOPOLYPLOIDIC_HYBRID.
-				if (Math.abs(par.getArcTime()) > 1e-10) {
-					throw new IllegalArgumentException("Invalid autopolyploidic arc time: Must be 0 for arc ending in " + x + ".");
+				DiscretisedArc ch = out.iterator().next();
+				double tp = par.getArcTime();
+				double tc = ch.getArcTime();
+				if (Math.abs(tp) <= 1e-10) {
+					// AUTOPOLYPLOIDIC_HYBRID.
+					return AUTOPOLYPLOIDIC_HYBRID;
 				}
-				return AUTOPOLYPLOIDIC_HYBRID;
+				if (Math.abs(tp) > 1e-10 && Math.abs(tc) <= 1e-10) {
+					// EXTINCT_HYBRID_DONOR.
+					return EXTINCT_HYBRID_DONOR;
+				}
+				throw new IllegalArgumentException("Invalid arc times for vertex " + x + ". One of the surrounding arcs must have time span 0.");
 			}
 			
 			if (par.getArcTime() <= 1e-10) {
