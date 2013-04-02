@@ -30,7 +30,7 @@ public class DiscretisedArc extends DefaultWeightedEdge {
 	private double[] times;
 	
 	/**
-	 * Constructor.
+	 * Constructor. An arc with zero length will by default have no discretisation intervals.
 	 * @param sourcet source vertex (tail) absolute time.
 	 * @param targett target vertex (head) absolute time.
 	 * @param nmin minimum number of discretisation intervals.
@@ -40,23 +40,28 @@ public class DiscretisedArc extends DefaultWeightedEdge {
 	public DiscretisedArc(double sourcet, double targett, int nmin, int nmax, double deltat) {
 		super();
 		double at = sourcet - targett;
-		if (at < 0) {
+		if (at <= -1e-10) {
 			throw new IllegalArgumentException("Invalid arc time: Timespan is less than 0. Time of source must be greater than or equal to time of target.");
 		}
-		int no = Math.min(Math.max(nmin, (int) Math.ceil(at / deltat)), nmax);
-		this.times = new double[no + 2];   // Endpoints also included.
-		double timestep = at / no;
-		this.times[0] = targett;		// Head of arc at first index.
-		for (int xx = 1; xx <= no; ++xx) {
-			this.times[xx] = targett + timestep * (xx - 0.5);
+		if (Math.abs(at) <= 1e-10) {
+			this.times = new double[] { sourcet, sourcet };
+		} else {
+			int no = Math.min(Math.max(nmin, (int) Math.ceil(at / deltat)), nmax);
+			this.times = new double[no + 2];   // Endpoints also included.
+			double timestep = at / no;
+			this.times[0] = targett;		// Head of arc at first index.
+			for (int xx = 1; xx <= no; ++xx) {
+				this.times[xx] = targett + timestep * (xx - 0.5);
+			}
+			this.times[no+1] = sourcet;	// Tail of arc at last index.
 		}
-		this.times[no+1] = sourcet;	// Tail of arc at last index.
 	}
 	
 	/**
 	 * @return the arc timespan.
 	 */
 	public double getArcTime() {
+		// This must equal (times[last]-times[0])!
 		return this.getWeight();
 	}
 
@@ -103,5 +108,27 @@ public class DiscretisedArc extends DefaultWeightedEdge {
 	 */
 	public double getSliceTime() {
 		return (this.getArcTime() / this.getNoOfSlices());
+	}
+	
+	/**
+	 * Updates the discretisation with a predefined number of slices.
+	 * An arc with time span 0 will by default get 0 slices.
+	 * @param noOfSlices the number of slices.
+	 */
+	public void updateDiscretisation(int noOfSlices) {
+		double targett = this.times[0];
+		double sourcet = this.times[this.times.length - 1];
+		double at = sourcet - targett;
+		if (Math.abs(at) <= 1e-10) {
+			this.times = new double[] { sourcet, sourcet };
+		} else {
+			this.times = new double[noOfSlices + 2];   // Endpoints also included.
+			double timestep = at / noOfSlices;
+			this.times[0] = targett;		// Head of arc at first index.
+			for (int xx = 1; xx <= noOfSlices; ++xx) {
+				this.times[xx] = targett + timestep * (xx - 0.5);
+			}
+			this.times[noOfSlices+1] = sourcet;	// Tail of arc at last index.
+		}
 	}
 }
