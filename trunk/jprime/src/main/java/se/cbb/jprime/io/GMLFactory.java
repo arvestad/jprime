@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * Not a factory class per se, but creates typical top-level objects from a list of GML elements.
+ * To turn into proper factory pattern whenever there is some time.
  * 
  * @author Joel Sjöstrand.
  */

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
@@ -51,14 +52,11 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 	/**
 	 * Constructor for the time being. Might be replaced with suitable factory pattern in the future.
 	 */
-	public DAG(String name, SimpleDirectedGraph<Integer, E> topo, HashSet<Integer> sources, HashSet<Integer> sinks, int noOfVertices) {
+	public DAG(String name, SimpleDirectedGraph<Integer, E> topo) {
 		this.name = name;
 		this.topo = topo;
-		this.sources = sources;
-		this.sinks = sinks;
-		this.noOfVertices = noOfVertices;
+		this.update();
 	}
-	
 	
 	@Override
 	public String getName() {
@@ -99,10 +97,19 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 	public int getNoOfSources() {
 		return this.sources.size();
 	}
+	
+	/**
+	 * Convenience method; returns one of the sources (with no
+	 * guarantee as regards order).
+	 * @return a source vertex.
+	 */
+	public int getSource() {
+		return this.sources.iterator().next();
+	}
 
 	@Override
 	public Set<Integer> getSinks() {
-		return this.sources;
+		return this.sinks;
 	}
 
 	@Override
@@ -117,8 +124,8 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 
 	@Override
 	public boolean hasPath(int x, int y) {
-		// TODO Auto-generated method stub
-		return false;
+		List<E> p = DijkstraShortestPath.findPathBetween(this.topo, x, y);
+		return (p == null ? false : true);
 	}
 
 	@Override
@@ -243,13 +250,21 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 	
 	/**
 	 * Updates the internal representation of the graph. Must be invoked after
-	 * topology changes.
+	 * topology changes. The DAG structure is assumed to be preserved.
 	 */
 	public void update() {
 		Set<Integer> vs = this.topo.vertexSet();
 		this.noOfVertices = vs.size();
-		this.sinks.clear();
-		this.sources.clear();
+		if (this.sinks == null) {
+			this.sinks = new HashSet<Integer>(this.noOfVertices);
+		} else {
+			this.sinks.clear();
+		}
+		if (this.sources == null) {
+			this.sources = new HashSet<Integer>(this.noOfVertices);
+		} else {
+			this.sources.clear();
+		}
 		for (int x : vs) {
 			if (this.topo.inDegreeOf(x) == 0) {
 				this.sources.add(x);
@@ -260,4 +275,21 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 		}
 	}
 	
+	/**
+	 * Returns the incoming arcs of a vertex.
+	 * @param x the vertex.
+	 * @return the arcs.
+	 */
+	public Set<E> getIncomingArcs(int x) {
+		return this.topo.incomingEdgesOf(x);
+	}
+	
+	/**
+	 * Returns the outgoing arcs of a vertex.
+	 * @param x the vertex.
+	 * @return the arcs.
+	 */
+	public Set<E> getOutgoingArcs(int x) {
+		return this.topo.outgoingEdgesOf(x);
+	}
 }
