@@ -41,13 +41,13 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 	protected SimpleDirectedGraph<Integer, E> topo;
 
 	/** Sources. Must be updated  when topology changes. */
-	private HashSet<Integer> sources;
+	protected HashSet<Integer> sources;
 
 	/** Sinks. Must be changed when topology changes. */
-	private HashSet<Integer> sinks;
+	protected HashSet<Integer> sinks;
 	
 	/** No. of vertices. Must be changed when topology changes. */
-	private int noOfVertices;
+	protected int noOfVertices;
 	
 	/**
 	 * Constructor for the time being. Might be replaced with suitable factory pattern in the future.
@@ -56,6 +56,14 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 		this.name = name;
 		this.topo = topo;
 		this.update();
+	}
+	
+	/**
+	 * Constructor.
+	 * @param name name.
+	 */
+	protected DAG(String name) {
+		this.name = name;
 	}
 	
 	@Override
@@ -96,15 +104,6 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 	@Override
 	public int getNoOfSources() {
 		return this.sources.size();
-	}
-	
-	/**
-	 * Convenience method; returns one of the sources (with no
-	 * guarantee as regards order).
-	 * @return a source vertex.
-	 */
-	public int getSource() {
-		return this.sources.iterator().next();
 	}
 
 	@Override
@@ -250,7 +249,7 @@ public class DAG<E extends DefaultEdge> implements AcyclicDigraphParameter {
 	
 	/**
 	 * Updates the internal representation of the graph. Must be invoked after
-	 * topology changes. The DAG structure is assumed to be preserved.
+	 * topology changes. The DAG property is assumed to be preserved.
 	 */
 	public void update() {
 		Set<Integer> vs = this.topo.vertexSet();
