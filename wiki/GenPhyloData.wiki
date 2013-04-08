@@ -169,6 +169,6 @@ If you wish to produce synthetic sequence data for your trees, you may use, e.g.
 ----
 
 ==FAQ==
-Q1) There seems to be a small discrepancy between the times of my host tree and the times of the generated guest tree vertices that are placed onto host tree vertices. Why?
+*Q1) There seems to be a small discrepancy between the times of my host tree and the times of the generated guest tree vertices that are placed onto host tree vertices. Why?*
 
 A1) If the difference is really miniscule, surely this is due to internal numerical precision effects. However, should it be larger (say in the order of 1e-4), this is most likely due to that there are internal host tree vertices with equal times. The time-colliding vertices have then been moved slightly to accomodate for non-ambiguous transfer events. This will happen even if you set the transfer rate to 0.
