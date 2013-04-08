@@ -165,3 +165,10 @@ Note however, that the host tree and guest tree must be ultrametric and temporal
 
 ==(4) Producing sequence data==
 If you wish to produce synthetic sequence data for your trees, you may use, e.g., [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen], which supports a wide range of popular models of molecular sequence evolution for nucleotide, amino acid or codon data. Such programs typically support modelling also indels, gaps, and site rate heterogeneity.
+
+----
+
+==FAQ==
+Q1) There seems to be a small discrepancy between the times of my host tree and the times of the generated guest tree vertices that are placed onto host tree vertices. Why?
+
+A1) If the difference is really miniscule, surely this is due to internal numerical precision effects. However, should it be larger (say in the order of 1e-4), this is most likely due to that there are internal host tree vertices with equal times. The time-colliding vertices have then been moved slightly to accomodate for non-ambiguous transfer events. This will happen even if you set the transfer rate to 0.
