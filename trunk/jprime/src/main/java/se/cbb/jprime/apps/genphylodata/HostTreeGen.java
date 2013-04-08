@@ -12,6 +12,7 @@ import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
 import se.cbb.jprime.math.NumberManipulation;
+import se.cbb.jprime.misc.Pair;
 
 /**
  * Generates a synthetic bifurcating tree ("species tree") by means of a BD process or similarly.
@@ -20,8 +21,6 @@ import se.cbb.jprime.math.NumberManipulation;
  */
 public class HostTreeGen implements JPrIMEApp {
 
-	private GuestTree tree;
-	
 	@Override
 	public String getAppName() {
 		return "HostTreeGen";
@@ -67,17 +66,17 @@ public class HostTreeGen implements JPrIMEApp {
 			}
 			PrIMENewickTree host = PrIMENewickTreeReader.readTree(S, false, true);
 			
-			// Create guest tree.
-			double lambda = params.getBirthRate();
-			double mu = params.getDeathRate();
-			double rho = params.getLeafSamplingProb();
+			// Machine.
 			int minper = (params.bifurcationStart ? 1 : 0);
-			try {
-				
-				tree = new GuestTree(host, null, params.seed, lambda,
-						mu, 0.0, rho,
-						params.min, params.max, minper, Integer.MAX_VALUE, params.getLeafSizes(), params.maxAttempts,
+			GuestTreeMachina machine = new GuestTreeMachina(params.seed, params.min, params.max, minper, Integer.MAX_VALUE, params.getLeafSizes(), params.maxAttempts,
 						params.vertexPrefix, params.excludeMeta);
+			
+			// Primus motor.
+			GuestTreeInHostTreeCreator motor = new GuestTreeInHostTreeCreator(host, params.getBirthRate(), params.getDeathRate(), 0.0, params.getLeafSamplingProb(), null);
+			
+			Pair<PrIMENewickTree, PrIMENewickTree> guestTree = null;
+			try {
+				guestTree = machine.sampleGuestTree(motor);
 			} catch (MaxAttemptsException ex) {
 				if (!params.doQuiet) {
 					BufferedWriter outinfo = params.getOutputFile(".info");
@@ -90,41 +89,41 @@ public class HostTreeGen implements JPrIMEApp {
 			
 			// Fix stem override.
 			if (params.stem != null) {
-				tree.unprunedTree.getRoot().setBranchLength(Double.parseDouble(params.stem));
-				if (tree.prunedTree != null) {
-					tree.prunedTree.getRoot().setBranchLength(Double.parseDouble(params.stem));
+				guestTree.second.getRoot().setBranchLength(Double.parseDouble(params.stem));
+				if (guestTree.first != null) {
+					guestTree.first.getRoot().setBranchLength(Double.parseDouble(params.stem));
 				}
 			}
 			
 			// Print output.
 			if (params.doQuiet) {
 				if (params.excludeMeta) {
-					System.out.println(tree.prunedTree == null ? ";" : NewickTreeWriter.write(tree.prunedTree));
+					System.out.println(guestTree.first == null ? ";" : NewickTreeWriter.write(guestTree.first));
 				} else {
-					System.out.println(tree.prunedTree == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(tree.prunedTree));
+					System.out.println(guestTree.first == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(guestTree.first));
 				}
 			} else {
 				BufferedWriter out = params.getOutputFile(".unpruned.tree");
-				out.write(NewickTreeWriter.write(tree.unprunedTree) + '\n');
+				out.write(NewickTreeWriter.write(guestTree.second) + '\n');
 				out.close();
 				out = params.getOutputFile(".pruned.tree");
 				if (params.excludeMeta) {
-					out.write(tree.prunedTree == null ? ";\n" : NewickTreeWriter.write(tree.prunedTree) + '\n');
+					out.write(guestTree.first == null ? ";\n" : NewickTreeWriter.write(guestTree.first) + '\n');
 				} else {
-					out.write(tree.prunedTree == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(tree.prunedTree) + '\n');
+					out.write(guestTree.first == null ? "[&&PRIME NAME=PrunedTree];" : NewickTreeWriter.write(guestTree.first) + '\n');
 				}
 				out.close();
 				out = params.getOutputFile(".unpruned.info");
 				out.write("# HOSTTREEGEN\n");
 				out.write("Arguments:\t" +  Arrays.toString(args) + '\n');
-				out.write("Attempts:\t" + tree.attempts + '\n');
-				out.write(this.getInfo(tree.unprunedTree, true));
+				out.write("Attempts:\t" + machine.getAttempts() + '\n');
+				out.write(this.getInfo(guestTree.second, true));
 				out.close();
 				out = params.getOutputFile(".pruned.info");
 				out.write("# HOSTTREEGEN\n");
 				out.write("Arguments:\t" +  Arrays.toString(args) + '\n');
-				out.write("Attempts:\t" + tree.attempts + '\n');
-				out.write(this.getInfo(tree.prunedTree, false));
+				out.write("Attempts:\t" + machine.getAttempts() + '\n');
+				out.write(this.getInfo(guestTree.first, false));
 				out.close();
 			}
 		} catch (Exception e) {

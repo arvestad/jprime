@@ -108,7 +108,11 @@ public class GuestTreeGenParameters {
 		}
 	}
 
-	
+	public UnprunedGuestTreeCreator getCreator() throws TopologyException, NewickIOException, IOException {
+		PrIMENewickTree host = this.getHostTree();
+		UnprunedGuestTreeCreator motor = new GuestTreeInHostTreeCreator(host, this.getDuplicationRate(), this.getLossRate(), this.getTransferRate(), this.getLeafSamplingProb(), this.getStem());
+		return motor;
+	}
 	
 	public double getDuplicationRate() {
 		return Double.parseDouble(this.args.get(1));
