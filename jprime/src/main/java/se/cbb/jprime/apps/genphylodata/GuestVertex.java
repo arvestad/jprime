@@ -1,6 +1,7 @@
 package se.cbb.jprime.apps.genphylodata;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.topology.Epoch;
@@ -19,7 +20,8 @@ public class GuestVertex extends NewickVertex {
 		UNSAMPLED_LEAF,
 		DUPLICATION,
 		LOSS,
-		TRANSFER
+		TRANSFER,
+		AUTOPLOIDIC_POLYPLODISATION
 	}
 	
 	/** Prunability status. */
@@ -39,11 +41,17 @@ public class GuestVertex extends NewickVertex {
 	/** Host vertex/arc. */
 	int sigma;
 	
-	/** Epoch. */
-	Epoch epoch;
+	/** Epoch. Not always applicable. */
+	Epoch epoch = null;
 	
 	/** Prunability status. */
 	Prunability prunability = Prunability.UNKNOWN;
+	
+	/**
+	 * Host arcs that the arc (where this vertex is head) passes by.
+	 * Only applicable for pruned trees.
+	 */
+	List<Integer> hostArcs = null;
 	
 	/**
 	 * Constructor.
@@ -120,6 +128,9 @@ public class GuestVertex extends NewickVertex {
 				break;
 			case UNSAMPLED_LEAF:
 				sb.append(" VERTEXTYPE=UnsampledLeaf");
+				break;
+			case AUTOPLOIDIC_POLYPLODISATION:
+				sb.append(" VERTEXTYPE=AutoploidicPolyploidisation");
 				break;
 			default:
 				throw new UnsupportedOperationException("Invalid vertex event type.");	

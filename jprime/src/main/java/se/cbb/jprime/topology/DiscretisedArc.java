@@ -1,10 +1,9 @@
 package se.cbb.jprime.topology;
 
-import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.DefaultEdge;
 
 /**
- * Adds discretisation points to a <code>DefaultWeightedArc</code> of the JGraphT package, where the arc weight
- * refers to a time span.
+ * Adds discretisation points to a <code>DefaultArc</code> of the JGraphT package.
  * An arc is split into
  * a number of equidistant slices. This is governed by a user-specified
  * minimum number of slices per edge, <i>nmin</i>, a maximum number, <i>nmax</i>, and an
@@ -14,8 +13,11 @@ import org.jgrapht.graph.DefaultWeightedEdge;
  * 
  * @author Joel Sjöstrand.
  */
-public class DiscretisedArc extends DefaultWeightedEdge {
+public class DiscretisedArc extends DefaultEdge {
 
+	/** Tolerance for arc time discrepancy. */
+	public static final double EPS = 1e-10;
+	
 	/** Eclipse-generated UID. */
 	private static final long serialVersionUID = 2304554207421769088L;
 	
@@ -40,10 +42,11 @@ public class DiscretisedArc extends DefaultWeightedEdge {
 	public DiscretisedArc(double sourcet, double targett, int nmin, int nmax, double deltat) {
 		super();
 		double at = sourcet - targett;
-		if (at <= -1e-10) {
+		if (at < 0) {
 			throw new IllegalArgumentException("Invalid arc time: Timespan is less than 0. Time of source must be greater than or equal to time of target.");
 		}
-		if (Math.abs(at) <= 1e-10) {
+		if (Math.abs(at) <= EPS) {
+			// No discretisation interval.
 			this.times = new double[] { sourcet, sourcet };
 		} else {
 			int no = Math.min(Math.max(nmin, (int) Math.ceil(at / deltat)), nmax);
@@ -62,7 +65,7 @@ public class DiscretisedArc extends DefaultWeightedEdge {
 	 */
 	public double getArcTime() {
 		// This must equal (times[last]-times[0])!
-		return this.getWeight();
+		return (this.times[this.times.length-1] - this.times[0]);
 	}
 
 	/**
@@ -118,8 +121,21 @@ public class DiscretisedArc extends DefaultWeightedEdge {
 	public void updateDiscretisation(int noOfSlices) {
 		double targett = this.times[0];
 		double sourcet = this.times[this.times.length - 1];
+		this.updateTimesAndDiscretisation(sourcet, targett, noOfSlices);
+	}
+	
+	/**
+	 * Updates the times of the arc and discretisation with a predefined number of slices.
+	 * An arc with time span 0 will by default get 0 slices.
+	 * All corresponding vertex times are assumed to have been (or be) updated
+	 * in agreement with this change.
+	 * @param sourcet source vertex time (greater than target's).
+	 * @param targett target vertex time (less than source's).
+	 * @param noOfSlices the number of slices.
+	 */
+	public void updateTimesAndDiscretisation(double sourcet, double targett, int noOfSlices) {
 		double at = sourcet - targett;
-		if (Math.abs(at) <= 1e-10) {
+		if (Math.abs(at) <= EPS) {
 			this.times = new double[] { sourcet, sourcet };
 		} else {
 			this.times = new double[noOfSlices + 2];   // Endpoints also included.
