@@ -179,6 +179,25 @@ public class NewickVertex {
 	}
 	
 	/**
+	 * Sets a single child.
+	 * @param children the children.
+	 */
+	public void setChild(NewickVertex child) {
+		this.children = new ArrayList<NewickVertex>(1);
+		this.children.add(child);
+	}
+	
+	/**
+	 * Sets two children.
+	 * @param children the children.
+	 */
+	public void setChildren(NewickVertex child1, NewickVertex child2) {
+		this.children = new ArrayList<NewickVertex>(2);
+		this.children.add(child1);
+		this.children.add(child2);
+	}
+	
+	/**
 	 * Returns the number of children.
 	 * @return the number of children.
 	 */

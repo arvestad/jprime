@@ -1,8 +1,11 @@
 package se.cbb.jprime.topology;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.jgrapht.alg.ConnectivityInspector;
@@ -19,7 +22,7 @@ import se.cbb.jprime.io.GMLNode;
  * @author Joel Sjöstrand.
  */
 public class HybridGraph extends DAG<DiscretisedArc> {
-
+	
 	/** Available vertex types. */
 	public enum VertexType {
 		STEM_TIP,
@@ -39,6 +42,12 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 	
 	/** The one and only source. */
 	private int source;
+	
+	/** Topological ordering. */
+	private List<Integer> ordering;
+
+	/** Vertex times. Must comply with arc times. */
+	private DoubleMap vertexTimes;
 		
 	/**
 	 * Constructor. The input graph must have vertex times (identical for donors and hybridisations) and correct
@@ -67,8 +76,8 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 		List<GMLEdge> as = rawG.getEdges();
 		int n = vs.size();
 		HashSet<Integer> uniq = new HashSet<Integer>(n);
-		this.vertexNames = new NamesMap("Names", new String[n]);
-		DoubleMap vertexTimes = new DoubleMap("VertexTimes", n);
+		this.vertexNames = new NamesMap("VertexNames", new String[n]);
+		this.vertexTimes = new DoubleMap("VertexTimes", n);
 		
 		// Read the vertices.
 		for (GMLNode v : vs) {
@@ -103,13 +112,16 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 			}
 			double tx = vertexTimes.get(x);
 			double ty = vertexTimes.get(y);
-			double at = tx - ty;
+			// For sorting safety, we set the 0 arc time of hybrid arcs to DiscretisedArc.EPS/2.
+			if (Math.abs(tx - ty) <= DiscretisedArc.EPS) {
+				ty = tx - DiscretisedArc.EPS / 2.0;
+				vertexTimes.set(y, ty);
+			}
 			DiscretisedArc e = new DiscretisedArc(tx, ty, nmin, nmax, deltat);
 			topo.addEdge(x, y, e);
-			topo.setEdgeWeight(e, at);   // Arc time is stored as weight.
 		}
 		
-		// Update sinks/sources/...
+		// Update some simple help structures.
 		this.update();
 		
 		// Validate topology.
@@ -135,8 +147,46 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 	
 	@Override
 	public void update() {
+		// Note that times, vertex types, etc are assumed to be up-to-date already!
 		super.update();
 		this.source = sources.iterator().next();
+		
+		// Compute topological ordering that complies with vertex times!
+		this.ordering = new ArrayList<Integer>(this.noOfVertices);
+		PriorityQueue<Integer> q = new PriorityQueue<Integer>(this.noOfVertices, new Comparator<Integer>() {
+			public int compare(Integer v, Integer w) {
+				double tv = vertexTimes.get(v);
+				double tw = vertexTimes.get(w);
+				if (tv > tw) { return -1; }
+				if (tv < tw) { return 1; }
+				return 0;
+			}
+		});
+		HashSet<Integer> visited = new HashSet<Integer>(this.noOfVertices);
+		q.add(this.source);
+		while (!q.isEmpty()) {
+			int x = q.poll();
+			this.ordering.add(x);
+			for (int c : this.getChildren(x)) {
+				if (!visited.contains(c)) {
+					q.add(c);
+					visited.add(c);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Returns a topologically sorted list of all vertices, i.e., a list such that x will
+	 * appear before y whenever there is an arc (x,y). Moreover, the topological ordering also
+	 * ensures that time(v) >= time(w) should v appear before w. Donor vertices of hybridisations
+	 * appear before the receiver vertex.
+	 * @return the ordering.
+	 */
+	@Override
+	public List<Integer> getTopologicalOrdering() {
+		// Stored as an optimisation.
+		return this.ordering;
 	}
 	
 	/**
@@ -170,7 +220,7 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 			DiscretisedArc par = in.iterator().next();
 			if (outdegree == 0) {
 				// LEAF.
-				if (par.getArcTime() <= 1e-10) {
+				if (par.getArcTime() <= DiscretisedArc.EPS) {
 					throw new IllegalArgumentException("Invalid arc time: Must be greater than 0 for arc ending in " + x + ".");
 				}
 				return VertexType.LEAF;
@@ -180,18 +230,18 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 				DiscretisedArc ch = out.iterator().next();
 				double tp = par.getArcTime();
 				double tc = ch.getArcTime();
-				if (Math.abs(tp) <= 1e-10) {
+				if (Math.abs(tp) <= DiscretisedArc.EPS) {
 					// AUTOPOLYPLOIDIC_HYBRID.
 					return VertexType.AUTOPOLYPLOIDIC_HYBRID;
 				}
-				if (Math.abs(tp) > 1e-10 && Math.abs(tc) <= 1e-10) {
+				if (Math.abs(tp) > DiscretisedArc.EPS && Math.abs(tc) <= DiscretisedArc.EPS) {
 					// EXTINCT_HYBRID_DONOR.
 					return VertexType.EXTINCT_HYBRID_DONOR;
 				}
 				throw new IllegalArgumentException("Invalid arc times for vertex " + x + ". One of the surrounding arcs must have time span 0.");
 			}
 			
-			if (par.getArcTime() <= 1e-10) {
+			if (par.getArcTime() <= DiscretisedArc.EPS) {
 				throw new IllegalArgumentException("Invalid arc time: Must be greater than 0 for arc ending in " + x + ".");
 			}
 			Iterator<DiscretisedArc> it = out.iterator();
@@ -199,11 +249,11 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 			DiscretisedArc c2 = it.next();
 			double t1 = c1.getArcTime();
 			double t2 = c2.getArcTime();
-			if (t1 > 1e-10 && t2 > 1e-10) {
+			if (t1 > DiscretisedArc.EPS && t2 > DiscretisedArc.EPS) {
 				// SPECIATION.
 				return VertexType.SPECIATION;
 			}
-			if ((t1 > 1e-10 && Math.abs(t2) <= 1e-10) || (t2 > 1e-10 && Math.abs(t1) <= 1e-10)) {
+			if ((t1 > DiscretisedArc.EPS && Math.abs(t2) <= DiscretisedArc.EPS) || (t2 > DiscretisedArc.EPS && Math.abs(t1) <= DiscretisedArc.EPS)) {
 				// HYBRID_DONOR.
 				return VertexType.HYBRID_DONOR;
 			}
@@ -216,7 +266,7 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 			DiscretisedArc p2 = it.next();
 			double t1 = p1.getArcTime();
 			double t2 = p2.getArcTime();
-			if (Math.abs(t1) <= 1e-10 && Math.abs(t2) <= 1e-10) {
+			if (Math.abs(t1) <= DiscretisedArc.EPS && Math.abs(t2) <= DiscretisedArc.EPS) {
 				// ALLOPOLYPLOIDIC_HYBRID.
 				return VertexType.ALLOPOLYPLOIDIC_HYBRID;
 			}
@@ -241,5 +291,78 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 	 */
 	public VertexType getVertexType(int x) {
 		return this.vertexTypes.get(x);
+	}
+	
+	/**
+	 * Returns the time of a vertex.
+	 * @param x the vertex.
+	 * @return the time.
+	 */
+	public double getVertexTime(int x) {
+		return this.vertexTimes.get(x);
+	}
+	
+	/**
+	 * Overrides the time of the stem arc.
+	 * @param timespan timespan.
+	 * @param nroot no. of discretisation points.
+	 */
+	public void overrideStemArc(double timespan, int nroot) {
+		// Rediscretise stem.
+		DiscretisedArc stem = this.getOutgoingArcs(this.getSource()).iterator().next();
+		double targett = stem.getTargetTime();
+		stem.updateTimesAndDiscretisation(targett + timespan, targett, nroot);
+	}
+	
+	/**
+	 * Returns the stem arc.
+	 * @return the stem arc.
+	 */
+	public DiscretisedArc getStemArc() {
+		return this.getOutgoingArcs(this.getSource()).iterator().next();
+	}
+	
+	/**
+	 * Alias for <code>getDirectSuccessors(x)</code> that returns a convenience list instead.
+	 * @param x source vertex.
+	 * @return target vertices of x.
+	 */
+	public int[] getChildren(int x) {
+		Set<DiscretisedArc> ch = this.topo.outgoingEdgesOf(x);
+		if (ch == null || ch.isEmpty()) {
+			return new int[] {};
+		}
+		Iterator<DiscretisedArc> it = ch.iterator();
+		if (ch.size() == 1) {
+			return new int[] { this.topo.getEdgeTarget(it.next()) };
+		}
+		return new int[] { this.topo.getEdgeTarget(it.next()), this.topo.getEdgeTarget(it.next()) };
+	}
+	
+	/**
+	 * Convenience method that returns the first child of an arc.
+	 * No "leaf check".
+	 * @param x source vertex.
+	 * @return one target vertex of x, no guarantee on which if there are multiple children.
+	 */
+	public int getChild(int x) {
+		return super.getDirectSuccessors(x).iterator().next();
+	}
+	
+	/**
+	 * Returns a convenience list of parent vertices.
+	 * @param x target vertex.
+	 * @return source vertices of x.
+	 */
+	public int[] getParents(int x) {
+		Set<DiscretisedArc> pars = this.topo.incomingEdgesOf(x);
+		if (pars == null || pars.isEmpty()) {
+			return new int[] {};
+		}
+		Iterator<DiscretisedArc> it = pars.iterator();
+		if (pars.size() == 1) {
+			return new int[] { this.topo.getEdgeSource(it.next()) };
+		}
+		return new int[] { this.topo.getEdgeSource(it.next()), this.topo.getEdgeSource(it.next()) };
 	}
 }

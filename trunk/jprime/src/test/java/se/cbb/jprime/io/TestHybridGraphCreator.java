@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -48,5 +49,7 @@ public class TestHybridGraphCreator {
 		assertEquals(HybridGraph.VertexType.EXTINCT_HYBRID_DONOR, dag.getVertexType(6));
 		assertEquals(HybridGraph.VertexType.ALLOPOLYPLOIDIC_HYBRID, dag.getVertexType(7));
 		assertEquals(HybridGraph.VertexType.AUTOPOLYPLOIDIC_HYBRID, dag.getVertexType(9));
+		List<Integer> ordering = dag.getTopologicalOrdering();
+		assertEquals(21, ordering.size());
 	}
 }
