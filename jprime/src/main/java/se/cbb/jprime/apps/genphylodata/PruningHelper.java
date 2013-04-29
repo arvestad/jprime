@@ -29,11 +29,22 @@ public class PruningHelper {
 			v.setNumber(nextNo);
 			v.setName(vertexPrefix + nextNo++);
 		} else {
+			ArrayList<NewickVertex> cs = v.getChildren();
+			
+			// Special case:
+			if (cs.size() == 1) {
+				GuestVertex c = (GuestVertex) cs.get(0);
+				v.prunability = (c.prunability == Prunability.PRUNABLE) ? Prunability.PRUNABLE : Prunability.COLLAPSABLE;
+				return nextNo;
+			}
+			
 			// Label kiddos first.
-			GuestVertex lc = (GuestVertex) v.getChildren().get(0);
-			GuestVertex rc = (GuestVertex) v.getChildren().get(1);
+			GuestVertex lc = (GuestVertex) cs.get(0);
+			GuestVertex rc = (GuestVertex) cs.get(1);
 			nextNo = labelUnprunableVertices(lc, nextNo, vertexPrefix);
 			nextNo = labelUnprunableVertices(rc, nextNo, vertexPrefix);
+			
+			// Now process vertex based on subtrees' results.
 			if (lc.prunability == Prunability.PRUNABLE && rc.prunability == Prunability.PRUNABLE) {
 				v.prunability = Prunability.PRUNABLE;
 			} else if (lc.prunability == Prunability.PRUNABLE) {
@@ -51,6 +62,7 @@ public class PruningHelper {
 	
 	/**
 	 * Labels the prunable/collapsable vertices of an unpruned tree after unprunable vertices have been labelled.
+	 * This ensures that the vertices of both the pruned and unpruned version of the tree are labelled consistently.
 	 * @param v the subtree root.
 	 * @param nextNo next available name.
 	 * @param vertexPrefix vertex prefix.
@@ -82,21 +94,33 @@ public class PruningHelper {
 		if (unprunedRoot.event == Event.LEAF) {
 			return new GuestVertex(unprunedRoot);
 		}
-				
+		
+		// Special case: single unpruned child.
+		if (unprunedRoot.getNoOfChildren() == 1) {
+			GuestVertex c = prune(unprunedRoot.getLeftChild());
+			if (c == null) {
+				return null;   // Prune!
+			}
+			// Collapse!
+			c.setBranchLength(NumberManipulation.roundToSignificantFigures(c.getBranchLength() + unprunedRoot.getBranchLength(), 8));
+			return c;
+		}
+		
 		// Prune kids first.
 		GuestVertex lc = prune(unprunedRoot.getLeftChild());
 		GuestVertex rc = prune(unprunedRoot.getRightChild());
 		
 		if (lc == null) {
-			// Collapse.
+			// Collapse!
 			rc.setBranchLength(NumberManipulation.roundToSignificantFigures(rc.getBranchLength() + unprunedRoot.getBranchLength(), 8));
 			return rc;
 		}
 		if (rc == null) {
-			// Collapse.
+			// Collapse!
 			lc.setBranchLength(NumberManipulation.roundToSignificantFigures(lc.getBranchLength() + unprunedRoot.getBranchLength(), 8));
 			return lc;
 		}
+		
 		// No collapsing.
 		GuestVertex v = new GuestVertex(unprunedRoot);
 		ArrayList<NewickVertex> children = new ArrayList<NewickVertex>(2);

@@ -115,6 +115,8 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 					lc = this.createGuestVertex(lin.epoch.sampleArc(prng, lin.sigma), lin.abstime, prng);
 					rc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
 				}
+			} else {
+				throw new UnsupportedOperationException("Unexpected event type.");
 			}
 			ArrayList<NewickVertex> children = new ArrayList<NewickVertex>(2);
 			children.add(lc);
@@ -239,6 +241,8 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 			case UNSAMPLED_LEAF:
 				noOfLeaves++;
 				break;
+			default:
+				throw new UnsupportedOperationException("Unexpected event type.");	
 			}
 		}
 		totalTime = NumberManipulation.roundToSignificantFigures(totalTime, 8);

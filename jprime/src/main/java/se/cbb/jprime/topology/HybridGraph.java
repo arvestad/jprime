@@ -365,4 +365,22 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 		}
 		return new int[] { this.topo.getEdgeSource(it.next()), this.topo.getEdgeSource(it.next()) };
 	}
+
+	/**
+	 * Alias to isSink().
+	 * @param x the vertex.
+	 * @return true if leaf; false if interior vertex.
+	 */
+	public boolean isLeaf(int x) {
+		return super.isSink(x);
+	}
+
+	/**
+	 * Returns the leaves.
+	 * @return the leaves.
+	 */
+	public List<Integer> getLeaves() {
+		ArrayList<Integer> leaves = new ArrayList<Integer>(super.getSinks());
+		return leaves;
+	}
 }
