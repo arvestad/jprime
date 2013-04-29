@@ -6,7 +6,7 @@ JPrIME-!GenPhyloData is a suite of tools to generate realistic synthetic (a.k.a 
 
   # !HostTreeGen - for generating a bifurcating tree from scratch, typically a species tree.
   # !GuestTreeGen - for generating a bifurcating tree that evolves w.r.t. a given host tree. This is suitable for simulating gene family evolution.
-  # !BranchRelaxer - for relaxing on the molecular clock assumptions of (2) or (3).
+  # !BranchRelaxer - for relaxing on the molecular clock assumptions of (1) or (2).
 
 Additionally, as a 4th stage, it should be easy to use an external tool for creating realistic artificial sequences for the host or guest tree leaves (i.e. taxa or genes), for example with the popular [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen] application.
 
