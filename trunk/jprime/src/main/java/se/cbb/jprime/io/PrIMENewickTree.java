@@ -64,7 +64,9 @@ public class PrIMENewickTree extends NewickTree {
 		VERTEX_TIMES            ("NT=\"?([0-9\\+\\-\\.eE]+)\"?"),
 		ARC_TIMES               ("ET=\"?([0-9\\+\\-\\.eE]+)\"?"),
 		VERTEX_IS_DUPLICATIONS  ("\\sD=\"?([0-9]+)\"?"),
-		VERTEX_TYPES            ("VERTEXTYPE=\"?([Ll]eaf|[Ss]peciation|[Dd]uplication|[Tt]ransfer|[Ll]oss|[Uu]nsampled[Ll]eaf|[Aa]utoploidic[Pp]olyploidisation)\"?"),
+		VERTEX_TYPES            ("VERTEXTYPE=\"?([Ll]eaf|[Ss]peciation|[Dd]uplication|[Tt]ransfer|[Ll]oss" +
+				                 "|[Uu]nsampled[Ll]eaf|[Hh]ybrid[Dd]onation|[Hh]ybrid[Dd]onation[Ff]rom[Ee]xtinct[Ddonor]" +
+				                 "|[Aa]lloploidic[Hh]ybrid[Rr]eception|[Aa]utoploidic[Hh]ybrid[Rr]eception)\"?"),
 		VERTEX_DISC_PTS         ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?"),
 		VERTEX_DISC_TIMES       ("DISCTIMES=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
 		VERTEX_PARAMS           ("PARAMS=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),

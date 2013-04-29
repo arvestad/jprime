@@ -1,8 +1,6 @@
 package se.cbb.jprime.apps.genphylodata;
 
 import java.util.LinkedList;
-import java.util.List;
-
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.topology.Epoch;
 
@@ -16,12 +14,15 @@ public class GuestVertex extends NewickVertex {
 	/** Event types. */
 	public enum Event {
 		SPECIATION,
-		LEAF,  // Sampled leaf.
-		UNSAMPLED_LEAF,
+		LEAF,             // Sampled leaf.
+		UNSAMPLED_LEAF,   // Unsampled leaf.
 		DUPLICATION,
 		LOSS,
 		TRANSFER,
-		AUTOPLOIDIC_POLYPLODISATION
+		HYBRID_DONATION,
+		HYBRID_DONATION_FROM_EXTINCT_DONOR,
+		ALLOPLOIDIC_HYBRID_RECEPTION,  // This is only one of the lineages of the polyploidisation.
+		AUTOPLOIDIC_HYBRID_RECEPTION,  // Obligate duplication due to polyploidisation.
 	}
 	
 	/** Prunability status. */
@@ -51,7 +52,7 @@ public class GuestVertex extends NewickVertex {
 	 * Host arcs that the arc (where this vertex is head) passes by.
 	 * Only applicable for pruned trees.
 	 */
-	List<Integer> hostArcs = null;
+	//List<Integer> hostArcs = null;
 	
 	/**
 	 * Constructor.
@@ -129,8 +130,17 @@ public class GuestVertex extends NewickVertex {
 			case UNSAMPLED_LEAF:
 				sb.append(" VERTEXTYPE=UnsampledLeaf");
 				break;
-			case AUTOPLOIDIC_POLYPLODISATION:
-				sb.append(" VERTEXTYPE=AutoploidicPolyploidisation");
+			case HYBRID_DONATION:
+				sb.append(" VERTEXTYPE=HybridDonation");
+				break;
+			case HYBRID_DONATION_FROM_EXTINCT_DONOR:
+				sb.append(" VERTEXTYPE=HybridDonationFromExtinctDonor");
+				break;
+			case ALLOPLOIDIC_HYBRID_RECEPTION:
+				sb.append(" VERTEXTYPE=AlloploidicHybridReception");
+				break;
+			case AUTOPLOIDIC_HYBRID_RECEPTION:
+				sb.append(" VERTEXTYPE=AutoploidicHybridReception");
 				break;
 			default:
 				throw new UnsupportedOperationException("Invalid vertex event type.");	

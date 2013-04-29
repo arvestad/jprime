@@ -74,4 +74,13 @@ public class Path {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * Returns the vertices of this path in order from source to sink.
+	 * @return the path.
+	 */
+	public LinkedList<Integer> getVertices() {
+		return this.vertices;
+	}
+	
 }
