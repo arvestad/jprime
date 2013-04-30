@@ -72,8 +72,8 @@ public class GuestTreeGenParameters {
 	public String leafSamplingProb = "1.0";
 	
 	/** Enforce parsimony. */
-	@Parameter(names = {"-pars", "--enforce-parsimony"}, description = "Requires the pruned guest tree to not have any duplication vertex that occurs on a host edge other than" +
-			" what a most-parsimonious reconciliation of the pruned guest tree topology would suggest, and cannot be mistaken for a speciation.")
+	@Parameter(names = {"-mpr", "--enforce-most-parsimonious-reconciliation"}, description = "Requires the pruned guest tree to not have any duplication vertex that occurs on a host edge other than" +
+			" what a most-parsimonious reconciliation of the pruned guest tree topology would suggest, and that cannot be mistaken for a speciation.")
 	public Boolean enforceParsimony = false;
 	
 	/** Attempts. */
