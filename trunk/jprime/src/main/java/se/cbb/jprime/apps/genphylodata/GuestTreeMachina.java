@@ -15,7 +15,7 @@ import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
- * Generator that simulates a guest tree in pruned and unpruned form, verifies
+ * Generator that simulates a guest tree in unpruned and pruned form, verifies
  * requirements, labels vertices, etc.
  * 
  * @author Joel Sjöstrand.
@@ -75,39 +75,50 @@ public class GuestTreeMachina {
 		if (leafSizes != null) {
 			exact = leafSizes.get(this.prng.nextInt(leafSizes.size()));
 		}
+		
+		GuestVertex prunedRoot = null;
+		
 		do {
-			if (attempts > maxAttempts) {
-				throw new MaxAttemptsException("" + attempts + " reached.");
+			do {
+				if (attempts > maxAttempts) {
+					throw new MaxAttemptsException("" + attempts + " reached.");
+				}
+				
+				// Generate unpruned trees until requirements are met.
+				if (attempts > maxAttempts) {
+					throw new MaxAttemptsException("" + attempts + " reached.");
+				}
+				unprunedRoot = mightyGodPlaysDice.createUnprunedTree(this.prng);
+				int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0, vertexPrefix);
+				PruningHelper.labelPrunableVertices(unprunedRoot, no, vertexPrefix);
+				attempts++;
+			} while (!unprunedIsOK(unprunedRoot, exact, hostLeaves));
+			
+			// Set meta info.
+			if (!this.excludeMeta) {
+				GuestVertex.setMeta(unprunedRoot);
 			}
-			unprunedRoot = mightyGodPlaysDice.createUnprunedTree(this.prng);
-			int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0, vertexPrefix);
-			PruningHelper.labelPrunableVertices(unprunedRoot, no, vertexPrefix);
+			
+			// Finally, an unpruned candidate tree.
+			prunedRoot = PruningHelper.prune(unprunedRoot);
 			attempts++;
-		} while (!isOK(unprunedRoot, exact, hostLeaves));
+		} while (!prunedIsOK(prunedRoot));
 		
-		// Meta.
-		if (!this.excludeMeta) {
-			GuestVertex.setMeta(unprunedRoot);
-		}
-		
-		// Finally, some trees.
-		GuestVertex prunedRoot = PruningHelper.prune(unprunedRoot);
 		String treeMeta = (excludeMeta ? null : "[&&PRIME NAME=UnprunedTree]");
 		PrIMENewickTree unprunedTree = new PrIMENewickTree(new NewickTree(unprunedRoot, treeMeta, false, false), false);
 		treeMeta = (excludeMeta ? null : "[&&PRIME NAME=PrunedTree]");
 		PrIMENewickTree prunedTree = (prunedRoot == null ? null : new PrIMENewickTree(new NewickTree(prunedRoot, treeMeta, false, false), false));
 		return new Pair<PrIMENewickTree, PrIMENewickTree>(prunedTree, unprunedTree);
 	}
-	
-	
+
 	/**
-	 * Validates requirements.
-	 * @param root (unpruned) guest tree root.
+	 * Validates requirements of unpruned tree.
+	 * @param root guest tree root.
 	 * @param exact -1 if not applicable, otherwise exact number of leaves required.
 	 * @param hostLeaves host leaves.
 	 * @return true if OK; otherwise false.
 	 */
-	protected boolean isOK(GuestVertex root, int exact, List<Integer> hostLeaves) {
+	protected boolean unprunedIsOK(GuestVertex root, int exact, List<Integer> hostLeaves) {
 		int sampledLeaves = 0;
 		LinkedList<NewickVertex> vertices = new LinkedList<NewickVertex>();
 		HashMap<Integer, Integer> sigmaCnt = new HashMap<Integer, Integer>(512); 
@@ -141,6 +152,16 @@ public class GuestTreeMachina {
 				return false;
 			}
 		}
+		return true;
+	}
+	
+	/**
+	 * Validates requirements of pruned tree.
+	 * @param root guest tree root.
+	 * @return true if OK; otherwise false.
+	 */
+	private boolean prunedIsOK(GuestVertex prunedRoot) {
+		// TODO Auto-generated method stub
 		return true;
 	}
 	
