@@ -39,6 +39,10 @@ public class GuestTreeGenParameters {
 	@Parameter(names = {"-s", "--seed"}, description = "PRNG seed. Default: Random seed.")
 	public String seed = null;
 
+	/** Number of trees to generate. */
+	@Parameter(names = {"-n", "--no-of-guest-trees"}, description = "Number of guest trees to generate.")
+	public Integer no = 1;
+	
 	/** Min leaves. */
 	@Parameter(names = {"-min", "--min-leaves"}, description = "Minimum number of extant guest leaves required.")
 	public Integer min = 2;
@@ -66,6 +70,11 @@ public class GuestTreeGenParameters {
 	/** Leaf sampling. */
 	@Parameter(names = {"-p", "--leaf-sampling-probability"}, description = "Governs the probability of observing a guest tree leaf. Lineages that fail to be observed will be pruned away similarly to lineages lost during the evolutionary process.")
 	public String leafSamplingProb = "1.0";
+	
+	/** Enforce parsimony. */
+	@Parameter(names = {"-pars", "--enforce-parsimony"}, description = "Requires the pruned guest tree to not have any duplication vertex that occurs on a host edge other than" +
+			" what a most-parsimonious reconciliation of the pruned guest tree topology would suggest, and cannot be mistaken for a speciation.")
+	public Boolean enforceParsimony = false;
 	
 	/** Attempts. */
 	@Parameter(names = {"-a", "--max-attempts"}, description = "Maximum number of attempts at creating random tree that meets requirements. If not met, no tree is output.")

@@ -88,18 +88,21 @@ public class PruningHelper {
 	 */
 	public static GuestVertex prune(GuestVertex unprunedRoot) {
 		if (unprunedRoot.prunability == Prunability.PRUNABLE) {
+			// Prune!
 			return null;
 		}
 		
 		if (unprunedRoot.event == Event.LEAF) {
+			// No pruning.
 			return new GuestVertex(unprunedRoot);
 		}
 		
-		// Special case: single unpruned child.
+		// Special case: single unpruned child to start with.
 		if (unprunedRoot.getNoOfChildren() == 1) {
 			GuestVertex c = prune(unprunedRoot.getLeftChild());
 			if (c == null) {
-				return null;   // Prune!
+				// Prune!
+				return null;
 			}
 			// Collapse!
 			c.setBranchLength(NumberManipulation.roundToSignificantFigures(c.getBranchLength() + unprunedRoot.getBranchLength(), 8));
