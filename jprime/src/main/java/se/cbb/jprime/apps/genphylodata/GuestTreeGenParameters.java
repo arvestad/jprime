@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import se.cbb.jprime.io.GMLFactory;
+import se.cbb.jprime.io.GMLGraph;
+import se.cbb.jprime.io.GMLIOException;
+import se.cbb.jprime.io.GMLReader;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.PrIMENewickTreeReader;
@@ -88,21 +92,10 @@ public class GuestTreeGenParameters {
 	@Parameter(names = {"-vp", "--vertex-prefix"}, description = "Vertex prefix.")
 	public String vertexPrefix = "G";
 	
-	/**
-	 * Returns the host tree.
-	 * @return host tree.
-	 * @throws NewickIOException
-	 * @throws IOException
-	 * @throws TopologyException
-	 */
-	public PrIMENewickTree getHostTree() throws NewickIOException, IOException, TopologyException {
-		File f = new File(this.args.get(0));
-		if (f.exists()) {
-			return PrIMENewickTreeReader.readTree(f, false, true);
-		} else {
-			return PrIMENewickTreeReader.readTree(args.get(0), false, true);
-		}
-	}
+	/** Hybrid network. */
+	@Parameter(names = {"-hybrid", "--hybrid-host-graph"}, arity = 3, description = "<post-hyb timespan> <post-hyb dup fact> <post-hyb loss fact>. Assumes that the input host tree is instead a hybrid DAG." +
+			" The transfer rate parameter will be ignored (i.e., set to 0). The additional parameters refer to a change-factor applied to the parameters for a limited time following a hybrid speciation.")
+	public List<String> hybrid = null;
 	
 	/**
 	 * Returns output and info streams.
@@ -117,10 +110,15 @@ public class GuestTreeGenParameters {
 		}
 	}
 
-	public UnprunedGuestTreeCreator getCreator() throws TopologyException, NewickIOException, IOException {
-		PrIMENewickTree host = this.getHostTree();
-		UnprunedGuestTreeCreator motor = new GuestTreeInHostTreeCreator(host, this.getDuplicationRate(), this.getLossRate(), this.getTransferRate(), this.getLeafSamplingProb(), this.getStem());
-		return motor;
+	public UnprunedGuestTreeCreator getHostTreeCreator() throws TopologyException, NewickIOException, IOException {
+		PrIMENewickTree host;
+		File f = new File(this.args.get(0));
+		if (f.exists()) {
+			host = PrIMENewickTreeReader.readTree(f, false, true);
+		} else {
+			host = PrIMENewickTreeReader.readTree(args.get(0), false, true);
+		}
+		return new GuestTreeInHostTreeCreator(host, this.getDuplicationRate(), this.getLossRate(), this.getTransferRate(), this.getLeafSamplingProb(), this.getStem());
 	}
 	
 	public double getDuplicationRate() {
@@ -155,4 +153,24 @@ public class GuestTreeGenParameters {
 		return Double.parseDouble(this.leafSamplingProb);
 	}
 
+	public GuestTreeInHybridGraphCreator getHostHybridGraphCreator() throws GMLIOException, IOException {
+		String str = this.args.get(0);
+		File f = new File(str);
+		double dup = this.getDuplicationRate();
+		double loss = this.getLossRate();
+		double timespan = Double.parseDouble(this.hybrid.get(0));
+		double dupfact = Double.parseDouble(this.hybrid.get(1));
+		double lossfact = Double.parseDouble(this.hybrid.get(2));
+		
+		GMLGraph host;
+		if (f.exists()) {
+			host = GMLFactory.getGraphs(GMLReader.readGML(f)).get(0);
+		} else {
+			host = GMLFactory.getGraphs(GMLReader.readGML(str)).get(0);
+		}
+		return new GuestTreeInHybridGraphCreator(host, dup, loss, dupfact, lossfact, timespan, this.getLeafSamplingProb(), this.getStem());
+	}
+	
 }
+
+

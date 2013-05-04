@@ -172,8 +172,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 				GuestVertex rc = this.createGuestVertex(ch, lin.abstime, prng);
 				lc.setParent(lin);
 				rc.setParent(lin);
-				lin.setChild(lc);
-				lin.setChild(rc);
+				lin.setChildren(lc, rc);
 				alive.add(lc);
 				alive.add(rc);
 			}
@@ -241,7 +240,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 				event = GuestVertex.Event.HYBRID_DONATION;
 				break;
 			case EXTINCT_HYBRID_DONOR:
-				event = GuestVertex.Event.HYBRID_DONATION;
+				event = GuestVertex.Event.HYBRID_DONATION_FROM_EXTINCT_DONOR;
 				break;
 			default:
 				throw new UnsupportedOperationException("Lineage evolved to unexpected event type.");

@@ -34,6 +34,7 @@ public class PruningHelper {
 			// Special case:
 			if (cs.size() == 1) {
 				GuestVertex c = (GuestVertex) cs.get(0);
+				nextNo = labelUnprunableVertices(c, nextNo, vertexPrefix);
 				v.prunability = (c.prunability == Prunability.PRUNABLE) ? Prunability.PRUNABLE : Prunability.COLLAPSABLE;
 				return nextNo;
 			}
@@ -70,8 +71,11 @@ public class PruningHelper {
 	 */
 	public static int labelPrunableVertices(GuestVertex v, int nextNo, String vertexPrefix) {
 		if (!v.isLeaf()) {
-			nextNo = labelPrunableVertices((GuestVertex) v.getChildren().get(0), nextNo, vertexPrefix);
-			nextNo = labelPrunableVertices((GuestVertex) v.getChildren().get(1), nextNo, vertexPrefix);
+			ArrayList<NewickVertex> ch = v.getChildren();
+			nextNo = labelPrunableVertices((GuestVertex) ch.get(0), nextNo, vertexPrefix);
+			if (ch.size() == 2) {
+				nextNo = labelPrunableVertices((GuestVertex) ch.get(1), nextNo, vertexPrefix);
+			}
 		}
 		if (v.getNumber() == -1) {
 			v.setNumber(nextNo);
