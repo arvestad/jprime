@@ -43,6 +43,8 @@ public class GuestTreeGen implements JPrIMEApp {
 						"transferred (be split with one copy being transferred to a contemporaneous host\n" +
 						"edge). Guest lineages branch deterministically at host tree vertices. Auxiliary\n" +
 						"files detailing the process are also created by default.\n\n" +
+						"It is now also possible to generate gene trees over hybrid graphs. This is\n" +
+						"covered in more detail in the online tutorial.\n\n" +
 						"References:\n" +
 						"    In press\n\n" +
 						"Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData\n\n" +
@@ -60,7 +62,7 @@ public class GuestTreeGen implements JPrIMEApp {
 					params.vertexPrefix, params.excludeMeta);
 			
 			// Machine motor.
-			UnprunedGuestTreeCreator motor = params.getCreator();
+			UnprunedGuestTreeCreator motor = (params.hybrid == null || params.hybrid.isEmpty()) ? params.getHostTreeCreator() : params.getHostHybridGraphCreator();
 			
 			// Create guest tree.
 			Pair<PrIMENewickTree, PrIMENewickTree> guestTree = null;

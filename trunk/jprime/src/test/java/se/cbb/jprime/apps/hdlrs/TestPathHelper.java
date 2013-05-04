@@ -1,5 +1,7 @@
 package se.cbb.jprime.apps.hdlrs;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +25,6 @@ public class TestPathHelper {
 		File f = new File(url.getFile());
 		HybridGraph dag = HybridGraphReader.readHybridGraph(f, 3, 10, 0.1, 7);
 		PathHelper paths = new PathHelper(dag);
-		System.out.println(paths);
+		assertTrue(paths != null);
 	}
 }
