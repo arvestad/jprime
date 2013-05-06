@@ -217,6 +217,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 				withinPostHyb = true;
 			}
 		} else {
+			// Normal case.
 			pd = new ExponentialDistribution(Math.max(this.lambda + this.mu, 1e-48));
 			branchTime = pd.sampleValue(prng);
 			withinPostHyb = false;
@@ -287,7 +288,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 			GuestVertex v = vertices.pop();
 			if (!v.isLeaf()) {
 				vertices.add(v.getLeftChild());
-				vertices.add(v.getRightChild());
+				if (v.getNoOfChildren() > 1) { vertices.add(v.getRightChild()); }
 			}
 			noOfVertices++;
 			totalTime += v.getBranchLength();
@@ -353,7 +354,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 			GuestVertex v = vertices.pop();
 			if (!v.isLeaf()) {
 				vertices.add(v.getLeftChild());
-				vertices.add(v.getRightChild());
+				if (v.getNoOfChildren() > 1) { vertices.add(v.getRightChild()); }
 			} else {
 				if (v.event == Event.LEAF || v.event == Event.UNSAMPLED_LEAF) {
 					sb.append(v.getName()).append('\t').append(hostGraph.getVertexName(v.sigma)).append('\n');
@@ -378,7 +379,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 			GuestVertex v = vertices.pop();
 			if (!v.isLeaf()) {
 				vertices.add(v.getLeftChild());
-				vertices.add(v.getRightChild());
+				if (v.getNoOfChildren() > 1) { vertices.add(v.getRightChild()); }
 			}
 			sb.append(v.getName()).append('\t');
 			sb.append(v.getNumber()).append('\t');

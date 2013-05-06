@@ -84,18 +84,20 @@ public class GuestVertex extends NewickVertex {
 	}
 	
 	/**
-	 * Helper.
+	 * Helper. Returns the left child. If there is a single child, returns that one.
 	 * @return left child.
 	 */
 	public GuestVertex getLeftChild() {
+		if (this.isLeaf()) { return null; }
 		return (GuestVertex) this.getChildren().get(0);
 	}
 	
 	/**
-	 * Helper.
+	 * Helper. Returns the right child. If there is a single child, null is returned.
 	 * @return right child.
 	 */
 	public GuestVertex getRightChild() {
+		if (this.getChildren().size() == 1) { return null; }
 		return (GuestVertex) this.getChildren().get(1);
 	}
 	

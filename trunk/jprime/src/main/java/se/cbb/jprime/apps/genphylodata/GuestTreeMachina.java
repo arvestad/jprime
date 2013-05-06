@@ -32,6 +32,7 @@ public class GuestTreeMachina {
 	private String vertexPrefix;
 	private boolean excludeMeta;
 	private int attempts;
+	private boolean appendSigma;
 	
 	/**
 	 * Constructor.
@@ -44,8 +45,9 @@ public class GuestTreeMachina {
 	 * @param maxAttempts max tries to meet requirements.
 	 * @param vertexPrefix vertex name prefix.
 	 * @param excludeMeta true to exclude meta info.
+	 * @param appendSigma appends the sigma to the name.
 	 */
-	protected GuestTreeMachina(String seed, int min, int max, int minper, int maxper, List<Integer> leafSizes, int maxAttempts, String vertexPrefix, boolean excludeMeta) {
+	protected GuestTreeMachina(String seed, int min, int max, int minper, int maxper, List<Integer> leafSizes, int maxAttempts, String vertexPrefix, boolean excludeMeta, boolean appendSigma) {
 		this.prng = (seed == null ? new PRNG() : new PRNG(new BigInteger(seed)));
 		this.min = min;
 		this.max = max;
@@ -56,6 +58,7 @@ public class GuestTreeMachina {
 		this.vertexPrefix = vertexPrefix;
 		this.excludeMeta = excludeMeta;
 		this.attempts = 0;
+		this.appendSigma = appendSigma;
 	}
 		
 	/**
@@ -89,8 +92,8 @@ public class GuestTreeMachina {
 					throw new MaxAttemptsException("" + attempts + " reached.");
 				}
 				unprunedRoot = mightyGodPlaysDice.createUnprunedTree(this.prng);
-				int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0, vertexPrefix);
-				PruningHelper.labelPrunableVertices(unprunedRoot, no, vertexPrefix);
+				int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0, vertexPrefix, appendSigma);
+				PruningHelper.labelPrunableVertices(unprunedRoot, no, vertexPrefix, appendSigma);
 				attempts++;
 			} while (!unprunedIsOK(unprunedRoot, exact, hostLeaves));
 			
