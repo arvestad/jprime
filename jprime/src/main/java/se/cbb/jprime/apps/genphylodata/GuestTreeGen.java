@@ -40,9 +40,9 @@ public class GuestTreeGen implements JPrIMEApp {
 						"ultrametric branch lengths and generates a \"guest\" tree evolving inside the\n" +
 						"host tree. This is achieved through a canonical extension of a birth-death\n" +
 						"process, in which guest tree lineages may be duplicated, lost, or laterally\n" +
-						"transferred (be split with one copy being transferred to a contemporaneous host\n" +
-						"edge). Guest lineages branch deterministically at host tree vertices. Auxiliary\n" +
-						"files detailing the process are also created by default.\n\n" +
+						"transferred (i.e., be split with one copy being transferred to a contemporaneous\n" +
+						"host edge). Guest lineages branch deterministically at host tree vertices.\n" +
+						"Auxiliary files detailing the process are also created by default.\n\n" +
 						"It is now also possible to generate gene trees over hybrid graphs. This is\n" +
 						"covered in more detail in the online tutorial.\n\n" +
 						"References:\n" +
@@ -59,7 +59,7 @@ public class GuestTreeGen implements JPrIMEApp {
 			
 			// Machine.
 			GuestTreeMachina machina = new GuestTreeMachina(params.seed, params.min, params.max, params.minper, params.maxper, params.getLeafSizes(), params.maxAttempts,
-					params.vertexPrefix, params.excludeMeta);
+					params.vertexPrefix, params.excludeMeta, params.appendSigma);
 			
 			// Machine motor.
 			UnprunedGuestTreeCreator motor = (params.hybrid == null || params.hybrid.isEmpty()) ? params.getHostTreeCreator() : params.getHostHybridGraphCreator();

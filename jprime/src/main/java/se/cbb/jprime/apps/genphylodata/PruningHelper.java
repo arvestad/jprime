@@ -19,22 +19,24 @@ public class PruningHelper {
 	 * @param v the subtree root.
 	 * @param nextNo next available name.
 	 * @param vertexPrefix vertex prefix.
+	 * @param appendSigma appends the sigma to the name.
 	 * @return the next available name.
 	 */
-	public static int labelUnprunableVertices(GuestVertex v, int nextNo, String vertexPrefix) {
+	public static int labelUnprunableVertices(GuestVertex v, int nextNo, String vertexPrefix, boolean appendSigma) {
 		if (v.event == Event.LOSS || v.event == Event.UNSAMPLED_LEAF) {
 			v.prunability = Prunability.PRUNABLE;
 		} else if (v.event == Event.LEAF) {
 			v.prunability = Prunability.UNPRUNABLE;
 			v.setNumber(nextNo);
-			v.setName(vertexPrefix + nextNo++);
+			String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + v.sigma : "");
+			v.setName(name);
 		} else {
 			ArrayList<NewickVertex> cs = v.getChildren();
 			
 			// Special case:
 			if (cs.size() == 1) {
 				GuestVertex c = (GuestVertex) cs.get(0);
-				nextNo = labelUnprunableVertices(c, nextNo, vertexPrefix);
+				nextNo = labelUnprunableVertices(c, nextNo, vertexPrefix, appendSigma);
 				v.prunability = (c.prunability == Prunability.PRUNABLE) ? Prunability.PRUNABLE : Prunability.COLLAPSABLE;
 				return nextNo;
 			}
@@ -42,8 +44,8 @@ public class PruningHelper {
 			// Label kiddos first.
 			GuestVertex lc = (GuestVertex) cs.get(0);
 			GuestVertex rc = (GuestVertex) cs.get(1);
-			nextNo = labelUnprunableVertices(lc, nextNo, vertexPrefix);
-			nextNo = labelUnprunableVertices(rc, nextNo, vertexPrefix);
+			nextNo = labelUnprunableVertices(lc, nextNo, vertexPrefix, appendSigma);
+			nextNo = labelUnprunableVertices(rc, nextNo, vertexPrefix, appendSigma);
 			
 			// Now process vertex based on subtrees' results.
 			if (lc.prunability == Prunability.PRUNABLE && rc.prunability == Prunability.PRUNABLE) {
@@ -55,7 +57,8 @@ public class PruningHelper {
 			} else {
 				v.prunability = Prunability.UNPRUNABLE;
 				v.setNumber(nextNo);
-				v.setName(vertexPrefix + nextNo++);
+				String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + v.sigma : "");
+				v.setName(name);
 			}
 		}
 		return nextNo;
@@ -67,19 +70,21 @@ public class PruningHelper {
 	 * @param v the subtree root.
 	 * @param nextNo next available name.
 	 * @param vertexPrefix vertex prefix.
+	 * @param appendSigma appends the sigma to the name.
 	 * @return the next available name.
 	 */
-	public static int labelPrunableVertices(GuestVertex v, int nextNo, String vertexPrefix) {
+	public static int labelPrunableVertices(GuestVertex v, int nextNo, String vertexPrefix, boolean appendSigma) {
 		if (!v.isLeaf()) {
 			ArrayList<NewickVertex> ch = v.getChildren();
-			nextNo = labelPrunableVertices((GuestVertex) ch.get(0), nextNo, vertexPrefix);
+			nextNo = labelPrunableVertices((GuestVertex) ch.get(0), nextNo, vertexPrefix, appendSigma);
 			if (ch.size() == 2) {
-				nextNo = labelPrunableVertices((GuestVertex) ch.get(1), nextNo, vertexPrefix);
+				nextNo = labelPrunableVertices((GuestVertex) ch.get(1), nextNo, vertexPrefix, appendSigma);
 			}
 		}
 		if (v.getNumber() == -1) {
 			v.setNumber(nextNo);
-			v.setName(vertexPrefix + nextNo++);
+			String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + v.sigma : "");
+			v.setName(name);
 		}
 		return nextNo;
 	}

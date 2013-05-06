@@ -92,8 +92,12 @@ public class GuestTreeGenParameters {
 	@Parameter(names = {"-vp", "--vertex-prefix"}, description = "Vertex prefix.")
 	public String vertexPrefix = "G";
 	
+	/** Sigma. */
+	@Parameter(names = {"-vph", "--vertex-prefix-host-map"}, description = "Append host vertex/edge belonging to vertex prefix.")
+	public Boolean appendSigma = true;
+	
 	/** Hybrid network. */
-	@Parameter(names = {"-hybrid", "--hybrid-host-graph"}, arity = 3, description = "<post-hyb timespan> <post-hyb dup fact> <post-hyb loss fact>. Assumes that the input host tree is instead a hybrid DAG." +
+	@Parameter(names = {"-hybrid", "--hybrid-host-graph"}, arity = 3, description = "<post-hyb timespan> <post-hyb dup fact> <post-hyb loss fact>. Assumes that the input host tree is in fact a hybrid DAG." +
 			" The transfer rate parameter will be ignored (i.e., set to 0). The additional parameters refer to a change-factor applied to the parameters for a limited time following a hybrid speciation.")
 	public List<String> hybrid = null;
 	
