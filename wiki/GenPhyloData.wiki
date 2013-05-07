@@ -9,6 +9,7 @@
   # [GenPhyloData#GUESTTREEGEN GuestTreeGen]
   # [GenPhyloData#BRANCHRELAXER BranchRelaxer]
   # [GenPhyloData#SEQUENCES Sequence data]
+  # [GenPhyloData#HYBRIDISATIONS Guest trees under hybridisations]
   # [GenPhyloData#FAQ FAQ]
 
 ----
@@ -184,6 +185,19 @@ Note however, that the host tree and guest tree must be ultrametric and temporal
 
 ==SEQUENCES==
 If you wish to produce synthetic sequence data for your trees, you may use, e.g., [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen], which supports a wide range of popular models of molecular sequence evolution for nucleotide, amino acid or codon data. Such programs typically support modelling also indels, gaps, and site rate heterogeneity.
+
+
+----
+
+==HYBRIDISATIONS==
+!GuestTreeGen has recently been extended with the ability to generate bifurcating guest trees by duplication and loss events over a host graph with host vertices representing alloploidic and autoploidic hybrid speciations. The graph is to be provided on the GML format, such as this: [TBA TBA]. The process works as usual, albeit with the following remarks:
+  * The transfer rate is ignored (i.e., set to 0).
+  * For a guest lineage reaching an autoploidic host vertex, an obligate duplication occurs.
+  * The model supports extinct hybrid donor species as well.
+  * It is possible to specify a different duplication and loss rate following a hybrid speciation. This is handled by defining factors with which the rates are rescaled, e.g., (1.1, 2), for a certain amount of time, e.g., 0.1. This allows for increasing the loss rate and similarly. 
+  * The unpruned tree is not bifurcating, but may have vertices to indicate paths over hybrid host vertices. The pruned tree is bifurcating, however.
+
+
 
 ----
 
