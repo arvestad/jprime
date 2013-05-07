@@ -194,10 +194,15 @@ If you wish to produce synthetic sequence data for your trees, you may use, e.g.
   * The transfer rate is ignored (i.e., set to 0).
   * For a guest lineage reaching an autoploidic host vertex, an obligate duplication occurs.
   * The model supports extinct hybrid donor species as well.
-  * It is possible to specify a different duplication and loss rate following a hybrid speciation. This is handled by defining factors with which the rates are rescaled, e.g., (1.1, 2), for a certain amount of time, e.g., 0.1. This allows for increasing the loss rate and similarly. 
+  * It is possible to specify a different duplication and loss rate following a hybrid speciation. This is handled by defining factors with which the rates are rescaled for a certain amount of time. This allows for temporarily increasing the loss rate, for instance.
   * The unpruned tree is not bifurcating, but may have vertices to indicate paths over hybrid host vertices. The pruned tree is bifurcating, however.
 
+You specify the hybrid graph option in the following manner:
 
+{{{
+java -jar jprime-X.Y.Z.jar GuestTreeGen -hybrid 0.05 1 2 hybrid_graph_w_extinctions.gml 0.1 0.005 0 myhybridguest
+}}}
+to generate a tree where the post-hybridisation "zone" is set to last for 0.05 time units, with a duplication rate temporarily rescaled by 1 and the loss rate temporarily rescaled by 2.
 
 ----
 
