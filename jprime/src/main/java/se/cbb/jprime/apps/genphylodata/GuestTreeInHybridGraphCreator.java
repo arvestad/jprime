@@ -68,7 +68,7 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 		this.lambda = lambda;
 		this.mu = mu;
 		this.lambdaPostHyb = lambdaChangeFact * lambda;
-		this.muPostHyb = muPostHyb * mu;
+		this.muPostHyb = muChangeFact * mu;
 		this.postHybTimespan = postHybTimespan;
 		this.rho = rho;
 		if (lambda < 0 || mu < 0 || lambdaChangeFact < 0 || muChangeFact < 0 || postHybTimespan < 0) {
