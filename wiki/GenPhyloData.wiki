@@ -11,6 +11,7 @@
   # [GenPhyloData#SEQUENCES Sequence data]
   # [GenPhyloData#FAQ FAQ]
 
+----
 
 ==INTRODUCTION==
 
