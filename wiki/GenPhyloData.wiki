@@ -5,7 +5,7 @@
 == CONTENTS ==
 
   # [GenPhyloData#INTRODUCTION Introduction]
-  # [GenPhyloData#(1) HOSTTREEGEN References]
+  # [GenPhyloData#HOSTTREEGEN !HostTreeGen]
 
 
 ==INTRODUCTION==
@@ -22,7 +22,7 @@ The tools of !GenPhyloData are described seperately below.
 
 ----
 
-==(1) HOSTTREEGEN==
+==HOSTTREEGEN==
 [http://jprime.googlecode.com/files/HostTreeGen.png]
 
 !HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding, e.g:
