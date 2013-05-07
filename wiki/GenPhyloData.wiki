@@ -190,7 +190,7 @@ If you wish to produce synthetic sequence data for your trees, you may use, e.g.
 ----
 
 ==HYBRIDISATIONS==
-!GuestTreeGen has recently been extended with the ability to generate bifurcating guest trees by duplication and loss events over a host graph with host vertices representing alloploidic and autoploidic hybrid speciations. The graph is to be provided on the GML format, such as the one shown above: [hybrid_graph_w_extinctions.gml]. The process works as usual, albeit with the following remarks:
+!GuestTreeGen has recently been extended with the ability to generate bifurcating guest trees by duplication and loss events over a host graph with host vertices representing alloploidic and autoploidic hybrid speciations. The graph is to be provided on the GML format, such as the one shown above: [http://jprime.googlecode.com/files/hybrid_graph_w_extinctions.gml hybrid_graph_w_extinctions.gml]. The process works as usual, albeit with the following remarks:
   * The transfer rate is ignored (i.e., set to 0).
   * For a guest lineage reaching an autoploidic host vertex, an obligate duplication occurs.
   * The model supports extinct hybrid donor species as well.
