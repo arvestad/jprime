@@ -1,4 +1,4 @@
-package se.cbb.jprime.apps.hdlrs;
+package se.cbb.jprime.apps.hbrs;
 
 import java.util.LinkedList;
 
@@ -46,6 +46,23 @@ public class Path {
 		this.hashCode += Math.abs(x);
 	}
 
+	/**
+	 * Returns the last element of the path.
+	 * @return the last element.
+	 */
+	public int getHead() {
+		return this.vertices.getLast();
+	}
+
+	/**
+	 * Returns the first element of the path.
+	 * @return the first element.
+	 */
+	public int getTail() {
+		return this.vertices.getFirst();
+	}
+
+	
 	@Override
 	public int hashCode() {
 		return this.hashCode;
