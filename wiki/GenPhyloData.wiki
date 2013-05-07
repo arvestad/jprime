@@ -184,7 +184,9 @@ Note however, that the host tree and guest tree must be ultrametric and temporal
 ----
 
 ==SEQUENCES==
-If you wish to produce synthetic sequence data for your trees, you may use, e.g., [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen] (_Rambaut_ 2002-), which supports a wide range of popular models of molecular sequence evolution for nucleotide, amino acid or codon data. Such programs typically support modelling also indels, gaps, and site rate heterogeneity. A more recent application to model whole genomes at a time is [http://www.cbrg.ethz.ch/alf ALF] (_Dalquen et al., 2012_).
+If you wish to produce synthetic sequence data for your trees, you may use, e.g., [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen] (_Rambaut, 2002-_), which supports a wide range of popular models of molecular sequence evolution for nucleotide, amino acid or codon data. Such programs typically support modelling also indels, gaps, and site rate heterogeneity.
+
+A more recent application to model whole genomes at a time is [http://www.cbrg.ethz.ch/alf ALF] (_Dalquen et al., 2012_).
 
 
 ----
