@@ -8,8 +8,8 @@
   # [GenPhyloData#HOSTTREEGEN HostTreeGen]
   # [GenPhyloData#GUESTTREEGEN GuestTreeGen]
   # [GenPhyloData#BRANCHRELAXER BranchRelaxer]
-  # [GenPhyloData#SEQUENCES" Sequence data]
-  # [GenPhyloData#FAQ" FAQ]
+  # [GenPhyloData#SEQUENCES Sequence data]
+  # [GenPhyloData#FAQ FAQ]
 
 
 ==INTRODUCTION==
