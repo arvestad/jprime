@@ -8,7 +8,8 @@
   # [GenPhyloData#HOSTTREEGEN HostTreeGen]
   # [GenPhyloData#GUESTTREEGEN GuestTreeGen]
   # [GenPhyloData#BRANCHRELAXER BranchRelaxer]
-  # [GenPhyloData#"SEQUENCE DATA" Sequence data]
+  # [GenPhyloData#SEQUENCES" Sequence data]
+  # [GenPhyloData#FAQ" FAQ]
 
 
 ==INTRODUCTION==
@@ -174,7 +175,7 @@ Note however, that the host tree and guest tree must be ultrametric and temporal
 
 ----
 
-==SEQUENCE DATA==
+==SEQUENCES==
 If you wish to produce synthetic sequence data for your trees, you may use, e.g., [http://tree.bio.ed.ac.uk/software/seqgen/ SeqGen], which supports a wide range of popular models of molecular sequence evolution for nucleotide, amino acid or codon data. Such programs typically support modelling also indels, gaps, and site rate heterogeneity.
 
 ----
