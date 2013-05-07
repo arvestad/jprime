@@ -2,6 +2,14 @@
 
 =!GenPhyloData Tutorial=
 
+== CONTENTS ==
+
+  # [GenPhyloData#INTRODUCTION Introduction]
+  # [GenPhyloData#(1) HOSTTREEGEN References]
+
+
+==INTRODUCTION==
+
 JPrIME-!GenPhyloData is a suite of tools to generate realistic synthetic (a.k.a _artificial_ or _simulated_) phylogenetic trees. The models used conform well with the inference tools included in JPrIME, but also support other popular models. Currently, the suite comprises 3 tools:
 
   # !HostTreeGen - for generating a bifurcating tree from scratch, typically a species tree.
@@ -14,7 +22,7 @@ The tools of !GenPhyloData are described seperately below.
 
 ----
 
-==(1) !HostTreeGen==
+==(1) HOSTTREEGEN==
 [http://jprime.googlecode.com/files/HostTreeGen.png]
 
 !HostTreeGen is a tool to generate bifurcating tree topologies according to a birth-death process. The user inputs a time interval over which the process should take place, along with birth and death rates. Lineages which fail to reach the end of the interval are pruned away. There are additional options regarding, e.g:
