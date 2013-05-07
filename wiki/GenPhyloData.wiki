@@ -5,7 +5,7 @@
 == CONTENTS ==
 
   # [GenPhyloData#INTRODUCTION Introduction]
-  # [GenPhyloData#HOSTTREEGEN !HostTreeGen]
+  # [GenPhyloData#HOSTTREEGEN HostTreeGen]
 
 
 ==INTRODUCTION==
