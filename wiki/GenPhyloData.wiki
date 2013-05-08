@@ -5,6 +5,7 @@
 == CONTENTS ==
 
   # [GenPhyloData#INTRODUCTION Introduction]
+  # [GenPhyloData#REFERENCES References]
   # [GenPhyloData#HOSTTREEGEN HostTreeGen]
   # [GenPhyloData#GUESTTREEGEN GuestTreeGen]
   # [GenPhyloData#BRANCHRELAXER BranchRelaxer]
