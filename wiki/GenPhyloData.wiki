@@ -200,7 +200,7 @@ A more recent application to model whole genomes at a time is [http://www.cbrg.e
   * For a guest lineage reaching an autoploidic host vertex, an obligate duplication occurs.
   * The model supports extinct hybrid donor species as well.
   * It is possible to specify a different duplication and loss rate following a hybrid speciation. This is handled by defining factors with which the rates are rescaled for a certain amount of time. This allows for temporarily increasing the loss rate, for instance.
-  * The unpruned tree is not bifurcating, but may have vertices to indicate paths over hybrid host vertices. The pruned tree is bifurcating, however.
+  * The unpruned guest tree may have vertices with outdegree 1 to indicate paths over hybrid host vertices. The pruned guest tree is bifurcating, however.
 
 You specify the hybrid graph option in the following manner:
 
