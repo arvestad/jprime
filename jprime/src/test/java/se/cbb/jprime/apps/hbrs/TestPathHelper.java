@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+
 import org.junit.Test;
 
 import se.cbb.jprime.apps.hbrs.PathHelper;
@@ -26,7 +28,13 @@ public class TestPathHelper {
 		File f = new File(url.getFile());
 		HybridGraph dag = HybridGraphReader.readHybridGraph(f, 3, 10, 0.1, 7);
 		PathHelper paths = new PathHelper(dag);
-		System.out.println(paths);
+		//System.out.println(paths);
 		assertTrue(paths != null);
+		List<Integer> desc = paths.getDescendants(17);
+//		for (int x : desc) {
+//			System.out.print(x + " ");
+//		}
+		assertEquals(13, desc.size());
+		assertEquals(17, desc.get(12).intValue());
 	}
 }

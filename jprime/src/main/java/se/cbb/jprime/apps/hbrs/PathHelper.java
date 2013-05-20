@@ -1,8 +1,10 @@
 package se.cbb.jprime.apps.hbrs;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
-
 import se.cbb.jprime.topology.HybridGraph;
 
 /**
@@ -14,6 +16,9 @@ public class PathHelper {
 
 	/** DAG. */
 	HybridGraph dag;
+	
+	/** Temporally ordered descendants. */
+	ArrayList<ArrayList<Integer>> descendants;
 	
 	/** Paths indexed by end-vertex. */
 	ArrayList<ArrayList<Path>> pathsByHead;
@@ -31,19 +36,22 @@ public class PathHelper {
 	public PathHelper(HybridGraph dag) {
 		this.dag = dag;
 		int n = dag.getNoOfVertices();
+		this.descendants = new ArrayList<ArrayList<Integer>>(n);
 		this.pathsByHead = new ArrayList<ArrayList<Path>>(n);
 		this.pathsByTail = new ArrayList<ArrayList<Path>>(n);
 		this.pathsByHeadAndTail = new ArrayList<ArrayList<Path>>(n * n);
 		
 		// Fill arrays.
 		for (int x = 0; x < n; ++x) {
+			this.descendants.add(new ArrayList<Integer>());
 			this.pathsByHead.add(new ArrayList<Path>());
 			this.pathsByTail.add(new ArrayList<Path>());
 			for (int y = 0; y < n; ++y) {
 				this.pathsByHeadAndTail.add(new ArrayList<Path>());
 			}
 		}
-		
+
+		this.addDescendants();
 		this.addPathsByHead();
 		
 		// Fill remaining structures.
@@ -58,6 +66,32 @@ public class PathHelper {
 		}
 	}
 
+	/**
+	 * Adds all descendants.
+	 */
+	private void addDescendants() {
+		List<Integer> ordering = dag.getTopologicalOrdering();
+		int n = ordering.size();
+		for (int i = ordering.size() - 1; i >= 0; i--) {
+			int x = ordering.get(i);
+			HashSet<Integer> desc = new HashSet<Integer>(n);
+			for (int y : this.dag.getChildren(x)) {
+				desc.addAll(this.descendants.get(y));
+			}
+			desc.add(x);
+			this.descendants.get(x).addAll(desc);
+			Collections.sort(this.descendants.get(x), new Comparator<Integer>() {
+				public int compare(Integer x1, Integer x2) {
+					double t1 = dag.getVertexTime(x1);
+					double t2 = dag.getVertexTime(x2);
+					if (t1 < t2) { return -1; }
+					if (t1 > t2) { return 1; }
+					return 0;
+				}
+			});
+		}
+	}
+	
 	/**
 	 * Adds all paths ending in x, then proceeds below subtree rooted at x.
 	 */
@@ -108,6 +142,14 @@ public class PathHelper {
 		return this.pathsByHead.get(n *  head + tail);
 	}
 
+	/**
+	 * Returns all descendants temporally sorted from leaves to the tip.
+	 * @param x the vertex.
+	 * @return the descendants of (and including) x.
+	 */
+	public ArrayList<Integer> getDescendants(int x) {
+		return this.descendants.get(x);
+	}
 	
 	@Override
 	public String toString() {
