@@ -6,6 +6,7 @@
 
 == CONTENTS ==
   # [DLTRS#INTRODUCTION Introduction]
+  # [DLTRS#DOWNLOAD Download]
   # [DLTRS#REFERENCES References]
   # [DLTRS#WORKFLOW Workflow]
   # [DLTRS#INPUT Input]
@@ -51,6 +52,13 @@ Hence the name DLTRS = duplications, losses, transfers, rates & sequence evoluti
 ----
 
 
+== DOWNLOAD ==
+
+DLTRS is not distributed as a binary, but is included in the JPrIME JAR file, which can be obtained from the [http://code.google.com/p/jprime/downloads downloads page].
+
+----
+----
+----
 == REFERENCES ==
 
 DLTRS is currently under review.
