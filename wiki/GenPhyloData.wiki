@@ -32,7 +32,7 @@ The tools of !GenPhyloData are described seperately below.
 
 ==DOWNLOAD==
 
-GenPhyloData is not distributed as a binary, but is included in the JPrIME JAR file, which can be obtained from the [http://code.google.com/p/jprime/downloads downloads page].
+!GenPhyloData is not distributed as a binary, but is included in the JPrIME JAR file, which can be obtained from the [http://code.google.com/p/jprime/downloads downloads page].
 
 ----
 
