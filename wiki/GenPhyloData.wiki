@@ -30,7 +30,11 @@ The tools of !GenPhyloData are described seperately below.
 
 ----
 
+==DOWNLOAD==
 
+DLTRS is not distributed as a binary, but is included in the JPrIME JAR file, which can be obtained from the [http://code.google.com/p/jprime/downloads downloads page].
+
+----
 
 ==REFERENCES==
 
