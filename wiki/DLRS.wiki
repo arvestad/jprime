@@ -52,7 +52,8 @@ Hence the name DLRS = duplications, losses, rates & sequence evolution.
 ----
 
 == DOWNLOAD ==
-DLRS is distributed with the JPrIME JAR file, which can be obtained from Do
+
+DLRS is not distributed as a binary, but is included in the JPrIME JAR file, which can be obtained from the [http://code.google.com/p/jprime/downloads downloads page].
 
 ----
 ----
