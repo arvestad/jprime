@@ -57,6 +57,7 @@ By default, files are produced for both the unpruned and the pruned tree:
   * the tree itself in Newick format.
   * an info file detailing the process.
 
+Since both the time interval and the rates are specified, the user can use an arbitrary time unit (e.g. millions of years).
 The general pattern for the tool is thus:
 {{{
 java -jar jprime-x.y.z.jar HostTreeGen [options] <timespan> <birth rate> <death rate> <out prefix>
@@ -95,6 +96,7 @@ By default, files are produced for both the unpruned and the pruned tree:
   * a detailed guest-to-host map.
   * a guest-to-host map with leaf names only.
 
+Since both the time interval and the rates are specified, the user can use an arbitrary time unit (e.g. millions of years).
 The general pattern for the tool is thus:
 {{{
 java -jar jprime-x.y.z.jar GuestTreeGen [options] <host tree> <duplication rate> <loss rate> <transfer rate> <out prefix>
