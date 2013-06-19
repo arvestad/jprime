@@ -8,7 +8,7 @@ import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RootedTree;
 
 /**
- * Constant rate model.
+ * Constant rate model, i.e., a strict molecular clock.
  * 
  * @author Joel Sjöstrand.
  */

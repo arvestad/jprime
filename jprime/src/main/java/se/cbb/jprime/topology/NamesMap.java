@@ -74,14 +74,14 @@ public class NamesMap extends StringMap {
 	}
 	
 	/**
-	 * Sets the name of a vertex/arc. No check i made for uniqueness.
+	 * Sets the name of a vertex/arc. No check is made for uniqueness.
 	 * @param x the vertex/head of arc.
 	 * @param val the name.
 	 */
 	public void set(int x, String val) {
 		this.vertices.remove(this.values[x]);
 		this.values[x] = val;
-		if (this.vertices.put(val, x) != null) {
+		if (this.vertices.put(val, x) != null && val != null) {
 			throw new IllegalArgumentException("Cannot insert duplicate name in NamesMap.");
 		}
 	}

@@ -66,7 +66,7 @@ public class BranchRelaxer implements JPrIMEApp {
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +
-						"    java -jar jprime-X.Y.Z.jar BranchRelaxer [options] <model> <arg1> <arg2> <...>\n");
+						"    java -jar jprime-X.Y.Z.jar BranchRelaxer [options] <tree> <model> <arg1> <arg2> <...>\n");
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				sb.append(params.getModelsHelpMsg());
 				System.out.println(sb.toString());
@@ -99,6 +99,15 @@ public class BranchRelaxer implements JPrIMEApp {
 			
 			DoubleMap relLengths = getRelaxedLengths(origLengths, rates);
 			boolean doMeta = params.doMeta;
+			
+			// Clear interior vertex names for better cross-compatibility.
+			if (!params.keepInteriorNames) {
+				for (int x = 0; x < t.getNoOfVertices(); ++x) {
+					if (!t.isLeaf(x)) {
+						names.set(x, null);
+					}
+				}
+			}
 			
 			String outtree = toNewickTree(t, names, relLengths, origLengths, rates, doMeta);
 			if (params.outputfile == null) {
