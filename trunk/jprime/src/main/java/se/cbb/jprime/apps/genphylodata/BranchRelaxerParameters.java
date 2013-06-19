@@ -54,6 +54,10 @@ public class BranchRelaxerParameters {
 	@Parameter(names = {"-x", "--auxiliary-tags"}, description = "Include auxiliary PrIME tags in output tree.")
 	public Boolean doMeta = false;
 	
+	/** Do meta. */
+	@Parameter(names = {"-innms", "--keep-interior-names"}, description = "Keep interior vertex names in outpout tree. These are otherwise cleared.")
+	public Boolean keepInteriorNames = false;
+	
 	/** Min rate. */
 	@Parameter(names = {"-min", "--min-rate"}, description = "Minimum rate allowed.")
 	public String min = "1e-64";
@@ -114,7 +118,7 @@ public class BranchRelaxerParameters {
 	
 	public String getModelsHelpMsg() {
 		return "Supported models:\n" +
-				"    Constant <rate>                 -  Constant rates.\n" +
+				"    Constant <rate>                 -  Constant rates (i.e., strict molecular clock).\n" +
 				"    IIDGamma <k> <theta>            -  IID rates from Gamma(k, theta).\n" +
 				"    IIDLogNormal <mu> <sigma2>      -  IID rates from ln N(mu, sigma^2).\n" +
 				"    IIDNormal <mu> <sigma2>         -  IID rates from N(mu, sigma^2).\n" +
