@@ -29,10 +29,6 @@ public class Parameters {
 	public Boolean nogui = false;
 	
 	/** Test and Simple Statistics only */
-	@Parameter(names = {"-b","--burnin"}, description = "Burnin value.")
-	public int burnin = 0;
-	
-	/** Test and Simple Statistics only */
 	@Parameter(names = {"-c","--confidencelevel"}, description = "Confidence Level value.")
 	public String confidence = "95";
 	

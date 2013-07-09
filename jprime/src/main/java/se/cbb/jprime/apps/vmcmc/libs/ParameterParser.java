@@ -15,7 +15,7 @@ public class ParameterParser {
 		
 		/* ******************** VARIABLE INITIALIZERS ***************************** */
 		filename		 		= ps.filename;
-		burnin	 				= ps.burnin;
+		burnin	 				= 0;
 		confidence		 		= Double.parseDouble(ps.confidence);
 		
 		/* ******************** FUNCTION BODY ************************************* */
