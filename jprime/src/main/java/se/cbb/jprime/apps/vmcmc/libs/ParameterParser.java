@@ -15,12 +15,11 @@ public class ParameterParser {
 		
 		/* ******************** VARIABLE INITIALIZERS ***************************** */
 		filename		 		= ps.filename;
-		burnin	 				= 0;
+		burnin	 				= Integer.parseInt(ps.burnin);
 		confidence		 		= Double.parseDouble(ps.confidence);
 		
 		/* ******************** FUNCTION BODY ************************************* */
 		System.out.println("{\n\t\"File\": \"" + filename + "\",\n\t\"Burnin\": " + burnin + ",\n\t\"Confidence Level\": " + confidence + ",");
-		System.out.println("\t\"Parameters\": [");
 		return new Triple<String, Integer, Double>(filename, burnin, confidence);
 	}
 	/* **************************************************************************** *

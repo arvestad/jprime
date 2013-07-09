@@ -45,10 +45,18 @@ public class Parameters {
 	public Boolean geweke = false;
 	
 	/** Estimated Sample Size Test only */
-	@Parameter(names = {"-e","--ess"}, description = "Effective Sample Size test result on command line only. VMCMC computed estimated sample size estimator for the MCMC chain shown on stdout. ")
+	@Parameter(names = {"-e","--ess"}, description = "Effective Sample Size test result on command line only. VMCMC computed estimated sample size burn-in and convergenceestimator for the MCMC chain shown on stdout. ")
 	public Boolean ess = false;
 	
 	/** Estimated Sample Size Test only */
-	@Parameter(names = {"-r","--gelmanrubin"}, description = "Gelman-Rubin convergence test result on command line only. VMCMC computed estimated sample size estimator for the MCMC chain shown on stdout. ")
+	@Parameter(names = {"-r","--gelmanrubin"}, description = "Gelman-Rubin convergence test result on command line only. VMCMC computed gelman rubin burn-in and convergence estimator for the MCMC chain shown on stdout. ")
 	public Boolean gr = false;
+	
+	/** Estimated Sample Size Test only */
+	@Parameter(names = {"-mt","--maptree"}, description = "Display MAP trees. ")
+	public Boolean tree = false;
+	
+	/** Estimated Sample Size Test only */
+	@Parameter(names = {"-b","--burnin"}, description = "Burn-in values to reject for command line MAP trees. ")
+	public String burnin = "0";
 }
