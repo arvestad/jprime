@@ -139,7 +139,6 @@ public class MCMCApplication {
 		int 				startPos; 
 		int 				leftIndex;
 		int 				rightIndex;
-		int 				j;
 		ArrayList<String> 	numSeriesArray;
 		boolean 			gelmanRubin;
 		Double[] 			data;
@@ -181,169 +180,185 @@ public class MCMCApplication {
 
 				if(numSeries != 0) {
 					numSeriesArray = datacontainer.getValueNames();
-
+					
 					for (int i = 0; i < numSeries; i++) {
 						serie = datacontainer.getValueSerie(i).toArray();
-						j = i+1;
 						serieLength	= serie.length;
 						
 						if(serieLength < 100){
-							System.out.println("Small dataset. Stistics and tests can not be computed.");
+							System.out.println("\t\tSmall dataset. Stistics and tests can not be computed.\n\t}\n}");
 							System.exit(0);
 						}
-							
+						
+						System.out.println("\t\t\"Name\": "+ numSeriesArray.get(i) + "{");
+						
 						if(choice == 5) {
 							ess 				= MCMCMath.calculateESS(serie);
-							if (ess > serieLength/800)
-								System.out.println("    Parameter " + j + ": \"" + numSeriesArray.get(i) + "\" estimated burn in point is " + ess);
-							else
-								System.out.println("    Parameter " + j + ": \"" + numSeriesArray.get(i) + "\" insignificant. Not converged");
+							if (ess > serieLength/800) {
+								System.out.println("\t\t\t\"ESS\": [\n\t\t\t\t\"Status\": \"Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + ess + "\n\t\t\t]");
+							} else
+								System.out.println("\t\t\t\"ESS\": \"Insignificant. Not converged\"");
 						} else if(choice == 4) {
 							geweke 				= MCMCMath.calculateGeweke(serie);
-							if (geweke != -1)
-								System.out.println("    Parameter " + j + ": \"" + numSeriesArray.get(i) + "\" estimated burn in point is " + geweke);
-							else
-								System.out.println("    Parameter " + j + ": \"" + numSeriesArray.get(i) + "\" not converged");
+							if (geweke != -1) {
+								System.out.println("\t\t\t\"Geweke\": [\n\t\t\t\t\"Status\": \"Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + geweke + "\n\t\t\t]");							
+							} else 
+								System.out.println("\t\t\t\"Geweke\": \"Not converged\"");
 						} else if(choice == 6) {
 							gelmanRubin 		= MCMCMath.GelmanRubinTest(serie, burnin);
-							if(gelmanRubin == true)	
-								System.out.println("    Parameter " + j + ": \"" + numSeriesArray.get(i) + "\" converged at data point " + burnin);
-							else
-								System.out.println("    Parameter " + j + ": \"" + numSeriesArray.get(i) + "\" not converged at data point " + burnin);
-						} else if(choice == 2) {
-							System.out.println("\n    ------ Parameter " + j + ": "+ numSeriesArray.get(i) + " ------");
-							
+							if(gelmanRubin == true)	{
+								System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \"Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + burnin + "\n\t\t\t]");
+							} else {
+								System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \"Not Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + burnin + "\n\t\t\t]");
+							}
+						} 
+						
+						if(choice == 2 || choice == 7) {
 							geweke = MCMCMath.calculateGeweke(serie);
-							gelmanRubin	= MCMCMath.GelmanRubinTest(serie, burnin);
 							ess = MCMCMath.calculateESS(serie);
 
-							if (ess > serieLength/800)
-								System.out.println("    'ESS': Estimated burn in point is " + ess);
-							else
-								System.out.println("    'ESS': Insignificant. Not converged");
+							if (ess > serieLength/800) {
+								System.out.println("\t\t\t\"ESS\": [\n\t\t\t\t\"Status\": \"Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + ess + "\n\t\t\t]");
+							} else
+								System.out.println("\t\t\t\"ESS\": \"Insignificant. Not converged\"");
 
-							if (geweke != -1)
-								System.out.println("    'Geweke': Estimated burn in point is " + geweke);
-							else
-								System.out.println("    'Geweke': Not converged");
+							if (geweke != -1) {
+								System.out.println("\t\t\t\"Geweke\": [\n\t\t\t\t\"Status\": \"Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + geweke + "\n\t\t\t]");							
+							} else 
+								System.out.println("\t\t\t\"Geweke\": \"Not converged\"");
 
-							if(gelmanRubin == true)	
-								System.out.println("    'Gelman-Rubin': Converged at data point " + burnin);
-							else
-								System.out.println("    'Gelman-Rubin': Not converged at data point " + burnin);
-						} else if(choice == 3) {
-							if(serie.length - burnin > 0) {
-								data = new Double[serie.length-burnin];
-								System.arraycopy(serie, burnin, data, 0, serie.length-burnin);
-
-								numValues = data.length;
-								values = 0;
-								values1	= 1;
-								sigmaSquare = 0;
-								power = (double) 1/numValues; 
-								sum = 0;
-								sum1 = 0;
-								max_value = data[0];
-								min_value = data[0];
-
-								System.out.println("\n    ------ Parameter " + j + ": "+ numSeriesArray.get(i) + " ------");
-
-								for(int k = 0; k < numValues; k++) {
-									values += (Double)data[k];
-									values1	*= java.lang.Math.pow((Double)data[k],power);
-									sum += Math.pow(Math.log((Double)data[k]), 2);
-									sum1 += (double)1/(Double)data[k];
-
-									if(data[k] > max_value)
-										max_value = data[k];
-
-									if(data[k] < min_value)
-										min_value = data[k];
-								}
-								mean = values/numValues;
-								geometric_mean = values1;
-								harmonic_mean = (double)numValues/sum1;
-
-								for(int k = 0; k < numValues; k++)
-									sigmaSquare += java.lang.Math.pow((Double)data[k] - mean,2);
-
-								arithmetic_standard_dev = (double)java.lang.Math.sqrt(sigmaSquare/(numValues-1));
-								geometric_standard_dev = Math.abs(Math.exp(Math.sqrt(sum/(numValues-1) - ((numValues/(numValues-1))*Math.pow(Math.log(values1),2)))));
-
-								System.out.println("    Arithmetic Mean:                         " + mean);
-								System.out.println("    Arithmetic Standard Deviation:           " + arithmetic_standard_dev);
-								System.out.println("    Geometric Mean:                          " + geometric_mean);
-								System.out.println("    Geometric Standard Deviation:            " + geometric_standard_dev);
-								System.out.println("    Harmonic Mean:                           " + harmonic_mean);
-								System.out.println("    Minimum Value:                           " + min_value);
-								System.out.println("    Maximum Value:                           " + max_value);
-
-								Arrays.sort(data);
-								nearest	=(Double)data[0];
-								equalStart = 0;
-								equalEnd = 0;
-
-								for(int k = 0; k < numValues-1; k++) {
-									comp = Math.abs(mean-nearest) - Math.abs(mean-(Double)data[k+1]);
-									if (comp > 0) {
-										nearest = (Double)data[k+1]; 
-										equalStart = k+1;
-									} else if (comp == 0) 
-										equalEnd = k+1;
-								}
-
-								if(equalEnd == 0)
-									tempHolder = equalStart;
-								else
-									tempHolder = equalStart + (equalEnd - equalStart)/2;
-
-								double[] start = {nearest, tempHolder};
-								intervalLength = (int) ((double)(numValues)*(confidencelevel/100));
-								startPos = (int)start[1]; 
-								startNum = start[0];
-								leftIndex = startPos-1;
-								rightIndex = startPos+1;
-								
-								System.out.println("    Confidence Level:                        " + confidencelevel + "%");
-
-								if(numValues == 0) {
-									tempHolder1 = Double.NaN;
-									tempHolder2 = Double.NaN;
-									double[] result = {tempHolder1, tempHolder2};
-									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
-								} else if(numValues == 1) {
-									tempHolder1 = (Double) data[0];
-									tempHolder2 = (Double) data[0];
-									double[] result = {tempHolder1, tempHolder2};
-									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
-								} else if(numValues == 2) {
-									tempHolder1 = (Double) data[0];
-									tempHolder2 = (Double) data[1];
-									double[] result = {tempHolder1, tempHolder2};
-									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
-								} else {
-									for(int k = 0 ; k < intervalLength ; k++) {
-										if(leftIndex == 0)
-											if(rightIndex < numValues-1)
-												rightIndex++;
-										if(rightIndex == numValues-1)
-											if(leftIndex > 0)
-												leftIndex--;
-										if(leftIndex > 0 && Math.abs((Double)data[leftIndex] - startNum) <= Math.abs((Double)data[rightIndex] - startNum))
-											leftIndex--;
-										else if(rightIndex < numValues-1 && Math.abs((Double)data[leftIndex] - startNum) > Math.abs((Double)data[rightIndex] - startNum))
-											rightIndex++;
-									}
-									double[] result = {(Double) data[leftIndex], (Double) data[rightIndex]};
-									System.out.println("    Bayesian Confidence:                     " + result[0] + " ; " + result[1]);
-								}
+							int originalBurnin = burnin;
+							gelmanRubin	= MCMCMath.GelmanRubinTest(serie, originalBurnin);
+							while(gelmanRubin != true && originalBurnin < (0.5 * serie.length)) {
+								originalBurnin = originalBurnin + 1;
+								gelmanRubin	= MCMCMath.GelmanRubinTest(serie, originalBurnin);
+							}
+							if(gelmanRubin == true)	{
+								System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \"Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + originalBurnin + "\n\t\t\t]");
+							} else {
+								System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \" Not Converged\"");
+								System.out.println("\t\t\t\t\"Burn-in\": " + originalBurnin + "\n\t\t\t]");
 							}
 						}
+							
+						if(serie.length - burnin > 0 && (choice == 3 || choice == 7)) {
+							data = new Double[serie.length-burnin];
+							System.arraycopy(serie, burnin, data, 0, serie.length-burnin);
+
+							numValues = data.length;
+							values = 0;
+							values1	= 1;
+							sigmaSquare = 0;
+							power = (double) 1/numValues; 
+							sum = 0;
+							sum1 = 0;
+							max_value = data[0];
+							min_value = data[0];
+
+							for(int k = 0; k < numValues; k++) {
+								values += (Double)data[k];
+								values1	*= java.lang.Math.pow((Double)data[k],power);
+								sum += Math.pow(Math.log((Double)data[k]), 2);
+								sum1 += (double)1/(Double)data[k];
+
+								if(data[k] > max_value)
+									max_value = data[k];
+
+								if(data[k] < min_value)
+									min_value = data[k];
+							}
+							mean = values/numValues;
+							geometric_mean = values1;
+							harmonic_mean = (double)numValues/sum1;
+
+							for(int k = 0; k < numValues; k++)
+								sigmaSquare += java.lang.Math.pow((Double)data[k] - mean,2);
+
+							arithmetic_standard_dev = (double)java.lang.Math.sqrt(sigmaSquare/(numValues-1));
+							geometric_standard_dev = Math.abs(Math.exp(Math.sqrt(sum/(numValues-1) - ((numValues/(numValues-1))*Math.pow(Math.log(values1),2)))));
+
+							System.out.println("\t\t\t\"Arithmetic Mean\": " + mean);
+							System.out.println("\t\t\t\"Arithmetic Standard Deviation\": " + arithmetic_standard_dev);
+							System.out.println("\t\t\t\"Geometric Mean\": " + geometric_mean);
+							System.out.println("\t\t\t\"Geometric Standard Deviation\": " + geometric_standard_dev);
+							System.out.println("\t\t\t\"Harmonic Mean\": " + harmonic_mean);
+							System.out.println("\t\t\t\"Minimum Value\": " + min_value);
+							System.out.println("\t\t\t\"Maximum Value\": " + max_value);
+
+							Arrays.sort(data);
+							nearest	=(Double)data[0];
+							equalStart = 0;
+							equalEnd = 0;
+
+							for(int k = 0; k < numValues-1; k++) {
+								comp = Math.abs(mean-nearest) - Math.abs(mean-(Double)data[k+1]);
+								if (comp > 0) {
+									nearest = (Double)data[k+1]; 
+									equalStart = k+1;
+								} else if (comp == 0) 
+									equalEnd = k+1;
+							}
+
+							if(equalEnd == 0)
+								tempHolder = equalStart;
+							else
+								tempHolder = equalStart + (equalEnd - equalStart)/2;
+
+							double[] start = {nearest, tempHolder};
+							intervalLength = (int) ((double)(numValues)*(confidencelevel/100));
+							startPos = (int)start[1]; 
+							startNum = start[0];
+							leftIndex = startPos-1;
+							rightIndex = startPos+1;
+
+							System.out.println("\t\t\t\"Confidence Level\": " + confidencelevel + "%");
+
+							if(numValues == 0) {
+								tempHolder1 = Double.NaN;
+								tempHolder2 = Double.NaN;
+								double[] result = {tempHolder1, tempHolder2};
+								System.out.println("\t\t\t\"Bayesian Confidence\": " + result[0] + " ; " + result[1]);
+							} else if(numValues == 1) {
+								tempHolder1 = (Double) data[0];
+								tempHolder2 = (Double) data[0];
+								double[] result = {tempHolder1, tempHolder2};
+								System.out.println("\t\t\t\"Bayesian Confidence\": " + result[0] + " ; " + result[1]);
+							} else if(numValues == 2) {
+								tempHolder1 = (Double) data[0];
+								tempHolder2 = (Double) data[1];
+								double[] result = {tempHolder1, tempHolder2};
+								System.out.println("\t\t\t\"Bayesian Confidence\":  " + result[0] + " ; " + result[1]);
+							} else {
+								for(int k = 0 ; k < intervalLength ; k++) {
+									if(leftIndex == 0)
+										if(rightIndex < numValues-1)
+											rightIndex++;
+									if(rightIndex == numValues-1)
+										if(leftIndex > 0)
+											leftIndex--;
+									if(leftIndex > 0 && Math.abs((Double)data[leftIndex] - startNum) <= Math.abs((Double)data[rightIndex] - startNum))
+										leftIndex--;
+									else if(rightIndex < numValues-1 && Math.abs((Double)data[leftIndex] - startNum) > Math.abs((Double)data[rightIndex] - startNum))
+										rightIndex++;
+								}
+								double[] result = {(Double) data[leftIndex], (Double) data[rightIndex]};
+								System.out.println("\t\t\t\"Bayesian Confidence\": " + result[0] + " ; " + result[1]);
+							}
+						}
+						System.out.print("\t\t}");
+						if(i<numSeries-1)
+							System.out.println(",");
 					}
 				}
 			}
-		}
-		
+		}		
 		/* ******************** END OF FUNCTION *********************************** */
 	}
 
@@ -774,7 +789,7 @@ public class MCMCApplication {
 	}
 
 
-	/** Definition: 			Adds functionality between Main tab and the Trees tab.										
+	/** Definition: 		Adds functionality between Main tab and the Trees tab.										
 	<p>Usage: 				Make the main panel and tree panel uniform.						
  	<p>Function:			Handle and mantain the uniformity of the burnin selection between tree panel and main panel. 				
  	<p>Classes:				MCMCMainTab, MCMCTreeTab		

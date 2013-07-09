@@ -19,7 +19,8 @@ public class ParameterParser {
 		confidence		 		= Double.parseDouble(ps.confidence);
 		
 		/* ******************** FUNCTION BODY ************************************* */
-		System.out.println("File: " + filename + "\nBurnin: " + burnin + "\nConfidence Level: " + confidence);
+		System.out.println("{\n\t\"File\": \"" + filename + "\",\n\t\"Burnin\": " + burnin + ",\n\t\"Confidence Level\": " + confidence + ",");
+		System.out.println("\t\"Parameters\": [");
 		return new Triple<String, Integer, Double>(filename, burnin, confidence);
 	}
 	/* **************************************************************************** *

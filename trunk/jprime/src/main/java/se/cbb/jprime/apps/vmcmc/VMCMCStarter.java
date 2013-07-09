@@ -70,31 +70,20 @@ public class VMCMCStarter implements JPrIMEApp {
 				Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
 				try {
 					if (params.nogui == true) {
-						System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
-						new MCMCApplication(2, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
-
-						System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
-						new MCMCApplication(3, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
+						new MCMCApplication(7, paramData.first, paramData.second, paramData.third);
 					} else if (params.test == true) {
-						System.out.println("\n\n            ****** TEST STATISTICS OF THE PARAMETERS ******");
 						new MCMCApplication(2, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
 					} else if (params.stats == true) {
-						System.out.println("\n\n            ****** SIMPLE STATISTICS OF THE PARAMETERS ******");
 						new MCMCApplication(3, paramData.first, paramData.second, paramData.third);
-						System.out.println("\n");
 					} else if (params.geweke == true) {
-						System.out.println("            ****** GEWEKE TEST BURN-IN INDICATOR ******");
 						new MCMCApplication(4, paramData.first, paramData.second, paramData.third);
 					} else if (params.ess == true) {
-						System.out.println("            ****** EFFECTIVE SAMPLE SIZE BURN-IN INDICATOR ******");
 						new MCMCApplication(5, paramData.first, paramData.second, paramData.third);
 					} else if (params.gr == true) {
-						System.out.println("            ******* GELMAN-RUBIN CONVERGENCE TEST *******");
 						new MCMCApplication(6, paramData.first, paramData.second, paramData.third);
 					}
+					System.out.println("\n\t]");
+					System.out.println("}");
 				} catch (Exception e) {
 					System.out.println("Error : " + e.getMessage());
 					System.exit(-1);
