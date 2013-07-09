@@ -17,17 +17,17 @@ public class MCMCDataContainer {
 	/* **************************************************************************** *
 	 * 							CLASS VARIABLES										*
 	 * **************************************************************************** */
-	String 							fileName;	//Name of file
-	int 							numSeries;	//Total number of series
+	String 							fileName;		//Name of file
+	int 							numSeries;		//Total number of series
 	int 							numTreeSeries; 	//Number of tree series
 	int 							numValueSeries;	//Number of numerical series
-	int 							numLines;	//Number of lines in file
+	int 							numLines;		//Number of lines in file
 	ArrayList<SerieType> 			listSerietype;	//List of parameter types
 	ArrayList<List<Double>> 		listValueSeries;
-	ArrayList<String> 				listValueNames;		//List of names for numerical series
+	ArrayList<String> 				listValueNames;	//List of names for numerical series
 	ArrayList<Integer> 				listNumValues;
 	ArrayList<ArrayList<MCMCTree>> 	listTreeSeries;
-	ArrayList<String> 				listTreeNames;		//List of names for tree series
+	ArrayList<String> 				listTreeNames;	//List of names for tree series
 	ArrayList<Integer> 				listNumTrees;
 
 	/* **************************************************************************** *
