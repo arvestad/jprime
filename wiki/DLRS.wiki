@@ -62,13 +62,9 @@ DLRS is not distributed as a binary, but is included in the JPrIME JAR file, whi
 
 == REFERENCES ==
 
-DLRS has been published [http://www.pnas.org/content/106/14/5714 here] and [http://bioinformatics.oxfordjournals.org/content/early/2012/09/14/bioinformatics.bts548 here]. If you use it, please cite:
+DLRS has been published [http://bioinformatics.oxfordjournals.org/content/early/2012/09/14/bioinformatics.bts548 here]. If you use it, please cite:
 
 _Sjöstrand, J, Sennblad, B, Arvestad, L, Lagergren, J (2012) DLRS: Gene tree evolution in light of a species tree. Bioinformatics. 28(22):2994-2995._
-
-or alternatively:
-
-_Åkerborg, Ö, Sennblad, B, Arvestad, L, Lagergren, J (2009) Simultaneous Bayesian gene tree reconstruction and reconciliation analysis. PNAS. 106(14):5714-5719._
 
 ----
 ----
