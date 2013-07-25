@@ -38,7 +38,9 @@ The tools of !GenPhyloData are described seperately below.
 
 ==REFERENCES==
 
-!GenPhyloData is currently under review. It has, however, been used in for instance the papers associated with [DLRS DLRS] and [DLTRS DLTRS].
+!GenPhyloData has been published [http://www.biomedcentral.com/1471-2105/14/209/ here]. If you use it, please cite:
+
+_Sjöstrand J, Arvestad L, Lagergren J, Sennblad B (2013) GenPhyloData: Realistic simulation of gene family evolution. BMC Bioinformatics. 14:209._
 
 ----
 
