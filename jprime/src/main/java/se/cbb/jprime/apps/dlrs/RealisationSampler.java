@@ -106,7 +106,8 @@ public class RealisationSampler implements Sampleable {
 	}
 	
 	/**
-	 * Retrieves the maximum probability realisation given the current guest tree, "at-probabilities", p11-probabilities, etc.
+	 * Retrieves the maximum probability rea	lisation given the current guest tree, "at-probabilities", p11-probabilities, etc.
+	 * JOEL: THIS IS INCORRECTLY IMPLEMENTED AND NEEDS TO BE FIXED. MY BAD - SORRY!
 	 * @param vertices vertices of G in topological ordering from root to leaves.
 	 */
 	public Realisation getMaximumProbabilityRealisation(List<Integer> vertices) {
@@ -119,6 +120,9 @@ public class RealisationSampler implements Sampleable {
 		// For each vertex v of G.
 		String[] placementss = new String[n];
 		for (int v : vertices) {
+			// TODO:
+			// JOEL: THIS IS WRONG AND NEEDS TO BE FIXED. MY BAD - SORRY!
+			// THE PROPER WAY TO DO IT IS TO COMPUTE A REAL DP WITH MAX INSTEAD OF SUMS AND BACK-POINTERS!!!
 			getMaxPoint(v, placements, abst, arct, isDups);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}

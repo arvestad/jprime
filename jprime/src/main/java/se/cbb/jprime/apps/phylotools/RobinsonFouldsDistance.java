@@ -44,7 +44,7 @@ public class RobinsonFouldsDistance implements JPrIMEApp {
 						"================================================================================\n" +
 						" Computes the symmetric Robinson-Foulds distance between trees. Two modes are\n" +
 						" supported:\n" +
-						" 1) One input tree: Computes a matrix of all-vs.-all tree comparisons for the\n" +
+						" 1) One input file: Computes a matrix of all-vs.-all tree comparisons for the\n" +
 						"    trees in the file. Output is a tab-delimited symmetric matrix.\n" +
 						" 2) Two input files: Assumes that the files are ordered for paired comparisons\n" +
 						"    of trees. Output is a list with the same number of lines.\n" +
