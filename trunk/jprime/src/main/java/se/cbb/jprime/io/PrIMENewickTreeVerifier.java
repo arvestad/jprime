@@ -16,8 +16,11 @@ import se.cbb.jprime.io.PrIMENewickTree.MetaProperty;
  */
 public class PrIMENewickTreeVerifier {
 
-	/** Max time discrepancy allowed for two vertex times to be considered equal. */
-	public static double MAX_TIME_DIFF = 5e-3;
+	/** Max relative time discrepancy (w.r.t. root time) allowed for two vertex times to be considered equal. */
+	public static double MAX_REL_TIME_DIFF = 1e-3;
+	
+	/** Max relative time discrepancy allowed for two vertex times to be considered equal. */
+	private static double max_time_diff = Double.NaN;
 	
 	/** The tree instance to perform sanity checks on. */
 	private PrIMENewickTree tree;
@@ -180,6 +183,15 @@ public class PrIMENewickTreeVerifier {
 		
 		// Verify arc times.
 		if (at != null) {
+			// Estimate allowed time diff.
+			NewickVertex v = vertices.get(vertices.size()-1);
+			max_time_diff = 0.0;
+			while (v != vertices.get(0)) {
+				max_time_diff += at[v.getNumber()];
+			}
+			max_time_diff *= MAX_REL_TIME_DIFF;
+			
+			// Compute vertex times.
 			double[] times = relativeToAbsolute(this.vertices, at);
 			
 			// Verify compatibility.
@@ -189,14 +201,14 @@ public class PrIMENewickTreeVerifier {
 					// Last element is always a leaf.
 					double offset = vt[this.vertices.get(this.vertices.size() - 1).getNumber()];
 					for (int i = 0; i < vt.length; ++i) {
-						if (Math.abs(times[i] + offset - vt[2]) > MAX_TIME_DIFF) {
+						if (Math.abs(times[i] + offset - vt[2]) > max_time_diff) {
 							throw new NewickIOException("Incompatible arc and vertex times at vertex " + i + '.');
 						}
 					}
 				}
 				// Top time.
 				double atRoot = at[this.vertices.get(0).getNumber()];
-				if (tt != null && !Double.isNaN(atRoot) && Math.abs(tt - atRoot) > MAX_TIME_DIFF) {
+				if (tt != null && !Double.isNaN(atRoot) && Math.abs(tt - atRoot) > max_time_diff) {
 					throw new NewickIOException("Incompatible tree top time and root arc time.");
 				}
 			}
@@ -217,6 +229,7 @@ public class PrIMENewickTreeVerifier {
 		for (int i = 0; i < times.length; ++i) {
 			times[i] = Double.NaN;
 		}
+		
 		// Traverse backwards since vertex list is sorted post-order style.
 		// Skip first element, since that is the root.
 		for (int i = vertices.size() - 1; i > 0; --i) {
@@ -231,7 +244,7 @@ public class PrIMENewickTreeVerifier {
 				int anc = v.getParent().getNumber();
 				if (Double.isNaN(times[anc])) {
 					times[anc] = t;
-				} else if (Math.abs(times[anc] - t) > MAX_TIME_DIFF) {
+				} else if (Math.abs(times[anc] - t) > max_time_diff) {
 					throw new NewickIOException("Incompatible arc times in children of vertex " + anc
 							+ ". Time diff is " + Math.abs(times[anc] - t) + ".");
 				}
