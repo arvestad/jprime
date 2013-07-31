@@ -421,7 +421,7 @@ A3) Make sure that the guest-to-host mapping file refers precisely to the sequen
 *Q4) I get an error about "Division with zero" when I try to start Delirious. What's wrong?*
 
 A4) This means that the initial state is so poor that its probability gets rounded to zero. You might want to check these things:
-  # Do you have a reasonable time for the host edge? We recommend somewhere between 20%-100% of the root-to-leaf time. Check that this isn't set orders of magnitude smaller.
+  # Do you have a reasonable time for the stem edge? We recommend somewhere between 20%-100% of the root-to-leaf time. Check that this isn't set orders of magnitude smaller.
   # Is there a user-defined initial guest tree that includes branch lengths? If so, do they agree with the substitution model? If not, try removing the lengths to start with simple default values.
   # Perhaps the initial values for the duplication or loss rate are inappropriate. Try setting some user-defined initial values.
   # Perhaps the initial guest tree is too unrealistic. Try estimating a better topology, either by option -g NJ or option -fp. Perhaps try to infer a tree with branch lengths using some external method, such as MEGA.
