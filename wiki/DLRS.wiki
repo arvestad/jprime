@@ -276,7 +276,7 @@ The following shows a trace in [VMCMC VMCMC] of the unnormalized posterior densi
 
 [http://jprime.googlecode.com/files/DLRS_convergence.png]
 
-=== Hello world parameter analysis ===
+=== "Hello world!" parameter analysis ===
 
 Generally, CRAN R is suitable for many types of analyses. For instance, you could read and plot the duplication rate in R thus:
 {{{
