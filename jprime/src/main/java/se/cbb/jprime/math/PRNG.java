@@ -22,6 +22,20 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	private static final long serialVersionUID = 310669248550266600L;
 	
 	/**
+	 * Makes sure the byte array seed is 16-bytes.
+	 * @param seed the seed.
+	 * @return a 16-byte version, possibly truncated.
+	 */
+	public static byte[] get16bytes(byte[] seed) {
+		byte[] sixteen = new byte[16];
+		int from = Math.max(0, seed.length - 16);
+		int to = Math.max(0, 16 - seed.length);
+		int length = Math.min(16, seed.length);
+		System.arraycopy(seed, from, sixteen, to, length);
+		return sixteen;
+	}
+	
+	/**
 	 * Constructor. Uses default seeding strategy.
 	 */
 	public PRNG() {
@@ -33,7 +47,7 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	 * @param seed the seed data.
 	 */
 	public PRNG(byte[] seed) {
-		super(seed);
+		super(get16bytes(seed));
 	}
 
 	/**
@@ -42,7 +56,16 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	 * @param seed the seed data.
 	 */
 	public PRNG(BigInteger seed) {
-		super(seed.toByteArray());
+		super(get16bytes(seed.toByteArray()));
+	}
+	
+	/**
+	 * Constructor. Uses the specified seed data by converting the
+	 * int to a byte array.
+	 * @param seed the seed data.
+	 */
+	public PRNG(int seed) {
+		super(get16bytes((new BigInteger(seed + "")).toByteArray()));
 	}
 	
 	/**
@@ -76,4 +99,59 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 	public BigInteger getSeedAsBigInteger() {
 		return new BigInteger(super.getSeed());
 	}
+	
+//	@Override
+//	public double nextDouble() {
+//		double d = super.nextDouble();
+//		System.out.println("nextDouble(): " + d);
+//		return d;
+//	}
+//	
+//	@Override
+//	public int nextInt() {
+//		int i = super.nextInt();
+//		System.out.println("nextInt(): " + i);
+//		return i;
+//	}
+//	
+//	@Override
+//	public int nextInt(int n) {
+//		int i = super.nextInt(n);
+//		System.out.println("nextInt(n): " + i);
+//		return i;
+//	}
+//	
+//	@Override
+//	public boolean nextBoolean() {
+//		boolean b = super.nextBoolean();
+//		System.out.println("nextBoolean(): " + b);
+//		return b;
+//	}
+//	
+//	@Override
+//	public double nextGaussian() {
+//		double b = super.nextGaussian();
+//		System.out.println("nextGaussian(): " + b);
+//		return b;
+//	}
+//	
+//	@Override
+//	public float nextFloat() {
+//		float b = super.nextFloat();
+//		System.out.println("nextFloat(): " + b);
+//		return b;
+//	}
+//	
+//	@Override
+//	public long nextLong() {
+//		long b = super.nextLong();
+//		System.out.println("nextLong(): " + b);
+//		return b;
+//	}
+//	
+//	@Override
+//	public void nextBytes(byte[] bytes) {
+//		super.nextBytes(bytes);
+//		System.out.println("nextBytes(bytes): ");
+//	}
 }
