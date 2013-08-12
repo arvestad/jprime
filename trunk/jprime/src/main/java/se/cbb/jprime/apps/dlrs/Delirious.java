@@ -173,11 +173,11 @@ public class Delirious implements JPrIMEApp {
 			// Substitution model. NOTE: Root arc is turned on!!!!
 			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true);
 			
-			// DLRS model.
-			DLRSModel dlrs = new DLRSModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
+			// DLR model.
+			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlrs, gNamesLengths.second);
+			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
 			
 			// Proposers.
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
@@ -224,7 +224,7 @@ public class Delirious implements JPrIMEApp {
 			manager.addModel(edgeRateCVPrior);
 			manager.addModel(lengthsPrior);
 			manager.addModel(sm);
-			manager.addModel(dlrs);
+			manager.addModel(dlr);
 			
 			manager.addSampleable(iter);
 			manager.addSampleable(manager);			// Overall likelihood.
@@ -232,7 +232,7 @@ public class Delirious implements JPrIMEApp {
 			//manager.addSampleable(edgeRateCVPrior);
 			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
-			manager.addSampleable(dlrs);
+			manager.addSampleable(dlr);
 			manager.addSampleable(dupLoss.first);
 			manager.addSampleable(dupLoss.second);
 			manager.addSampleable(edgeRatePD.first);

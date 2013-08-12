@@ -46,7 +46,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * 
  * @author Joel Sjöstrand.
  */
-public class DLTRSModel implements InferenceModel {
+public class DLTRModel implements InferenceModel {
 
 	/** The guest tree G. */
 	protected RootedBifurcatingTreeParameter g;
@@ -82,7 +82,7 @@ public class DLTRSModel implements InferenceModel {
 	 * @param substPD the iid rate probability distribution over arcs of G,
 	 *  (relaxing the molecular clock).
 	 */
-	public DLTRSModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
+	public DLTRModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
 			DoubleMap lengths, EpochDLTProbs dltProbs, Continuous1DPDDependent substPD) {
 		this.g = g;
 		this.s = s;
@@ -90,8 +90,8 @@ public class DLTRSModel implements InferenceModel {
 		this.lengths = lengths;
 		this.dltProbs = dltProbs;
 		this.substPD = substPD;
-		this.ats = new GenericMap<EpochPtMap>("DLTRS.ats", g.getNoOfVertices());
-		this.belows = new GenericMap<EpochPtMap>("DLTRS.belows", g.getNoOfVertices());
+		this.ats = new GenericMap<EpochPtMap>("DLTR.ats", g.getNoOfVertices());
+		this.belows = new GenericMap<EpochPtMap>("DLTR.belows", g.getNoOfVertices());
 				
 		// Update.
 		this.fullUpdate();
@@ -124,18 +124,18 @@ public class DLTRSModel implements InferenceModel {
 					this.ats.cache(affected);
 					this.belows.cache(affected);
 					this.partialUpdate(affected);
-					changeInfos.put(this, new ChangeInfo(this, "Partial DLTRS update", affected));
+					changeInfos.put(this, new ChangeInfo(this, "Partial DLTR update", affected));
 				} else if (lci != null) {
 					this.ats.cache(null);
 					this.belows.cache(null);
 					this.fullUpdate();
-					changeInfos.put(this, new ChangeInfo(this, "Full DLTRS update."));
+					changeInfos.put(this, new ChangeInfo(this, "Full DLTR update."));
 				}
 			} else {
 				this.ats.cache(null);
 				this.belows.cache(null);
 				this.fullUpdate();
-				changeInfos.put(this, new ChangeInfo(this, "Full DLTRS update."));
+				changeInfos.put(this, new ChangeInfo(this, "Full DLTR update."));
 			}
 		} catch (CloneNotSupportedException ex) {
 		}
@@ -373,7 +373,7 @@ public class DLTRSModel implements InferenceModel {
 
 	@Override
 	public String getSampleHeader() {
-		return "DLTRSModelDensity";
+		return "DLTRModelDensity";
 	}
 
 	@Override
@@ -384,7 +384,7 @@ public class DLTRSModel implements InferenceModel {
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(65536);
-		sb.append(prefix).append("DLTRS MODEL\n");
+		sb.append(prefix).append("DLTR MODEL\n");
 		sb.append(prefix).append("Number of vertices of host tree: ").append(this.s.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("Number of vertices of guest tree: ").append(this.g.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("IID edge rate distribution: ").append(this.substPD.getName()).append('\n');
@@ -397,7 +397,7 @@ public class DLTRSModel implements InferenceModel {
 	@Override
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(64);
-		sb.append(prefix).append("DLTRS MODEL\n");
+		sb.append(prefix).append("DLTR MODEL\n");
 		return sb.toString();
 	}
 
@@ -412,7 +412,7 @@ public class DLTRSModel implements InferenceModel {
 
 	@Override
 	public String getModelName() {
-		return "DLTRS";
+		return "DLTR";
 	}
 	
 }

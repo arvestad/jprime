@@ -14,7 +14,7 @@ import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
 
 /**
- * Implements the DLRS (a.k.a. GSR and GSRf) model.
+ * Implements the DLR part of the DLRS (a.k.a. GSR and GSRf) model.
  * Effectively, this class computes the conditional probability
  * Pr[G,l | S,t,lambda,mu,m,v], where G is the guest tree
  * topology, l the branch lengths of G, S the host tree, t the
@@ -33,7 +33,7 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * 
  * @author Joel Sjöstrand.
  */
-public class DLRSModel implements InferenceModel {
+public class DLRModel implements InferenceModel {
 
 	/** The guest tree G. */
 	protected RootedBifurcatingTreeParameter g;
@@ -74,7 +74,7 @@ public class DLRSModel implements InferenceModel {
 	 * @param substPD the iid rate probability distribution over arcs of G,
 	 *  (relaxing the molecular clock).
 	 */
-	public DLRSModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
+	public DLRModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
 			DoubleMap lengths, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD) {
 		this.g = g;
 		this.s = s;
@@ -82,8 +82,8 @@ public class DLRSModel implements InferenceModel {
 		this.lengths = lengths;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
-		this.ats = new DoubleArrayMap("DLRS.ats", g.getNoOfVertices());
-		this.belows = new DoubleArrayMap("DLRS.belows", g.getNoOfVertices());
+		this.ats = new DoubleArrayMap("DLR.ats", g.getNoOfVertices());
+		this.belows = new DoubleArrayMap("DLR.belows", g.getNoOfVertices());
 				
 		// Update.
 		this.fullUpdate();
@@ -115,18 +115,18 @@ public class DLRSModel implements InferenceModel {
 				this.ats.cache(affected);
 				this.belows.cache(affected);
 				this.partialUpdate(affected);
-				changeInfos.put(this, new ChangeInfo(this, "Partial DLRS update", affected));
+				changeInfos.put(this, new ChangeInfo(this, "Partial DLR update", affected));
 			} else if (lci != null) {
 				this.ats.cache(null);
 				this.belows.cache(null);
 				this.fullUpdate();
-				changeInfos.put(this, new ChangeInfo(this, "Full DLRS update."));
+				changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
 			}
 		} else {
 			this.ats.cache(null);
 			this.belows.cache(null);
 			this.fullUpdate();
-			changeInfos.put(this, new ChangeInfo(this, "Full DLRS update."));
+			changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
 		}
 	}
 
@@ -149,7 +149,7 @@ public class DLRSModel implements InferenceModel {
 
 	@Override
 	public String getSampleHeader() {
-		return "DLRSModelDensity";
+		return "DLRModelDensity";
 	}
 
 	@Override
@@ -307,7 +307,7 @@ public class DLRSModel implements InferenceModel {
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(65536);
-		sb.append(prefix).append("DLRS MODEL\n");
+		sb.append(prefix).append("DLR MODEL\n");
 		sb.append(prefix).append("Number of vertices of host tree: ").append(this.s.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("Number of vertices of guest tree: ").append(this.g.getNoOfVertices()).append('\n');
 		sb.append(prefix).append("IID edge rate distribution: ").append(this.substPD.getName()).append('\n');
@@ -320,13 +320,13 @@ public class DLRSModel implements InferenceModel {
 	@Override
 	public String getPostInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(64);
-		sb.append(prefix).append("DLRS MODEL\n");
+		sb.append(prefix).append("DLR MODEL\n");
 		return sb.toString();
 	}
 
 	@Override
 	public String getModelName() {
-		return "DLRS";
+		return "DLR";
 	}
 
 }

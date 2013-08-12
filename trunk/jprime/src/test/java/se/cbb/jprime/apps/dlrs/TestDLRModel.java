@@ -8,7 +8,7 @@ import java.net.URL;
 
 import org.junit.Test;
 
-import se.cbb.jprime.apps.dlrs.DLRSModel;
+import se.cbb.jprime.apps.dlrs.DLRModel;
 import se.cbb.jprime.apps.dlrs.DupLossProbs;
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.NewickIOException;
@@ -29,7 +29,7 @@ import se.cbb.jprime.topology.TopologyException;
  * 
  * @author Joel Sjöstrand.
  */
-public class TestDLRSModel {
+public class TestDLRModel {
 	
 	@Test
 	public void test() throws NewickIOException, IOException, TopologyException {
@@ -50,7 +50,7 @@ public class TestDLRSModel {
 		DoubleMap lengths = new DoubleMap("Lengths", g.getNoOfVertices(), 0.1);
 		GammaDistribution pd = new GammaDistribution(new DoubleParameter("m", 0.1),
 				new DoubleParameter("v", 0.05));
-		DLRSModel mod = new DLRSModel(g, s, rHelper, lengths, dupLoss, pd);
+		DLRModel mod = new DLRModel(g, s, rHelper, lengths, dupLoss, pd);
 		//System.out.println(mod);
 		//TODO: We could use better tests on more realistic data.
 		assertTrue(mod != null);
