@@ -172,8 +172,8 @@ public class Deleterious implements JPrIMEApp {
 			// Substitution model. NOTE: Root arc is turned on!!!!
 			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true);
 			
-			// DLRS model.
-			DLTRSModel dltrs = new DLTRSModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
+			// DLTR model.
+			DLTRModel dltr = new DLTRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
 			
 			// Proposers.
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
@@ -223,7 +223,7 @@ public class Deleterious implements JPrIMEApp {
 			manager.addModel(edgeRateCVPrior);
 			manager.addModel(lengthsPrior);
 			manager.addModel(sm);
-			manager.addModel(dltrs);
+			manager.addModel(dltr);
 			
 			manager.addSampleable(iter);
 			manager.addSampleable(manager);			// Overall likelihood.
@@ -231,7 +231,7 @@ public class Deleterious implements JPrIMEApp {
 			//manager.addSampleable(edgeRateCVPrior);
 			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
-			manager.addSampleable(dltrs);
+			manager.addSampleable(dltr);
 			manager.addSampleable(dlt.first);
 			manager.addSampleable(dlt.second);
 			manager.addSampleable(dlt.third);

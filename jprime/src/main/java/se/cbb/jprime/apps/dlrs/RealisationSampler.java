@@ -83,7 +83,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param noOfRealisations number of realisations per sampling round.
 	 * @throws IOException.
 	 */
-	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLRSModel model, NamesMap names) throws IOException {
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLRModel model, NamesMap names) throws IOException {
 		this.out = new BufferedWriter(new FileWriter(filename));
 		this.noOfRealisations = noOfRealisations;
 		this.iteration = iteration;

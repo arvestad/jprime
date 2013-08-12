@@ -561,12 +561,12 @@ public class ParameterParser {
 	 * @param ps parameters.
 	 * @param iter iteration.
 	 * @param prng PRNG.
-	 * @param model DLRS model.
+	 * @param model DLR model.
 	 * @param names names of guest tree leaves.
 	 * @return the sampler.
 	 * @throws IOException.
 	 */
-	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLRSModel model, NamesMap names) throws IOException {
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLRModel model, NamesMap names) throws IOException {
 		if (ps.sampleRealisations == null) { return null; }
 		String fn = ps.sampleRealisations.get(0);
 		int n = Integer.parseInt(ps.sampleRealisations.get(1));

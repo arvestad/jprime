@@ -281,7 +281,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				// Debug info.
 				if (this.doDebug) {
 					StringBuilder dbg = new StringBuilder(512);
-					dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", posterior density: ").append(this.posteriorDensity.toString())
+					dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", unnormalised posterior density: ").append(this.posteriorDensity.toString())
 						.append(", about to use: ");
 					for (Proposer p : shakeItBaby) {
 						dbg.append(p.toString()).append(", ");
@@ -372,7 +372,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 
 	@Override
 	public String getSampleHeader() {
-		return "PosteriorDensity";
+		return "UnnormalizedPosteriorDensity";
 	}
 
 	@Override
