@@ -54,11 +54,11 @@ public class RealisationSampler implements Sampleable {
 
 	/** The divergence times t for the discretised tree S'. */
 	protected RBTreeEpochDiscretiser times;  
+	
+	/** The divergence times t for the discretised tree S'. */
+	protected RBTreeEpochDiscretiser msTimes;  
 
-	/** Lower limits for placement of vertices v of G in S'. */
-	private IntMap loLims;
-
-
+	/** Upper limits for placement of vertices v of G in S'. */
 	protected IntMap upLims;
 
 	/** P11, etc. */
@@ -76,6 +76,22 @@ public class RealisationSampler implements Sampleable {
 
 	/** Probability of planted subtree G^u for each valid placement of tip of u's parent arc in S'. */
 	protected GenericMap<EpochPtMap> belows;
+	
+	/** P11, etc. */
+	private EpochDLTProbs msDltProbs;  
+
+	/** The branch lengths l. */
+	protected DoubleMap msLengths;
+
+	/** Substitution rate distribution. */
+	private Continuous1DPDDependent msSubstPD;
+
+	///** At-probabilities for vertices v of G. */
+	/** Probability of rooted subtree G_u for each valid placement of u in S'. */
+	protected GenericMap<EpochPtMap> msAts;
+
+	/** Probability of planted subtree G^u for each valid placement of tip of u's parent arc in S'. */
+	protected GenericMap<EpochPtMap> msBelows;
 
 	/** No. of realisations per sampling round. */
 	private int noOfRealisations;
@@ -83,6 +99,8 @@ public class RealisationSampler implements Sampleable {
 	/** Reconciliations helper. */  
 	protected ReconciliationHelper reconcHelper;
 
+	/** Reconciliations helper. */  
+	protected ReconciliationHelper msReconcHelper;
 
 	/**
 	 * Constructor.
@@ -100,7 +118,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param noOfRealisations number of realisations per sampling round.
 	 * @throws IOException.
 	 */
-	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLTRModel model, NamesMap names) throws IOException {
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLTRModel model, DLTRModelMaxSampling msModel, NamesMap names) throws IOException {
 		this.out = new BufferedWriter(new FileWriter(filename));
 		this.noOfRealisations = noOfRealisations;
 		this.iteration = iteration;
@@ -110,13 +128,20 @@ public class RealisationSampler implements Sampleable {
 		this.names = names;
 		this.times = model.reconcHelper.times;
 		this.lengths = model.lengths;
-		this.loLims = model.reconcHelper.loLims;
 		this.reconcHelper= model.reconcHelper;  
 		this.dltProbs = model.dltProbs;  
 		this.substPD = model.substPD;
 		this.ats = model.ats;  
 		this.belows= model.belows; 
+		this.msTimes = msModel.reconcHelper.times;
+		this.msLengths = msModel.lengths;
+		this.msReconcHelper= msModel.reconcHelper;  
+		this.msDltProbs = msModel.dltProbs;  
+		this.msSubstPD = msModel.substPD;
+		this.msAts = msModel.ats;  
+		this.msBelows= msModel.belows;
 
+		
 		// Write header.
 		this.out.write("# Host tree: " + this.times.toString() + "\n");
 		if (this.noOfRealisations > 0) {
@@ -170,7 +195,6 @@ public class RealisationSampler implements Sampleable {
 		// For each vertex v of G.
 		String[] placementss = new String[n];
 		for (int v : vertices) {
-			//samplePointLTG(v, placements, abst, arct, isDups, isTrans);
 			getSamplePointLTG(v, placements, abst, arct, isDups, isTrans);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}
@@ -195,39 +219,29 @@ public class RealisationSampler implements Sampleable {
 		// Get placement of parent of v in S'.
 		int[] s;
 		if (this.G.isRoot(v)) {
-			s = this.times.getEpochPtAtTop();
+			s = this.msTimes.getEpochPtAtTop();
 		} else {
 			s = placements[this.G.getParent(v)];
 		}
 
-
-
-		//int TotalEpochs=this.times.getNoOfEpochs();
-		// Get placement of parent of v in S'.
-
-		// Retrieve placement bounds for u.
-		// Note: Time index of upLim in epoch in question is <last.
-		// Note: Time index of loLim in epoch in question is >0.
-		int[] upLim = this.reconcHelper.getUpLim(v);
-
-		double sTime = reconcHelper.getTime(s);
-		double l = lengths.get(v);
-		double[] lins = this.belows.get(v).get(s[0], s[1]);
+		double sTime = msReconcHelper.getTime(s);
+		double l = msLengths.get(v);
+		double[] lins = this.msBelows.get(v).get(s[0], s[1]);
 		int sz = lins.length;
-		int[] t = this.reconcHelper.getLoLim(v);
+		int[] t = this.msReconcHelper.getLoLim(v);
 
 		if (this.G.isLeaf(v)) { // if v is a leaf node of G
-			int sigma = this.reconcHelper.getHostLeafIndex(v);
-			double rateDens = substPD.getPDF(l / sTime);  // Assumes leaf time 0.
+			int sigma = this.msReconcHelper.getHostLeafIndex(v);
+			double rateDens = msSubstPD.getPDF(l / sTime);  // Assumes leaf time 0.
 
 			// For each edge e where lineage can start at time s.
 			for (int e = 0; e < sz; ++e) {
-				lins[e] = this.dltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
+				lins[e] = this.msDltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
 			}
 			t = new int[] {0, 0};
 			placements[v] = t;
-			absTimes[v]= this.reconcHelper.getTime(t);
-			arcTimes[v]= this.reconcHelper.getTime(s)-absTimes[v];
+			absTimes[v]= this.msReconcHelper.getTime(t);
+			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
 			System.out.println("V: "+v+ "\t is Leaf");
 
@@ -251,7 +265,7 @@ public class RealisationSampler implements Sampleable {
 			// We always ignore last time index for at-probs of current epoch,
 			// since such values are correctly stored at index 0 of next epoch.
 			//int[] t = this.reconcHelper.getLoLim(v);  // changed after May 23
-			if (reconcHelper.isLastEpochTime(t)) {
+			if (msReconcHelper.isLastEpochTime(t)) {
 				t = new int[] {t[0]+1, 0};
 			}
 
@@ -261,33 +275,32 @@ public class RealisationSampler implements Sampleable {
 			int maxE		= -1;
 			// For each valid time t where u can be placed (strictly beneath s).
 			while (t[0] < s[0] || (!(s[0] < t[0]) && t[1] < s[1])) {
-				double rateDens = substPD.getPDF(l / (sTime - reconcHelper.getTime(t)));
+				double rateDens = msSubstPD.getPDF(l / (sTime - msReconcHelper.getTime(t)));
 
 				// For each edge e where lineage can start at time s.
-				double[] ats = this.ats.get(v).get(t[0], t[1]);
+				double[] ats = this.msAts.get(v).get(t[0], t[1]);
 				for (int e = 0; e < sz; ++e) {
 					// For each edge f where u can be placed at time t.
 					for (int f = 0; f < ats.length; ++f) {
-						double p= dltProbs.getOneToOneProbs().get(t[0], t[1], f, s[0], s[1], e) * rateDens * ats[f];
+						double p= msDltProbs.getOneToOneProbs().get(t[0], t[1], f, s[0], s[1], e) * rateDens * ats[f];
 						if  (p > maxp) {
 							maxp = p;
-							//System.out.println( v+"\tArcs["+e+"]\tS["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tMaxProb ["+ maxp+"]" );
 							maxT = t;
 							maxArc= f;
 							maxE= e;				
 						}
-						System.out.println(v+"\tBelows["+e+"]\t arcs["+f+ "]\tS["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tProb ["+ p+"]" );
+						System.out.println(v+"\tEdgeInUpperEdgeGeneration["+e+"]\t EdgeInLowerEdgeGeneration["+f+ "]\ts["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tProb ["+ p+"]" );
 					}
 				}
-				t = reconcHelper.getEpochTimeAboveNotLast(t);
+				t = msReconcHelper.getEpochTimeAboveNotLast(t);
 			}
 
 			t=maxT;
 
 			// Finally, store the properties.
 			placements[v] = t;
-			absTimes[v]= this.reconcHelper.getTime(t);
-			arcTimes[v]= this.reconcHelper.getTime(s)-absTimes[v];
+			absTimes[v]= this.msReconcHelper.getTime(t);
+			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
 			// from where the transfer has happend
 			System.out.print("\nspecieLineageE "+maxE+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t ArcF ["+maxArc+"] maxProb: "+maxp+"\t");
@@ -296,14 +309,14 @@ public class RealisationSampler implements Sampleable {
 			if (t[1] != 0){
 				int lc = G.getLeftChild(v);
 				int rc = G.getRightChild(v);
-				double dt = reconcHelper.getTimestep(t[0]);	
-				double[] ats = this.ats.get(v).get(t[0], t[1]);
-				double dupFact = 2 * dltProbs.getDuplicationRate();
-				int adjFact = (this.dltProbs.getTransferProbabilityAdjustment() ? ats.length - 1 : 1);   // Adjust for contemporary species or not.
-				double trFact = this.dltProbs.getTransferRate() / adjFact;
+				double dt = msReconcHelper.getTimestep(t[0]);	
+				double[] ats = this.msAts.get(v).get(t[0], t[1]);
+				double dupFact = 2 * msDltProbs.getDuplicationRate();
+				int adjFact = (this.msDltProbs.getTransferProbabilityAdjustment() ? ats.length - 1 : 1);   // Adjust for contemporary species or not.
+				double trFact = this.msDltProbs.getTransferRate() / adjFact;
 
-				double[] lclins = belows.get(lc).get(t[0], t[1]);
-				double[] rclins = belows.get(rc).get(t[0], t[1]);
+				double[] lclins = msBelows.get(lc).get(t[0], t[1]);
+				double[] rclins = msBelows.get(rc).get(t[0], t[1]);
 
 				double dupProb	=	0.0;
 				double[] transProb= new double[ats.length];
@@ -333,7 +346,7 @@ public class RealisationSampler implements Sampleable {
 						}
 					}
 					dupProb 	= dt * (dupFact * lclins[maxArc] * rclins[maxArc]);
-					// here f refers to different arcs/lineages of species tree
+					// here f refers to different arcs/lineages of species tree in LowerEdgeGeneration
 					for (int f = 0; f < ats.length; ++f) {
 						if (f != maxArc){
 							transProbVtoW[f] += dt * (trFact * (lclins[f] * rcMax ));
@@ -492,7 +505,6 @@ public class RealisationSampler implements Sampleable {
 				t = reconcHelper.getEpochTimeAboveNotLast(t);
 			}
 
-			// added after May 23
 			int idx=-1;
 			for (int e = 0; e < sz; ++e){
 				// Sample a point in the host tree.
@@ -513,10 +525,6 @@ public class RealisationSampler implements Sampleable {
 					//System.out.println(v+"\tArcs["+e+"]\t prng["+rnd+ "]\tcps["+cps.get(idx)+ "] \tt["+t[0] +","+ t[1]+"] " );
 				}
 			}
-			// added after May 23
-
-
-
 			// Finally, store the properties.
 			placements[v] = t;
 			absTimes[v]= this.reconcHelper.getTime(t);
@@ -563,7 +571,6 @@ public class RealisationSampler implements Sampleable {
 					for (int f = 0; f < ats.length; ++f) {
 						transProbVtoW[f] += dt * (trFact * (lclins[f] * (rcsum - rclins[f])));
 						transProbWtoV[f] += dt * (trFact * (rclins[f] * (lcsum - lclins[f])));
-						//transProb[f] 	+= dt * (trFact * (lclins[f] * (rcsum - rclins[f]) + rclins[f] * (lcsum - lclins[f])));
 						transProb[f] += transProbWtoV[f]  + transProbVtoW[f];
 						if (maxLinTransProb < transProb[f]){
 							maxLinTransProb=transProb[f];
