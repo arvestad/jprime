@@ -84,7 +84,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 	 * @param substPD the iid rate probability distribution over arcs of G,
 	 *  (relaxing the molecular clock).
 	 */
-	public DLTRSModelMaxSampling(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
+	public DLTRModelMaxSampling(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
 			DoubleMap lengths, EpochDLTProbs dltProbs, Continuous1DPDDependent substPD) {
 		this.g = g;
 		this.s = s;

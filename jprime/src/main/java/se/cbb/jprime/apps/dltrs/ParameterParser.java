@@ -14,6 +14,7 @@ import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.dltrs.DLTRModel;
+import se.cbb.jprime.apps.dltrs.DLTRModelMaxSampling;
 import se.cbb.jprime.apps.dltrs.Parameters;
 import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.GuestHostMapReader;
@@ -541,10 +542,10 @@ public class ParameterParser {
 	 * @return the sampler.
 	 * @throws IOException.
 	 */
-	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLTRModel model, NamesMap names) throws IOException {
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLTRModel model, DLTRModelMaxSampling msModel, NamesMap names) throws IOException {
 		if (ps.sampleRealisations == null) { return null; }
 		String fn = ps.sampleRealisations.get(0);
 		int n = Integer.parseInt(ps.sampleRealisations.get(1));
-		return new RealisationSampler(fn, n, iter, prng, model, names);
+		return new RealisationSampler(fn, n, iter, prng, model, msModel, names);
 	}
 }
