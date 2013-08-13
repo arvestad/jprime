@@ -11,9 +11,15 @@ import com.beust.jcommander.Parameter;
  * Handles all regular application parameters.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  * @author Vincent Llorens.
  */
 public class Parameters {
+	
+	/** Sample realisations. */
+	@Parameter(names = {"-real", "--samplerealisations"}, arity = 2, description = "When sampling, output dated reconciliations to a file. " +
+			"Takes two arguments: <file> <no of realisations per sample>.")
+	public List<String> sampleRealisations = null;
 
 	/** Required parameters: S, D and GS. */
 	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map>.")

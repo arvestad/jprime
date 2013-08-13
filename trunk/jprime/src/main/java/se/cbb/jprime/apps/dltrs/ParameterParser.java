@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -12,6 +13,9 @@ import org.biojava3.core.sequence.io.FastaReaderHelper;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
+import se.cbb.jprime.apps.dltrs.DLTRModel;
+import se.cbb.jprime.apps.dltrs.Parameters;
+import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.MSAFastPhyloTree;
 import se.cbb.jprime.io.NewickRBTreeSamples;
@@ -65,6 +69,7 @@ import se.cbb.jprime.topology.UniformRBTreeGenerator;
  * A bit messy, code-wise.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  * @author Vincent Llorens.
  */
 public class ParameterParser {
@@ -524,5 +529,22 @@ public class ParameterParser {
 	public static ReconciliationHelper getReconciliationHelper(
 			Parameters params, RBTree g, RBTree s, RBTreeEpochDiscretiser dtimes, LeafLeafMap llMap) {
 		return new ReconciliationHelper(g, s, dtimes, llMap);
+	}
+	
+	/**
+	 * Returns a realisation sampler.
+	 * @param ps parameters.
+	 * @param iter iteration.
+	 * @param prng PRNG.
+	 * @param model DLTR model.
+	 * @param names names of guest tree leaves.
+	 * @return the sampler.
+	 * @throws IOException.
+	 */
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLTRModel model, NamesMap names) throws IOException {
+		if (ps.sampleRealisations == null) { return null; }
+		String fn = ps.sampleRealisations.get(0);
+		int n = Integer.parseInt(ps.sampleRealisations.get(1));
+		return new RealisationSampler(fn, n, iter, prng, model, names);
 	}
 }
