@@ -15,6 +15,8 @@ import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
+import se.cbb.jprime.apps.dltrs.ParameterParser;
+import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
@@ -57,6 +59,7 @@ import com.beust.jcommander.JCommander;
  * of a guest tree evolving inside a dated host tree. Based on the DLTRS model.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  */
 public class Deleterious implements JPrIMEApp {
 	
@@ -174,6 +177,10 @@ public class Deleterious implements JPrIMEApp {
 			
 			// DLTR model.
 			DLTRModel dltr = new DLTRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
+			// mehmood's addtition here Ma7 24 2013
+			// Sigma (mapping between G and S).	
+			// Realisation sampler.
+			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dltr, gNamesLengths.second);
 			
 			// Proposers.
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
@@ -244,6 +251,10 @@ public class Deleterious implements JPrIMEApp {
 			if (params.outputLengths) {
 				manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second, gNamesLengths.third));
 			}
+			// mehmood's addition here
+			if (realisationSampler != null) {
+				manager.addSampleable(realisationSampler);
+			}
 			
 			// ================ WRITE PRE-INFO ================
 			info.write("# MCMC manager:\n");
@@ -263,6 +274,8 @@ public class Deleterious implements JPrIMEApp {
 			info.flush();
 			sampler.close();
 			info.close();
+			// mehmood's addition here
+			if (realisationSampler != null) { realisationSampler.close(); }
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
