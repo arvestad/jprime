@@ -270,12 +270,13 @@ public class Delirious implements JPrIMEApp {
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.err.print("\nUse option -h or --help to show usage.\n");
+		    //			e.printStackTrace(System.err);
+		    String msg = e.getMessage();
+			System.err.print("\nERROR: " + msg + "\n\nUse option -h or --help to show usage.\nSee .info file for more information.\n");
 			if (info != null) {
 				Writer w = new StringWriter();
 			    PrintWriter pw = new PrintWriter(w);
-			    e.printStackTrace(pw);
+ 			    e.printStackTrace(pw);
 				try {
 					info.write("# Run failed. Reason:\n" + w.toString());
 					info.close();
