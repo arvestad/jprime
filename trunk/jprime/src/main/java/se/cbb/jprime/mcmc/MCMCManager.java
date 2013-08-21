@@ -241,7 +241,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * Starts and executes the MCMC chain.
 	 * @throws IOException if unable to produce sampling output.
 	 */
-	public void run() throws IOException {
+       public void run() throws IOException,  ArithmeticException{
 		
 		// Update the topological ordering of the dependency DAG.
 		this.updateDependencyStructure();
@@ -312,7 +312,14 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				}
 				
 				// Finally, decide whether to accept or reject.
-				boolean doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
+				boolean doAccept = false;
+				try {
+				    doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
+				}
+				catch (ArithmeticException e) {
+				    throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");
+				}
+
 				
 				// Debug info.
 				if (this.doDebug) {
