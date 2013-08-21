@@ -10,7 +10,7 @@ although other functionality may be added over time as well.
 The package is developed and maintained by the computational biology
 groups at Science for Life Laboratory Stockholm (http://www.scilifelab.se/).
 It has its roots in a C++ library named PrIME, primarily developed by PIs
-Jens Lagergren, Lars Arvestadx	 and Bengt Sennblad. Frequent contributors to
+Jens Lagergren, Lars Arvestad, and Bengt Sennblad. Frequent contributors to
 JPrIME includes Joel Sjöstrand, Raja Hashim Ali, Ikram Ullah, Owais Mahmudhi,
 and Auwn Muhammed.
 
