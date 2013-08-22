@@ -48,32 +48,32 @@ import se.cbb.jprime.topology.TreeAlgorithms;
  * 
  * @author Mehmood Alam Khan
  */
-public class DLTRModelMaxSampling implements InferenceModel {
+public class DLTRMAPModel implements InferenceModel {
 
 	/** The guest tree G. */
 	protected RootedBifurcatingTreeParameter g;
-	
+
 	/** The host tree S. */
 	protected RootedBifurcatingTreeParameter s;
-	
+
 	/** Reconciliations helper. */
 	protected ReconciliationHelper reconcHelper;
-	
+
 	/** The branch lengths l. */
 	protected DoubleMap lengths;
-	
+
 	/** P11 and similar info. */
 	protected EpochDLTProbs dltProbs;
-	
+
 	/** Substitution rate distribution. */
 	protected Continuous1DPDDependent substPD;
-	
+
 	/** Probability of rooted subtree G_u for each valid placement of u in S'. */
 	protected GenericMap<EpochPtMap> ats;
-	
+
 	/** Probability of planted subtree G^u for each valid placement of tip of u's parent arc in S'. */
 	protected GenericMap<EpochPtMap> belows;
-	
+
 	/**
 	 * Constructor.
 	 * @param g the guest tree G.
@@ -84,7 +84,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 	 * @param substPD the iid rate probability distribution over arcs of G,
 	 *  (relaxing the molecular clock).
 	 */
-	public DLTRModelMaxSampling(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
+	public DLTRMAPModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
 			DoubleMap lengths, EpochDLTProbs dltProbs, Continuous1DPDDependent substPD) {
 		this.g = g;
 		this.s = s;
@@ -94,11 +94,11 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		this.substPD = substPD;
 		this.ats = new GenericMap<EpochPtMap>("DLTRS.ats", g.getNoOfVertices());
 		this.belows = new GenericMap<EpochPtMap>("DLTRS.belows", g.getNoOfVertices());
-				
+
 		// Update.
 		this.fullUpdate();
 	} 
-	
+
 	@Override
 	public Dependent[] getParentDependents() {
 		return new Dependent[] {this.g, this.s, this.reconcHelper, this.lengths, this.dltProbs, this.substPD };
@@ -121,7 +121,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 			if (gci == null && sci == null && rhci == null && dpci == null && rci == null) {
 				if (lci != null && lci.getAffectedElements() != null) {
 					// Only certain branch lengths have changed. We do a partial update.
-					
+
 					int[] affected = TreeAlgorithms.getSpanningRootSubtree(this.g, lci.getAffectedElements());
 					this.ats.cache(affected);
 					this.belows.cache(affected);
@@ -142,7 +142,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		} catch (CloneNotSupportedException ex) {
 		}
 	}
-	
+
 	/**
 	 * Helper. Updates all at-probabilities for the specified vertex u of G,
 	 * i.e. the probabilities of the rooted subtree G_u for all valid
@@ -157,19 +157,19 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		if (g.isLeaf(u)) {
 			return;
 		}
-		
+
 		if (doRecurse) {
 			// Must do children first, if specified.
 			updateAtProbs(g.getLeftChild(u), true);
 			updateAtProbs(g.getRightChild(u), true);
 		}
-		
+
 		// Retrieve placement bounds for u.
 		// Note: Time index of upLim in epoch in question is <last.
 		// Note: Time index of loLim in epoch in question is >0.
 		int[] upLim = reconcHelper.getUpLim(u);
 		int[] s = reconcHelper.getLoLim(u);
-		
+
 		// For each valid placement time s <= upLim.
 		while (!(upLim[0] < s[0] || (!(s[0] < upLim[0]) && upLim[1] < s[1]))) {
 			if (s[1] == 0) {
@@ -192,11 +192,11 @@ public class DLTRModelMaxSampling implements InferenceModel {
 	private void atSpec(int u, int[] s) {
 		int lc = g.getLeftChild(u);
 		int rc = g.getRightChild(u);
-		
+
 		double[] ats = this.ats.get(u).get(s[0], s[1]);
 		int[] sb = reconcHelper.getEpochPtBelow(s);
 		int split = reconcHelper.getSplitIndex(s[0]);
-		
+
 		// Get speciation probability by multiplying lineage values
 		// from children. At the moment, we set values for all remaining
 		// contemporaries to 0.
@@ -204,9 +204,9 @@ public class DLTRModelMaxSampling implements InferenceModel {
 			ats[i] = 0.0;
 		}
 		ats[split] = belows.get(lc).get(sb[0], sb[1], split) * belows.get(rc).get(sb[0], sb[1], split+1)
-			+ belows.get(lc).get(sb[0], sb[1], split+1) * belows.get(rc).get(sb[0], sb[1], split);
+		+ belows.get(lc).get(sb[0], sb[1], split+1) * belows.get(rc).get(sb[0], sb[1], split);
 	}
-	
+
 	/**
 	 * Helper. Invoked by updateAtProbs().
 	 * Updates all at-probabilities for vertex u of G being
@@ -224,50 +224,45 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		//    by multiplying the density for the event at the midpoint
 		//    with the interval timestep.
 		double dt = reconcHelper.getTimestep(s[0]);	
-		
+
 		int lc = g.getLeftChild(u);
 		int rc = g.getRightChild(u);
-		
+
 		double[] ats = this.ats.get(u).get(s[0], s[1]);
 		double dupFact = 2 * dltProbs.getDuplicationRate();
 		int adjFact = (this.dltProbs.getTransferProbabilityAdjustment() ? ats.length - 1 : 1);   // Adjust for contemporary species or not.
 		double trFact = this.dltProbs.getTransferRate() / adjFact;
-		
+
 		// Compute probs for all planted subtrees G^lc and G^rc with
 		// lineages starting at time s.
 		updateBelowProbs(lc, s);
 		updateBelowProbs(rc, s);
-		
+
 		// Compute probs for all rooted subtrees G_u at s.
 		double[] lclins = belows.get(lc).get(s[0], s[1]);
 		double[] rclins = belows.get(rc).get(s[0], s[1]);
+		
 		if (ats.length > 1) {
-			double lcMax = 0.0;
-			int lcEdgeIndex=-1;
-			for (int i=0; i< lclins.length; i++) {
-				if (lcMax < lclins[i]){
-					lcMax = lclins[i];
-					lcEdgeIndex=i;
-				}
-			}
-			double rcMax = 0.0;
-			int rcEdgeIndex=-1;
-			for (int i=0; i< rclins.length; i++) {
-				if (lcMax < rclins[i]){
-					lcMax = rclins[i];
-					rcEdgeIndex=i;
-				}
-			}
 			for (int e = 0; e < ats.length; ++e) {
-				ats[e] = dt * (dupFact * lclins[e] * rclins[e] +
-					trFact * (lclins[e] * rcMax  + rclins[e] * lcMax ));
+				ats[e] = dt * (dupFact * lclins[e] * rclins[e]);
+				int maxFIndex=-1;
+				double maxProbAtF=0.0;
+				double tempProb=0.0;
+				for (int f = 0; f < lclins.length; ++f) {
+					tempProb =(lclins[e] * rclins[f] + rclins[e] * lclins[f]);
+					if (maxProbAtF < tempProb ) {
+						maxProbAtF=tempProb;
+						maxFIndex= f;
+					}
+				}
+				ats[e]+=trFact * maxProbAtF;
 			}
 		} else {
 			// Case with top time edge. No transfer possible.
 			ats[0] = dt * dupFact * lclins[0] * rclins[0];
 		}
 	}
-	
+
 	/**
 	 * Helper. Updates all probabilities for the planted subtree G^u
 	 * when the lineage starts at time s. At-probabilites for all rooted
@@ -280,11 +275,11 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		double l = lengths.get(u);
 		double[] lins = belows.get(u).get(s[0], s[1]);
 		int sz = lins.length;
-		
+
 		if (g.isLeaf(u)) {
 			int sigma = this.reconcHelper.getHostLeafIndex(u);
 			double rateDens = substPD.getPDF(l / sTime);  // Assumes leaf time 0.
-			
+
 			// For each edge e where lineage can start at time s.
 			for (int e = 0; e < sz; ++e) {
 				lins[e] = this.dltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
@@ -294,18 +289,18 @@ public class DLTRModelMaxSampling implements InferenceModel {
 			for (int i = 0; i < sz; ++i) {
 				lins[i] = 0.0;
 			}
-			
+
 			// We always ignore last time index for at-probs of current epoch,
 			// since such values are correctly stored at index 0 of next epoch.
 			int[] t = this.reconcHelper.getLoLim(u);
 			if (reconcHelper.isLastEpochTime(t)) {
 				t = new int[] {t[0]+1, 0};
 			}
-			
+
 			// For each valid time t where u can be placed (strictly beneath s).
 			while (t[0] < s[0] || (!(s[0] < t[0]) && t[1] < s[1])) {
 				double rateDens = substPD.getPDF(l / (sTime - reconcHelper.getTime(t)));
-						
+
 				// For each edge e where lineage can start at time s.
 				double[] ats = this.ats.get(u).get(t[0], t[1]);
 				for (int e = 0; e < sz; ++e) {
@@ -319,7 +314,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 						}
 					}
 				}
-				
+
 				t = reconcHelper.getEpochTimeAboveNotLast(t);
 			}
 		}
@@ -333,7 +328,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		updateAtProbs(g.getRoot(), true);
 		updateBelowProbsForTop();
 	}
-	
+
 	/**
 	 * Helper. Works similarly to updateLinProbs() but for the root lineage
 	 * of G starting at the very top of ES.
@@ -342,7 +337,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		int[] sTop = reconcHelper.getEpochPtAtTop();
 		updateBelowProbs(g.getRoot(), sTop);
 	}
-	
+
 	/**
 	 * Performs a partial DP update.
 	 * It is assumed that limits and number of discretisation points
@@ -355,7 +350,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 		}
 		updateBelowProbsForTop();
 	}
-	
+
 	/**
 	 * Creates (and thus clears) the DP data structures.
 	 * @param u the root of the subtree of G.
@@ -368,7 +363,7 @@ public class DLTRModelMaxSampling implements InferenceModel {
 			this.belows.set(u, new EpochPtMap(disc));
 		}
 	}
-	
+
 	@Override
 	public void clearCache(boolean willSample) {
 		this.ats.clearCache();
@@ -429,5 +424,5 @@ public class DLTRModelMaxSampling implements InferenceModel {
 	public String getModelName() {
 		return "DLTRS";
 	}
-	
+
 }
