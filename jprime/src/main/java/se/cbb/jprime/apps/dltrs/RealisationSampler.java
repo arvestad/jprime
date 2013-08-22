@@ -54,7 +54,7 @@ public class RealisationSampler implements Sampleable {
 
 	/** The divergence times t for the discretised tree S'. */
 	protected RBTreeEpochDiscretiser times;  
-	
+
 	/** The divergence times t for the discretised tree S'. */
 	protected RBTreeEpochDiscretiser msTimes;  
 
@@ -76,7 +76,7 @@ public class RealisationSampler implements Sampleable {
 
 	/** Probability of planted subtree G^u for each valid placement of tip of u's parent arc in S'. */
 	protected GenericMap<EpochPtMap> belows;
-	
+
 	/** P11, etc. */
 	private EpochDLTProbs msDltProbs;  
 
@@ -118,7 +118,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param noOfRealisations number of realisations per sampling round.
 	 * @throws IOException.
 	 */
-	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLTRModel model, DLTRModelMaxSampling msModel, NamesMap names) throws IOException {
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLTRModel model, DLTRMAPModel msModel, NamesMap names) throws IOException {
 		this.out = new BufferedWriter(new FileWriter(filename));
 		this.noOfRealisations = noOfRealisations;
 		this.iteration = iteration;
@@ -141,7 +141,7 @@ public class RealisationSampler implements Sampleable {
 		this.msAts = msModel.ats;  
 		this.msBelows= msModel.belows;
 
-		
+
 		// Write header.
 		this.out.write("# Host tree: " + this.times.toString() + "\n");
 		if (this.noOfRealisations > 0) {
@@ -243,7 +243,7 @@ public class RealisationSampler implements Sampleable {
 			absTimes[v]= this.msReconcHelper.getTime(t);
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("V: "+v+ "\t is Leaf");
+			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
 
 		}else{ // if v is not a leaf of G
 
@@ -303,7 +303,7 @@ public class RealisationSampler implements Sampleable {
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
 			// from where the transfer has happend
-			System.out.print("\nspecieLineageE "+maxE+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t ArcF ["+maxArc+"] maxProb: "+maxp+"\t");
+			System.out.print("\nspecieLineageE "+maxE+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t specieLineageF ["+maxArc+"] maxProb: "+maxp+"\t");
 
 			// check if the event is duplication or transfer
 			if (t[1] != 0){
@@ -320,80 +320,48 @@ public class RealisationSampler implements Sampleable {
 
 				double dupProb	=	0.0;
 				double[] transProb= new double[ats.length];
-				double[] transProbVtoW= new double[ats.length];
-				double[] transProbWtoV= new double[ats.length];
+				double[] transProbUtoW= new double[ats.length];
+				double[] transProbUtoV= new double[ats.length];
 
 				double transProbSum= 0.0;
-				double maxTransProb= 0.0;
-				double maxLinTransProb= 0.0;
+				double maxProbAtF=0.0;
+				int maxFIndex=-1;
 
 				if (ats.length > 1) {
-					
-					double lcMax = 0.0;
-					int lcEdgeIndex=-1;
-					for (int i=0; i< lclins.length; i++) {
-						if (lcMax < lclins[i]){
-							lcMax = lclins[i];
-							lcEdgeIndex=i;
-						}
-					}
-					double rcMax = 0.0;
-					int rcEdgeIndex=-1;
-					for (int i=0; i< rclins.length; i++) {
-						if (lcMax < rclins[i]){
-							lcMax = rclins[i];
-							rcEdgeIndex=i;
-						}
-					}
-					dupProb 	= dt * (dupFact * lclins[maxArc] * rclins[maxArc]);
+
+					dupProb 	= dt * (dupFact * lclins[maxE] * rclins[maxE]);
 					// here f refers to different arcs/lineages of species tree in LowerEdgeGeneration
-					for (int f = 0; f < ats.length; ++f) {
-						if (f != maxArc){
-							transProbVtoW[f] += dt * (trFact * (lclins[f] * rcMax ));
-							transProbWtoV[f] += dt * (trFact * (rclins[f] * lcMax ));
-							transProb[f] += transProbWtoV[f]  + transProbVtoW[f];
-							if (maxLinTransProb < transProb[f]){
-								maxLinTransProb=transProb[f];
-							}
-							if( maxTransProb < transProb[f]){
-								maxTransProb = transProb[f];
-							}						
-							transProbSum += transProb[f];
+					// v is the left child of u in G and w is the right child of u in G. in code v refers to u in theory. 
+					for (int f = 0; f < lclins.length; ++f) {
+
+						transProbUtoW[f] += dt * (trFact * (lclins[maxE] * rclins[f] ));
+						transProbUtoV[f] += dt * (trFact * (rclins[maxE] * lclins[f] ));
+						transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
+
+						if( maxProbAtF < transProb[f]){
+							maxProbAtF = transProb[f];
+							maxFIndex= f;
 						}
+
+						transProbSum+= transProb[f];
 					}
 
-					if (dupProb > maxTransProb ){
+					if (dupProb > maxProbAtF ){
 						System.out.println("Duplication");
 						isDups[v]	=	true;
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]		=true;
-						double maxVtoW	= 0.0;
-						double maxWtoV	= 0.0;
-						int maxEforVtoW			= -1;
-						int maxEforWtoV			= -1;
-						
+						double probW	= (transProbUtoW[maxFIndex]/transProbSum);
+						double probV	= (transProbUtoV[maxFIndex]/transProbSum);
 
-						// child that receive the transfered lineage will be
-						for (int e = 0; e < ats.length; ++e) {
-							if (e != maxArc){
 
-								if (maxVtoW < (transProbVtoW[e]/transProbSum)){  
-									maxVtoW = (transProbVtoW[e]/transProbSum);
-									maxEforVtoW = e;
-								}						
-								if (maxWtoV < (transProbWtoV[e]/transProbSum)){  
-									maxWtoV =  (transProbWtoV[e]/transProbSum);
-									maxEforWtoV = e;
-								}
-							}
-						}
-						if (maxVtoW > maxWtoV){
-							// select the child where V stays but W get transfered to specie lineage e, also Normalizing each component
-							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxEforVtoW);
+						if (probW > probV){
+							// select the child where V stays but W get transfered to species lineage f, also Normalizing each component
+							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxFIndex);
 						}else{
-							// select the child where W stays but V get transfered to specie lineage e,  also Normalizing each component
-							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxEforWtoV);
+							// select the child where W stays but V get transfered to species lineage f,  also Normalizing each component
+							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxFIndex);
 						}
 					}
 
@@ -441,6 +409,7 @@ public class RealisationSampler implements Sampleable {
 		double[] lins = this.belows.get(v).get(s[0], s[1]);
 		int sz = lins.length;
 		int[] t = this.reconcHelper.getLoLim(v);
+		double tempCps=0.0;
 
 		if (this.G.isLeaf(v)) { // if v is a leaf node of G
 			int sigma = this.reconcHelper.getHostLeafIndex(v);
@@ -455,7 +424,7 @@ public class RealisationSampler implements Sampleable {
 			absTimes[v]= this.reconcHelper.getTime(t);
 			arcTimes[v]= this.reconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("V: "+v+ "\t is Leaf");
+			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
 
 		}else{ // if v is not a leaf of G
 
@@ -480,7 +449,7 @@ public class RealisationSampler implements Sampleable {
 			if (reconcHelper.isLastEpochTime(t)) {
 				t = new int[] {t[0]+1, 0};
 			}
-			double tempCps=0.0;
+
 
 			// For each valid time t where u can be placed (strictly beneath s).
 			while (t[0] < s[0] || (!(s[0] < t[0]) && t[1] < s[1])) {
@@ -497,7 +466,7 @@ public class RealisationSampler implements Sampleable {
 						ys.add(t);  // added after May 23
 						cps.add(lins[e]); // added after May 23
 						arcF.add(f);
-						System.out.println(v+"\tBelows["+e+"]\t arcs["+f+ "]\tS["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tProb ["+ p+"]" );
+						System.out.println(v+"\tEdgeInUpperEdgeGeneration_E["+e+"]\t EdgeInLowerEdgeGeneration_F["+f+ "]\tS["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tProb ["+ p+"]" );
 					}
 					tempCps=lins[e];
 				}
@@ -506,25 +475,26 @@ public class RealisationSampler implements Sampleable {
 			}
 
 			int idx=-1;
-			for (int e = 0; e < sz; ++e){
-				// Sample a point in the host tree.
-				if (lins[e] < 1e-256) {
-					// No signal: choose a point uniformly.
-					idx = this.prng.nextInt(ys.size());
-					t = ys.get(idx);
-				} else {
-					// Sample according to probabilities of placements.
-					double rnd = this.prng.nextDouble() * cps.get(cps.size()-1);
-					idx = 0;
-					while (cps.get(idx) < rnd && idx < ys.size()) {
-						++idx;
-					}
-					t = ys.get(idx);
+			double sumProbAtDifferentLineagesE=tempCps;
 
-					//System.out.println("\n\n");
-					//System.out.println(v+"\tArcs["+e+"]\t prng["+rnd+ "]\tcps["+cps.get(idx)+ "] \tt["+t[0] +","+ t[1]+"] " );
+			// Sample a point in the host tree.
+			if (sumProbAtDifferentLineagesE < 1e-256) {
+				// No signal: choose a point uniformly.
+				idx = this.prng.nextInt(ys.size());
+				t = ys.get(idx);
+			} else {
+				// Sample according to probabilities of placements.
+				double rnd = this.prng.nextDouble() * cps.get(cps.size()-1);
+				idx = 0;
+				while (cps.get(idx) < rnd && idx < ys.size()) {
+					++idx;
 				}
+				t = ys.get(idx);
+
+				//System.out.println("\n\n");
+				//System.out.println(v+"\tArcs["+e+"]\t prng["+rnd+ "]\tcps["+cps.get(idx)+ "] \tt["+t[0] +","+ t[1]+"] " );
 			}
+
 			// Finally, store the properties.
 			placements[v] = t;
 			absTimes[v]= this.reconcHelper.getTime(t);
@@ -549,8 +519,8 @@ public class RealisationSampler implements Sampleable {
 
 				double dupProb	=	0.0;
 				double[] transProb= new double[ats.length];
-				double[] transProbVtoW= new double[ats.length];
-				double[] transProbWtoV= new double[ats.length];
+				double[] transProbUtoW= new double[ats.length];
+				double[] transProbUtoV= new double[ats.length];
 
 				double transProbSum= 0.0;
 				double maxLinTransProb= 0.0;
@@ -566,12 +536,12 @@ public class RealisationSampler implements Sampleable {
 					}
 					// duplication probability at lineage arcf
 					dupProb 	+= dt * (dupFact * lclins[transFromLineage] * rclins[transFromLineage]); 
-					
+
 					// here f refers to different arcs/lineages of species tree
-					for (int f = 0; f < ats.length; ++f) {
-						transProbVtoW[f] += dt * (trFact * (lclins[f] * (rcsum - rclins[f])));
-						transProbWtoV[f] += dt * (trFact * (rclins[f] * (lcsum - lclins[f])));
-						transProb[f] += transProbWtoV[f]  + transProbVtoW[f];
+					for (int f = 0; f < lclins.length; ++f) {
+						transProbUtoW[f] += dt * (trFact * (lclins[f] * (rcsum - rclins[f])));
+						transProbUtoV[f] += dt * (trFact * (rclins[f] * (lcsum - lclins[f])));
+						transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
 						if (maxLinTransProb < transProb[f]){
 							maxLinTransProb=transProb[f];
 						}
@@ -589,10 +559,10 @@ public class RealisationSampler implements Sampleable {
 						rnd = this.prng.nextDouble() * (maxLinTransProb/transProbSum);
 						for (int e = 0; e < ats.length; ++e) {
 							if (e != transFromLineage){
-								if (rnd < (transProbVtoW[e]/transProbSum)){  // select the child where V stays but W get transfered to specie lineage e, also Normalizing each component
+								if (rnd < (transProbUtoW[e]/transProbSum)){  // select the child where V stays but W get transfered to specie lineage e, also Normalizing each component
 									System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + e);
 									break;								
-								}else if (rnd < (transProbWtoV[e]/transProbSum)){  // select the child where W stays but V get transfered to specie lineage e,  also Normalizing each component
+								}else if (rnd < (transProbUtoV[e]/transProbSum)){  // select the child where W stays but V get transfered to specie lineage e,  also Normalizing each component
 									System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + e);
 									break;
 								}

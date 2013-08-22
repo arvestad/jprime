@@ -180,7 +180,7 @@ public class Deleterious implements JPrIMEApp {
 			// mehmood's addtition here Ma7 24 2013
 			// Sigma (mapping between G and S).	
 			// DLTRMaxSampling model.
-			DLTRModelMaxSampling dltrMs = new DLTRModelMaxSampling(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
+			DLTRMAPModel dltrMs = new DLTRMAPModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
 			
 			// Realisation sampler.
 			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dltr, dltrMs, gNamesLengths.second);
