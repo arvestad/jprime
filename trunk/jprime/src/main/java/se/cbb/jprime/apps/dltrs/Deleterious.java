@@ -242,6 +242,7 @@ public class Deleterious implements JPrIMEApp {
 			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
 			manager.addSampleable(dltr);
+			manager.addSampleable(dltrMs);
 			manager.addSampleable(dlt.first);
 			manager.addSampleable(dlt.second);
 			manager.addSampleable(dlt.third);
