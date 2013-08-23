@@ -235,6 +235,7 @@ public class RealisationSampler implements Sampleable {
 			double rateDens = msSubstPD.getPDF(l / sTime);  // Assumes leaf time 0.
 
 			// For each edge e where lineage can start at time s.
+			// Note: in future you may need to place v on which edge e of the species tree.
 			for (int e = 0; e < sz; ++e) {
 				lins[e] = this.msDltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
 			}
@@ -271,7 +272,7 @@ public class RealisationSampler implements Sampleable {
 
 			double maxp 	= 0.0;
 			int[] maxT	= null;
-			int maxArc		= -1;
+			int maxF		= -1;
 			int maxE		= -1;
 			// For each valid time t where u can be placed (strictly beneath s).
 			while (t[0] < s[0] || (!(s[0] < t[0]) && t[1] < s[1])) {
@@ -286,7 +287,7 @@ public class RealisationSampler implements Sampleable {
 						if  (p > maxp) {
 							maxp = p;
 							maxT = t;
-							maxArc= f;
+							maxF= f;
 							maxE= e;				
 						}
 						System.out.println(v+"\tEdgeInUpperEdgeGeneration["+e+"]\t EdgeInLowerEdgeGeneration["+f+ "]\ts["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tProb ["+ p+"]" );
@@ -303,7 +304,7 @@ public class RealisationSampler implements Sampleable {
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
 			// from where the transfer has happend
-			System.out.print("\nspecieLineageE "+maxE+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t specieLineageF ["+maxArc+"] maxProb: "+maxp+"\t");
+			System.out.print("\nspecieLineageE "+maxE+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t specieLineageF ["+maxF+"] maxProb: "+maxp+"\t");
 
 			// check if the event is duplication or transfer
 			if (t[1] != 0){
@@ -329,21 +330,22 @@ public class RealisationSampler implements Sampleable {
 
 				if (ats.length > 1) {
 
-					dupProb 	= dt * (dupFact * lclins[maxE] * rclins[maxE]);
+					dupProb 	= dt * (dupFact * lclins[maxF] * rclins[maxF]);
 					// here f refers to different arcs/lineages of species tree in LowerEdgeGeneration
 					// v is the left child of u in G and w is the right child of u in G. in code v refers to u in theory. 
 					for (int f = 0; f < lclins.length; ++f) {
+	
+							transProbUtoW[f] += dt * (trFact * (lclins[maxF] * rclins[f] ));
+							transProbUtoV[f] += dt * (trFact * (rclins[maxF] * lclins[f] ));
+							transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
 
-						transProbUtoW[f] += dt * (trFact * (lclins[maxE] * rclins[f] ));
-						transProbUtoV[f] += dt * (trFact * (rclins[maxE] * lclins[f] ));
-						transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
+							if( maxProbAtF < transProb[f]){
+								maxProbAtF = transProb[f];
+								maxFIndex= f;
+							}
 
-						if( maxProbAtF < transProb[f]){
-							maxProbAtF = transProb[f];
-							maxFIndex= f;
-						}
-
-						transProbSum+= transProb[f];
+							transProbSum+= transProb[f];
+	
 					}
 
 					if (dupProb > maxProbAtF ){
