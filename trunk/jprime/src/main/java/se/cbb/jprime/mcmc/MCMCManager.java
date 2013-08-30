@@ -314,7 +314,8 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				// Finally, decide whether to accept or reject.
 				boolean doAccept = false;
 				try {
-				    doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
+					if(newPosteriorDensity.greaterThan(0.0))
+						doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
 				}
 				catch (ArithmeticException e) {
 				    throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");
