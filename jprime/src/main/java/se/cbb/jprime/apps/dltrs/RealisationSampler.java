@@ -332,9 +332,6 @@ public class RealisationSampler implements Sampleable {
 				double[] lclins = msBelows.get(lc).get(t[0], t[1]);
 				double[] rclins = msBelows.get(rc).get(t[0], t[1]);
 				
-				double[] lcats = this.msAts.get(lc).get(t[0], t[1]);
-				double[] rcats = this.msAts.get(rc).get(t[0], t[1]);
-				
 				double dupProb	=	0.0;
 				double[] transProb= new double[ats.length];
 				double[] transProbUtoW= new double[ats.length];
@@ -344,9 +341,8 @@ public class RealisationSampler implements Sampleable {
 				double maxProbAtF=0.0;
 				int maxFIndex=-1;
 
-				//if (ats.length > 1) {
-				if ( lcats.length > 1 && rcats.length > 1){
-					
+				if (ats.length > 1) {
+
 					dupProb 	= dt * (dupFact * lclins[maxE] * rclins[maxE]); // duplication part of second equation on paper page 6
 					// here f refers to different arcs/lineages of species tree in LowerEdgeGeneration
 					// v is the left child of u in G and w is the right child of u in G. in code v refers to u in theory. 
