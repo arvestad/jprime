@@ -338,27 +338,27 @@ public class RealisationSampler implements Sampleable {
 				double[] transProbUtoV= new double[ats.length];
 
 				double transProbSum= 0.0;
-				double maxProbAtF=0.0;
-				int maxFIndex=-1;
+				double maxProbAtf=0.0;
+				int maxfIndex=-1;
 
 				if (ats.length > 1) {
 
-					dupProb 	= dt * (dupFact * lclins[maxE] * rclins[maxE]); // duplication part of second equation on paper page 6
+					dupProb 	= dt * (dupFact * lclins[maxF] * rclins[maxF]); // duplication part of second equation on paper page 6
 					// here f refers to different arcs/lineages of species tree in LowerEdgeGeneration
 					// v is the left child of u in G and w is the right child of u in G. in code v refers to u in theory. 
 					// Transfer part of second equation on paper page 6
 					for (int f = 0; f < lclins.length; ++f) {
 						if (maxF == f){
-							transProbSum += dt * (trFact * (lclins[maxE] * rclins[f] ));
-							transProbSum += dt * (trFact * (rclins[maxE] * lclins[f] ));
+							transProbSum += dt * (trFact * (lclins[maxF] * rclins[f] ));
+							transProbSum += dt * (trFact * (rclins[maxF] * lclins[f] ));
 						}else{
-							transProbUtoW[f] += dt * (trFact * (lclins[maxE] * rclins[f] ));
-							transProbUtoV[f] += dt * (trFact * (rclins[maxE] * lclins[f] ));
+							transProbUtoW[f] += dt * (trFact * (lclins[maxF] * rclins[f] ));
+							transProbUtoV[f] += dt * (trFact * (rclins[maxF] * lclins[f] ));
 							transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
 
-							if( maxProbAtF < transProb[f]){
-								maxProbAtF = transProb[f];
-								maxFIndex= f;
+							if( maxProbAtf < transProb[f]){
+								maxProbAtf = transProb[f];
+								maxfIndex= f;
 							}
 							transProbSum+= transProb[f];
 						}
@@ -370,16 +370,16 @@ public class RealisationSampler implements Sampleable {
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]		=true;
-						double probW	= (transProbUtoW[maxFIndex]/transProbSum);
-						double probV	= (transProbUtoV[maxFIndex]/transProbSum);
+						double probW	= (transProbUtoW[maxfIndex]/transProbSum);
+						double probV	= (transProbUtoV[maxfIndex]/transProbSum);
 
 
 						if (probW > probV){
 							// select the child where V stays but W get transfered to species lineage f, also Normalizing each component
-							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxFIndex +" with probW: "+ probW );
+							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxfIndex +" with probW: "+ probW );
 						}else{
 							// select the child where W stays but V get transfered to species lineage f,  also Normalizing each component
-							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxFIndex +" with probV: "+ probV );
+							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxfIndex +" with probV: "+ probV );
 						}
 					}
 
@@ -521,6 +521,13 @@ public class RealisationSampler implements Sampleable {
 				while (cps.get(idx) < rnd && idx < ys.size()) {
 					++idx;
 				}
+				
+				while (prob.get(idx) != 0.0){
+					System.out.println("prob Zero here: " + prob.get(idx));
+					--idx;
+				}
+				System.out.println("prob Not Zero here: " + prob.get(idx));
+				
 				t = ys.get(idx);
 
 				//System.out.println("\n\n");
@@ -538,7 +545,7 @@ public class RealisationSampler implements Sampleable {
 	
 
 			// check if the event is duplication or transfer
-			if (t[1] != 0 && !( prob.get(idx) == 0.0)){
+			if (t[1] != 0 ){
 				int lc = G.getLeftChild(v);
 				int rc = G.getRightChild(v);
 				double dt = reconcHelper.getTimestep(t[0]);	 // get timestep for epoch identifier
@@ -568,18 +575,36 @@ public class RealisationSampler implements Sampleable {
 						rcsum += val;
 					}
 					// duplication probability at lineage arcf
-					dupProb 	+= dt * (dupFact * lclins[indexE] * rclins[indexE]); 
-
-					// here f refers to different arcs/lineages of species tree
+					dupProb 	+= dt * (dupFact * lclins[indexF] * rclins[indexF]); 
+					
 					for (int f = 0; f < lclins.length; ++f) {
-						transProbUtoW[f] += dt * (trFact * (lclins[indexE] * (rcsum - rclins[f])));
-						transProbUtoV[f] += dt * (trFact * (rclins[indexE] * (lcsum - lclins[f])));
-						transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
-						if (maxLinTransProb < transProb[f]){
-							maxLinTransProb=transProb[f]; // this will help in defining the range for generating random value below
+						if (indexF == f){
+							transProbSum += dt * (trFact * (lclins[indexF] * rclins[f] ));
+							transProbSum += dt * (trFact * (rclins[indexF] * lclins[f] ));
+						}else{
+							transProbUtoW[f] += dt * (trFact * (lclins[indexF] * rclins[f] ));
+							transProbUtoV[f] += dt * (trFact * (rclins[indexF] * lclins[f] ));
+							transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
+							
+							if (maxLinTransProb < transProb[f]){
+								maxLinTransProb=transProb[f]; // this will help in defining the range for generating random value below
+							}
+							
+							transProbSum+= transProb[f];
 						}
-						transProbSum += transProb[f];
 					}
+					
+//					// here f refers to different arcs/lineages of species tree
+//					for (int f = 0; f < lclins.length; ++f) {
+//						transProbUtoW[f] += dt * (trFact * (lclins[indexF] * (rcsum - rclins[f])));
+//						transProbUtoV[f] += dt * (trFact * (rclins[indexF] * (lcsum - lclins[f])));
+//						transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
+//						if (maxLinTransProb < transProb[f]){
+//							maxLinTransProb=transProb[f]; // this will help in defining the range for generating random value below
+//						}
+//						transProbSum += transProb[f];
+//					}
+					
 					// Generate Random number ranging between (0 to sum(dupProb+transProb) )
 					double rnd = this.prng.nextDouble() * (dupProb+transProbSum);
 					if (rnd < dupProb ){
