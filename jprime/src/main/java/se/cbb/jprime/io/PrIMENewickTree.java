@@ -70,6 +70,8 @@ public class PrIMENewickTree extends NewickTree {
 		VERTEX_DISC_PTS         ("DISCPT=\"?(\\([0-9]+,[0-9]+\\))\"?"),
 		VERTEX_DISC_TIMES       ("DISCTIMES=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
 		VERTEX_PARAMS           ("PARAMS=\"?(\\([0-9\\+\\-\\.eE ]+[,0-9\\+\\-\\.eE ]+\\))\"?"),
+		// oct 28 addition
+		VERTEX_TRANSFER			("FROMTO=\"?(\\([0-9]+,[0-9]+\\))\"?"),
 		TREE_DISC_TYPE          ("DISCTYPE=\"?(RBTreeArcDiscretiser|EpochDiscretiser)\"?"),
 		TREE_N_MIN              ("NMIN=\"?([0-9]+)\"?"),
 		TREE_N_MAX              ("NMAX=\"?([0-9]+)\"?"),
