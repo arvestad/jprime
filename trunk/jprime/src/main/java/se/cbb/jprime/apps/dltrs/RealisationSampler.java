@@ -158,6 +158,7 @@ public class RealisationSampler implements Sampleable {
 	public Realisation getMaximumProbabilityRealisation(List<Integer> vertices) {
 		int n = vertices.size();
 		int[][] placements = new int[n][];  // Sampled points.
+		int[][] toFrom = new int[n][];  // Transfer from to .
 		double[] abst = new double[n];      // Absolute times.
 		double[] arct = new double[n];      // Arc times.
 		boolean[] isDups = new boolean[n];  // Type of point
@@ -169,7 +170,9 @@ public class RealisationSampler implements Sampleable {
 			getMaxPointLTG(v, placements, abst, arct, isDups, isTrans);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 			System.out.println("\n placementss["+v+"]"+ placementss[v]);
-
+			System.out.println(this.G.toString());
+			System.out.println(this.S.toString());
+			
 		}
 
 		// Finally, generate guest tree with times.
@@ -314,14 +317,13 @@ public class RealisationSampler implements Sampleable {
 			absTimes[v]= this.msReconcHelper.getTime(t);
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
-			// from where the transfer has happend
-			System.out.println("\nspecieLineageE ["+maxE+"] \t specieLineageF ["+maxF+"] \tt\t["+ t[0] + ", "+ t[1]+ "] maxProb: "+maxp+"\t");
-			System.out.println(" node ["+v+"] left child ["+lc+"] right child ["+rc+"]");
+			System.out.println("\nE ["+maxE+"] \t F ["+maxF+"] \tt\t["+ t[0] + ", "+ t[1]+ "] maxProb: "+maxp+"\t");
+			System.out.println(" Node ["+v+"] left child ["+lc+"] right child ["+rc+"]");
 			
 			
 			
 			// check if the event is duplication or transfer
-			if (t[1] != 0){
+			if (t[1] != 0) {
 				
 				double dt = msReconcHelper.getTimestep(t[0]);	
 				double[] ats = this.msAts.get(v).get(t[0], t[1]);
@@ -365,7 +367,8 @@ public class RealisationSampler implements Sampleable {
 					}
 
 					if (dupProb > transProbSum ){
-						System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
+						System.out.println("Duplication");
+						//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
 						isDups[v]	=	true;
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
@@ -386,14 +389,15 @@ public class RealisationSampler implements Sampleable {
 				} else {
 					// Case with top time edge. No transfer possible.
 					ats[0] = dt * dupFact * lclins[0] * rclins[0];
-					System.out.println("\n"+v+"\t specieLineageF["+maxF+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+ats[0]+ "]  Duplication" );
+					System.out.println("Duplication");
+					//System.out.println("\n"+v+"\t F["+maxF+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+ats[0]+ "]  Duplication" );
 					
 					isDups[v]=true;
 				}
 
 			}else{
 				System.out.println("\nV: "+v+ "\t Speciation");
-				System.out.println(v+"\t specieLineageF["+maxF+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t SpeciProb ["+maxp+ "]  " );
+				//System.out.println(v+"\t F["+maxF+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t SpeciProb ["+maxp+ "]  " );
 				
 			}
 
@@ -512,7 +516,7 @@ public class RealisationSampler implements Sampleable {
 				idx = this.prng.nextInt(ys.size());
 				t = ys.get(idx);
 	
-				System.out.println(v+"\t specieLineageF["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+1e-256+ "]\tcps["+cps.get(idx)+"] " );
+				System.out.println("Node: "+ v+" is placed at \t F["+arcF.get(idx)+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+1e-256+ "]\tcps["+cps.get(idx)+"] " );
 			} else {
 				
 				// Sample according to probabilities of placements.
@@ -521,17 +525,17 @@ public class RealisationSampler implements Sampleable {
 				while (cps.get(idx) < rnd && idx < ys.size()) {
 					++idx;
 				}
-				
-				while (prob.get(idx) != 0.0){
+
+				while (prob.get(idx) == 0.0){
 					System.out.println("prob Zero here: " + prob.get(idx));
 					--idx;
 				}
-				System.out.println("prob Not Zero here: " + prob.get(idx));
+
 				
 				t = ys.get(idx);
 
-				//System.out.println("\n\n");
-				System.out.println(v+"\t specieLineageF["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+rnd+ "]\tcps["+cps.get(idx)+"] " );
+				System.out.println("\n\n");
+				System.out.println("Node: "+ v+"\t F["+arcF.get(idx)+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+rnd+ "]\tcps["+cps.get(idx)+"] " );
 			}
 
 			// Finally, store the properties.
@@ -609,7 +613,7 @@ public class RealisationSampler implements Sampleable {
 					double rnd = this.prng.nextDouble() * (dupProb+transProbSum);
 					if (rnd < dupProb ){
 						System.out.println("Duplication");
-						System.out.println(v+"\t specieLineageF["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]\tcps["+cps.get(idx)+"]  Duplication" );
+						//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]\tcps["+cps.get(idx)+"]  Duplication" );
 						isDups[v]=true;
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
@@ -634,13 +638,14 @@ public class RealisationSampler implements Sampleable {
 				} else {
 					// Case with top time edge. No transfer possible.
 					ats[0] = dt * dupFact * lclins[0] * rclins[0];
-					System.out.println(v+"\t specieLineageF["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+ats[0]+ "]\tcps["+cps.get(idx)+"]  Duplication" );
+					System.out.println("Duplication");
+					//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+ats[0]+ "]\tcps["+cps.get(idx)+"]  Duplication" );
 					isDups[v]=true;
 				}
 
 			}else{
 				System.out.println("V: "+v+ "\t Speciation");
-				System.out.println(v+"\t specieLineageF["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t Prob ["+ prob.get(idx)+ "]\tcps["+cps.get(idx)+"] " );
+				//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t Prob ["+ prob.get(idx)+ "]\tcps["+cps.get(idx)+"] " );
 				this.stemDoneFlag= true;
 			}
 
