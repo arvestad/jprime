@@ -158,7 +158,7 @@ public class RealisationSampler implements Sampleable {
 	public Realisation getMaximumProbabilityRealisation(List<Integer> vertices) {
 		int n = vertices.size();
 		int[][] placements = new int[n][];  // Sampled points.
-		int[][] toFrom = new int[n][];  // Transfer from to .
+		int[][] fromTo = new int[n][];  // Transfer from-to lineage .
 		double[] abst = new double[n];      // Absolute times.
 		double[] arct = new double[n];      // Arc times.
 		boolean[] isDups = new boolean[n];  // Type of point
@@ -166,17 +166,29 @@ public class RealisationSampler implements Sampleable {
 
 		// For each vertex v of G.
 		String[] placementss = new String[n];
+		String[] toFromLinage= new String[n];
+		System.out.println("n=" + n);
+		// initializing fromTo array with zero
 		for (int v : vertices) {
-			getMaxPointLTG(v, placements, abst, arct, isDups, isTrans);
+			int [] t = new int[] {0, 0};
+			fromTo[v]= t;
+		}
+		
+		
+		for (int v : vertices) {
+			getMaxPointLTG(v, placements, fromTo, abst, arct, isDups, isTrans);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
+			toFromLinage[v]= "(" + fromTo[v][0] + "," + fromTo[v][1] + ")";
+			
 			System.out.println("\n placementss["+v+"]"+ placementss[v]);
-			System.out.println(this.G.toString());
-			System.out.println(this.S.toString());
+			System.out.println("\n toFromLinage["+v+"]"+ toFromLinage[v]);
+			//System.out.println(this.G.toString());
+			//System.out.println(this.S.toString());
 			
 		}
 
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss));
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss), new StringMap("fromToLineage",toFromLinage) );
 
 	}
 
@@ -190,6 +202,7 @@ public class RealisationSampler implements Sampleable {
 
 		int n = vertices.size();
 		int[][] placements = new int[n][];  // Sampled points.
+		int[][] fromTo = new int[n][];  // Transfer from-to lineage .
 		double[] abst = new double[n];      // Absolute times.
 		double[] arct = new double[n];      // Arc times.
 		boolean[] isDups = new boolean[n];  // Type of point.
@@ -197,13 +210,22 @@ public class RealisationSampler implements Sampleable {
 		
 		// For each vertex v of G.
 		String[] placementss = new String[n];
+		String[] toFromLinage= new String[n];
+		
+		// initializing fromTo array with zero
 		for (int v : vertices) {
-			getSamplePointLTG(v, placements, abst, arct, isDups, isTrans);
+			int [] t = new int[] {0, 0};
+			fromTo[v]= t;
+		}
+		
+		for (int v : vertices) {
+			getSamplePointLTG(v, placements, fromTo, abst, arct, isDups, isTrans);
+			toFromLinage[v] = "(" + fromTo[v][0] + "," + fromTo[v][1] + ")";
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}
 
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss));
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss),  new StringMap("fromToLineage",toFromLinage) );
 	}
 
 	/////////////////////////////////////////////////////////New Get Max Point Functino///////////////////////////////////////////////
@@ -217,7 +239,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param isDups type of point. True if its duplication.
 	 * @param isTrans type of point. True if its transfer.
 	 */
-	private void getMaxPointLTG(int v, int[][] placements, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
+	private void getMaxPointLTG(int v, int[][] placements, int [][] fromTo, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
 
 		// Get placement of parent of v in S'.
 		int[] s;
@@ -378,10 +400,15 @@ public class RealisationSampler implements Sampleable {
 
 
 						if (probW > probV){
-							// select the child where V stays but W get transfered to species lineage f, also Normalizing each component
+							fromTo[v][0]= maxF;
+							fromTo[v][1]= maxfIndex;
+							
+							// select the child where V stays but W get transfered to species lineage f
 							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxfIndex +" with probW: "+ probW );
 						}else{
-							// select the child where W stays but V get transfered to species lineage f,  also Normalizing each component
+							fromTo[v][0]= maxF;
+							fromTo[v][1]= maxfIndex;
+							// select the child where W stays but V get transfered to species lineage f, 
 							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxfIndex +" with probV: "+ probV );
 						}
 					}
@@ -419,7 +446,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param isTrans type of point. True if its transfer.
 	 */
 
-	private void getSamplePointLTG(int v, int[][] placements, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
+	private void getSamplePointLTG(int v, int[][] placements, int [][] fromTo, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
 
 		// Get placement of parent of v in S'.
 		int[] s;
@@ -598,17 +625,6 @@ public class RealisationSampler implements Sampleable {
 						}
 					}
 					
-//					// here f refers to different arcs/lineages of species tree
-//					for (int f = 0; f < lclins.length; ++f) {
-//						transProbUtoW[f] += dt * (trFact * (lclins[indexF] * (rcsum - rclins[f])));
-//						transProbUtoV[f] += dt * (trFact * (rclins[indexF] * (lcsum - lclins[f])));
-//						transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
-//						if (maxLinTransProb < transProb[f]){
-//							maxLinTransProb=transProb[f]; // this will help in defining the range for generating random value below
-//						}
-//						transProbSum += transProb[f];
-//					}
-					
 					// Generate Random number ranging between (0 to sum(dupProb+transProb) )
 					double rnd = this.prng.nextDouble() * (dupProb+transProbSum);
 					if (rnd < dupProb ){
@@ -619,19 +635,49 @@ public class RealisationSampler implements Sampleable {
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]=true;
 						this.stemDoneFlag= true;
+						
+						int j=1;
+						int transferedToLineage=-1;
+						boolean foundFlag= false;
+						
+						while(true && j <= ats.length  ){
+							transferedToLineage= this.prng.nextInt(ats.length);
+							if (transferedToLineage != indexF){
+								foundFlag= true;
+								break;
+							}
+							j++;		
+						}
+						
+						if (foundFlag == true){
+							fromTo[v][0]= indexF;
+							fromTo[v][1]= transferedToLineage;
+						}else{
+							System.out.println("This transfer is not possible. since there is only one species lineage at this time point");
+						}
+						
+						
+						/*
 						// child that receive the transfered lineage will be
 						rnd = this.prng.nextDouble() * (maxLinTransProb/transProbSum);
+						
 						for (int f = 0; f < lclins.length; ++f) {
-							//if (f != indexF){
+							if (f != indexF){
 								if (rnd <= (transProbUtoW[f]/transProbSum)){  // select the child where V stays but W get transfered to specie lineage e, also Normalizing each component
+									fromTo[v][0]= indexF;
+									fromTo[v][1]= f;
 									System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie edge:" + f);
 									break;								
 								}else if (rnd <= (transProbUtoV[f]/transProbSum)){  // select the child where W stays but V get transfered to specie lineage e,  also Normalizing each component
+									fromTo[v][0]= indexF;
+									fromTo[v][1]= f;
 									System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie edge:" + f);
 									break;
 								}
-							//}
+							}
 						}
+						
+						*/
 						
 					}
 
@@ -648,10 +694,6 @@ public class RealisationSampler implements Sampleable {
 				//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t Prob ["+ prob.get(idx)+ "]\tcps["+cps.get(idx)+"] " );
 				this.stemDoneFlag= true;
 			}
-
-
-
-
 
 		} // else ends here
 

@@ -36,12 +36,14 @@ public class Realisation {
 	/** For each vertex v of G, states whether it corresponds to a duplication or not. */
 	private BooleanMap isDuplication;
 	
-	/** For each vertex v of G, states whether it corresponds to a duplication or not. */
+	/** For each vertex v of G, states whether it corresponds to a Transfer or not. */
 	private BooleanMap isTransfer; // mehmood's adddition here
 	
 	/** Placement info of the vertex in the discretised host tree. */
 	private StringMap placements;
 	
+	/** From-To-lineage info about the children of a particular vertex being subjected to transfer event */
+	private StringMap fromTo;
 	/**
 	 * Constructor.
 	 * @param G tree topology.
@@ -50,13 +52,14 @@ public class Realisation {
 	 * @param isDup for each vertex v of G: true if v corresponds to a duplication; false if v corresponds to a speciation or leaf.
 	 * @param placements for each vertex v of G: discretisation placement info.
 	 */
-	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup,BooleanMap isTrans, StringMap placements) {
-		this.G = G;
-		this.names = names;
-		this.times = times;
-		this.isDuplication = isDup;
-		this.isTransfer = isTrans;  // mehmood's adddition here
-		this.placements = placements;
+	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup,BooleanMap isTrans, StringMap placements, StringMap fromTo) {
+		this.G 					= G;
+		this.names 				= names;
+		this.times 				= times;
+		this.isDuplication 		= isDup;
+		this.placements 		= placements;
+		this.isTransfer 		= isTrans;  // mehmood's adddition here
+		this.fromTo				= fromTo;		// mehmood's adddition here
 	}
 
 	/**
@@ -78,7 +81,7 @@ public class Realisation {
 					sb.append("[&&PRIME VERTEXTYPE=Leaf");
 				} else if (this.isTransfer.get(v)) {  //  mehmood's addition here
 					sb.append("[&&PRIME VERTEXTYPE=Transfer");
-					//sb.append(" DISCPT=").append(placements.get(v)).append("]");
+					sb.append(" FROMTOLINEAGE=").append(fromTo.get(v)).append("]");
 				} else if (this.isDuplication.get(v)) {
 					sb.append("[&&PRIME VERTEXTYPE=Duplication");
 				} else {
