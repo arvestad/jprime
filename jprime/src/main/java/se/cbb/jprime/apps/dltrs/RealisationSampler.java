@@ -326,7 +326,15 @@ public class RealisationSampler implements Sampleable {
 							maxF= f;
 							maxE= e;				
 						}
-						System.out.println(v+"\tEdgeInUpperEdgeGeneration["+e+"]\t EdgeInLowerEdgeGeneration["+f+ "]\ts["+s[0]+", "+ s[1]+ "] \tt["+t[0] +","+ t[1]+"] \tProb ["+ p+"]" );
+						
+						System.out.print(v+"\tEdgeInUpperEdgeGeneration["+e);
+						System.out.print("]\t EdgeInLowerEdgeGeneration["+f);
+						System.out.print("]\ts["+s[0]);
+						System.out.print(", "+ s[1]);
+						System.out.print("] \tt["+t[0] );
+						System.out.print(","+ t[1]);
+						System.out.print("] \tProb ["+ p+"]" );
+						System.out.println("");
 					}
 				}
 				t = msReconcHelper.getEpochTimeAboveNotLast(t);
@@ -362,10 +370,10 @@ public class RealisationSampler implements Sampleable {
 				double[] transProbUtoV= new double[ats.length];
 
 				double transProbSum= 0.0;
-				double maxProbAtf=0.0;
-				int maxfIndex=-1;
+				double maxProbAtf=-0.0;
+				int maxfIndex=0;
 
-				if (ats.length > 1) {
+				if (lclins.length > 1) {
 
 					dupProb 	= dt * (dupFact * lclins[maxF] * rclins[maxF]); // duplication part of second equation on paper page 6
 					// here f refers to different arcs/lineages of species tree in LowerEdgeGeneration
@@ -375,11 +383,13 @@ public class RealisationSampler implements Sampleable {
 						if (maxF == f){
 							transProbSum += dt * (trFact * (lclins[maxF] * rclins[f] ));
 							transProbSum += dt * (trFact * (rclins[maxF] * lclins[f] ));
-						}else{
+							
+						}
+						else{
 							transProbUtoW[f] += dt * (trFact * (lclins[maxF] * rclins[f] ));
 							transProbUtoV[f] += dt * (trFact * (rclins[maxF] * lclins[f] ));
 							transProb[f] += transProbUtoV[f]  + transProbUtoW[f];
-
+							
 							if( maxProbAtf < transProb[f]){
 								maxProbAtf = transProb[f];
 								maxfIndex= f;
@@ -395,6 +405,7 @@ public class RealisationSampler implements Sampleable {
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]		=true;
+						System.out.println(" maxfIndex"+ maxfIndex+ "\t transProbUtoW.length \t"+ transProbUtoW.length  );
 						double probW	= (transProbUtoW[maxfIndex]/transProbSum);
 						double probV	= (transProbUtoV[maxfIndex]/transProbSum);
 
@@ -413,7 +424,8 @@ public class RealisationSampler implements Sampleable {
 						}
 					}
 
-				} else {
+				} 
+				else {
 					// Case with top time edge. No transfer possible.
 					ats[0] = dt * dupFact * lclins[0] * rclins[0];
 					System.out.println("Duplication");
@@ -753,8 +765,9 @@ public class RealisationSampler implements Sampleable {
 		List<Integer> vertices = this.G.getTopologicalOrdering();
 
 		// Output max prob. realisation in ordinary file.
+		
 		Realisation real = this.getMaximumProbabilityRealisation(vertices);
-
+		//Realisation real = this.sample(vertices);
 		str.append('\t').append(real.toString());
 
 		// Do sampling to own file, in ordinary cases.

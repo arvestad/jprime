@@ -311,7 +311,7 @@ public class DLTRMAPModel implements InferenceModel {
 						if (lins[e] < tempProb){
 							// consider only maximum
 							lins[e] =  tempProb;
-						}
+						} 
 					}
 				}
 
