@@ -39,7 +39,7 @@ public class TestNewickTreeReader {
 	public void readNameAndBLTrees() throws NewickIOException {
 		String in = "(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);\n" +
 				"((A:0.1,B:0.2,(C:0.3,D:0.4)E:0.5)F:1e123,G:-234,(H:0.456,I:12.34)J:-12e-34)K:0;\n" +
-				"((A[],B:123[]):245[],[My info tag])E[My second info tag!][My tree tag!!];";
+				"((A[&&],B:123[&&]):245[&&],[&&My info tag])E[&&My second info tag!][&&My tree tag!!];";
 		List<NewickTree> ts = NewickTreeReader.readTrees(in, true);
 		NewickTree t0 = ts.get(0);
 		NewickTree t1 = ts.get(1);
@@ -51,8 +51,8 @@ public class TestNewickTreeReader {
 		assertTrue(t0.getRoot().getNumber() == 5);
 		assertSubtree(t1.getRoot(), false, true, false, true);
 		assertSubtree(t2.getRoot(), false, false, true, false);
-		assertTrue(t2.getRoot().getMeta().equals("[My second info tag!]"));
-		assertTrue(t2.getMeta().equals("[My tree tag!!]"));
+		assertTrue(t2.getRoot().getMeta().equals("[&&My second info tag!]"));
+		assertTrue(t2.getMeta().equals("[&&My tree tag!!]"));
 	}
 	
 	

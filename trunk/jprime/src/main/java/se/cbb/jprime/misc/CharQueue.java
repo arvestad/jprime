@@ -125,4 +125,15 @@ public class CharQueue {
 			this.put(str.charAt(i));
 		}
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		QueueNode n = this.first;
+		while (n != null) {
+			sb.append(n.val);
+			n = n.next;
+		}
+		return sb.toString();
+	}
 }
