@@ -150,7 +150,7 @@ public class GuestTreeGenParameters {
 	}
 	
 	public Double getStem() {
-		return (this.stem == null ? null : Double.parseDouble(this.stem));
+		return (this.stem == null ? 0.0 : Double.parseDouble(this.stem));
 	}
 	
 	public Double getLeafSamplingProb() {
