@@ -9,9 +9,14 @@ import se.cbb.jprime.misc.CharQueue;
  */
 public class NewickStringAlgorithms {
 
+	/** Non-meta comment pattern. */
+	//public static final Pattern COMMENT_PATTERN = Pattern.compile("\\[[^\\&][^\\&][^\\]]*\\]");
+	
 	/**
 	 * Takes as input a string with one or more Newick trees
 	 * and strips it of all whitespace, returning the remainder as a queue.
+	 * ALSO: Strips away comments '[...]' unless they indicate tree formatting
+	 * like '[&&...]'.
 	 * One may choose to only include input trees up to a certain number
 	 * based on counting semi-colons. Assumes well-formed input.
 	 * @param str the input.
@@ -20,6 +25,9 @@ public class NewickStringAlgorithms {
 	 * @return the queue.
 	 */
 	public static CharQueue strip(String str, int maxSemiColons) {
+		// Strip non-meta comments.
+		str = str.replaceAll("\\[[^\\&][^\\&][^\\]]*\\]", "");
+		
 		// Strip away all blanks unless in meta tags.
 		CharQueue q = new CharQueue();
 		int count = 0;
