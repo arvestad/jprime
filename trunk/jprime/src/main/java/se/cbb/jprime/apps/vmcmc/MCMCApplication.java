@@ -143,6 +143,13 @@ public class MCMCApplication {
 		int leftIndex;
 		int rightIndex;
 		int numTreeSeries;
+		int numDuplicates;
+		int numPoints;	
+		int numBurnInPoints;
+		int key;
+		int overallConvergenceGeweke;
+		int overallConvergenceESS;
+		int overallConvergenceGR;
 		double values;
 		double values1;
 		double mean;
@@ -166,10 +173,21 @@ public class MCMCApplication {
 		boolean gelmanRubin;
 		Double[] data;
 		Object[] serie;
+		final NumberFormat 			formatter = new DecimalFormat("0.00");
+		TreeMap<Integer, MCMCTree> 	treeMap;
+		ArrayList<MCMCTree> 		uniqueserie;
+		MCMCTree 					uniqueTree;
+		ArrayList<TreeMap<Integer, MCMCTree>> 	treeMapList;
+		ArrayList<MCMCTree> 		treeSerie;
+		MCMCTree[] 					treeData;
+		MCMCTree 					tree;
 		
 		/* ******************** VARIABLE INITIALIZERS ***************************** */
-		file 						= new File(file1);
-		datacontainer 				= null;
+		file = new File(file1);
+		datacontainer = null;
+		overallConvergenceGeweke = -2;
+		overallConvergenceESS = -2;
+		overallConvergenceGR = -2;
 		
 		/* ******************** FUNCTION BODY ************************************* */
 		if (confidencelevel<0)
@@ -181,7 +199,7 @@ public class MCMCApplication {
 			datacontainer = MCMCFileReader.readMCMCFile(file);	
 
 			if(datacontainer != null) {
-				if(choice < 8) {
+				if(choice < 9) {
 					numSeries = datacontainer.getNumValueSeries();
 
 					if(numSeries != 0) {
@@ -192,34 +210,35 @@ public class MCMCApplication {
 							serieLength	= serie.length;
 
 							if(serieLength < 100){
-								System.out.println("\t\tSmall dataset. Stistics and tests can not be computed.\n\t}\n}");
+								System.out.println("\t\tSmall dataset. Statistics and tests can not be computed.\n\t}\n}");
 								System.exit(0);
 							}
 
-							System.out.println("\t\t\"Name\": "+ numSeriesArray.get(i) + "{");
+							if(choice < 8)
+								System.out.println("\t\t\"" + numSeriesArray.get(i) + "\": " + "{");
 
 							if(choice == 5) {
 								ess 				= MCMCMath.calculateESS(serie);
 								if (ess > serieLength/800) {
-									System.out.println("\t\t\t\"ESS\": [\n\t\t\t\t\"Status\": \"Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + ess + "\n\t\t\t]");
+									System.out.println("\t\t\t\"ESS\": {\n\t\t\t\t\"Status\": \"Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + ess + "\n\t\t\t}");
 								} else
 									System.out.println("\t\t\t\"ESS\": \"Insignificant. Not converged\"");
 							} else if(choice == 4) {
 								geweke 				= MCMCMath.calculateGeweke(serie);
 								if (geweke != -1) {
-									System.out.println("\t\t\t\"Geweke\": [\n\t\t\t\t\"Status\": \"Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + geweke + "\n\t\t\t]");							
+									System.out.println("\t\t\t\"Geweke\": {\n\t\t\t\t\"Status\": \"Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + geweke + "\n\t\t\t}");							
 								} else 
 									System.out.println("\t\t\t\"Geweke\": \"Not converged\"");
 							} else if(choice == 6) {
 								gelmanRubin 		= MCMCMath.GelmanRubinTest(serie, burnin);
 								if(gelmanRubin == true)	{
-									System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \"Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + burnin + "\n\t\t\t]");
+									System.out.println("\t\t\t\"Gelman_Rubin\": {\n\t\t\t\t\"Status\": \"Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + burnin + "\n\t\t\t}");
 								} else {
-									System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \"Not Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + burnin + "\n\t\t\t]");
+									System.out.println("\t\t\t\"Gelman_Rubin\": {\n\t\t\t\t\"Status\": \"Not Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + burnin + "\n\t\t\t}");
 								}
 							} 
 
@@ -228,17 +247,27 @@ public class MCMCApplication {
 								ess = MCMCMath.calculateESS(serie);
 
 								if (ess > serieLength/800) {
-									System.out.println("\t\t\t\"ESS\": [\n\t\t\t\t\"Status\": \"Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + ess + "\n\t\t\t]");
-								} else
+									System.out.println("\t\t\t\"ESS\": {\n\t\t\t\t\"Status\": \"Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + ess + "\n\t\t\t},");
+									if(overallConvergenceESS != -1 && ess > overallConvergenceESS) {
+										overallConvergenceESS = ess;
+									}
+								} else {
 									System.out.println("\t\t\t\"ESS\": \"Insignificant. Not converged\"");
+									overallConvergenceESS = -1;
+								}
 
 								if (geweke != -1) {
-									System.out.println("\t\t\t\"Geweke\": [\n\t\t\t\t\"Status\": \"Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + geweke + "\n\t\t\t]");							
-								} else 
+									System.out.println("\t\t\t\"Geweke\": {\n\t\t\t\t\"Status\": \"Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + geweke + "\n\t\t\t},");	
+									if(overallConvergenceGeweke != -1 && geweke > overallConvergenceGeweke) {
+										overallConvergenceGeweke = geweke;
+									}
+								} else {
 									System.out.println("\t\t\t\"Geweke\": \"Not converged\"");
-
+									overallConvergenceGeweke = -1;
+								}
+								
 								int originalBurnin = 0;
 								gelmanRubin	= MCMCMath.GelmanRubinTest(serie, originalBurnin);
 								while(gelmanRubin != true && originalBurnin < (0.5 * serie.length)) {
@@ -246,14 +275,45 @@ public class MCMCApplication {
 									gelmanRubin	= MCMCMath.GelmanRubinTest(serie, originalBurnin);
 								}
 								if(gelmanRubin == true)	{
-									System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \"Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + originalBurnin + "\n\t\t\t]");
+									System.out.println("\t\t\t\"Gelman_Rubin\": {\n\t\t\t\t\"Status\": \"Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + originalBurnin + "\n\t\t\t}");
+									if(overallConvergenceGR != -1 && originalBurnin > overallConvergenceGR)
+										overallConvergenceGR = originalBurnin;
 								} else {
-									System.out.println("\t\t\t\"Gelman-Rubin\": [\n\t\t\t\t\"Status\": \" Not Converged\"");
-									System.out.println("\t\t\t\t\"Burn-in\": " + originalBurnin + "\n\t\t\t]");
+									System.out.println("\t\t\t\"Gelman_Rubin\": {\n\t\t\t\t\"Status\": \" Not Converged\",");
+									System.out.println("\t\t\t\t\"Burn_in\": " + originalBurnin + "\n\t\t\t}");
+									overallConvergenceGR = -1;
 								}
 							}
+							
+							if(choice == 8) {
+								geweke = MCMCMath.calculateGeweke(serie);
+								ess = MCMCMath.calculateESS(serie);
 
+								if (ess > serieLength/800) {
+									if(overallConvergenceESS != -1 && ess > overallConvergenceESS) 
+										overallConvergenceESS = ess;
+								} else {
+									overallConvergenceESS = -1;
+								}
+
+								if (geweke != -1) {
+									if(overallConvergenceGeweke != -1 && geweke > overallConvergenceGeweke) 
+										overallConvergenceGeweke = geweke;		
+								} else
+									overallConvergenceGeweke = -1;
+								int originalBurnin = 0;
+								gelmanRubin	= MCMCMath.GelmanRubinTest(serie, originalBurnin);
+								while(gelmanRubin != true && originalBurnin < (0.5 * serie.length)) {
+									originalBurnin = originalBurnin + 1;
+									gelmanRubin	= MCMCMath.GelmanRubinTest(serie, originalBurnin);
+								}
+								if(gelmanRubin == true)	{
+									if(overallConvergenceGR != -1 && originalBurnin > overallConvergenceGR)
+										overallConvergenceGR = originalBurnin;
+								} else
+									overallConvergenceGR = -1;
+							}
 							if(serie.length - burnin > 0 && (choice == 3 || choice == 7)) {
 								data = new Double[serie.length-burnin];
 								System.arraycopy(serie, burnin, data, 0, serie.length-burnin);
@@ -290,13 +350,13 @@ public class MCMCApplication {
 								arithmetic_standard_dev = (double)java.lang.Math.sqrt(sigmaSquare/(numValues-1));
 								geometric_standard_dev = Math.abs(Math.exp(Math.sqrt(sum/(numValues-1) - ((numValues/(numValues-1))*Math.pow(Math.log(values1),2)))));
 
-								System.out.println("\t\t\t\"Arithmetic Mean\": " + mean);
-								System.out.println("\t\t\t\"Arithmetic Standard Deviation\": " + arithmetic_standard_dev);
-								System.out.println("\t\t\t\"Geometric Mean\": " + geometric_mean);
-								System.out.println("\t\t\t\"Geometric Standard Deviation\": " + geometric_standard_dev);
-								System.out.println("\t\t\t\"Harmonic Mean\": " + harmonic_mean);
-								System.out.println("\t\t\t\"Minimum Value\": " + min_value);
-								System.out.println("\t\t\t\"Maximum Value\": " + max_value);
+								System.out.println("\t\t\t\"Arithmetic Mean\": " + mean + ",");
+								System.out.println("\t\t\t\"Arithmetic Standard Deviation\": " + arithmetic_standard_dev + ",");
+								System.out.println("\t\t\t\"Geometric Mean\": " + geometric_mean + ",");
+								System.out.println("\t\t\t\"Geometric Standard Deviation\": " + geometric_standard_dev + ",");
+								System.out.println("\t\t\t\"Harmonic Mean\": " + harmonic_mean + ",");
+								System.out.println("\t\t\t\"Minimum Value\": " + min_value + ",");
+								System.out.println("\t\t\t\"Maximum Value\": " + max_value + ",");
 
 								Arrays.sort(data);
 								nearest	=(Double)data[0];
@@ -324,23 +384,23 @@ public class MCMCApplication {
 								leftIndex = startPos-1;
 								rightIndex = startPos+1;
 
-								System.out.println("\t\t\t\"Confidence Level\": " + confidencelevel + "%");
+								System.out.println("\t\t\t\"Confidence_Level\": " + confidencelevel + ",");
 
 								if(numValues == 0) {
 									tempHolder1 = Double.NaN;
 									tempHolder2 = Double.NaN;
 									double[] result = {tempHolder1, tempHolder2};
-									System.out.println("\t\t\t\"Bayesian Confidence\": " + result[0] + " ; " + result[1]);
+									System.out.println("\t\t\t\"Bayesian_Confidence\": \"" + result[0] + " ; " + result[1] + "\"");
 								} else if(numValues == 1) {
 									tempHolder1 = (Double) data[0];
 									tempHolder2 = (Double) data[0];
 									double[] result = {tempHolder1, tempHolder2};
-									System.out.println("\t\t\t\"Bayesian Confidence\": " + result[0] + " ; " + result[1]);
+									System.out.println("\t\t\t\"Bayesian_Confidence\": \"" + result[0] + " ; " + result[1] + "\"");
 								} else if(numValues == 2) {
 									tempHolder1 = (Double) data[0];
 									tempHolder2 = (Double) data[1];
 									double[] result = {tempHolder1, tempHolder2};
-									System.out.println("\t\t\t\"Bayesian Confidence\":  " + result[0] + " ; " + result[1]);
+									System.out.println("\t\t\t\"Bayesian_Confidence\":  \"" + result[0] + " ; " + result[1] + "\"");
 								} else {
 									for(int k = 0 ; k < intervalLength ; k++) {
 										if(leftIndex == 0)
@@ -355,35 +415,39 @@ public class MCMCApplication {
 											rightIndex++;
 									}
 									double[] result = {(Double) data[leftIndex], (Double) data[rightIndex]};
-									System.out.println("\t\t\t\"Bayesian Confidence\": " + result[0] + " ; " + result[1]);
+									System.out.println("\t\t\t\"Bayesian_Confidence\": \"" + result[0] + " ; " + result[1] + "\"");
 								}
 							}
-							System.out.print("\t\t}");
-							if(i<numSeries-1)
+							if(choice < 8)
+								System.out.print("\t\t}");
+							if(i < numSeries - 1 && choice < 8)
 								System.out.println(",");
 						}
 					} 
+					if(choice == 8) {
+						System.out.println("\t\"Convergence_Test_Results\": {");
+						if(overallConvergenceGeweke == -1) 
+							System.out.println("\t\t\"Geweke\": \"All parameters did not converge.\",");
+						else 
+							System.out.println("\t\t\"Geweke\": " + overallConvergenceGeweke + ",");
+						if(overallConvergenceESS == -1) 
+							System.out.println("\t\t\"ESS\": \"All parameters did not converge.\",");
+						else 
+							System.out.println("\t\t\"ESS\": " + overallConvergenceESS + ",");
+						if(overallConvergenceGR == -1) 
+							System.out.println("\t\t\"Gelman_Rubin\": \"All parameters did not converge.\"");
+						else
+							System.out.println("\t\t\"Gelman_Rubin\": " + overallConvergenceGR);
+						System.out.println("\t}");
+					}
 				} else {
 					numTreeSeries = datacontainer.getNumTreeSeries();
 					if(numTreeSeries < 1)
 						System.out.println("No tree data found");
-					else {
-						final NumberFormat 			formatter = new DecimalFormat("0.00");
-						TreeMap<Integer, MCMCTree> 	treeMap;
-						ArrayList<MCMCTree> 		uniqueserie;
-						MCMCTree 					uniqueTree;
-						int 						numDuplicates;
-						ArrayList<TreeMap<Integer, MCMCTree>> 	treeMapList;
-						ArrayList<MCMCTree> 		treeSerie;
-						int 						numPoints;	
-						int 						numBurnInPoints;
-						MCMCTree[] 					treeData;
-						MCMCTree 					tree;
-						int 						key;
-						
-						treeMapList 			= new ArrayList<TreeMap<Integer, MCMCTree>>();
+					else if(choice == 9) {
+						treeMapList	= new ArrayList<TreeMap<Integer, MCMCTree>>();
 													
-						for(int i=0; i<datacontainer.getNumTreeSeries(); i++) {
+						for(int i = 0; i < datacontainer.getNumTreeSeries(); i++) {
 							treeMap = new TreeMap<Integer, MCMCTree>();
 							treeMapList.add(treeMap);
 							
@@ -395,38 +459,96 @@ public class MCMCApplication {
 							System.arraycopy(treeSerie.toArray(), numBurnInPoints, treeData, 0, numPoints-numBurnInPoints);
 
 							for(int j = 0; j < treeData.length; j++) {
-								tree 				= treeData[j];
-								key 				= tree.getKey();
-								uniqueTree 			= treeMap.get(key);
+								tree = treeData[j];
+								key = tree.getKey();
+								uniqueTree = treeMap.get(key);
 
 								if(uniqueTree == null) {
-									uniqueTree 		= new MCMCTree();
+									uniqueTree = new MCMCTree();
 
-									uniqueTree	.addIndex		(tree.getIndexList().get(0));
-									uniqueTree	.addDuplicate	();
-									uniqueTree	.setData		(tree.getData());
-									treeMap		.put			(key, uniqueTree);
+									uniqueTree.addIndex(tree.getIndexList().get(0));
+									uniqueTree.addDuplicate();
+									uniqueTree.setData(tree.getData());
+									treeMap.put(key, uniqueTree);
 								} else {
-									uniqueTree	.addIndex		(tree.getIndexList().get(0));
-									uniqueTree	.addDuplicate	();
+									uniqueTree.addIndex(tree.getIndexList().get(0));
+									uniqueTree.addDuplicate();
 								}
 							}
-							treeMap 				= treeMapList.get(i);
-							uniqueserie 			= new java.util.ArrayList<MCMCTree>(treeMap.values());
+							treeMap = treeMapList.get(i);
+							uniqueserie	= new java.util.ArrayList<MCMCTree>(treeMap.values());
 							
 							Collections.sort(uniqueserie);
 							
-							System.out.println("\t\t\"Series\": " + i + " [");
+							System.out.println("\t\t\"Series_" + i + "\": [");
 							for(int j = 0; j < uniqueserie.size(); j++) {
 								System.out.println("\t\t\t{");
-								uniqueTree 	= uniqueserie.get(j);
-								String newick = new String(uniqueTree.getData()) + ";\n";
-								numDuplicates 		= uniqueTree.getNumDuplicates();
-								System.out.print("\t\t\t\t\"Index\": " + j + "\n\t\t\t\t\"Duplicates\": " + numDuplicates + "\n\t\t\t\t\"Posterior Distribution\": " + (formatter.format((double) numDuplicates/datacontainer.getNumLines()*100) + " %") + "\n\t\t\t\t\"Newick\": " + newick + "\t\t\t}");
+								uniqueTree = uniqueserie.get(j);
+								String newick = new String(uniqueTree.getData()) + ";";
+								numDuplicates = uniqueTree.getNumDuplicates();
+								System.out.print("\t\t\t\t\"Index\": " + j + ",\n\t\t\t\t\"Duplicates\": " + numDuplicates + ",\n\t\t\t\t\"Posterior probability\": " + (formatter.format((double) numDuplicates/datacontainer.getNumLines())) + ",\n\t\t\t\t\"Newick\": \"" + newick + "\"" + "\n\t\t\t}");
 								if(j < uniqueserie.size()-1)
 									System.out.println(",");
 							}
-							System.out.println("\n\t\t]");
+							System.out.print("\n\t\t]");
+							if(i == 0 && datacontainer.getNumTreeSeries() > 1) 
+								System.out.println(",");
+							else 
+								System.out.println("");
+						}
+					} else {
+						treeMapList	= new ArrayList<TreeMap<Integer, MCMCTree>>();
+						
+						for(int i = 0; i < datacontainer.getNumTreeSeries(); i++) {
+							treeMap = new TreeMap<Integer, MCMCTree>();
+							treeMapList.add(treeMap);
+							
+							treeSerie 				= datacontainer.getTreeSerie(i);
+							numPoints 				= treeSerie.size();	
+							numBurnInPoints 		= burnin;
+							treeData 				= new MCMCTree[numPoints-numBurnInPoints];
+
+							System.arraycopy(treeSerie.toArray(), numBurnInPoints, treeData, 0, numPoints-numBurnInPoints);
+
+							for(int j = 0; j < treeData.length; j++) {
+								tree = treeData[j];
+								key = tree.getKey();
+								uniqueTree = treeMap.get(key);
+
+								if(uniqueTree == null) {
+									uniqueTree = new MCMCTree();
+
+									uniqueTree.addIndex(tree.getIndexList().get(0));
+									uniqueTree.addDuplicate();
+									uniqueTree.setData(tree.getData());
+									treeMap.put(key, uniqueTree);
+								} else {
+									uniqueTree.addIndex(tree.getIndexList().get(0));
+									uniqueTree.addDuplicate();
+								}
+							}
+							treeMap = treeMapList.get(i);
+							uniqueserie	= new java.util.ArrayList<MCMCTree>(treeMap.values());
+							
+							Collections.sort(uniqueserie);
+							
+							uniqueTree = uniqueserie.get(0);
+							
+							String newickseq = new String(uniqueTree.getData()) + ";";
+							Integer duplicates = uniqueTree.getNumDuplicates();
+							for(int j = 1; j < uniqueserie.size(); j++) {
+								uniqueTree = uniqueserie.get(j);
+								if(uniqueTree.getNumDuplicates() > duplicates) {
+									newickseq = new String(uniqueTree.getData()) + ";";
+									duplicates = uniqueTree.getNumDuplicates();
+								}
+							}
+							System.out.println("\t\"Series_" + i + "\" : {");
+							System.out.println("\t\t\"MAP_Tree\": \"[p = " + (formatter.format((double) duplicates/datacontainer.getNumLines()) + "]") + newickseq + "\"");
+							if(i == 0 && datacontainer.getNumTreeSeries() > 1) 
+								System.out.println("\t},");
+							else 
+								System.out.println("\t}");
 						}
 					}
 				}

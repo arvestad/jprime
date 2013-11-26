@@ -14,7 +14,7 @@ public class ParameterParser {
 		double 					confidence;
 		
 		/* ******************** VARIABLE INITIALIZERS ***************************** */
-		filename		 		= ps.filename;
+		filename		 		= ps.files.get(0);
 		burnin	 				= Integer.parseInt(ps.burnin);
 		confidence		 		= Double.parseDouble(ps.confidence);
 		

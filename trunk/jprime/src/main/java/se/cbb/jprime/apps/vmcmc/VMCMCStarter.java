@@ -60,22 +60,29 @@ public class VMCMCStarter implements JPrIMEApp {
 						}
 					}
 					System.out.println(sb.toString());
-				}
-				else if (args.length == 1)
+				} else if (args.length == 1)
 					new MCMCApplication(args[0]);
-				else if (params.filename == null)
-					System.out.println("File Name not provided. Use -f for inputting filename or see -h for valid options.");
-				else if ((params.nogui == false) && (params.test == false) && (params.stats == false) && (params.ess == false) && (params.geweke == false) && (params.gr == false) && (params.tree == false))
-					new MCMCApplication(params.filename);
-				else if(params.tree == true) {
+				else if (params.files.size() < 1)
+					System.out.println("Incorrect input: No FileName provided." );
+				else if ((params.nogui == false) && (params.test == false) && (params.stats == false) && (params.ess == false) && (params.geweke == false) && (params.gr == false) && (params.posterior == false) && (params.convergencetest == false) && (params.maptree == false))
+					new MCMCApplication(params.files.get(0));
+				else if(params.posterior == true) {
 					Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
-					System.out.println("\t\"Trees\": [");
+					System.out.println("\t\"Trees\": {");
+					new MCMCApplication(9, paramData.first, paramData.second, paramData.third);
+					System.out.println("\t}");
+					System.out.println("}");
+				} else if (params.maptree == true) {
+					Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
+					new MCMCApplication(10, paramData.first, paramData.second, paramData.third);
+					System.out.println("}");
+				} else if(params.convergencetest == true) {
+					Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
 					new MCMCApplication(8, paramData.first, paramData.second, paramData.third);
-					System.out.println("\t]");
 					System.out.println("}");
 				} else {
 					Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
-					System.out.println("\t\"Parameters\": [");
+					System.out.println("\t\"Parameters\": {");
 					
 					if (params.nogui == true) {
 						new MCMCApplication(7, paramData.first, paramData.second, paramData.third);
@@ -89,8 +96,8 @@ public class VMCMCStarter implements JPrIMEApp {
 						new MCMCApplication(5, paramData.first, paramData.second, paramData.third);
 					} else if (params.gr == true) {
 						new MCMCApplication(6, paramData.first, paramData.second, paramData.third);
-					}
-					System.out.println("\n\t]");
+					} 
+					System.out.println("\n\t}");
 					System.out.println("}");
 				} 
 			}
