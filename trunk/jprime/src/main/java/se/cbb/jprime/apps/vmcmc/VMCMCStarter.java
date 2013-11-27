@@ -60,15 +60,12 @@ public class VMCMCStarter implements JPrIMEApp {
 						}
 					}
 					System.out.println(sb.toString());
-				} else if (args.length == 1)
-					new MCMCApplication(args[0]);
-				else if (params.files.size() < 1)
+				} else if (params.files.size() < 1)
 					System.out.println("Incorrect input: No FileName provided." );
 				else if ((params.nogui == false) && (params.test == false) && (params.stats == false) && (params.ess == false) && (params.geweke == false) && (params.gr == false) && (params.posterior == false) && (params.convergencetest == false) && (params.maptree == false))
 					new MCMCApplication(params.files.get(0));
 				else if(params.posterior == true) {
 					Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
-					System.out.println("\t\"Trees\": {");
 					new MCMCApplication(9, paramData.first, paramData.second, paramData.third);
 					System.out.println("\t}");
 					System.out.println("}");
@@ -82,7 +79,6 @@ public class VMCMCStarter implements JPrIMEApp {
 					System.out.println("}");
 				} else {
 					Triple<String, Integer, Double> paramData = ParameterParser.getOptions(params);
-					System.out.println("\t\"Parameters\": {");
 					
 					if (params.nogui == true) {
 						new MCMCApplication(7, paramData.first, paramData.second, paramData.third);
