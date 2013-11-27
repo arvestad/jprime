@@ -198,13 +198,46 @@ public class MCMCApplication {
 		if(file != null) {
 			datacontainer = MCMCFileReader.readMCMCFile(file);	
 
+			if(burnin == -1 && datacontainer != null) {
+				numSeries = datacontainer.getNumValueSeries();
+				if(numSeries != 0) {
+					for (int i = 0; i < numSeries; i++) {
+						serie = datacontainer.getValueSerie(i).toArray();
+						serieLength	= serie.length;
+
+						if(serieLength < 100){
+							overallConvergenceESS = -1;
+							break;
+						}
+
+						ess = MCMCMath.calculateESS(serie);
+
+						if (ess > serieLength/800) {
+							if(overallConvergenceESS != -1 && ess > overallConvergenceESS) 
+								overallConvergenceESS = ess;
+						} else {
+							overallConvergenceESS = -1;
+							break;
+						}
+					}
+				} 
+				if(overallConvergenceESS == -1) 
+					burnin = 0;
+				else
+					burnin = overallConvergenceESS;
+			}
+			
+			System.out.println("\t\"Burnin\": " + burnin);
 			if(datacontainer != null) {
 				if(choice < 9) {
 					numSeries = datacontainer.getNumValueSeries();
 
 					if(numSeries != 0) {
 						numSeriesArray = datacontainer.getValueNames();
-
+						
+						if(choice < 8) 
+							System.out.println("\t\"Parameters\": {");
+							
 						for (int i = 0; i < numSeries; i++) {
 							serie = datacontainer.getValueSerie(i).toArray();
 							serieLength	= serie.length;
@@ -214,25 +247,25 @@ public class MCMCApplication {
 								System.exit(0);
 							}
 
-							if(choice < 8)
+							if(choice < 8) 
 								System.out.println("\t\t\"" + numSeriesArray.get(i) + "\": " + "{");
 
 							if(choice == 5) {
-								ess 				= MCMCMath.calculateESS(serie);
+								ess = MCMCMath.calculateESS(serie);
 								if (ess > serieLength/800) {
 									System.out.println("\t\t\t\"ESS\": {\n\t\t\t\t\"Status\": \"Converged\",");
 									System.out.println("\t\t\t\t\"Burn_in\": " + ess + "\n\t\t\t}");
 								} else
 									System.out.println("\t\t\t\"ESS\": \"Insignificant. Not converged\"");
 							} else if(choice == 4) {
-								geweke 				= MCMCMath.calculateGeweke(serie);
+								geweke = MCMCMath.calculateGeweke(serie);
 								if (geweke != -1) {
 									System.out.println("\t\t\t\"Geweke\": {\n\t\t\t\t\"Status\": \"Converged\",");
 									System.out.println("\t\t\t\t\"Burn_in\": " + geweke + "\n\t\t\t}");							
 								} else 
 									System.out.println("\t\t\t\"Geweke\": \"Not converged\"");
 							} else if(choice == 6) {
-								gelmanRubin 		= MCMCMath.GelmanRubinTest(serie, burnin);
+								gelmanRubin = MCMCMath.GelmanRubinTest(serie, burnin);
 								if(gelmanRubin == true)	{
 									System.out.println("\t\t\t\"Gelman_Rubin\": {\n\t\t\t\t\"Status\": \"Converged\",");
 									System.out.println("\t\t\t\t\"Burn_in\": " + burnin + "\n\t\t\t}");
@@ -314,6 +347,7 @@ public class MCMCApplication {
 								} else
 									overallConvergenceGR = -1;
 							}
+								
 							if(serie.length - burnin > 0 && (choice == 3 || choice == 7)) {
 								data = new Double[serie.length-burnin];
 								System.arraycopy(serie, burnin, data, 0, serie.length-burnin);
@@ -445,6 +479,8 @@ public class MCMCApplication {
 					if(numTreeSeries < 1)
 						System.out.println("No tree data found");
 					else if(choice == 9) {
+						System.out.println("\t\"Trees\": {");
+						
 						treeMapList	= new ArrayList<TreeMap<Integer, MCMCTree>>();
 													
 						for(int i = 0; i < datacontainer.getNumTreeSeries(); i++) {
@@ -503,9 +539,9 @@ public class MCMCApplication {
 							treeMap = new TreeMap<Integer, MCMCTree>();
 							treeMapList.add(treeMap);
 							
-							treeSerie 				= datacontainer.getTreeSerie(i);
-							numPoints 				= treeSerie.size();	
-							numBurnInPoints 		= burnin;
+							treeSerie = datacontainer.getTreeSerie(i);
+							numPoints = treeSerie.size();	
+							numBurnInPoints	= burnin;
 							treeData 				= new MCMCTree[numPoints-numBurnInPoints];
 
 							System.arraycopy(treeSerie.toArray(), numBurnInPoints, treeData, 0, numPoints-numBurnInPoints);
@@ -854,22 +890,62 @@ public class MCMCApplication {
 		final MCMCMainTab 		mainPanel 	= new MCMCMainTab();
 		MCMCGraphToolPanel 		graphtoolPanel;
 		JComboBox 				droplist;
+		int numSeries;
+		int serieLength;
+		int ess;
+		int overallConvergenceESS;
+		Object[] serie;
 		
 		/* ******************** VARIABLE INITIALIZERS ***************************** */
 		graphtoolPanel = mainPanel.getGraphTool();
 		droplist = mainPanel.getDropList();
+		overallConvergenceESS = 0;
 		
 		/* ******************** FUNCTION BODY ************************************* */
 		mainPanel.setDataContainer(datacontainer);
-		mainPanel.setBurnIn(0.1);
-		mainPanel.updateDisplayPanels();
-		graphtoolPanel.setDataContainer(datacontainer);
-		graphtoolPanel.setSeriesID(0);
-		graphtoolPanel.setBurnIn(0.1);
-		graphtoolPanel.updateGraph();
-		graphtoolPanel.updateRuler();
-		droplist.setModel(new DefaultComboBoxModel(datacontainer.getValueNames().toArray())); 
-		droplist.setSelectedIndex(0);
+		
+		if(datacontainer != null) {
+			numSeries = datacontainer.getNumValueSeries();
+			if(numSeries != 0) {
+				for (int i = 0; i < numSeries; i++) {
+					serie = datacontainer.getValueSerie(i).toArray();
+					serieLength	= serie.length;
+
+					if(serieLength < 100){
+						overallConvergenceESS = -1;
+						break;
+					}
+
+					ess = MCMCMath.calculateESS(serie);
+
+					if (ess > serieLength/800) {
+						if(overallConvergenceESS != -1 && ess > overallConvergenceESS) 
+							overallConvergenceESS = ess;
+					} else {
+						overallConvergenceESS = -1;
+						break;
+					}
+				}
+			} 
+			if(overallConvergenceESS == -1) {
+				mainPanel.setBurnIn(0.1);
+				mainPanel.updateDisplayPanels();
+				graphtoolPanel.setDataContainer(datacontainer);
+				graphtoolPanel.setSeriesID(0);
+				graphtoolPanel.setBurnIn(0.1);
+			} else {
+				double burninpercent = (double)overallConvergenceESS/(double)datacontainer.getNumLines();
+				mainPanel.setBurnIn(burninpercent);
+				mainPanel.updateDisplayPanels();
+				graphtoolPanel.setDataContainer(datacontainer);
+				graphtoolPanel.setSeriesID(0);
+				graphtoolPanel.setBurnIn(burninpercent);
+			}
+			graphtoolPanel.updateGraph();
+			graphtoolPanel.updateRuler();
+			droplist.setModel(new DefaultComboBoxModel(datacontainer.getValueNames().toArray())); 
+			droplist.setSelectedIndex(0);
+		}
 
 		//Slider listener - only updates components available in main.
 		mainPanel.getGraphTool().getSlider().addChangeListener(new ChangeListener() {

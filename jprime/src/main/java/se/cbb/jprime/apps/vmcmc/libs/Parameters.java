@@ -54,7 +54,7 @@ public class Parameters {
 	
 	/** Estimated Sample Size Test only */
 	@Parameter(names = {"-b","--burnin"}, description = "Burn-in values to reject for command line MAP trees. ")
-	public String burnin = "0";
+	public String burnin = "-1";
 	
 	/** Estimated Sample Size Test only */
 	@Parameter(names = {"-m","--maxaposterioritree"}, description = "Calculate and display MAP tree. ")
