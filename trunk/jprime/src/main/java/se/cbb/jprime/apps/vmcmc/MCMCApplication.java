@@ -197,7 +197,7 @@ public class MCMCApplication {
 
 		if(file != null) {
 			datacontainer = MCMCFileReader.readMCMCFile(file);	
-
+			
 			if(burnin == -1 && datacontainer != null) {
 				numSeries = datacontainer.getNumValueSeries();
 				if(numSeries != 0) {
@@ -220,6 +220,7 @@ public class MCMCApplication {
 							break;
 						}
 					}
+					System.out.println("\t\"Total_iterations\": " + datacontainer.getValueSerie(0).size() + ",");
 				} 
 				if(overallConvergenceESS == -1) 
 					burnin = 0;
@@ -227,7 +228,7 @@ public class MCMCApplication {
 					burnin = overallConvergenceESS;
 			}
 			
-			System.out.println("\t\"Burnin\": " + burnin);
+			System.out.println("\t\"Burnin\": " + burnin + ",");
 			if(datacontainer != null) {
 				if(choice < 9) {
 					numSeries = datacontainer.getNumValueSeries();
@@ -522,7 +523,7 @@ public class MCMCApplication {
 								uniqueTree = uniqueserie.get(j);
 								String newick = new String(uniqueTree.getData()) + ";";
 								numDuplicates = uniqueTree.getNumDuplicates();
-								System.out.print("\t\t\t\t\"Index\": " + j + ",\n\t\t\t\t\"Duplicates\": " + numDuplicates + ",\n\t\t\t\t\"Posterior probability\": " + (formatter.format((double) numDuplicates/datacontainer.getNumLines())) + ",\n\t\t\t\t\"Newick\": \"" + newick + "\"" + "\n\t\t\t}");
+								System.out.print("\t\t\t\t\"Index\": " + j + ",\n\t\t\t\t\"Duplicates\": " + numDuplicates + ",\n\t\t\t\t\"Posterior probability\": " + (formatter.format((double) numDuplicates/(numPoints-numBurnInPoints))) + ",\n\t\t\t\t\"Newick\": \"" + newick + "\"" + "\n\t\t\t}");
 								if(j < uniqueserie.size()-1)
 									System.out.println(",");
 							}
@@ -534,7 +535,7 @@ public class MCMCApplication {
 						}
 					} else {
 						treeMapList	= new ArrayList<TreeMap<Integer, MCMCTree>>();
-						
+						System.out.println("\t\"Series\" : [");
 						for(int i = 0; i < datacontainer.getNumTreeSeries(); i++) {
 							treeMap = new TreeMap<Integer, MCMCTree>();
 							treeMapList.add(treeMap);
@@ -542,7 +543,7 @@ public class MCMCApplication {
 							treeSerie = datacontainer.getTreeSerie(i);
 							numPoints = treeSerie.size();	
 							numBurnInPoints	= burnin;
-							treeData 				= new MCMCTree[numPoints-numBurnInPoints];
+							treeData = new MCMCTree[numPoints-numBurnInPoints];
 
 							System.arraycopy(treeSerie.toArray(), numBurnInPoints, treeData, 0, numPoints-numBurnInPoints);
 
@@ -579,13 +580,16 @@ public class MCMCApplication {
 									duplicates = uniqueTree.getNumDuplicates();
 								}
 							}
-							System.out.println("\t\"Series_" + i + "\" : {");
-							System.out.println("\t\t\"MAP_Tree\": \"[p = " + (formatter.format((double) duplicates/datacontainer.getNumLines()) + "]") + newickseq + "\"");
+							System.out.println("\t\t{");
+							System.out.println("\t\t\t\"Index\": " + i + ",");
+							System.out.println("\t\t\t\"MAP_Probability\": " + (formatter.format((double) duplicates/(numPoints-numBurnInPoints))) + ",");
+							System.out.println("\t\t\t\"MAP_Tree\": \"" + newickseq + "\"");
 							if(i == 0 && datacontainer.getNumTreeSeries() > 1) 
-								System.out.println("\t},");
+								System.out.println("\t\t},");
 							else 
-								System.out.println("\t}");
+								System.out.println("\t\t}");
 						}
+						System.out.println("\t]");
 					}
 				}
 			}
@@ -697,8 +701,39 @@ public class MCMCApplication {
 					}
 
 					//If there are tree parameters in file. Create tree tab.
+					int overallConvergenceESS = -2;
+					Object[] serie;
+					
 					if(datacontainer.getNumTreeSeries() != 0) {
-						treePanel = createTreePanel(datacontainer);
+						int numSeries = datacontainer.getNumValueSeries();
+						
+						if(numSeries != 0) {
+							for (int i = 0; i < numSeries; i++) {
+								serie = datacontainer.getValueSerie(i).toArray();
+								int serieLength	= serie.length;
+
+								if(serieLength < 100){
+									overallConvergenceESS = -1;
+									break;
+								}
+
+								int ess = MCMCMath.calculateESS(serie);
+
+								if (ess > serieLength/800) {
+									if(overallConvergenceESS != -1 && ess > overallConvergenceESS) 
+										overallConvergenceESS = ess;
+								} else {
+									overallConvergenceESS = -1;
+									break;
+								}
+							}
+						} 
+						int burnin;
+						if(overallConvergenceESS == -1) 
+							burnin = 0;
+						else
+							burnin = overallConvergenceESS;
+						treePanel = createTreePanel(datacontainer, burnin);
 						tabs.add("Trees", treePanel);
 					}
 
@@ -815,8 +850,39 @@ public class MCMCApplication {
 			}
 
 			//If there are tree parameters in file. Create tree tab.
+			int overallConvergenceESS = -2;
+			Object[] serie;
+			
 			if(datacontainer.getNumTreeSeries() != 0) {
-				treePanel = createTreePanel(datacontainer);	
+				int numSeries = datacontainer.getNumValueSeries();
+				
+				if(numSeries != 0) {
+					for (int i = 0; i < numSeries; i++) {
+						serie = datacontainer.getValueSerie(i).toArray();
+						int serieLength	= serie.length;
+
+						if(serieLength < 100){
+							overallConvergenceESS = -1;
+							break;
+						}
+
+						int ess = MCMCMath.calculateESS(serie);
+
+						if (ess > serieLength/800) {
+							if(overallConvergenceESS != -1 && ess > overallConvergenceESS) 
+								overallConvergenceESS = ess;
+						} else {
+							overallConvergenceESS = -1;
+							break;
+						}
+					}
+				} 
+				int burnin;
+				if(overallConvergenceESS == -1) 
+					burnin = 0;
+				else
+					burnin = overallConvergenceESS;
+				treePanel = createTreePanel(datacontainer, burnin);
 				tabs.add("Trees", treePanel);
 			}
 
@@ -1177,7 +1243,7 @@ public class MCMCApplication {
  	<p>Function:			Build up teh Tree Panel using all the data from the file provided. 				
  	<p>Classes:				MCMCTreeTab, MCMCDataContainer. 												
 	 */
-	private MCMCTreeTab createTreePanel(MCMCDataContainer datacontainer) {
+	private MCMCTreeTab createTreePanel(MCMCDataContainer datacontainer, double burnin) {
 		/* ******************** FUNCTION VARIABLES ******************************** */
 		final MCMCTreeTab treePanel = new MCMCTreeTab();
 		JPanel 						droplistPanel;
@@ -1192,7 +1258,8 @@ public class MCMCApplication {
 		/* ******************** FUNCTION BODY ************************************* */
 		treePanel.setDataContainer(datacontainer);
 		treePanel.setSeriesID(0);
-		treePanel.setBurnIn(0.1);
+		double burninpercent = (double)burnin/(double)datacontainer.getNumLines();
+		treePanel.setBurnIn(burninpercent);
 
 		treePanel.updateTreeMaps();
 		treePanel.updateTable();
