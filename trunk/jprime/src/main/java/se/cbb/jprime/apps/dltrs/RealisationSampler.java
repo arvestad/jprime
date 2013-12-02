@@ -156,29 +156,34 @@ public class RealisationSampler implements Sampleable {
 	 * @param vertices vertices of G in topological ordering from root to leaves.
 	 */
 	public Realisation getMaximumProbabilityRealisation(List<Integer> vertices) {
-		int n = vertices.size();
-		int[][] placements = new int[n][];  // Sampled points.
-		int[][] fromTo = new int[n][];  // Transfer from-to lineage .
-		double[] abst = new double[n];      // Absolute times.
-		double[] arct = new double[n];      // Arc times.
-		boolean[] isDups = new boolean[n];  // Type of point
-		boolean[] isTrans = new boolean[n];  // Type of point..  
+		int n 					= vertices.size();
+		int[][] placements 		= new int[n][];  // Sampled points only discretization is stored.
+		int[][] fromTo 			= new int[n][];  // Transfer from-to lineage .
+		int[] edgePlacements	= new int[n];
+		
+		double[] abst 			= new double[n];      // Absolute times.
+		double[] arct 			= new double[n];      // Arc times.
+		boolean[] isDups 		= new boolean[n];  // Type of point
+		boolean[] isTrans 		= new boolean[n];  // Type of point..  
 
 		// For each vertex v of G.
 		String[] placementss = new String[n];
 		String[] toFromLinage= new String[n];
+		
 		System.out.println("n=" + n);
-		// initializing fromTo array with zero
+		
+		// initializing fromTo array with -1
 		for (int v : vertices) {
-			int [] t = new int[] {0, 0};
-			fromTo[v]= t;
+			int [] t 			= new int[] {-1, -1, -1}; // {-1, -1, -1} for initialzation purpose 
+			fromTo[v]			= t;
+			edgePlacements[v]	= -1;
 		}
 		
 		
 		for (int v : vertices) {
-			getMaxPointLTG(v, placements, fromTo, abst, arct, isDups, isTrans);
+			getMaxPointLTG(v, placements, fromTo, edgePlacements, abst, arct, isDups, isTrans);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
-			toFromLinage[v]= "(" + fromTo[v][0] + "," + fromTo[v][1] + ")";
+			toFromLinage[v]= "(" + fromTo[v][0] + "," + fromTo[v][1] + "," + fromTo[v][2] + ")";
 			
 			System.out.println("\n placementss["+v+"]"+ placementss[v]);
 			System.out.println("\n toFromLinage["+v+"]"+ toFromLinage[v]);
@@ -200,26 +205,29 @@ public class RealisationSampler implements Sampleable {
 	 */
 	public Realisation sample(List<Integer> vertices) {
 
-		int n = vertices.size();
-		int[][] placements = new int[n][];  // Sampled points.
-		int[][] fromTo = new int[n][];  // Transfer from-to lineage .
-		double[] abst = new double[n];      // Absolute times.
-		double[] arct = new double[n];      // Arc times.
-		boolean[] isDups = new boolean[n];  // Type of point.
-		boolean[] isTrans = new boolean[n];  // Type of point..  // changed
+		int n 					= vertices.size();
+		int[][] placements 		= new int[n][];  // Sampled points only discretization is stored.
+		int[][] fromTo 			= new int[n][];  // Transfer from-to lineage .
+		int[] edgePlacements	= new int[n];
+		
+		double[] abst 			= new double[n];      // Absolute times.
+		double[] arct 			= new double[n];      // Arc times.
+		boolean[] isDups 		= new boolean[n];  // Type of point.
+		boolean[] isTrans 		= new boolean[n];  // Type of point..  // changed
 		
 		// For each vertex v of G.
 		String[] placementss = new String[n];
 		String[] toFromLinage= new String[n];
 		
-		// initializing fromTo array with zero
+		// initializing fromTo array with -1
 		for (int v : vertices) {
-			int [] t = new int[] {0, 0};
-			fromTo[v]= t;
+			int [] t 			= new int[] {-1, -1, -1}; // {-1, -1, -1} for initialzation purpose 
+			fromTo[v]			= t;
+			edgePlacements[v]	= -1;
 		}
 		
 		for (int v : vertices) {
-			getSamplePointLTG(v, placements, fromTo, abst, arct, isDups, isTrans);
+			getSamplePointLTG(v, placements, fromTo, edgePlacements, abst, arct, isDups, isTrans);
 			toFromLinage[v] = "(" + fromTo[v][0] + "," + fromTo[v][1] + ")";
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}
@@ -239,7 +247,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param isDups type of point. True if its duplication.
 	 * @param isTrans type of point. True if its transfer.
 	 */
-	private void getMaxPointLTG(int v, int[][] placements, int [][] fromTo, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
+	private void getMaxPointLTG(int v, int[][] placements, int [][] fromTo, int[] edgePlacements, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
 
 		// Get placement of parent of v in S'.
 		int[] s;
@@ -247,7 +255,7 @@ public class RealisationSampler implements Sampleable {
 			s = this.msTimes.getEpochPtAtTop();
 		} else {
 			s = placements[this.G.getParent(v)];
-			System.out.println("S " + "(" + s[0] + "," + s[1] + ")");
+			//System.out.println("S " + "(" + s[0] + "," + s[1] + ")");
 		}
 
 		double sTime = msReconcHelper.getTime(s);
@@ -260,25 +268,26 @@ public class RealisationSampler implements Sampleable {
 
 		if (this.G.isLeaf(v)) { // if v is a leaf node of G
 			int sigma = this.msReconcHelper.getHostLeafIndex(v);
-			double rateDens = msSubstPD.getPDF(l / sTime);  // Assumes leaf time 0.
-
-			// For each edge e where lineage can start at time s.
-			// Note: in future you may need to place v on which edge e of the species tree.
-			double temp= 0.0;
-			int recordE= -1;
-			for (int e = 0; e < sz; ++e) {
-				lins[e] = this.msDltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
-				if (temp < lins[e]){
-					temp = lins[e];
-					recordE= e;
-				}
-			}
+//			double rateDens = msSubstPD.getPDF(l / sTime);  // Assumes leaf time 0.
+//
+//			// For each edge e where lineage can start at time s.
+//			// Note: in future you may need to place v on which edge e of the species tree.
+//			double temp= 0.0;
+//			int recordE= -1;
+//			for (int e = 0; e < sz; ++e) {
+//				lins[e] = this.msDltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
+//				if (temp < lins[e]){
+//					temp = lins[e];
+//					recordE= e;
+//				}
+//			}
+			
 			t = new int[] {0, 0};
 			placements[v] = t;
 			absTimes[v]= this.msReconcHelper.getTime(t);
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma+ " e: "+ recordE);
+			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
 
 		}else{ // if v is not a leaf of G
 
@@ -316,9 +325,12 @@ public class RealisationSampler implements Sampleable {
 
 				// For each edge e where lineage can start at time s.
 				double[] ats = this.msAts.get(v).get(t[0], t[1]);
-				for (int e = 0; e < sz; ++e) {
+				
+				if (!this.G.isRoot(v)){
+					int e= edgePlacements[this.G.getParent(v)];
 					// For each edge f where u can be placed at time t.
 					for (int f = 0; f < ats.length; ++f) {
+						
 						double p= msDltProbs.getOneToOneProbs().get(t[0], t[1], f, s[0], s[1], e) * rateDens * ats[f];
 						if  (p > maxp) {
 							maxp = p;
@@ -336,7 +348,30 @@ public class RealisationSampler implements Sampleable {
 						System.out.print("] \tProb ["+ p+"]" );
 						System.out.println("");
 					}
-				}
+				}else{
+					for (int e = 0; e < sz; ++e) {
+						// For each edge f where u can be placed at time t.
+						for (int f = 0; f < ats.length; ++f) {
+							double p= msDltProbs.getOneToOneProbs().get(t[0], t[1], f, s[0], s[1], e) * rateDens * ats[f];
+							if  (p > maxp) {
+								maxp = p;
+								maxT = t;
+								maxF= f;
+								maxE= e;				
+							}
+							
+							System.out.print(v+"\tEdgeInUpperEdgeGeneration["+e);
+							System.out.print("]\t EdgeInLowerEdgeGeneration["+f);
+							System.out.print("]\ts["+s[0]);
+							System.out.print(", "+ s[1]);
+							System.out.print("] \tt["+t[0] );
+							System.out.print(","+ t[1]);
+							System.out.print("] \tProb ["+ p+"]" );
+							System.out.println("");
+						} //loop over f ends
+					} // loop over e ends
+				} // else end
+
 				t = msReconcHelper.getEpochTimeAboveNotLast(t);
 			}
 
@@ -344,10 +379,11 @@ public class RealisationSampler implements Sampleable {
 
 			// Finally, store the properties.
 			placements[v] = t;
+			edgePlacements[v]= maxF;
 			absTimes[v]= this.msReconcHelper.getTime(t);
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("\nE ["+maxE+"] \t F ["+maxF+"] \tt\t["+ t[0] + ", "+ t[1]+ "] maxProb: "+maxp+"\t");
+			System.out.println("\nE ["+maxE+"] \t F ["+maxF+"] \tt\t["+ t[0] + ", "+ t[1]+ "] maxProb: "+maxp);
 			System.out.println(" Node ["+v+"] left child ["+lc+"] right child ["+rc+"]");
 			
 			
@@ -399,9 +435,21 @@ public class RealisationSampler implements Sampleable {
 					}
 
 					if (dupProb > transProbSum ){
-						System.out.println("Duplication");
-						//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
-						isDups[v]	=	true;
+						// check Special transfer
+						// check if the parent edge and child each are same and also check if the parent node has transfer or duplication event associated
+						
+						if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
+							System.out.println("Special Transfer");
+							isTrans[v]	= true;
+							fromTo[v][0]= edgePlacements[this.G.getParent(v)];
+							fromTo[v][1]= maxF;
+							fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
+						}else{
+							System.out.println("Duplication");
+							//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
+							isDups[v]	=	true;
+						}
+						
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]		=true;
@@ -458,7 +506,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param isTrans type of point. True if its transfer.
 	 */
 
-	private void getSamplePointLTG(int v, int[][] placements, int [][] fromTo, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
+	private void getSamplePointLTG(int v, int[][] placements, int [][] fromTo, int[] edgePlacements, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
 
 		// Get placement of parent of v in S'.
 		int[] s;
@@ -477,12 +525,13 @@ public class RealisationSampler implements Sampleable {
 
 		if (this.G.isLeaf(v)) { // if v is a leaf node of G
 			int sigma = this.reconcHelper.getHostLeafIndex(v);
-			double rateDens = substPD.getPDF(l / sTime);  // Assumes leaf time 0.
-
-			// For each edge e where lineage can start at time s.
-			for (int e = 0; e < sz; ++e) {
-				lins[e] = this.dltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
-			}
+			// donot neet to calculate belows probability for this vertices
+//			double rateDens = substPD.getPDF(l / sTime);  // Assumes leaf time 0.
+//
+//			// For each edge e where lineage can start at time s.
+//			for (int e = 0; e < sz; ++e) {
+//				lins[e] = this.dltProbs.getOneToOneProbs().get(0, 0, sigma, s[0], s[1], e) * rateDens;
+//			}
 			t = new int[] {0, 0};
 			placements[v] = t;
 			absTimes[v]= this.reconcHelper.getTime(t);
@@ -526,7 +575,10 @@ public class RealisationSampler implements Sampleable {
 
 				// For each edge e where lineage can start at time s.
 				double[] ats = this.ats.get(v).get(t[0], t[1]);
-				for (int e = 0; e < sz; ++e) {
+				
+				if (!this.G.isRoot(v)){
+					
+					int e= edgePlacements[this.G.getParent(v)];
 					lins[e]=tempCps;
 					// For each edge f where u can be placed at time t.
 					for (int f = 0; f < ats.length; ++f) {
@@ -541,7 +593,27 @@ public class RealisationSampler implements Sampleable {
 						index++;
 					}
 					tempCps=lins[e];
-				}
+					
+				}else{
+					
+					for (int e = 0; e < sz; ++e) {
+						lins[e]=tempCps;
+						// For each edge f where u can be placed at time t.
+						for (int f = 0; f < ats.length; ++f) {
+							double p= dltProbs.getOneToOneProbs().get(t[0], t[1], f, s[0], s[1], e) * rateDens * ats[f];
+							lins[e] += p;
+							prob.add(p);
+							ys.add(t);  // added after May 23
+							cps.add(lins[e]); // added after May 23
+							arcF.add(f);
+							arraylistE.add(e);
+							System.out.println(v+"\tUpperEdgeGeneration_E["+e+"]\t LowerEdgeGeneration_F["+f+ "]\tS["+s[0]+", "+ s[1]+ "]\tt["+t[0] +","+ t[1]+"] index: "+index+" \tProb ["+ p+"]" );
+							index++;
+						}
+						tempCps=lins[e];
+					}
+					
+				}// else end here
 				// Move to point above.
 				t = reconcHelper.getEpochTimeAboveNotLast(t);
 			}
@@ -579,6 +651,7 @@ public class RealisationSampler implements Sampleable {
 
 			// Finally, store the properties.
 			placements[v] = t;
+			edgePlacements[v]= arcF.get(idx);
 			absTimes[v]= this.reconcHelper.getTime(t);
 			arcTimes[v]= this.reconcHelper.getTime(s)-absTimes[v];
 
@@ -608,7 +681,8 @@ public class RealisationSampler implements Sampleable {
 				double transProbSum= 0.0;
 				double maxLinTransProb= 0.0;
 
-				if (ats.length > 1 || this.stemDoneFlag== true) {
+				//if (ats.length > 1 || this.stemDoneFlag== true) {
+				if (ats.length > 1 ) {
 					double lcsum = 0.0;
 					for (double val : lclins) {
 						lcsum += val;
@@ -640,9 +714,18 @@ public class RealisationSampler implements Sampleable {
 					// Generate Random number ranging between (0 to sum(dupProb+transProb) )
 					double rnd = this.prng.nextDouble() * (dupProb+transProbSum);
 					if (rnd < dupProb ){
-						System.out.println("Duplication");
-						//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]\tcps["+cps.get(idx)+"]  Duplication" );
-						isDups[v]=true;
+						if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
+							System.out.println("Special Transfer");
+							isTrans[v]	= true;
+							fromTo[v][0]= edgePlacements[this.G.getParent(v)];
+							fromTo[v][1]= edgePlacements[v];
+							fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
+						}else{
+							System.out.println("Duplication");
+							//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
+							isDups[v]	=	true;
+						}
+						
 					}else{
 						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]=true;
@@ -704,7 +787,7 @@ public class RealisationSampler implements Sampleable {
 			}else{
 				System.out.println("V: "+v+ "\t Speciation");
 				//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t Prob ["+ prob.get(idx)+ "]\tcps["+cps.get(idx)+"] " );
-				this.stemDoneFlag= true;
+				//this.stemDoneFlag= true;
 			}
 
 		} // else ends here
@@ -767,7 +850,8 @@ public class RealisationSampler implements Sampleable {
 		// Output max prob. realisation in ordinary file.
 		
 		Realisation real = this.getMaximumProbabilityRealisation(vertices);
-		//Realisation real = this.sample(vertices);
+		//Realisation real = this.sample(vertices);  // uncomment it when test the random sampling and also when everything is working.
+													// and comment the line above Realisation real = this.getMaximumProbabilityRealisation(vertices);
 		str.append('\t').append(real.toString());
 
 		// Do sampling to own file, in ordinary cases.
