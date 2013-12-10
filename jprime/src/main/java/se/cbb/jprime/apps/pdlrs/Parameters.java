@@ -16,7 +16,7 @@ import com.beust.jcommander.Parameter;
 public class Parameters {
 
 	/** Required parameters: S, D and GS. */
-	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map>.")
+	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map> <Gene-Pseudogene Map>.")
 	public List<String> files = new ArrayList<String>();
 	
 	/** Help. */
@@ -51,7 +51,15 @@ public class Parameters {
 	/** Substitution model. */
 	@Parameter(names = {"-sm", "--substitutionmodel"}, description = SubstitutionMatrixHandlerFactory.USER_MESSAGE)
 	public String substitutionModel = "JC69";
+	
+	/** dN/dS ratio of the MSA */
+	@Parameter(names = {"-w", "--omega"}, description = "Non-Synonymous(dN) to Synonymous(dS) mutations ratio estimated from MSA.")
+	public String omega = "0.2";	
 
+	/** Transition/Transversion(k) ratio of the MSA */
+	@Parameter(names = {"-k", "--kappa"}, description = "Transition/Transversion(k) ratio estimated from MSA.")
+	public String kappa = "0.2";		
+	
 	/** Duplication rate. */
 	@Parameter(names = {"-dup", "--duplicationrate"}, description = "Initial duplication rate. Append with FIXED for no " +
 			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")

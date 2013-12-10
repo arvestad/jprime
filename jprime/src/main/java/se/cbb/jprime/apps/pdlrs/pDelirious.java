@@ -77,10 +77,10 @@ public class pDelirious implements JPrIMEApp {
 				StringBuilder sb = new StringBuilder(65536);
 				sb.append(
 						"================================================================================\n" +
-						"JPrIME-DLRS (colloquially \"Delirious\") is a phylogenetic tool to simul-\n" +
-						"taneously infer and reconcile a gene tree given a species tree. It accounts for\n" +
-						"duplication and loss events, a relaxed molecular clock, and is intended for the\n" +
-						"study of homologous gene families, for example in a comparative genomics setting\n" +
+						"JPrIME-pDLRS (colloquially \"pseudogenized-Delirious\") is a phylogenetic tool to\n" +
+						"simultaneously infer and reconcile a gene tree given a species tree. It accounts \n" +
+						"for duplication and loss events, a relaxed molecular clock, and is intended for \n" +
+						"the study of homologous gene families, for example in a comparative genomics setting\n" +
 						"involving multiple species. It uses a Bayesian MCMC framework, where the input\n" +
 						"is a known species tree with divergence times and a multiple sequence alignment,\n" +
 						"and the output is a posterior distribution over gene trees and model parameters.\n\n" +
@@ -118,6 +118,8 @@ public class pDelirious implements JPrIMEApp {
 			
 			// Read guest-to-host leaf map.
 			GuestHostMap gsMap = ParameterParser.getGSMap(params);
+			
+			LinkedHashMap<String, Integer> gpgMap = ParameterParser.getGenePseudogeneMap(params);
 			
 			// Substitution model first, then sequence alignment D and site rates.
 			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());

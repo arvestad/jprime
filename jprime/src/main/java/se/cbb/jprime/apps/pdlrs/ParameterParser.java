@@ -13,6 +13,7 @@ import org.biojava3.core.sequence.io.FastaReaderHelper;
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
+import se.cbb.jprime.io.GenePseudogeneMapReader;
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.MSAFastPhyloTree;
 import se.cbb.jprime.io.NewickRBTreeSamples;
@@ -68,6 +69,7 @@ import se.cbb.jprime.topology.UniformRBTreeGenerator;
  * 
  * @author Joel Sjöstrand.
  * @author Vincent Llorens.
+ * @author Owais Mahmudi.
  */
 public class ParameterParser {
 
@@ -138,6 +140,19 @@ public class ParameterParser {
 			throw new IllegalArgumentException("Invalid guest-to-host leaf map.", e);
 		}
 	}
+	
+	/**
+	 * Reads a gene-pseudogene map.
+	 * @param ps parameters.
+	 * @return map.
+	 */
+	public static LinkedHashMap<String, Integer> getGenePseudogeneMap(Parameters ps) {
+		try {
+			return GenePseudogeneMapReader.readGenePseudogeneMap(new File(ps.files.get(3)));
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Invalid Gene-Pseudogene leaf map.", e);
+		}
+	}	
 	
 	/**
 	 * Returns site rates.
