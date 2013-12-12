@@ -47,7 +47,7 @@ public enum SequenceType {
 	 * the nucleotides except for the most common stop codons (4^3-3=61).
 	 * Instead of using three letter symbols we invent a char representation.
 	 */
-	CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<", "*", getCodonLeafLike());
+	CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<", "*-", getCodonLeafLike());
 	
 	/** A string describing the type. */
 	private String type;
@@ -381,7 +381,7 @@ public enum SequenceType {
 	
 		codon_str = codon_str.toUpperCase();
 		for (int i = 0; i < 61; i++) {
-			if (codon_str == codons[i]) {
+			if (codon_str.equalsIgnoreCase(codons[i])) {	// Removing codon_str == codons[i], as it was not working due to some reason (Owais)
 				return i;
 			}
 		}

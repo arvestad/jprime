@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
@@ -42,6 +43,7 @@ import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
 import se.cbb.jprime.seqevo.SubstitutionModel;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
+import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
@@ -144,6 +146,16 @@ public class pDelirious implements JPrIMEApp {
 				}
 			}
 			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
+			
+			DoubleMap pgSwitches = new DoubleMap("G-PGSwitches", gNamesLengths.first.getNoOfVertices(), 1);
+			IntMap edgeModels = new IntMap("EdgeModels", gNamesLengths.first.getNoOfVertices(), 1);
+			List<Integer> leaves = gNamesLengths.first.getLeaves();
+			for(int leaf: leaves){
+				pgSwitches.set(leaf, 0.5);
+				edgeModels.set(leaf, 2);
+			}
+			System.out.println("Gene tree have "+gNamesLengths.first.getNoOfVertices()+ " vertices");
+			
 			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
