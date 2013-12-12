@@ -111,7 +111,7 @@ public class MSAData implements InfoProvider {
 		if (this.seqType == SequenceType.CODON) {
 			StringBuilder c = new StringBuilder(sequence.length() / 3);
 			for (int i = 0; i + 2 < sequence.length(); i += 3) {
-				String codon = sequence.substring(i, 3);
+				String codon = sequence.substring(i, i+3);
 				c.append(this.seqType.int2char(this.seqType.codonStr2int(codon)));
 			}
 			this.dataAsStrings[seqIdx] = c.toString();
