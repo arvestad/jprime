@@ -47,8 +47,8 @@ public enum SequenceType {
 	 * the nucleotides except for the most common stop codons (4^3-3=61).
 	 * Instead of using three letter symbols we invent a char representation.
 	 */
-	CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<", "*-", getCodonLeafLike());
-	
+	CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<>€¡", "*-", getCodonLeafLike());
+	//CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<", "*-", getCodonLeafLike());
 	/** A string describing the type. */
 	private String type;
 
@@ -66,6 +66,8 @@ public enum SequenceType {
 	
 	/** The probability of observing an ambiguity symbol in a seq. */
 	private double ambiguityProb;
+	
+	private static int CODON_COUNT = 64;
 	
 	/**
 	 * If you have a string description of a sequence type, the 
@@ -328,20 +330,20 @@ public enum SequenceType {
 	
 	private static DenseMatrix64F[] getCodonLeafLike() {
 		// Instead of using three letter symbols we invent a char representation.
-		DenseMatrix64F[] leafLike = new DenseMatrix64F[62];
-		for (int i = 0; i < 61; i++) {
-			double[] v = new double[61];
+		DenseMatrix64F[] leafLike = new DenseMatrix64F[65];
+		for (int i = 0; i < 64; i++) {
+			double[] v = new double[64];
 			v[i] = 1.0;
-			DenseMatrix64F a = new DenseMatrix64F(61, 1, true, v);
+			DenseMatrix64F a = new DenseMatrix64F(64, 1, true, v);
 			leafLike[i] = a;
 		}
 
-		double[] v = new double[61];
-		for (int j = 0; j < 61; j++) {
-			v[j] = 1.0 / 61.0;
+		double[] v = new double[64];
+		for (int j = 0; j < 64; j++) {
+			v[j] = 1.0 / (double)64;
 		}
-		DenseMatrix64F a = new DenseMatrix64F(61, 1, true, v);
-		leafLike[61] = a;
+		DenseMatrix64F a = new DenseMatrix64F(64, 1, true, v);
+		leafLike[64] = a;
 		return leafLike;
 	}
 	
@@ -360,32 +362,55 @@ public enum SequenceType {
 		}
 	
 		// TODO: Replace with <triplet,int> hash table.
+//		final String codons[] = {
+//				"AAA", "AAC", "AAG", "AAT",
+//				"ACA", "ACC", "ACG", "ACT",
+//				"AGA", "AGC", "AGG", "AGT",
+//				"ATA", "ATC", "ATG", "ATT",
+//				"CAA", "CAC", "CAG", "CAT",
+//				"CCA", "CCC", "CCG", "CCT",
+//				"CGA", "CGC", "CGG", "CGT",
+//				"CTA", "CTC", "CTG", "CTT",
+//				"GAA", "GAC", "GAG", "GAT",
+//				"GCA", "GCC", "GCG", "GCT",
+//				"GGA", "GGC", "GGG", "GGT",
+//				"GTA", "GTC", "GTG", "GTT",
+//				/*TAA*/ "TAC",/*TAG*/ "TAT",
+//				"TCA", "TCC", "TCG", "TCT",
+//				/*TGA*/ "TGC", "TGG", "TGT",
+//				"TTA", "TTC", "TTG", "TTT"
+//		};
+		
+		
 		final String codons[] = {
-				"AAA", "AAC", "AAG", "AAT",
-				"ACA", "ACC", "ACG", "ACT",
-				"AGA", "AGC", "AGG", "AGT",
-				"ATA", "ATC", "ATG", "ATT",
-				"CAA", "CAC", "CAG", "CAT",
-				"CCA", "CCC", "CCG", "CCT",
-				"CGA", "CGC", "CGG", "CGT",
-				"CTA", "CTC", "CTG", "CTT",
-				"GAA", "GAC", "GAG", "GAT",
-				"GCA", "GCC", "GCG", "GCT",
-				"GGA", "GGC", "GGG", "GGT",
-				"GTA", "GTC", "GTG", "GTT",
-				/*TAA*/ "TAC",/*TAG*/ "TAT",
-				"TCA", "TCC", "TCG", "TCT",
-				/*TGA*/ "TGC", "TGG", "TGT",
-				"TTA", "TTC", "TTG", "TTT"
+			"TTT",  "TTC",  "TTA",  "TTG",  
+			"TCT",  "TCC",  "TCA",  "TCG",  
+			"TAT",  "TAC",  "TAA",  "TAG",  
+			"TGT",  "TGC",  "TGA",  "TGG",  
+	
+			"CTT",  "CTC",  "CTA",  "CTG",  
+			"CCT",  "CCC",  "CCA",  "CCG",  
+			"CAT",  "CAC",  "CAA",  "CAG",  
+			"CGT",  "CGC",  "CGA",  "CGG",  
+	
+			"ATT",  "ATC",  "ATA",  "ATG",  
+			"ACT",  "ACC",  "ACA",  "ACG",  
+			"AAT",  "AAC",  "AAA",  "AAG",  
+			"AGT",  "AGC",  "AGA",  "AGG",  
+	
+			"GTT",  "GTC",  "GTA",  "GTG",  
+			"GCT",  "GCC",  "GCA",  "GCG",  
+			"GAT",  "GAC",  "GAA",  "GAG",  
+			"GGT",  "GGC",  "GGA",  "GGG" 
 		};
 	
 		codon_str = codon_str.toUpperCase();
-		for (int i = 0; i < 61; i++) {
+		for (int i = 0; i < CODON_COUNT; i++) {
 			if (codon_str.equalsIgnoreCase(codons[i])) {	// Removing codon_str == codons[i], as it was not working due to some reason (Owais)
 				return i;
 			}
 		}
-		return this.alphabet.length() + 1;	// Ambiguity is place 61.
+		return this.alphabet.length();	// Ambiguity is place 61.
 	}
 	
 	/**
@@ -396,28 +421,51 @@ public enum SequenceType {
 	 * @return triplet in upper case.
 	 */
 	public String codonInt2str(int codon) {
-		if (codon > 61) {
+		if (codon > CODON_COUNT) {
 			throw new IllegalArgumentException("Invalid codon state: " + codon);
 		}
-		final String codons[] = {		// Stop codons are commented out!
-				"AAA", "AAC", "AAG", "AAT",
-				"ACA", "ACC", "ACG", "ACT",
-				"AGA", "AGC", "AGG", "AGT",
-				"ATA", "ATC", "ATG", "ATT",
-				"CAA", "CAC", "CAG", "CAT",
-				"CCA", "CCC", "CCG", "CCT",
-				"CGA", "CGC", "CGG", "CGT",
-				"CTA", "CTC", "CTG", "CTT",
-				"GAA", "GAC", "GAG", "GAT",
-				"GCA", "GCC", "GCG", "GCT",
-				"GGA", "GGC", "GGG", "GGT",
-				"GTA", "GTC", "GTG", "GTT",
-				/*TAA*/ "TAC",/*TAG*/ "TAT",
-				"TCA", "TCC", "TCG", "TCT",
-				/*TGA*/ "TGC", "TGG", "TGT",
-				"TTA", "TTC", "TTG", "TTT"
-		};
-		if (codon < 61) {
+//		final String codons[] = {		// Stop codons are commented out!
+//				"AAA", "AAC", "AAG", "AAT",
+//				"ACA", "ACC", "ACG", "ACT",
+//				"AGA", "AGC", "AGG", "AGT",
+//				"ATA", "ATC", "ATG", "ATT",
+//				"CAA", "CAC", "CAG", "CAT",
+//				"CCA", "CCC", "CCG", "CCT",
+//				"CGA", "CGC", "CGG", "CGT",
+//				"CTA", "CTC", "CTG", "CTT",
+//				"GAA", "GAC", "GAG", "GAT",
+//				"GCA", "GCC", "GCG", "GCT",
+//				"GGA", "GGC", "GGG", "GGT",
+//				"GTA", "GTC", "GTG", "GTT",
+//				/*TAA*/ "TAC",/*TAG*/ "TAT",
+//				"TCA", "TCC", "TCG", "TCT",
+//				/*TGA*/ "TGC", "TGG", "TGT",
+//				"TTA", "TTC", "TTG", "TTT"
+//		};
+		
+		final String codons[] = {
+				"TTT",  "TTC",  "TTA",  "TTG",  
+				"TCT",  "TCC",  "TCA",  "TCG",  
+				"TAT",  "TAC",  "TAA",  "TAG",  
+				"TGT",  "TGC",  "TGA",  "TGG",  
+		
+				"CTT",  "CTC",  "CTA",  "CTG",  
+				"CCT",  "CCC",  "CCA",  "CCG",  
+				"CAT",  "CAC",  "CAA",  "CAG",  
+				"CGT",  "CGC",  "CGA",  "CGG",  
+		
+				"ATT",  "ATC",  "ATA",  "ATG",  
+				"ACT",  "ACC",  "ACA",  "ACG",  
+				"AAT",  "AAC",  "AAA",  "AAG",  
+				"AGT",  "AGC",  "AGA",  "AGG",  
+		
+				"GTT",  "GTC",  "GTA",  "GTG",  
+				"GCT",  "GCC",  "GCA",  "GCG",  
+				"GAT",  "GAC",  "GAA",  "GAG",  
+				"GGT",  "GGC",  "GGA",  "GGG" 
+			};
+		
+		if (codon < CODON_COUNT) {
 			return codons[codon];
 		} 
 		return "NNN";   // Ambiguity is place 61.

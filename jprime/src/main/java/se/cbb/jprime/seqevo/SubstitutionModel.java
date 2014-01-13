@@ -11,9 +11,11 @@ import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
+import se.cbb.jprime.mcmc.DoubleParameter;
 import se.cbb.jprime.mcmc.InferenceModel;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GenericMap;
+import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.TreeAlgorithms;
@@ -51,6 +53,9 @@ public class SubstitutionModel implements InferenceModel {
 	/** Transition rate matrix Q and, with it, P. */
 	private SubstitutionMatrixHandler Q;
 	
+	/** Transition rate matrix Qp and, with it, P. */
+	private SubstitutionMatrixHandler Qp;
+	
 	/** Tree. */
 	private RBTree T;
 	
@@ -59,6 +64,12 @@ public class SubstitutionModel implements InferenceModel {
 
     /** Branch lengths, i.e., Markov model "time". */
     private DoubleMap branchLengths;
+    
+    /** Pseudogenization switches across the gene tree T. */
+    private DoubleMap pgSwitches;
+    
+    /** Edge Models for edges of gene tree. */
+    private IntMap edgeModels;
     
     /** Decides if root arc should be included in computations. */
     private boolean useRootArc;
@@ -78,6 +89,15 @@ public class SubstitutionModel implements InferenceModel {
 
     /** Temporary matrix used during computations. */
     private DenseMatrix64F tmp;
+ 
+    /** Temporary matrix used during computations. */
+    private DenseMatrix64F ttmp;
+    
+    /** Kappa Rate (Transition/Transversion). */
+    private DoubleParameter kappa;
+    
+    /** Omega Rate (dN/dS). */
+    private DoubleParameter omega;
     
     /**
      * Constructor.
@@ -114,6 +134,52 @@ public class SubstitutionModel implements InferenceModel {
     	this.updateLikelihood(this.T.getRoot(), true);
 		this.computeModelLikelihood();
     }
+    
+    /**
+     * Constructor.
+     * @param name model name.
+     * @param D sequence data (MSA).
+     * @param siteRates site rate categories.
+     * @param Q data transition matrix Q (and P).
+     * @param T tree.
+     * @param names leaf names of T.
+     * @param branchLengths branch lengths of T.
+     * @param useRootArc if true, utilises the root arc ("stem") branch length when computing model
+     *        likelihood; if false, discards the root arc.
+     */
+    public SubstitutionModel(String name, MSAData D, GammaSiteRateHandler siteRates, SubstitutionMatrixHandler Q, SubstitutionMatrixHandler Qp,
+    		RBTree T, NamesMap names, DoubleMap branchLengths, boolean useRootArc, DoubleMap pgSwitches, IntMap edgeModels, DoubleParameter kapa, DoubleParameter omga) {
+    	this.name = name;
+    	this.D = D;
+    	this.siteRates = siteRates;
+    	this.kappa = kapa;
+    	this.omega = omga;
+    	this.Q = Q;
+    	this.Qp = Qp;
+    	this.T = T;
+    	this.names = names;
+    	this.branchLengths = branchLengths;
+    	this.pgSwitches = pgSwitches;
+    	this.edgeModels = edgeModels;
+    	this.useRootArc = useRootArc;
+    	int noOfVertices = T.getNoOfVertices();
+    	int noOfPatterns = D.getPatterns().size();
+    	int noOfSiteRates = siteRates.getNoOfCategories();
+    	int alphabetSize = Q.getAlphabetSize();
+    	this.likelihoods = new GenericMap<PatternLikelihoods>(names + "Likelihoods", noOfVertices);
+    	this.modelLikelihood = new LogDouble(0.0);
+    	this.tmp = new DenseMatrix64F(alphabetSize, 1);
+    	for (int n = 0; n < noOfVertices; ++n) {
+    		this.likelihoods.set(n, new PatternLikelihoods(noOfPatterns, noOfSiteRates, alphabetSize));
+    	}
+    	//this.updateLikelihood(this.T.getRoot(), true);
+    	boolean allowStopCodons = true; 
+    	this.Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
+    	allowStopCodons = false;
+    	this.Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
+    	this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
+		this.computeModelLikelihood();
+    }
 
     @Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
@@ -121,10 +187,21 @@ public class SubstitutionModel implements InferenceModel {
     	ChangeInfo tInfo = changeInfos.get(this.T);
     	ChangeInfo blInfo = changeInfos.get(this.branchLengths);
 		ChangeInfo siteRateInfo = changeInfos.get(this.siteRates);
-		if (tInfo != null || siteRateInfo != null || (blInfo != null && blInfo.getAffectedElements() == null)) {
+		ChangeInfo pgInfo = changeInfos.get(this.pgSwitches);
+		ChangeInfo kInfo = changeInfos.get(this.kappa);
+		ChangeInfo oInfo = changeInfos.get(this.omega);
+		if (tInfo != null || siteRateInfo != null || (blInfo != null && blInfo.getAffectedElements() == null)
+				|| pgInfo != null || kInfo != null || oInfo!= null) {
 			// Full update if tree or site rates have changed, or if undisclosed
-			// branch lengths changes.
-			this.fullUpdate();
+			// branch lengths changes. or if pseudogenization switch or substitution model parameters changes
+			if(kInfo != null || oInfo!= null)
+			{
+		    	boolean allowStopCodons = true; 
+		    	this.Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    	allowStopCodons = false;
+		    	this.Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    }
+			this.fullUpdate(this.edgeModels, this.pgSwitches);
 			changeInfos.put(this, new ChangeInfo(this, "SubstitutionModel - full update"));
 		} else if (blInfo != null && blInfo.getAffectedElements() != null) {
 			// Partial update if disclosed branch length changes.
@@ -132,8 +209,27 @@ public class SubstitutionModel implements InferenceModel {
 			int[] allAffected = TreeAlgorithms.getSpanningRootSubtree(this.T, blInfo.getAffectedElements());
 			this.partialUpdate(allAffected);
 			changeInfos.put(this, new ChangeInfo(this, "SubstitutionModel - partial update", allAffected));
-		}
+		} 
+//		else if (pgInfo != null )
+//		{
+//			this.fullUpdate(this.edgeModels, this.pgSwitches);
+//			//System.out.println("Sequence evolution for pseudogenization still to be coded..");
+//		}
 	}
+    
+    /**
+     * Performs a full update, for a pseudogenized gene tree.
+     */
+    private void fullUpdate(IntMap edgeModels, DoubleMap pgSwitches) {
+		this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
+		try {
+			this.likelihoods.cache(null);
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+		this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
+		this.computeModelLikelihood();
+    }
     
     /**
      * Performs a full update.
@@ -208,6 +304,82 @@ public class SubstitutionModel implements InferenceModel {
 	}
 
 	/**
+	 * DP method which updates the likelihood column vectors for a subtree (while using two substitution matrices).
+	 * @param n vertex root of subtree.
+	 * @param doRecurse true to process entire subtree rooted at n; false to only do n.
+	 */
+	private void updateLikelihood(int n, boolean doRecurse, IntMap edgeModels, DoubleMap pgSwitches) {
+		if (this.T.isLeaf(n)) {
+			this.updateLeafLikelihood(n, edgeModels, pgSwitches);
+			
+		} else {
+			
+			// Process kids first.
+			if (doRecurse) {
+				this.updateLikelihood(this.T.getLeftChild(n), true, edgeModels, pgSwitches);
+				this.updateLikelihood(this.T.getRightChild(n), true, edgeModels, pgSwitches);
+			}
+			
+			// Get data and likelihood storage.
+			LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
+			PatternLikelihoods pl = this.likelihoods.get(n);
+			
+			// Get child likelihoods.
+			PatternLikelihoods pl_l = this.likelihoods.get(this.T.getLeftChild(n));
+			PatternLikelihoods pl_r = this.likelihoods.get(this.T.getRightChild(n));
+			
+			// Just a special case: we discard evolution over the stem arc if desired (when doUseP = false).
+			boolean doUseP = (this.useRootArc || !this.T.isRoot(n));
+			
+			// Compute Pr[Dk | T, l, r(j)] for each site rate category j.
+			for (int j = 0; j < this.siteRates.getNoOfCategories(); j++) {
+				
+				if (doUseP) {
+					// Set up site rate-specific P matrix.
+					double w = this.branchLengths.get(n) * this.siteRates.getRate(j);
+					if(edgeModels.get(n) == 1)
+						this.Q.updateTransitionMatrix(w);
+					else if(edgeModels.get(n) == 0)
+						this.Qp.updateTransitionMatrix(w);
+					else if(edgeModels.get(n) == 2)
+					{
+						this.Q.updateTransitionMatrix(w * (1- pgSwitches.get(n)));
+						this.Qp.updateTransitionMatrix(w*pgSwitches.get(n));
+					}
+				}
+				
+				// Lastly, loop over each unique pattern in patterns.
+				for (int i = 0; i < patterns.size(); i++) {
+					DenseMatrix64F left = pl_l.get(i, j);
+					DenseMatrix64F right = pl_r.get(i, j);
+					
+					// Element-wise multiplication, tmp = left .* right.
+					CommonOps.elementMult(left, right, this.tmp);
+					DenseMatrix64F curr = pl.get(i, j);
+					DenseMatrix64F currp = new DenseMatrix64F( curr );
+					if (doUseP) {
+						if(edgeModels.get(n) == 1)
+							this.Q.multiplyWithP(this.tmp, curr);
+						else if(edgeModels.get(n) == 0)
+							this.Qp.multiplyWithP(this.tmp, curr);
+						else if(edgeModels.get(n) == 2)
+						{
+							this.Q.multiplyWithP(this.tmp, currp);
+							this.Qp.multiplyWithP(currp, curr);
+						}
+
+					} else {
+						curr.set(this.tmp);
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	/**
 	 * DP method which updates the likelihood column vectors for a subtree.
 	 * @param n vertex root of subtree.
 	 * @param doRecurse true to process entire subtree rooted at n; false to only do n.
@@ -265,6 +437,60 @@ public class SubstitutionModel implements InferenceModel {
 	 * DP method which updates the likelihoods column vector for a leaf vertex.
 	 * @param n leaf vertex.
 	 */
+	private void updateLeafLikelihood(int n, IntMap edgeModels, DoubleMap pgSwitches) {
+		
+		// Set up data and likelihood storage.
+		LinkedHashMap<String, int[]> patterns = this.D.getPatterns();
+		PatternLikelihoods pl = this.likelihoods.get(n);
+	
+		// Get sequence index for this vertex.
+		int seqIdx = this.D.getSequenceIndex(this.names.get(n));
+		
+		// Loop over rate categories.
+		for (int j = 0; j < this.siteRates.getNoOfCategories(); j++) {
+			
+			// Set up site rate-specific P matrix.
+			double w = this.branchLengths.get(n) * this.siteRates.getRate(j);
+			//this.Q.updateTransitionMatrix(w);
+			if(edgeModels.get(n) == 1)
+				this.Q.updateTransitionMatrix(w);
+			else if(edgeModels.get(n) == 0)
+				this.Qp.updateTransitionMatrix(w);
+			else if(edgeModels.get(n) == 2)
+			{
+				this.Q.updateTransitionMatrix(w * (1- pgSwitches.get(n)));
+				this.Qp.updateTransitionMatrix(w*pgSwitches.get(n));
+			}
+	
+			// Loop over each unique pattern in patterns.
+			int i = 0;
+			for (Entry<String, int[]> pattern : patterns.entrySet()) {
+				
+				// Get position of pattern's first occurrence in partition.
+				int pos = pattern.getValue()[0];
+				
+				// Compute likelihood.
+				DenseMatrix64F curr = pl.get(i, j);
+				int state = this.D.getIntState(seqIdx, pos);
+				//this.Q.getLeafLikelihood(state, curr);
+				if(edgeModels.get(n) == 1)
+					this.Q.getLeafLikelihood(state, curr);
+				else if(edgeModels.get(n) == 0)
+					this.Qp.getLeafLikelihood(state, curr);
+				else if(edgeModels.get(n) == 2)
+				{
+					this.Q.getLeafLikelihood(state, curr);
+					this.Qp.getLeafLikelihood(state, curr);
+				}
+				i++;
+			}
+		}
+	}	
+	
+	/**
+	 * DP method which updates the likelihoods column vector for a leaf vertex.
+	 * @param n leaf vertex.
+	 */
 	private void updateLeafLikelihood(int n) {
 		
 		// Set up data and likelihood storage.
@@ -301,7 +527,7 @@ public class SubstitutionModel implements InferenceModel {
 	@Override
 	public Dependent[] getParentDependents() {
 		// We assume this.namesMap won't change.
-		return new Dependent[] { this.T, this.branchLengths, this.siteRates };
+		return new Dependent[] { this.T, this.branchLengths, this.siteRates, this.pgSwitches, this.kappa, this.omega };
 	}
 
 

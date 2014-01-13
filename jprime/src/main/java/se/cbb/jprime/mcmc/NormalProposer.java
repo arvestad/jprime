@@ -11,6 +11,7 @@ import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.RealInterval;
 import se.cbb.jprime.math.RealInterval.Type;
+import se.cbb.jprime.math.UniformDistribution;
 
 /**
  * Represents a normal proposal distribution. That is, given a current state parameter value m,
@@ -191,6 +192,7 @@ public class NormalProposer implements Proposer {
 			
 			// Sample a new value.
 			NormalDistribution pd = new NormalDistribution(xOld, Math.pow(stdev, 2));
+//			UniformDistribution ud = new UniformDistributio
 			double x = Double.NaN;
 			int tries = 0;
 			do {

@@ -2,6 +2,7 @@ package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,21 @@ public class RBTreeBranchSwapperSampler implements Proposer {
 	/** Active flag. */
 	protected boolean isActive;
 	
+    /** Pseudogenization switches across the gene tree T. */
+    protected DoubleMap pgSwitches;
+    
+    /** Pseudogenization models across the gene tree T. */
+    protected IntMap edgeModels; 
+	
+	/** Gene-Pseudogene Map. */
+	protected LinkedHashMap<String, Integer> gpgMap;
+
+	/** Gene Names to be used to check legality after selecting a new gene tree **/
+	protected NamesMap geneNames;
+	
+	/** Maximum limit for changing the gene tree using the pseudogenization points **/
+	public static final int MAX_LIMIT = 10;	
+
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
@@ -86,6 +102,55 @@ public class RBTreeBranchSwapperSampler implements Proposer {
 		this.equalTopoChance = equalTopoChance;
 		this.prng = prng;
 		this.isActive = true;
+		
+		// Fill a list with indices to choose from.
+		if (equalTopoChance) {
+			this.sampleIndices = new int[treeSamples.getNoOfTrees()];
+			for (int i = 0; i < this.sampleIndices.length; ++i) {
+				this.sampleIndices[i] = i;
+			}
+		} else {
+			this.sampleIndices = new int[treeSamples.getTotalTreeCount()];
+			int i = 0;
+			for (int j = 0; j < treeSamples.getNoOfTrees(); ++j) {
+				for (int k = 0; k < this.treeSamples.getTreeCount(j); ++k) {
+					this.sampleIndices[i++] = j;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Constructor for pseudogenized model.
+	 * @param T tree topology to perturb.
+	 * @param prng pseudo-random number generator.
+	 * @param treeSamples tree samples.
+	 * @param equalTopoChance if true, samples uniformly among unique topologies; if false, samples weighted according to topology prevalence.
+	 */
+	public RBTreeBranchSwapperSampler(RBTree T, PRNG prng, NewickRBTreeSamples treeSamples, boolean equalTopoChance, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		this(T, null, prng, treeSamples, equalTopoChance, pgSwitchs, edgeModel, pgMap, gNames);
+	}
+	
+	/**
+	 * Constructor for pseudogenized model.
+	 * @param T tree topology to perturb.
+	 * @param lengths lengths of T. May be null.
+	 * @param prng pseudo-random number generator.
+	 * @param treeSamples tree samples.
+	 * @param equalTopoChance if true, samples uniformly among unique topologies; if false, samples weighted according to topology prevalence.
+	 */
+	public RBTreeBranchSwapperSampler(RBTree T, DoubleMap lengths, PRNG prng, NewickRBTreeSamples treeSamples, boolean equalTopoChance, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		this.T = T;
+		this.count = 1;     // Dummy, as low as possible.
+		this.lengths = lengths;
+		this.treeSamples = treeSamples;
+		this.equalTopoChance = equalTopoChance;
+		this.prng = prng;
+		this.isActive = true;
+		this.pgSwitches = pgSwitchs;
+		this.edgeModels = edgeModel;
+		this.gpgMap = pgMap; 
+		this.geneNames = gNames;
 		
 		// Fill a list with indices to choose from.
 		if (equalTopoChance) {
@@ -189,11 +254,27 @@ public class RBTreeBranchSwapperSampler implements Proposer {
 			this.lengths.cache(null);
 		}
 		
-		// Sample a tree.
-		int idx = this.sampleIndices[this.prng.nextInt(this.sampleIndices.length)];
-		RBTree sampledTree = this.treeSamples.getTree(idx);
-		this.T.setTopology(sampledTree);
-		this.count = this.treeSamples.getTreeCount(idx);
+		// Sample a tree, and check if its legal according to pseudogenized model.
+		RBTree geneTree = new RBTree(this.T);
+		RBTree sampledTree;
+		int i =0;
+		int idx;
+		do
+		{	
+			i++;
+			idx = this.sampleIndices[this.prng.nextInt(this.sampleIndices.length)];
+			sampledTree = this.treeSamples.getTree(idx);
+		}
+		while((!isALegalConfiguration(sampledTree.getRoot(), sampledTree)) && i < MAX_LIMIT);
+		
+		if (i < MAX_LIMIT)	
+		{						// if a valid perturbed gene tree is found, change the topology 
+			this.T.setTopology(sampledTree);
+			this.count = this.treeSamples.getTreeCount(idx);
+			// Converts all switches below switches to plain pseudogenized edge (does not allow a gene edge below a switch)
+			makePseudogenizationConsistant(this.T.getRoot(), this.T);
+		}else
+			this.count = 0; 					// makes the forward probability zero, thus no forward transition
 		if (this.lengths != null) {
 			// Sample a lengths.
 			List<DoubleMap> lengthses = this.treeSamples.getTreeBranchLengths(idx);
@@ -226,6 +307,102 @@ public class RBTreeBranchSwapperSampler implements Proposer {
 		return new MetropolisHastingsProposal(this, forward, backward, affected, no);
 	}
 
+	
+	public boolean isALegalConfiguration(int vertex, RBTree gtree) {	
+
+		if (!gtree.isLeaf(vertex))
+		{
+			if(this.edgeModels.get(vertex)==2 || this.edgeModels.get(vertex)==0)						// Case of pseudogenization ..
+			{
+				// Check if all the descendants are pseudogenes
+				List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
+				for(Integer leaf:descendants)
+				{
+					Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+						if(g != 1)
+							return false;
+				}
+				
+				// No descendant edge should be 1
+				List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
+				for(Integer v:alldescendantsvertices)
+				{
+					if(this.edgeModels.get(v) == 1)
+						return false;
+				}
+			}
+			else	// Case of gene edge.. 
+			{
+				return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
+			}
+		}else
+		{
+			Integer g = this.gpgMap.get(this.geneNames.get(vertex));
+			if (g == 1) 												// Pseudogene case
+			{
+				if(this.edgeModels.get(vertex)!=1 )
+					return true;
+				else return false;
+			}
+			else 														// Gene case
+			{
+				if(this.edgeModels.get(vertex)==1)
+					return true;
+				else return false;
+			}
+		}
+	
+		return true;
+	}			
+	
+	
+	public void makePseudogenizationConsistant(int vertex, RBTree gtree)
+	{
+		if(!gtree.isLeaf(vertex))
+		{
+			if(this.edgeModels.get(vertex)==0)
+			{
+				if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+				{
+					this.edgeModels.set(vertex, 2);
+					this.pgSwitches.set(vertex, 0.5);
+				}
+			}
+			if(this.edgeModels.get(vertex)==2)
+			{
+				RemoveHalfPseudogenizedEdges(vertex, gtree);
+			}else if(this.edgeModels.get(vertex)==1)
+			{
+				makePseudogenizationConsistant(gtree.getLeftChild(vertex), gtree);
+				makePseudogenizationConsistant(gtree.getRightChild(vertex), gtree);
+			}
+		}else
+		{
+			if(this.edgeModels.get(vertex)==0)
+			{
+				if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+				{
+					this.edgeModels.set(vertex, 2);
+					this.pgSwitches.set(vertex, 0.5);
+				}
+			}
+		}
+	}
+	
+	
+	public void RemoveHalfPseudogenizedEdges(int vertex, RBTree gtree)
+	{
+		List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true);
+		for(Integer v:alldescendantsvertices)
+		{
+			if(this.edgeModels.get(v) == 2)
+			{
+				this.edgeModels.set(v, 0);
+				this.pgSwitches.set(v, 1);
+			}
+		}
+	}
+	
 	@Override
 	public void clearCache() {
 		if (this.statistics != null) {

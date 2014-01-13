@@ -179,6 +179,16 @@ public class Parameters {
 	@Parameter(names = {"-gtsetcvg"}, description = "Minimum coverage for a topology to be included among the samples in the guest tree set, e.g. 0.01.")
 	public String guestTreeSetMinCvg = "0.01";
 	
+	/** Tuning parameter: kappa (transition/transversion) rate proposal distribution variance. */
+	@Parameter(names = {"-tngkappa", "--tuningkapparate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
+		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
+	public String tuningKappaRate = "[0.75,0.75]";
+	
+	/** Tuning parameter: omega (non-synonymous/synonymous) rate proposal distribution variance. */
+	@Parameter(names = {"-tngomega", "--tuningomegarate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
+		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
+	public String tuningOmegaRate = "[0.75,0.75]";
+	
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngdup", "--tuningduplicationrate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
 		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
@@ -218,6 +228,16 @@ public class Parameters {
 	@Parameter(names = {"-tngpw", "--tuningproposerweights"}, description = "Tuning parameter: Governs how often 1,2,... simultaneous proposers " +
 			"(a.k.a. operators or kernels) will be activated for performing a state change, e.g., [0.5,0.5] for an equal chance of 1 or 2 proposers. No more than 4 may be specified.")
 	public String tuningProposerSelectorWeights = "[0.7,0.2,0.1]";
+
+	/** Tuning parameter: Kappa proposer weight. */
+	@Parameter(names = {"-tngwkappa", "--tuningweightkappa"}, description = "Tuning parameter: Relative activation weight for kappa rate proposer" +
+			" as [w_start,w_end], where start and end refer to the first and last iteration respectively.")
+	public String tuningWeightKappa = "[1.0,1.0]";	
+	
+	/** Tuning parameter: Omega proposer weight. */
+	@Parameter(names = {"-tngwomega", "--tuningweightomega"}, description = "Tuning parameter: Relative activation weight for omega rate proposer" +
+			" as [w_start,w_end], where start and end refer to the first and last iteration respectively.")
+	public String tuningWeightOmega = "[1.0,1.0]";		
 	
 	/** Tuning parameter: duplication rate proposer weight. */
 	@Parameter(names = {"-tngwdup", "--tuningweightduplicationrate"}, description = "Tuning parameter: Relative activation weight for duplication rate proposer" +
@@ -247,6 +267,10 @@ public class Parameters {
 	/** Tuning parameter: branch lengths. */
 	@Parameter(names = {"-tngwl", "--tuningweightlengths"}, description = "Tuning parameter: Relative activation weight for branch lengths proposer.")
 	public String tuningWeightLengths = "[10.0,10.0]";
+
+	/** Tuning parameter: pseudogenization points movement. */
+	@Parameter(names = {"-tngpg", "--tuningweightPgPoints"}, description = "Tuning parameter: Relative activation weight for pseudogenization proposer.")
+	public String tuningWeightPgPoints = "[5.0,5.0]";
 	
 	/** Debug flag. */
 	@Parameter(names = {"-dbg", "--debug"}, description = "Output debugging info.")

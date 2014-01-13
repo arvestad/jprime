@@ -3,6 +3,7 @@ package se.cbb.jprime.topology;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +58,21 @@ public class RBTreeBranchSwapper implements Proposer {
 	/** Last operation type. */
 	protected String lastOperationType;
 	
+    /** Pseudogenization switches across the gene tree T. */
+    protected DoubleMap pgSwitches;
+    
+    /** Pseudogenization models across the edges of gene tree T. */
+    protected IntMap edgeModels;    
+	
+	/** Gene-Pseudogene Map. */
+	protected LinkedHashMap<String, Integer> gpgMap;
+	
+	/** Gene Names to be used checking if new gene tree is legal. (Pseudogenized model) **/
+	protected NamesMap geneNames;
+	
+	/** Maximum limit for changing the gene tree using the pseudogenization points **/
+	public static final int MAX_LIMIT = 10;
+    
 	/**
 	 * Constructor.
 	 * @param T tree topology to perturb.
@@ -106,6 +122,64 @@ public class RBTreeBranchSwapper implements Proposer {
 		this.isActive = true;
 		this.lastOperationType = null;
 	}
+	
+	
+	// Pseudogenized versions of constructors
+	
+	/**
+	 * Constructor.
+	 * @param T tree topology to perturb.
+	 * @param prng pseudo-random number generator.
+	 */
+	public RBTreeBranchSwapper(RBTree T, PRNG prng, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		this(T, null, null, prng, pgSwitchs, edgeModel, pgMap, gNames);
+	}
+	
+	/**
+	 * Constructor.
+	 * @param T tree topology to perturb.
+	 * @param times times of T. May be null.
+	 * @param prng pseudo-random number generator.
+	 */
+	public RBTreeBranchSwapper(RBTree T, TimesMap times, PRNG prng, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		this(T, null, times, prng, pgSwitchs, edgeModel, pgMap, gNames);
+	}
+	
+	/**
+	 * Constructor.
+	 * @param T tree topology to perturb.
+	 * @param lengths lengths of T. May be null.
+	 * @param prng pseudo-random number generator.
+	 */
+	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, PRNG prng, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		this(T, lengths, null, prng, pgSwitchs, edgeModel, pgMap, gNames);
+	}
+	
+	/**
+	 * Constructor.
+	 * @param T tree topology to perturb.
+	 * @param lengths lengths of T. May be null.
+	 * @param times times of T. May be null.
+	 * @param prng pseudo-random number generator.
+	 */
+	public RBTreeBranchSwapper(RBTree T, DoubleMap lengths, TimesMap times, PRNG prng, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		this.T = T;
+		this.lengths = lengths;
+		this.times = times;
+		this.prng = prng;
+		if (this.T.getNoOfLeaves() <= 4) {
+			this.operationWeights = new double[] {0, 0.5, 0.5};
+		} else {
+			this.operationWeights = new double[] {0.7, 0.25, 0.05};
+		}
+		this.isActive = true;
+		this.lastOperationType = null;
+		this.pgSwitches = pgSwitchs;
+		this.edgeModels = edgeModel;
+		this.gpgMap = pgMap;
+		this.geneNames = gNames;
+	}
+	
 	
 	@Override
 	public Set<StateParameter> getParameters() {
@@ -176,17 +250,38 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 		
 		// Perturb!
-		//System.out.println("\n" + this.T.getSampleValue());
-		if (w < this.operationWeights[0]) {
-			this.doNNI();
-			this.lastOperationType = "NNI";
-		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
-			this.doSPR();
-			this.lastOperationType = "SPR";
-		} else {
-			this.doReroot();
-			this.lastOperationType = "Reroot";
+		int i =0;
+		do
+		{	
+			i++;
+			this.T.restoreCache();
+			this.T.cache();
+			
+			//System.out.println("\n" + this.T.getSampleValue());
+			if (w < this.operationWeights[0]) {
+				this.doNNI();
+				this.lastOperationType = "NNI";
+			} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
+				this.doSPR();
+				this.lastOperationType = "SPR";
+			} else {
+				this.doReroot();
+				this.lastOperationType = "Reroot";
+			}
+
 		}
+		while((!isALegalConfiguration(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
+		
+		if (i >= MAX_LIMIT)
+		{
+			this.T.restoreCache();
+			this.T.cache();
+		}else
+		{	
+			// Converts all switches below switches to plain pseudogenized edge (does not allow a gene edge below a switch)
+			makePseudogenizationConsistant(this.T.getRoot(), this.T);
+		}
+		
 		//System.out.println("\n" + this.T.getSampleValue());
 		assert this.verticesAreUnique();
 		
@@ -210,6 +305,149 @@ public class RBTreeBranchSwapper implements Proposer {
 		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), affected, no);
 	}
 
+	
+	public boolean isALegalConfigurationNotworking(int vertex, RBTree gtree) {	
+
+		if (!gtree.isLeaf(vertex))
+		{
+			if(this.edgeModels.get(vertex)==2)						// Case of pseudogenization ..
+			{
+				// Check if all the descendants are pseudogenes
+				List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
+				for(Integer leaf:descendants)
+				{
+					Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+						if(g != 1)
+							return false;
+				}
+				
+				// No descendant edge should be 1
+				List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
+				for(Integer v:alldescendantsvertices)
+				{
+					if(this.edgeModels.get(v) == 1)
+						return false;
+				}
+			}
+			else	// Case of gene edge.. 
+			{
+				return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
+			}
+		}else
+		{
+			Integer g = this.gpgMap.get(this.geneNames.get(vertex));
+			if (g == 1) 												// Pseudogene case
+			{
+				if(this.edgeModels.get(vertex)!=1 )
+					return true;
+				else return false;
+			}
+			else 														// Gene case
+			{
+				if(this.edgeModels.get(vertex)==1)
+					return true;
+				else return false;
+			}
+		}
+	
+		return true;
+	}			
+
+	public boolean isALegalConfiguration(int vertex, RBTree gtree) {	
+
+		if (!gtree.isLeaf(vertex))
+		{
+			if(this.edgeModels.get(vertex)==2 || this.edgeModels.get(vertex)==0)						// Case of pseudogenization ..
+			{
+				// Check if all the descendants are pseudogenes
+				List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
+				for(Integer leaf:descendants)
+				{
+					Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+						if(g != 1)
+							return false;
+				}
+				
+				// No descendant edge should be 1
+				List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
+				for(Integer v:alldescendantsvertices)
+				{
+					if(this.edgeModels.get(v) == 1)
+						return false;
+				}
+			}
+			else	// Case of gene edge.. 
+			{
+				return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
+			}
+		}else
+		{
+			Integer g = this.gpgMap.get(this.geneNames.get(vertex));
+			if (g == 1) 												// Pseudogene case
+			{
+				if(this.edgeModels.get(vertex)!=1 )
+					return true;
+				else return false;
+			}
+			else 														// Gene case
+			{
+				if(this.edgeModels.get(vertex)==1)
+					return true;
+				else return false;
+			}
+		}
+	
+		return true;
+	}			
+	
+	
+	public void makePseudogenizationConsistant(int vertex, RBTree gtree)
+	{
+		if(!gtree.isLeaf(vertex))
+		{
+			if(this.edgeModels.get(vertex)==0)
+			{
+				if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+				{
+					this.edgeModels.set(vertex, 2);
+					this.pgSwitches.set(vertex, 0.5);
+				}
+			}
+			if(this.edgeModels.get(vertex)==2)
+			{
+				RemoveHalfPseudogenizedEdges(vertex, gtree);
+			}else if(this.edgeModels.get(vertex)==1)
+			{
+				makePseudogenizationConsistant(gtree.getLeftChild(vertex), gtree);
+				makePseudogenizationConsistant(gtree.getRightChild(vertex), gtree);
+			}
+		}else
+		{
+			if(this.edgeModels.get(vertex)==0)
+			{
+				if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+				{
+					this.edgeModels.set(vertex, 2);
+					this.pgSwitches.set(vertex, 0.5);
+				}
+			}
+		}
+	}
+	
+	
+	public void RemoveHalfPseudogenizedEdges(int vertex, RBTree gtree)
+	{
+		List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true);
+		for(Integer v:alldescendantsvertices)
+		{
+			if(this.edgeModels.get(v) == 2)
+			{
+				this.edgeModels.set(v, 0);
+				this.pgSwitches.set(v, 1);
+			}
+		}
+	}
+	
 	@Override
 	public boolean isEnabled() {
 		return this.isActive;

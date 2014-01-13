@@ -53,6 +53,9 @@ public class DLRModel implements InferenceModel {
 	/** Substitution rate distribution. */
 	protected Continuous1DPDDependent substPD;
 	
+	/** Pseudogenization switches. (to use its change infos so DLRModel wont get updated on its change)*/
+	protected DoubleMap pgSwitches;
+	
 	/**
 	 * Probability of rooted subtree G_u for each valid placement of u in S'.
 	 */
@@ -89,6 +92,34 @@ public class DLRModel implements InferenceModel {
 		this.fullUpdate();
 	}
 	
+	/**
+	 * Constructor.
+	 * @param g the guest tree G.
+	 * @param s the host tree S.
+	 * @param reconcHelper the reconciliations helper.
+	 * @param lengths the branch lengths of G.
+	 * @param dupLossProbs the duplication-loss probabilities over discretised S.
+	 * @param substPD the iid rate probability distribution over arcs of G,
+	 *  (relaxing the molecular clock).
+	 * @param pgSwitches the pseudogenization switches for any branches of gene tree
+	 */
+	public DLRModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
+			DoubleMap lengths, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD, DoubleMap pgSwitches) {
+		this.g = g;
+		this.s = s;
+		this.reconcHelper = reconcHelper;
+		this.lengths = lengths;
+		this.dupLossProbs = dupLossProbs;
+		this.substPD = substPD;
+		this.ats = new DoubleArrayMap("DLR.ats", g.getNoOfVertices());
+		this.belows = new DoubleArrayMap("DLR.belows", g.getNoOfVertices());
+		this.pgSwitches = pgSwitches;
+		
+		// Update.
+		this.fullUpdate();
+	}
+	
+	
 	@Override
 	public Dependent[] getParentDependents() {
 		return new Dependent[] {this.g, this.s, this.reconcHelper, this.lengths, this.dupLossProbs, this.substPD };
@@ -102,32 +133,42 @@ public class DLRModel implements InferenceModel {
 		ChangeInfo lci = changeInfos.get(this.lengths);
 		ChangeInfo dpci = changeInfos.get(this.dupLossProbs);
 		ChangeInfo rci = changeInfos.get(this.substPD);
-
-		// One could think of many optimisations here, especially when there are 
-		// time perturbations involved, possibly combined with length perturbations.
-		// However, it is easy to make algorithmic mistakes in such situations,
-		// so at the only moment solitary length changes result in a partial DP update.
-		if (gci == null && sci == null && rhci == null && dpci == null && rci == null) {
-			if (lci != null && lci.getAffectedElements() != null) {
-				// Only certain branch lengths have changed. We do a partial update.
-				
-				int[] affected = TreeAlgorithms.getSpanningRootSubtree(this.g, lci.getAffectedElements());
-				this.ats.cache(affected);
-				this.belows.cache(affected);
-				this.partialUpdate(affected);
-				changeInfos.put(this, new ChangeInfo(this, "Partial DLR update", affected));
-			} else if (lci != null) {
+		ChangeInfo pgchi = changeInfos.get(this.pgSwitches);
+		try{
+		if(!(gci == null && sci == null && rhci == null && dpci == null && rci == null && lci == null)) // removed  && pgchi != null
+		{
+			// One could think of many optimisations here, especially when there are 
+			// time perturbations involved, possibly combined with length perturbations.
+			// However, it is easy to make algorithmic mistakes in such situations,
+			// so at the only moment solitary length changes result in a partial DP update.
+			if (gci == null && sci == null && rhci == null && dpci == null && rci == null) {
+				if (lci != null && lci.getAffectedElements() != null ) {
+					// Only certain branch lengths have changed. We do a partial update.
+					
+					int[] affected = TreeAlgorithms.getSpanningRootSubtree(this.g, lci.getAffectedElements());
+	//				System.out.println("Affected vertices are:");
+	//				for (int iii=0; iii<affected.length; iii++)
+	//					System.out.print(affected[iii] + " ");
+	//				System.out.println();
+					this.ats.cache(affected);
+					this.belows.cache(affected);
+					this.partialUpdate(affected);
+					changeInfos.put(this, new ChangeInfo(this, "Partial DLR update", affected));
+				} else if (lci != null) {
+					this.ats.cache(null);
+					this.belows.cache(null);
+					this.fullUpdate();
+					changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
+				}
+			} else {
 				this.ats.cache(null);
 				this.belows.cache(null);
 				this.fullUpdate();
 				changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
 			}
-		} else {
-			this.ats.cache(null);
-			this.belows.cache(null);
-			this.fullUpdate();
-			changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
 		}
+		}catch(Exception e)
+		{e.printStackTrace();}
 	}
 
 	@Override
@@ -236,6 +277,7 @@ public class DLRModel implements InferenceModel {
 				++x_i[1];
 			}
 			
+//			try{
 			// Remaining placements correspond to duplications for sure.
 			for (; idx < uAts.length; ++idx) {
 				uAts[idx] = lcBelows[idx] * rcBelows[idx] *
@@ -243,6 +285,8 @@ public class DLRModel implements InferenceModel {
 				// Move onto next pure discretisation point above.
 				this.reconcHelper.incrementPt(x_i);
 			}
+//			}catch(Exception e)
+//			{System.out.println("Array index out of bound error");}
 		}
 
 		// Update planted tree probs. afterwards.

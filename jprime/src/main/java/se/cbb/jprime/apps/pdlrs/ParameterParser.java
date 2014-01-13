@@ -42,6 +42,7 @@ import se.cbb.jprime.mcmc.ProposalAcceptor;
 import se.cbb.jprime.mcmc.Proposer;
 import se.cbb.jprime.mcmc.RealParameter;
 import se.cbb.jprime.mcmc.Thinner;
+import se.cbb.jprime.mcmc.UniformProposer;
 import se.cbb.jprime.misc.Pair;
 import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
@@ -52,9 +53,11 @@ import se.cbb.jprime.topology.BiasedRBTreeBranchSwapper;
 import se.cbb.jprime.topology.BifurcateTree;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.GuestHostMap;
+import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.NeighbourJoiningTreeGenerator;
+import se.cbb.jprime.topology.PerturbPseudoPoints;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RBTreeBranchSwapper;
@@ -516,6 +519,23 @@ public class ParameterParser {
 	}
 	
 	/**
+	 * Returns a Uniform proposer.
+	 * @param ps parameters.
+	 * @param p MCMC parameter.
+	 * @param iter iterations.
+	 * @param prng PRNG.
+	 * @param tuningCV tuning CV parameter start-stop as an array in string format.
+	 * @return proposer.
+	 */
+	public static UniformProposer getUniformProposer(Parameters ps, RealParameter p, Iteration iter, PRNG prng, String tuning) {
+		double[] tng = SampleDoubleArray.toDoubleArray(tuning);
+		LinearTuningParameter tcv = new LinearTuningParameter(iter, tng[0], tng[1]);
+		UniformProposer proposer = new UniformProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), tcv, prng);
+		proposer.setStatistics(new FineProposerStatistics(iter, 8));
+		return proposer;
+	}	
+	
+	/**
 	 * Returns a branch swapper proposer.
 	 * @param tree tree.
 	 * @param lengths branch lengths.
@@ -523,27 +543,48 @@ public class ParameterParser {
 	 * @param samples guest tree samples.
 	 * @return branch swapper.
 	 */
-	public static Proposer getBranchSwapper(Parameters ps, RBTree tree, DoubleMap lengths, MPRMap mpr, Iteration iter, PRNG prng, NewickRBTreeSamples samples) {
+	public static Proposer getBranchSwapper(Parameters ps, RBTree tree, DoubleMap lengths, MPRMap mpr, Iteration iter, PRNG prng, NewickRBTreeSamples samples, DoubleMap pgSwitchs, IntMap edgeModel, LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
 		Proposer mrGardener;
 		if (ps.guestTreeSet == null) {
 			if (ps.guestTreeBiasedSwapping == null) {
-				mrGardener = new RBTreeBranchSwapper(tree, lengths, prng);
+				mrGardener = new RBTreeBranchSwapper(tree, lengths, prng, pgSwitchs, edgeModel, pgMap, gNames);
 			} else {
 				double p = Double.parseDouble(ps.guestTreeBiasedSwapping);
-				mrGardener = new BiasedRBTreeBranchSwapper(tree, lengths, null, prng, mpr, 1, 1, p);
+				mrGardener = new BiasedRBTreeBranchSwapper(tree, lengths, null, prng, mpr, 1, 1, p, pgSwitchs, edgeModel, pgMap, gNames);
 			}
 			double[] moves = SampleDoubleArray.toDoubleArray(ps.tuningGuestTreeMoveWeights);
 			((RBTreeBranchSwapper) mrGardener).setOperationWeights(moves[0], moves[1], moves[2]);
 		} else {
 			if (ps.guestTreeSetWithLengths) {
-				mrGardener = new RBTreeBranchSwapperSampler(tree, lengths, prng, samples, ps.guestTreeSetEqualTopoChance);
+				mrGardener = new RBTreeBranchSwapperSampler(tree, lengths, prng, samples, ps.guestTreeSetEqualTopoChance, pgSwitchs, edgeModel, pgMap, gNames);
 			} else {
-				mrGardener = new RBTreeBranchSwapperSampler(tree, prng, samples, ps.guestTreeSetEqualTopoChance);
+				mrGardener = new RBTreeBranchSwapperSampler(tree, prng, samples, ps.guestTreeSetEqualTopoChance, pgSwitchs, edgeModel, pgMap, gNames);
 			}
 		}
 		mrGardener.setStatistics(new FineProposerStatistics(iter, 8));
 		return mrGardener;
 	}
+	
+	/**
+	 * Returns a pseudogenization points proposer.
+	 * @param tree tree.
+	 * @param pgSwitches Pseudogenization switches across the gene tree.
+	 * @param edgeModels Substitution Models across the lineages of the gene tree
+	 * @param gNames Names map for the vertices of the gene tree
+	 * @param gpgMap Gene-Pseudogene Map
+	 * @param iter
+	 * @param prng PRNG.
+	 */
+	/*
+	public static Proposer getPseudopointsPerturber(RBTree Tree, DoubleMap pgSwitches, IntMap edgeModels, NamesMap gNames, LinkedHashMap<String, Integer> gpgMap, Iteration iter, PRNG prng) {
+		//RBTree T, DoubleMap pgSwitches, DoubleMap edgeModels, NamesMap gNames, LinkedHashMap<String, Integer> gpgMap, PRNG prng
+		Proposer pseudoProposer;
+		//pseudoProposer = new PerturbPseudoPoints(Tree, pgSwitches, edgeModels, gNames, gpgMap, prng);
+				//PerturbPseudoPoints(Tree, pgSwitches, edgeModels, gNames, gpgMap, prng);
+		//pseudoProposer.setStatistics(new FineProposerStatistics(iter, 8));
+		return pseudoProposer;
+	}	*/
+	
 	
 	/**
 	 * Returns a proposer weight.
@@ -586,5 +627,34 @@ public class ParameterParser {
 		String fn = ps.sampleRealisations.get(0);
 		int n = Integer.parseInt(ps.sampleRealisations.get(1));
 		return new RealisationSampler(fn, n, iter, prng, model, names);
+	}
+
+	/**
+	 * Returns a pseudogenization points proposer.
+	 * @param tree tree.
+	 * @param pgSwitches Pseudogenization switches across the gene tree.
+	 * @param edgeModels Substitution Models across the lineages of the gene tree
+	 * @param gNames Names map for the vertices of the gene tree
+	 * @param gpgMap Gene-Pseudogene Map
+	 * @param iter
+	 * @param prng PRNG.
+	 */	
+	public static Proposer getPseudopointsPerturber(RBTree tree,
+			DoubleMap pgSwitches, IntMap edgeModels, NamesMap gNames,
+			LinkedHashMap<String, Integer> gpgMap, Iteration iter, PRNG prng) {
+		
+		Proposer pseudoProposer;
+		pseudoProposer = new PerturbPseudoPoints(tree, pgSwitches, edgeModels, gNames, gpgMap, prng);
+		return pseudoProposer;
+	}
+
+	public static DoubleParameter getKappa(Parameters ps) {
+		
+		return new DoubleParameter("KappaRate", Double.parseDouble(ps.kappa));
+	}
+	
+	public static DoubleParameter getOmega(Parameters ps) {
+		
+		return new DoubleParameter("OmegaRate", Double.parseDouble(ps.omega));
 	}
 }

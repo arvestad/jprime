@@ -1,6 +1,7 @@
 package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import  java.lang.Math;
 
@@ -92,12 +93,40 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		for (int i = 0; i < MAX_TRACKED_PARSIMONY_SCORE; ++i) {
 			this.acceptanceMatrix[i] = new int[MAX_TRACKED_PARSIMONY_SCORE][];
 		}
+	}	
+	
+	/**
+	 * Constructor for pseudogenized model.
+	 * @param T tree topology to perturb.
+	 * @param lengths lengths of T. May be null.
+	 * @param times times of T. May be null.
+	 * @param prng pseudo-random number generator.
+	 * @param mprMap sigma map.
+	 * @param dupWeight duplication parsimony weight. This should be in the order of 1.
+	 * @param lossWeight loss parsimony weight. This should be in the order of 1.
+	 * @param noBiasProb probability of carrying out a biased move. Enables
+	 * controlling proportion of biased-unbiased moves.
+	 */
+	public BiasedRBTreeBranchSwapper(RBTree T, DoubleMap lengths, TimesMap times, PRNG prng,
+			MPRMap mprMap, double dupWeight, double lossWeight, double biasProb, DoubleMap pgSwitchs, IntMap edgeModel,  LinkedHashMap<String, Integer> pgMap, NamesMap gNames) {
+		super(T, lengths, times, prng, pgSwitchs, edgeModel, pgMap, gNames);
+		if (this.biasProb < 0.0 || this.biasProb > 1.0) {
+			throw new IllegalArgumentException("Invalid proportion of biased branch-swap moves.");
+		}
+		this.biasProb = biasProb;
+		this.mprMap = mprMap;
+		this.dupWeight = dupWeight;
+		this.lossWeight = lossWeight;
+
+		this.acceptanceMatrix = new int[MAX_TRACKED_PARSIMONY_SCORE][][];
+		for (int i = 0; i < MAX_TRACKED_PARSIMONY_SCORE; ++i) {
+			this.acceptanceMatrix[i] = new int[MAX_TRACKED_PARSIMONY_SCORE][];
+		}
 	}
 	
 	
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
-		
 		// The higher the score is, the less parsimonious the tree is.
 		double dupScore = this.mprMap.getTotalNoOfDuplications() * this.dupWeight;
 		double lossScore = this.mprMap.getTotalNoOfLosses() * this.lossWeight;
@@ -180,15 +209,34 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		// Perturb!
 		// First determine move to make.
 		double w = this.prng.nextDouble() * (this.operationWeights[0] + this.operationWeights[1] + this.operationWeights[2]);
-		if (w < this.operationWeights[0]) {
-			this.doNNI();
-			this.lastOperationType = "NNI";
-		} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
-			this.doSPR();
-			this.lastOperationType = "SPR";
-		} else {
-			this.doReroot();
-			this.lastOperationType = "Reroot";
+		RBTree geneTree = new RBTree(this.T);
+		int i =0;
+		do
+		{	
+			i++;
+			this.T = geneTree;
+
+			if (w < this.operationWeights[0]) {
+				this.doNNI();
+				this.lastOperationType = "NNI";
+			} else if (w < this.operationWeights[0] + this.operationWeights[1]) {
+				this.doSPR();
+				this.lastOperationType = "SPR";
+			} else {
+				this.doReroot();
+				this.lastOperationType = "Reroot";
+			}
+		}while((!isALegalConfiguration(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
+			
+		if (i >= MAX_LIMIT)
+		{
+			// restore and cache again instead of doing the following:
+			this.T.restoreCache();
+			this.T.cache();
+		}else  //else legalize the edgemodel and edge switches! 
+		{
+			// Converts all switches below switches to plain pseudogenized edge (does not allow a gene edge below a switch)
+			makePseudogenizationConsistant(this.T.getRoot(), this.T);
 		}
 		
 		// Compute score.
@@ -198,6 +246,8 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 		double lossScore = mpr.getTotalNoOfLosses() * this.lossWeight;
 		this.newScore = (int) Math.round(dupScore + lossScore);
 	}
+	
+	
 	
 	/**
 	 * Returns empirical odds for the transition from parsimony score v to parsimony score w with respect to recorded data so far.

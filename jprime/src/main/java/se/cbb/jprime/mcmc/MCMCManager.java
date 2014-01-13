@@ -277,7 +277,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				
 				// Get proposer(s) to use.
 				Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
-				
+
 				// Debug info.
 				if (this.doDebug) {
 					StringBuilder dbg = new StringBuilder(512);
@@ -288,7 +288,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					}
 					this.sampler.writeString(dbg.toString());
 				}
-				
+
 				// Perturb state parameters.
 				for (Proposer proposer : shakeItBaby) {
 					Proposal proposal = proposer.cacheAndPerturb(changeInfos);
@@ -364,6 +364,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				if (willSample) {
 					this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
 				}
+				
 			}
 		} catch (RunAbortedException rae) {
 			this.runAbortedMessage = rae.getMessage();

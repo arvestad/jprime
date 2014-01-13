@@ -60,7 +60,9 @@ public class SubstitutionMatrixHandlerFactory {
 		}
 	};
 
-
+	public static SubstitutionMatrixHandler createPseudogenizationModel(String model, double kappa, double omega, int cacheSize, boolean allowStopCodons) {
+		return YangCodon.createYangCodon(kappa, omega, cacheSize, allowStopCodons);
+	};
 	
 
 	/**
