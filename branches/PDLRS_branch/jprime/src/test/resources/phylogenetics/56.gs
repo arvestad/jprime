@@ -1,0 +1,9 @@
+dwil_GLEAN	dwil
+dmoj_GLEAN	dmoj
+dgri_GLEAN	dgri
+dvir_GLEAN	dvir
+dpse_GLEAN	dpse
+dana_GLEAN	dana
+dyak_GLEAN	dyak
+dere_GLEAN	dere
+CG9675-PA	dmel
