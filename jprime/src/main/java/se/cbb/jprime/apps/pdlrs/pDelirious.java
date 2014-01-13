@@ -29,6 +29,7 @@ import se.cbb.jprime.mcmc.FineProposerStatistics;
 import se.cbb.jprime.mcmc.Iteration;
 import se.cbb.jprime.mcmc.MCMCManager;
 import se.cbb.jprime.mcmc.MultiProposerSelector;
+import se.cbb.jprime.mcmc.UniformProposer;
 import se.cbb.jprime.mcmc.NormalProposer;
 import se.cbb.jprime.mcmc.ProposalAcceptor;
 import se.cbb.jprime.mcmc.Proposer;
@@ -51,6 +52,7 @@ import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.TimesMap;
 
 import com.beust.jcommander.JCommander;
+
 
 /**
  * Java version of the Delirious application (previously known as GSR and GSRf)
@@ -123,8 +125,24 @@ public class pDelirious implements JPrIMEApp {
 			
 			LinkedHashMap<String, Integer> gpgMap = ParameterParser.getGenePseudogeneMap(params);
 			
+			// Create structures necessary for creating substituion models
+			// YangCodon.createYangCodon(0.2, 0.2, 2);
+			// Kappa (transversion/transition ratio) parameter for substitution model
+			DoubleParameter kappa = ParameterParser.getKappa(params);
+			
+			// Omega (dN/dS) parameter for substitution model
+			DoubleParameter omega = ParameterParser.getOmega(params);
+			
+			// Pi calculated in prior and hard coded in substitution matrix 
+			
 			// Substitution model first, then sequence alignment D and site rates.
-			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
+			boolean allowStopCodons=true;
+			SubstitutionMatrixHandler Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel(params.substitutionModel, kappa.getValue(), 1.0001, 4 * gsMap.getNoOfLeafNames(), allowStopCodons);
+			allowStopCodons=false;
+			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel(params.substitutionModel, kappa.getValue(), omega.getValue(), 4 * gsMap.getNoOfLeafNames(), allowStopCodons);
+
+			//SubstitutionMatrixHandler Q_arve = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
+			
 			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
 			MSAData D = new MSAData(Q.getSequenceType(), sequences);
 			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
@@ -146,16 +164,22 @@ public class pDelirious implements JPrIMEApp {
 				}
 			}
 			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
+			System.out.println(gNamesLengths.second.toString());
 			
 			DoubleMap pgSwitches = new DoubleMap("G-PGSwitches", gNamesLengths.first.getNoOfVertices(), 1);
 			IntMap edgeModels = new IntMap("EdgeModels", gNamesLengths.first.getNoOfVertices(), 1);
 			List<Integer> leaves = gNamesLengths.first.getLeaves();
 			for(int leaf: leaves){
-				pgSwitches.set(leaf, 0.5);
-				edgeModels.set(leaf, 2);
+				if (gpgMap.get(gNamesLengths.second.get(leaf)) == 1)
+				{
+					pgSwitches.set(leaf, 0.5);
+					edgeModels.set(leaf, 2);
+				}
 			}
-			System.out.println("Gene tree have "+gNamesLengths.first.getNoOfVertices()+ " vertices");
 			
+			// A gene tree (RBT) along with pgSwitches, edgeModels, gNames, gpgMap defines a gene tree with pseudogenization events.
+			
+			//System.out.println("Gene tree have "+gNamesLengths.first.getNoOfVertices()+ " vertices");
 			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
@@ -175,6 +199,7 @@ public class pDelirious implements JPrIMEApp {
 			
 			// Duplication-loss probabilities over discretised S.
 			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
+
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
 			
@@ -185,7 +210,7 @@ public class pDelirious implements JPrIMEApp {
 			RealParameterUniformPrior lengthsPrior = new RealParameterUniformPrior(gNamesLengths.third, priorRange);
 			
 			// Substitution model. NOTE: Root arc is turned on!!!!
-			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true);
+			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, Qp, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true, pgSwitches, edgeModels, kappa, omega);
 			
 			// DLR model.
 			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
@@ -194,24 +219,30 @@ public class pDelirious implements JPrIMEApp {
 			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
 			
 			// Proposers.
+			UniformProposer kappaProposer = ParameterParser.getUniformProposer(params, kappa, iter, prng, params.tuningKappaRate);
+			UniformProposer omegaProposer = ParameterParser.getUniformProposer(params, omega, iter, prng, params.tuningOmegaRate);
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
 			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
 			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
 			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
 			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
-			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples);
+			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples, pgSwitches, edgeModels, gpgMap, gNamesLengths.second);
+			Proposer pseudogenizationProposer = ParameterParser.getPseudopointsPerturber(gNamesLengths.first, pgSwitches, edgeModels, gNamesLengths.second, gpgMap, iter, prng);
 			NormalProposer lengthsProposer = ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
 			// Proposer selector.
 			MultiProposerSelector selector = ParameterParser.getSelector(params, prng);
+			selector.add(kappaProposer, ParameterParser.getProposerWeight(params.tuningWeightKappa, iter));
+			selector.add(omegaProposer, ParameterParser.getProposerWeight(params.tuningWeightOmega, iter));
 			selector.add(dupRateProposer, ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
 			selector.add(lossRateProposer, ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
 			selector.add(edgeRateMeanProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
 			selector.add(edgeRateCVProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
 			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
 			selector.add(guestTreeProposer, ParameterParser.getProposerWeight(params.tuningWeightG, iter));
+			selector.add(pseudogenizationProposer, ParameterParser.getProposerWeight(params.tuningWeightPgPoints, iter));
 			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
@@ -222,6 +253,8 @@ public class pDelirious implements JPrIMEApp {
 			if (params.siteRateCats == 1      || params.siteRateShape.matches("FIXED|Fixed|fixed"))  { siteRateShapeProposer.setEnabled(false); }
 			if (params.guestTreeFixed)                                                               { guestTreeProposer.setEnabled(false); }
 			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
+			pseudogenizationProposer.setEnabled(true);
+			
 			
 			// Proposal acceptor.
 			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
@@ -251,6 +284,7 @@ public class pDelirious implements JPrIMEApp {
 			manager.addSampleable(dupLoss.second);
 			manager.addSampleable(edgeRatePD.first);
 			manager.addSampleable(edgeRatePD.second);
+			
 			if (siteRateShapeProposer.isEnabled()) {
 				manager.addSampleable(siteRates.first);
 			}

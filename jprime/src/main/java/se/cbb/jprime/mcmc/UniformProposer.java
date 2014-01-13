@@ -14,6 +14,7 @@ import se.cbb.jprime.math.RealInterval.Type;
 import se.cbb.jprime.math.UniformDistribution;
 
 /**
+ * TODO: Write description of a uniform proposal distribution.
  * Represents a normal proposal distribution. That is, given a current state parameter value m,
  * it draws a new value Y ~ N(m,v). It is also possible to limit the domain to [A,B], (A,inf) and
  * so forth, thus creating a truncated normal distribution.
@@ -29,8 +30,9 @@ import se.cbb.jprime.math.UniformDistribution;
  * For bounded domains, v is chosen as if not truncated and sampling is repeated until within the domain. 
  * 
  * @author Joel Sjöstrand.
+ * @author Owais Mahmudi
  */
-public class NormalProposer implements Proposer {
+public class UniformProposer implements Proposer {
 	
 	/** Perturbed parameter. */
 	private RealParameter param;
@@ -66,7 +68,7 @@ public class NormalProposer implements Proposer {
 	 * @param proposalCV tuning parameter governing proposal distribution's CV.
 	 * @param prng pseudo-random number generator.
 	 */
-	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter proposalCV, PRNG prng) {
+	public UniformProposer(RealParameter param, RealInterval interval, TuningParameter proposalCV, PRNG prng) {
 		if (proposalCV.getMinValue() <= 0) {
 			throw new IllegalArgumentException("Illegal tuning parameter for normal proposer for parameter " + param.getName() + ". Value must be in (0,inf).");
 		}
@@ -89,7 +91,7 @@ public class NormalProposer implements Proposer {
 	 * @param proposalCV tuning parameter governing proposal distribution's CV.
 	 * @param prng random number generator.
 	 */
-	public NormalProposer(RealParameter param, TuningParameter proposalCV, PRNG prng) {
+	public UniformProposer(RealParameter param, TuningParameter proposalCV, PRNG prng) {
 		this(param, new RealInterval(), proposalCV, prng);
 	}
 	
@@ -187,12 +189,12 @@ public class NormalProposer implements Proposer {
 		for (int i = 0; i < indices.length; ++i) {
 			
 			// Compute variance for current proposal distribution.
-			double xOld = this.param.getValue(indices[i]);
-			double stdev = Math.max(Math.abs(xOld * this.proposalCV.getValue()), 1e-16);
+//			double xOld = this.param.getValue(indices[i]);
+//			double stdev = Math.max(Math.abs(xOld * this.proposalCV.getValue()), 1e-16);
 			
 			// Sample a new value.
-			NormalDistribution pd = new NormalDistribution(xOld, Math.pow(stdev, 2));
-//			UniformDistribution ud = new UniformDistributio
+			boolean open = true;
+			UniformDistribution pd = new UniformDistribution(0.0, 1.0, open, open);
 			double x = Double.NaN;
 			int tries = 0;
 			do {
@@ -205,30 +207,32 @@ public class NormalProposer implements Proposer {
 				}
 			} while (!this.interval.isWithin(x));
 			
-			// Obtain "forward" density.
-			double a = this.interval.getLowerBound();
-			double b = this.interval.getUpperBound();
-			double nonTails = 1.0;
-			if (!Double.isInfinite(a)) {
-				nonTails -= pd.getCDF(a);
-			}
-			if (!Double.isInfinite(b)) {
-				nonTails -= (1.0 - pd.getCDF(b));
-			}
-			forward.mult(new LogDouble(Math.max(pd.getPDF(x) / nonTails, 0.0)));
-			
-			// Obtain "backward" density.
-			stdev = Math.max(Math.abs(x * this.proposalCV.getValue()), 1e-16);
-			pd.setMean(x);
-			pd.setStandardDeviation(stdev);
-			nonTails = 1.0;
-			if (!Double.isInfinite(a)) {
-				nonTails -= pd.getCDF(a);
-			}
-			if (!Double.isInfinite(b)) {
-				nonTails -= (1.0 - pd.getCDF(b));
-			}
-			backward.mult(new LogDouble(Math.max(pd.getPDF(xOld) / nonTails, 0.0)));
+//			// Obtain "forward" density.
+//			double a = this.interval.getLowerBound();
+//			double b = this.interval.getUpperBound();
+//			double nonTails = 1.0;
+//			if (!Double.isInfinite(a)) {
+//				nonTails -= pd.getCDF(a);
+//			}
+//			if (!Double.isInfinite(b)) {
+//				nonTails -= (1.0 - pd.getCDF(b));
+//			}
+//			forward.mult(new LogDouble(Math.max(pd.getPDF(x) / nonTails, 0.0)));
+//			
+//			// Obtain "backward" density.
+//			stdev = Math.max(Math.abs(x * this.proposalCV.getValue()), 1e-16);
+//			pd.setMean(x);
+//			pd.setStandardDeviation(stdev);
+//			nonTails = 1.0;
+//			if (!Double.isInfinite(a)) {
+//				nonTails -= pd.getCDF(a);
+//			}
+//			if (!Double.isInfinite(b)) {
+//				nonTails -= (1.0 - pd.getCDF(b));
+//			}
+//			backward.mult(new LogDouble(Math.max(pd.getPDF(xOld) / nonTails, 0.0)));
+			forward = new LogDouble(1.0);
+			backward = new LogDouble(1.0);
 		}
 		this.noPerturbed = indices.length;
 		
