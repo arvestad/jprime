@@ -2,6 +2,8 @@ package se.cbb.jprime.apps.dltrs;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -19,9 +21,12 @@ import se.cbb.jprime.apps.dltrs.ParameterParser;
 import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
+import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleWriter;
+import se.cbb.jprime.io.UnparsedRealisation;
 import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.math.RealInterval;
@@ -43,12 +48,14 @@ import se.cbb.jprime.seqevo.MSAData;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandler;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
 import se.cbb.jprime.seqevo.SubstitutionModel;
+import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.LeafLeafMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
+import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
 import com.beust.jcommander.JCommander;
@@ -268,6 +275,110 @@ public class Deleterious implements JPrIMEApp {
 			// ================ RUN ================
 			manager.run();
 			
+//			Code for checking if the encoding and decoding of heatmap matrix is working fine.. 			
+//			int index =0; 
+//			int epoch = 0;
+//			int dscPt = 0;
+//			// Assign values to the heatmap
+//			for(int i =0; i< dtimes.getTotalNoOfPoints(); i++, dscPt++){
+//				if(dscPt >= dtimes.getEpoch(epoch).getNoOfPoints())
+//				{ dscPt = 0; epoch++;}
+//				
+//				int idx = 0;
+//				for(int i1 =0; i1< epoch; i1++){
+//					idx += dtimes.getEpoch(i1).getNoOfPoints();
+//				}
+//				idx += dscPt;
+//				
+//				System.out.println(i+ "  :  " + epoch + ":"+dscPt + "   :   " + idx );
+////				index += dtimes.getEpoch(i).getNoOfPoints();
+//			}
+//			
+//			int maximumNoofArcsAtOneEpoch1 = dtimes.getEpoch(0).getNoOfArcs();
+//			int fr = 0, t=0;
+//			for(int i =0; i< maximumNoofArcsAtOneEpoch1*(maximumNoofArcsAtOneEpoch1-1); i++){
+//				if(t >=maximumNoofArcsAtOneEpoch1-1)
+//				{
+//					t=0; fr++;
+//				}
+//				int index2 = fr *(maximumNoofArcsAtOneEpoch1-1) + t;
+//				System.out.println(i + "  :  " + fr+"."+((t>=fr)?t+1:t) + "    :   "+ index2);
+//				t++;
+//			}
+//			
+//			System.out.println("maximumNoofArcsAtOneEpoch" + maximumNoofArcsAtOneEpoch1);
+		
+			if(params.heatmap != null)
+			{
+				int maximumNoofArcsAtOneEpoch = dtimes.getEpoch(0).getNoOfArcs();
+				int possibleCombinations = maximumNoofArcsAtOneEpoch *(maximumNoofArcsAtOneEpoch -1);
+				int [][] heatmap = new int[dtimes.getTotalNoOfPoints()][possibleCombinations];
+				
+				
+				// Read the realization file
+				File f = new File(params.sampleRealisations.get(0)); 
+//				File f = new File("/Users/mahmudi/Documents/samplerealization.txt");
+				byte[] buffer = new byte[(int) f.length()];
+				FileInputStream fis = null;
+				try {
+					fis = new FileInputStream(f);
+					fis.read(buffer);
+					
+				} finally {
+					if (fis != null) try { fis.close(); } catch (IOException ex) {}
+				}
+			    String str = new String(buffer);
+			    String[] strsplit = str.split("\t|\n");
+			    for(int c=6;c<strsplit.length;c+=3)
+			    {
+			    	if(c % 3 == 0)
+			    	{
+			    		// map transfers of a realization to the corresponding places...
+			    		System.out.println(strsplit[c]);
+			    		Realisation realisation = UnparsedRealisation.parseRealisation(strsplit[c]);
+			    		StringMap fromTos = realisation.getFromTos();
+			    		BooleanMap isTrans = realisation.getTransfers();
+			    		StringMap placements = realisation.getPlacements();
+			    		
+			    		for(int v =0; v< realisation.getTree().getNoOfVertices(); v++){
+			    			if(isTrans.get(v)==true){
+			    				int from , to;
+			    				boolean special_transfer=false;
+			    				from = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).indexOf("(")+1 , fromTos.get(v).indexOf(",")  ) );
+			    				to = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).indexOf(",")+1 , fromTos.get(v).lastIndexOf(",")  ) );
+			    				int sp_transfer = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).lastIndexOf(",")+1 , fromTos.get(v).lastIndexOf(")")  ) );
+			    				special_transfer = (sp_transfer == -1)?false:true;
+			    				int epochNo = Integer.parseInt(placements.get(v).substring( placements.get(v).indexOf("(")+1, placements.get(v).indexOf(",")));
+			    				int discPt = Integer.parseInt(placements.get(v).substring( placements.get(v).indexOf(",")+1, placements.get(v).indexOf(")")));
+
+			    				int idx = 0;
+			    				for(int i =0; i< epochNo; i++){
+			    					idx += dtimes.getEpoch(i).getNoOfPoints();
+			    				}
+			    				idx += discPt;
+			    				int idx2 = from *(maximumNoofArcsAtOneEpoch-1) + ((from<to)?to-1:to);
+			    				heatmap[idx][idx2]++;
+			    			}
+			    		}
+			    		
+			    	}
+			    }
+					
+			    try {
+				    PrintWriter heatmapout = new PrintWriter(new BufferedWriter(new FileWriter(params.heatmap.get(0), false)));
+				    heatmapout.println("#Heat Map: [colums: epochs+disc_points x rows:transfers_from_to ] (time points x Species Edge/Vertex No) = value (count(realized vertices))");
+			    	for(int i=0; i< dtimes.getTotalNoOfPoints(); i++){
+			    		for(int j=0; j< possibleCombinations; j++)
+			    			heatmapout.print(heatmap[i][j] + "\t");
+			    		heatmapout.println();
+			    	}
+			    	heatmapout.close();
+				} catch (IOException e) {
+				    System.out.println("Problem with accessing file " + params.heatmap);
+				}
+			    
+			    
+			}
 			// ================ WRITE POST-INFO ================
 			info.write("# =========================================================================\n");
 			info.write("# ||                             POST-RUN INFO                           ||\n");
@@ -278,8 +389,14 @@ public class Deleterious implements JPrIMEApp {
 			info.flush();
 			sampler.close();
 			info.close();
+			
+			
+
+			
 			// mehmood's addition here
 			if (realisationSampler != null) { realisationSampler.close(); }
+			
+
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
