@@ -63,6 +63,38 @@ public class Realisation {
 	}
 
 	/**
+	 * Returns the guest tree
+	 * @return RootedBifurcatingtree 
+	 */
+	public RootedBifurcatingTree getTree(){
+		return this.G;
+	}
+	
+	/**
+	 * Returns the isTransfer
+	 * @return BooleanMap isTranser 
+	 */
+	public BooleanMap getTransfers(){
+		return this.isTransfer;
+	}
+	
+	/**
+	 * Returns the fromTos
+	 * @return StringMap isTranser 
+	 */
+	public StringMap getFromTos(){
+		return this.fromTo;
+	}
+	
+	/**
+	 * Returns the Placements
+	 * @return StringMap isTranser 
+	 */
+	public StringMap getPlacements(){
+		return this.placements;
+	}
+	
+	/**
 	 * Returns the tree on Newick format.
 	 * @return tree on Newick format.
 	 */
