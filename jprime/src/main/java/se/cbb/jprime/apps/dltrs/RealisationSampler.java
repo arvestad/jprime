@@ -168,7 +168,7 @@ public class RealisationSampler implements Sampleable {
 
 		// For each vertex v of G.
 		String[] placementss = new String[n];
-		String[] toFromLinage= new String[n];
+		String[] fromToLinage= new String[n];
 		
 		System.out.println("n=" + n);
 		
@@ -183,17 +183,17 @@ public class RealisationSampler implements Sampleable {
 		for (int v : vertices) {
 			getMaxPointLTG(v, placements, fromTo, edgePlacements, abst, arct, isDups, isTrans);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
-			toFromLinage[v]= "(" + fromTo[v][0] + "," + fromTo[v][1] + "," + fromTo[v][2] + ")";
+			fromToLinage[v]= "(" + fromTo[v][0] + "," + fromTo[v][1] + "," + fromTo[v][2] + ")";
 			
 			System.out.println("\n placementss["+v+"]"+ placementss[v]);
-			System.out.println("\n toFromLinage["+v+"]"+ toFromLinage[v]);
+			System.out.println("\n toFromLinage["+v+"]"+ fromToLinage[v]);
 			//System.out.println(this.G.toString());
 			//System.out.println(this.S.toString());
 			
 		}
 
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss), new StringMap("fromToLineage",toFromLinage) );
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss), new StringMap("fromToLineage",fromToLinage) );
 
 	}
 
@@ -217,7 +217,7 @@ public class RealisationSampler implements Sampleable {
 		
 		// For each vertex v of G.
 		String[] placementss = new String[n];
-		String[] toFromLinage= new String[n];
+		String[] fromToLinage= new String[n];
 		
 		// initializing fromTo array with -1
 		for (int v : vertices) {
@@ -228,12 +228,12 @@ public class RealisationSampler implements Sampleable {
 		
 		for (int v : vertices) {
 			getSamplePointLTG(v, placements, fromTo, edgePlacements, abst, arct, isDups, isTrans);
-			toFromLinage[v] = "(" + fromTo[v][0] + "," + fromTo[v][1] + ")";
+			fromToLinage[v] = "(" + fromTo[v][0] + "," + fromTo[v][1] + "," + fromTo[v][2] + ")";
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}
 
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss),  new StringMap("fromToLineage",toFromLinage) );
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new BooleanMap("RealisationIsTrans", isTrans), new StringMap("DiscPts",placementss),  new StringMap("fromToLineage",fromToLinage) );
 	}
 
 	/////////////////////////////////////////////////////////New Get Max Point Functino///////////////////////////////////////////////
@@ -438,12 +438,14 @@ public class RealisationSampler implements Sampleable {
 						// check Special transfer
 						// check if the parent edge and child each are same and also check if the parent node has transfer or duplication event associated
 						
-						if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
-							System.out.println("Special Transfer");
-							isTrans[v]	= true;
-							fromTo[v][0]= edgePlacements[this.G.getParent(v)];
-							fromTo[v][1]= maxF;
-							fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
+						if (! this.G.isRoot(v)) {
+							if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
+								System.out.println("Special Transfer");
+								isTrans[v]	= true;
+								fromTo[v][0]= edgePlacements[this.G.getParent(v)];
+								fromTo[v][1]= maxF;
+								fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
+							}
 						}else{
 							System.out.println("Duplication");
 							//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
@@ -714,12 +716,14 @@ public class RealisationSampler implements Sampleable {
 					// Generate Random number ranging between (0 to sum(dupProb+transProb) )
 					double rnd = this.prng.nextDouble() * (dupProb+transProbSum);
 					if (rnd < dupProb ){
-						if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
-							System.out.println("Special Transfer");
-							isTrans[v]	= true;
-							fromTo[v][0]= edgePlacements[this.G.getParent(v)];
-							fromTo[v][1]= edgePlacements[v];
-							fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
+						if (! this.G.isRoot(v)) {
+							if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
+								System.out.println("Special Transfer");
+								isTrans[v]	= true;
+								fromTo[v][0]= edgePlacements[this.G.getParent(v)];
+								fromTo[v][1]= edgePlacements[v];
+								fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
+							}
 						}else{
 							System.out.println("Duplication");
 							//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
