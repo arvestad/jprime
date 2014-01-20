@@ -9,6 +9,8 @@ import org.apache.commons.lang3.text.WordUtils;
 import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.IntArrayMap;
+import se.cbb.jprime.topology.RBTree;
+import se.cbb.jprime.topology.RootedBifurcatingTree;
 import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
@@ -812,4 +814,5 @@ public class PrIMENewickTree extends NewickTree {
 	public DoubleArrayMap getVertexParamsMap(String name) {
 		return (this.vertexParams == null ? null : new DoubleArrayMap(name, this.vertexParams));
 	}
+	
 }
