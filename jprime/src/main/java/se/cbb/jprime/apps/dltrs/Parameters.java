@@ -20,6 +20,11 @@ public class Parameters {
 	@Parameter(names = {"-real", "--samplerealisations"}, arity = 2, description = "When sampling, output dated reconciliations to a file. " +
 			"Takes two arguments: <file> <no of realisations per sample>.")
 	public List<String> sampleRealisations = null;
+	
+	/** Construct heatmap. */
+	@Parameter(names = {"-heatmap", "--heatmap"}, description = "When sampling, output heatmap of dated reconciliations to a file. " +
+			"<file>.")
+	public List<String> heatmap = null;
 
 	/** Required parameters: S, D and GS. */
 	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map>.")
