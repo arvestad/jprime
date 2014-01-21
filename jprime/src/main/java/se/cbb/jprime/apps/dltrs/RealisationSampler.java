@@ -170,7 +170,7 @@ public class RealisationSampler implements Sampleable {
 		String[] placementss = new String[n];
 		String[] fromToLinage= new String[n];
 		
-		System.out.println("n=" + n);
+//		System.out.println("n=" + n);
 		
 		// initializing fromTo array with -1
 		for (int v : vertices) {
@@ -185,8 +185,8 @@ public class RealisationSampler implements Sampleable {
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 			fromToLinage[v]= "(" + fromTo[v][0] + "," + fromTo[v][1] + "," + fromTo[v][2] + ")";
 			
-			System.out.println("\n placementss["+v+"]"+ placementss[v]);
-			System.out.println("\n toFromLinage["+v+"]"+ fromToLinage[v]);
+//			System.out.println("\n placementss["+v+"]"+ placementss[v]);
+//			System.out.println("\n toFromLinage["+v+"]"+ fromToLinage[v]);
 			//System.out.println(this.G.toString());
 			//System.out.println(this.S.toString());
 			
@@ -287,7 +287,7 @@ public class RealisationSampler implements Sampleable {
 			absTimes[v]= this.msReconcHelper.getTime(t);
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
+//			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
 
 		}else{ // if v is not a leaf of G
 
@@ -339,14 +339,14 @@ public class RealisationSampler implements Sampleable {
 							maxE= e;				
 						}
 						
-						System.out.print(v+"\tEdgeInUpperEdgeGeneration["+e);
-						System.out.print("]\t EdgeInLowerEdgeGeneration["+f);
-						System.out.print("]\ts["+s[0]);
-						System.out.print(", "+ s[1]);
-						System.out.print("] \tt["+t[0] );
-						System.out.print(","+ t[1]);
-						System.out.print("] \tProb ["+ p+"]" );
-						System.out.println("");
+//						System.out.print(v+"\tEdgeInUpperEdgeGeneration["+e);
+//						System.out.print("]\t EdgeInLowerEdgeGeneration["+f);
+//						System.out.print("]\ts["+s[0]);
+//						System.out.print(", "+ s[1]);
+//						System.out.print("] \tt["+t[0] );
+//						System.out.print(","+ t[1]);
+//						System.out.print("] \tProb ["+ p+"]" );
+//						System.out.println("");
 					}
 				}else{
 					for (int e = 0; e < sz; ++e) {
@@ -360,14 +360,14 @@ public class RealisationSampler implements Sampleable {
 								maxE= e;				
 							}
 							
-							System.out.print(v+"\tEdgeInUpperEdgeGeneration["+e);
-							System.out.print("]\t EdgeInLowerEdgeGeneration["+f);
-							System.out.print("]\ts["+s[0]);
-							System.out.print(", "+ s[1]);
-							System.out.print("] \tt["+t[0] );
-							System.out.print(","+ t[1]);
-							System.out.print("] \tProb ["+ p+"]" );
-							System.out.println("");
+//							System.out.print(v+"\tEdgeInUpperEdgeGeneration["+e);
+//							System.out.print("]\t EdgeInLowerEdgeGeneration["+f);
+//							System.out.print("]\ts["+s[0]);
+//							System.out.print(", "+ s[1]);
+//							System.out.print("] \tt["+t[0] );
+//							System.out.print(","+ t[1]);
+//							System.out.print("] \tProb ["+ p+"]" );
+//							System.out.println("");
 						} //loop over f ends
 					} // loop over e ends
 				} // else end
@@ -383,8 +383,8 @@ public class RealisationSampler implements Sampleable {
 			absTimes[v]= this.msReconcHelper.getTime(t);
 			arcTimes[v]= this.msReconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("\nE ["+maxE+"] \t F ["+maxF+"] \tt\t["+ t[0] + ", "+ t[1]+ "] maxProb: "+maxp);
-			System.out.println(" Node ["+v+"] left child ["+lc+"] right child ["+rc+"]");
+//			System.out.println("\nE ["+maxE+"] \t F ["+maxF+"] \tt\t["+ t[0] + ", "+ t[1]+ "] maxProb: "+maxp);
+//			System.out.println(" Node ["+v+"] left child ["+lc+"] right child ["+rc+"]");
 			
 			
 			
@@ -440,22 +440,22 @@ public class RealisationSampler implements Sampleable {
 						
 						if (! this.G.isRoot(v)) {
 							if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
-								System.out.println("Special Transfer");
+//								System.out.println("Special Transfer");
 								isTrans[v]	= true;
 								fromTo[v][0]= edgePlacements[this.G.getParent(v)];
 								fromTo[v][1]= maxF;
 								fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
 							}
 						}else{
-							System.out.println("Duplication");
+//							System.out.println("Duplication");
 							//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
 							isDups[v]	=	true;
 						}
 						
 					}else{
-						System.out.println("Transfer Happens at gene vertix u: "+ v);
+//						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]		=true;
-						System.out.println(" maxfIndex"+ maxfIndex+ "\t transProbUtoW.length \t"+ transProbUtoW.length  );
+//						System.out.println(" maxfIndex"+ maxfIndex+ "\t transProbUtoW.length \t"+ transProbUtoW.length  );
 						double probW	= (transProbUtoW[maxfIndex]/transProbSum);
 						double probV	= (transProbUtoV[maxfIndex]/transProbSum);
 
@@ -465,12 +465,12 @@ public class RealisationSampler implements Sampleable {
 							fromTo[v][1]= maxfIndex;
 							
 							// select the child where V stays but W get transfered to species lineage f
-							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxfIndex +" with probW: "+ probW );
+//							System.out.println("Child 'V': "+ lc + " Stays but Child 'W': "+ rc +" got Transfered to specie Arc:" + maxfIndex +" with probW: "+ probW );
 						}else{
 							fromTo[v][0]= maxF;
 							fromTo[v][1]= maxfIndex;
 							// select the child where W stays but V get transfered to species lineage f, 
-							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxfIndex +" with probV: "+ probV );
+//							System.out.println("Child 'W': "+ rc + " Stays but Child 'V': "+ lc +" got Transfered to specie Arc:" + maxfIndex +" with probV: "+ probV );
 						}
 					}
 
@@ -478,14 +478,14 @@ public class RealisationSampler implements Sampleable {
 				else {
 					// Case with top time edge. No transfer possible.
 					ats[0] = dt * dupFact * lclins[0] * rclins[0];
-					System.out.println("Duplication");
+//					System.out.println("Duplication");
 					//System.out.println("\n"+v+"\t F["+maxF+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+ats[0]+ "]  Duplication" );
 					
 					isDups[v]=true;
 				}
 
 			}else{
-				System.out.println("\nV: "+v+ "\t Speciation");
+//				System.out.println("\nV: "+v+ "\t Speciation");
 				//System.out.println(v+"\t F["+maxF+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t SpeciProb ["+maxp+ "]  " );
 				
 			}
@@ -539,7 +539,7 @@ public class RealisationSampler implements Sampleable {
 			absTimes[v]= this.reconcHelper.getTime(t);
 			arcTimes[v]= this.reconcHelper.getTime(s)-absTimes[v];
 
-			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
+//			System.out.println("V: "+v+ "\t is Leaf and placed at HostLeafIndex: "+ sigma);
 
 		}else{ // if v is not a leaf of G
 
@@ -591,7 +591,7 @@ public class RealisationSampler implements Sampleable {
 						cps.add(lins[e]); // added after May 23
 						arcF.add(f);
 						arraylistE.add(e);
-						System.out.println(v+"\tUpperEdgeGeneration_E["+e+"]\t LowerEdgeGeneration_F["+f+ "]\tS["+s[0]+", "+ s[1]+ "]\tt["+t[0] +","+ t[1]+"] index: "+index+" \tProb ["+ p+"]" );
+//						System.out.println(v+"\tUpperEdgeGeneration_E["+e+"]\t LowerEdgeGeneration_F["+f+ "]\tS["+s[0]+", "+ s[1]+ "]\tt["+t[0] +","+ t[1]+"] index: "+index+" \tProb ["+ p+"]" );
 						index++;
 					}
 					tempCps=lins[e];
@@ -609,7 +609,7 @@ public class RealisationSampler implements Sampleable {
 							cps.add(lins[e]); // added after May 23
 							arcF.add(f);
 							arraylistE.add(e);
-							System.out.println(v+"\tUpperEdgeGeneration_E["+e+"]\t LowerEdgeGeneration_F["+f+ "]\tS["+s[0]+", "+ s[1]+ "]\tt["+t[0] +","+ t[1]+"] index: "+index+" \tProb ["+ p+"]" );
+//							System.out.println(v+"\tUpperEdgeGeneration_E["+e+"]\t LowerEdgeGeneration_F["+f+ "]\tS["+s[0]+", "+ s[1]+ "]\tt["+t[0] +","+ t[1]+"] index: "+index+" \tProb ["+ p+"]" );
 							index++;
 						}
 						tempCps=lins[e];
@@ -629,7 +629,7 @@ public class RealisationSampler implements Sampleable {
 				idx = this.prng.nextInt(ys.size());
 				t = ys.get(idx);
 	
-				System.out.println("Node: "+ v+" is placed at \t F["+arcF.get(idx)+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+1e-256+ "]\tcps["+cps.get(idx)+"] " );
+//				System.out.println("Node: "+ v+" is placed at \t F["+arcF.get(idx)+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+1e-256+ "]\tcps["+cps.get(idx)+"] " );
 			} else {
 				
 				// Sample according to probabilities of placements.
@@ -640,15 +640,15 @@ public class RealisationSampler implements Sampleable {
 				}
 
 				while (prob.get(idx) == 0.0){
-					System.out.println("prob Zero here: " + prob.get(idx));
+//					System.out.println("prob Zero here: " + prob.get(idx));
 					--idx;
 				}
 
 				
 				t = ys.get(idx);
 
-				System.out.println("\n\n");
-				System.out.println("Node: "+ v+"\t F["+arcF.get(idx)+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+rnd+ "]\tcps["+cps.get(idx)+"] " );
+//				System.out.println("\n\n");
+//				System.out.println("Node: "+ v+"\t F["+arcF.get(idx)+"]\tt\t["+ t[0] + ", "+ t[1]+ "]\t prng["+rnd+ "]\tcps["+cps.get(idx)+"] " );
 			}
 
 			// Finally, store the properties.
@@ -718,20 +718,20 @@ public class RealisationSampler implements Sampleable {
 					if (rnd < dupProb ){
 						if (! this.G.isRoot(v)) {
 							if (isDups[this.G.getParent(v)] == true && edgePlacements[this.G.getParent(v)] != edgePlacements[v] ){
-								System.out.println("Special Transfer");
+//								System.out.println("Special Transfer");
 								isTrans[v]	= true;
 								fromTo[v][0]= edgePlacements[this.G.getParent(v)];
 								fromTo[v][1]= edgePlacements[v];
 								fromTo[v][2]= 1; // special transer vertix (set to 1) otherwise -1
 							}
 						}else{
-							System.out.println("Duplication");
+//							System.out.println("Duplication");
 							//System.out.println(v+"\t t\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+dupProb+ "]  Duplication" );
 							isDups[v]	=	true;
 						}
 						
 					}else{
-						System.out.println("Transfer Happens at gene vertix u: "+ v);
+//						System.out.println("Transfer Happens at gene vertix u: "+ v);
 						isTrans[v]=true;
 						this.stemDoneFlag= true;
 						
@@ -752,7 +752,7 @@ public class RealisationSampler implements Sampleable {
 							fromTo[v][0]= indexF;
 							fromTo[v][1]= transferedToLineage;
 						}else{
-							System.out.println("This transfer is not possible. since there is only one species lineage at this time point");
+//							System.out.println("This transfer is not possible. since there is only one species lineage at this time point");
 						}
 						
 						
@@ -783,13 +783,13 @@ public class RealisationSampler implements Sampleable {
 				} else {
 					// Case with top time edge. No transfer possible.
 					ats[0] = dt * dupFact * lclins[0] * rclins[0];
-					System.out.println("Duplication");
+//					System.out.println("Duplication");
 					//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t dupProb ["+ats[0]+ "]\tcps["+cps.get(idx)+"]  Duplication" );
 					isDups[v]=true;
 				}
 
 			}else{
-				System.out.println("V: "+v+ "\t Speciation");
+//				System.out.println("V: "+v+ "\t Speciation");
 				//System.out.println(v+"\t F["+arcF.get(idx)+"\tt\t["+ t[0] + ", "+ t[1]+ "]\t Prob ["+ prob.get(idx)+ "]\tcps["+cps.get(idx)+"] " );
 				//this.stemDoneFlag= true;
 			}
