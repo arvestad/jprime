@@ -113,7 +113,7 @@ public class Realisation {
 					sb.append("[&&PRIME VERTEXTYPE=Leaf");
 				} else if (this.isTransfer.get(v)) {  //  mehmood's addition here
 					sb.append("[&&PRIME VERTEXTYPE=Transfer");
-					sb.append(" FROMTOLINEAGE=").append(fromTo.get(v)).append("]");
+					sb.append(" FROMTOLINEAGE=").append(fromTo.get(v));
 				} else if (this.isDuplication.get(v)) {
 					sb.append("[&&PRIME VERTEXTYPE=Duplication");
 				} else {
