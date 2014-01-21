@@ -754,7 +754,7 @@ public class RealisationSampler implements Sampleable {
 							fromTo[v][1]= transferedToLineage;
 						}else{
 //							System.out.println("This transfer is not possible. since there is only one species lineage at this time point");
-							System.out.println("Special duplication");
+//							System.out.println("Special duplication");
 							isDups[v]=true;
 						}
 						
