@@ -732,7 +732,7 @@ public class RealisationSampler implements Sampleable {
 						
 					}else{
 //						System.out.println("Transfer Happens at gene vertix u: "+ v);
-						isTrans[v]=true;
+						
 						this.stemDoneFlag= true;
 						
 						int j=1;
@@ -749,10 +749,13 @@ public class RealisationSampler implements Sampleable {
 						}
 						
 						if (foundFlag == true){
+							isTrans[v]=true;
 							fromTo[v][0]= indexF;
 							fromTo[v][1]= transferedToLineage;
 						}else{
 //							System.out.println("This transfer is not possible. since there is only one species lineage at this time point");
+							System.out.println("Special duplication");
+							isDups[v]=true;
 						}
 						
 						
