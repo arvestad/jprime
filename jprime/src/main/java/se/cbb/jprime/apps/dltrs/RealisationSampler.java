@@ -853,8 +853,8 @@ public class RealisationSampler implements Sampleable {
 
 		// Output max prob. realisation in ordinary file.
 		
-		Realisation real = this.getMaximumProbabilityRealisation(vertices);
-		//Realisation real = this.sample(vertices);  // uncomment it when test the random sampling and also when everything is working.
+//		Realisation real = this.getMaximumProbabilityRealisation(vertices);
+		Realisation real = this.sample(vertices);  // uncomment it when test the random sampling and also when everything is working.
 													// and comment the line above Realisation real = this.getMaximumProbabilityRealisation(vertices);
 		str.append('\t').append(real.toString());
 
