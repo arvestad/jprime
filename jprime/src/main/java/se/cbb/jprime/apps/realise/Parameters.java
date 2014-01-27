@@ -16,7 +16,7 @@ import com.beust.jcommander.Parameter;
 public class Parameters {
 
 	/** Required parameters: MCMC file. */
-	@Parameter(description = "<MCMC File>")
+	@Parameter(names = {"-mi", "--mcmcinfile"}, description = "<MCMC File>")
 	public String inmcmcfile = null;
 	
 	/** Help. */

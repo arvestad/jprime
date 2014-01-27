@@ -3,6 +3,7 @@ package se.cbb.jprime.apps.realise;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -68,6 +69,7 @@ public class Analyze implements JPrIMEApp {
 	@Override
 	public void main(String[] args) {
 		BufferedWriter info = null;
+
 		try {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
@@ -103,19 +105,72 @@ public class Analyze implements JPrIMEApp {
 		    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
-			// Read the realization file
-			//File fmcmc = new File(params.outmcmcfile); 
-			File fmcmc = new File("/Users/mahmudi/Documents/samplerealization.txt");
-			byte[] buffer = new byte[(int) fmcmc.length()];
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(fmcmc);
-				fis.read(buffer);
+			if(params.inmcmcfile != null)
+			{
+				// Read the MCMC file
+				File fmcmc = new File(params.inmcmcfile); 
+	//			int noOfArgs = Integer.parseInt(params.inmcmcfile.get(1));
 				
-			} finally {
-				if (fis != null) try { fis.close(); } catch (IOException ex) {}
+				NewickRBTreeSamples trees = NewickRBTreeSamples.readTreesWithoutLengths(fmcmc, true, 1, 0.99, 0.01);
+				System.out.println("Found " + trees.getNoOfTrees() + " trees");
+				for (int i =0; i < trees.getNoOfTrees(); i++){
+					System.out.println(i + "\t" + trees.getTreeCount(i) + " (" + trees.getTreeCount(i)/trees.getTotalTreeCount() + ") ");
+					info.write(i + "\t" + trees.getTreeCount(i) + " (" + trees.getTreeCount(i)/trees.getTotalTreeCount() + ") ");
+				}
+				
+				try {
+				    PrintWriter outgenetrees = new PrintWriter(new BufferedWriter(new FileWriter(params.outmcmcfile, false)));
+				    for (int i =0; i < trees.getNoOfTrees(); i++){
+				    	outgenetrees.write(trees.getTreeNewickString(i) + "\n");
+				    }
+			    	outgenetrees.close();
+				} catch (IOException e) {
+				    System.out.println("Problem with accessing file " + params.outmcmcfile);
+				}
 			}
-
+			if(params.outmcmcfile != null)
+			{
+				File ofmcmc = new File(params.outmcmcfile);
+				byte[] buffer = new byte[(int) ofmcmc.length()];
+				FileInputStream fis = null;
+				try {
+					fis = new FileInputStream(ofmcmc);
+					fis.read(buffer);
+					
+				} finally {
+					if (fis != null) try { fis.close(); } catch (IOException ex) {}
+				}
+				
+			    String str = new String(buffer);
+			    String[] strsplit = str.split("\t|\n");
+			    System.out.println(strsplit[0]);
+			    if(params.inrealfile != null)
+			    {
+			    	
+			    }
+			}
+			//File fmcmc = new File("/Users/mahmudi/Documents/samplerealization.txt");
+//			byte[] buffer = new byte[(int) fmcmc.length()];
+//			FileInputStream fis = null;
+//			try {
+//				fis = new FileInputStream(fmcmc);
+//				fis.read(buffer);
+//				
+//	
+//				
+//			} finally {
+//				if (fis != null) try { fis.close(); } catch (IOException ex) {}
+//			}
+//			
+//		    String str = new String(buffer);
+//		    String[] strsplit = str.split("\t|\n");
+//		    
+//		    for (int i =9 + noOfArgs; i < strsplit.length/noOfArgs; i+=noOfArgs){
+//		    	System.out.print(i+ "\t");
+//		    	System.out.println(strsplit[i]);
+//		    	
+//		    }
+//		    System.out.println(strsplit[1]);
 			
 //			// Read S and t.
 //			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
@@ -255,7 +310,7 @@ public class Analyze implements JPrIMEApp {
 //			// ================ WRITE PRE-INFO ================
 //			info.write("# MCMC manager:\n");
 //			info.write(manager.getPreInfo("# \t"));
-//			info.flush();   // Don't close, maybe use stdout for both sampling and info...
+			info.flush();   // Don't close, maybe use stdout for both sampling and info...
 //			
 //			// ================ RUN ================
 //			manager.run();
@@ -269,7 +324,7 @@ public class Analyze implements JPrIMEApp {
 //			info.write(manager.getPostInfo("# \t"));
 //			info.flush();
 //			sampler.close();
-//			info.close();
+			info.close();
 //			if (realisationSampler != null) { realisationSampler.close(); }
 			
 			
