@@ -103,6 +103,10 @@ public class RealisationSampler implements Sampleable {
 	protected ReconciliationHelper msReconcHelper;
 
 	protected boolean stemDoneFlag= false;
+	
+	/** Max realization computation flag. */
+	protected boolean maxRealizationFlag= false;
+	
 	/**
 	 * Constructor.
 	 * @param file f the output str.
@@ -119,7 +123,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param noOfRealisations number of realisations per sampling round.
 	 * @throws IOException.
 	 */
-	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLTRModel model, DLTRMAPModel msModel, NamesMap names) throws IOException {
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLTRModel model, DLTRMAPModel msModel, NamesMap names, Boolean maxRealizationFlag) throws IOException {
 		this.out = new BufferedWriter(new FileWriter(filename));
 		this.noOfRealisations = noOfRealisations;
 		this.iteration = iteration;
@@ -141,6 +145,7 @@ public class RealisationSampler implements Sampleable {
 		this.msSubstPD = msModel.substPD;
 		this.msAts = msModel.ats;  
 		this.msBelows= msModel.belows;
+		this.maxRealizationFlag= maxRealizationFlag;
 
 
 		// Write header.
@@ -248,7 +253,7 @@ public class RealisationSampler implements Sampleable {
 	 * @param isTrans type of point. True if its transfer.
 	 */
 	private void getMaxPointLTG(int v, int[][] placements, int [][] fromTo, int[] edgePlacements, double[] absTimes, double[] arcTimes, boolean[] isDups, boolean[] isTrans) {
-
+		
 		// Get placement of parent of v in S'.
 		int[] s;
 		if (this.G.isRoot(v)) {
@@ -855,9 +860,15 @@ public class RealisationSampler implements Sampleable {
 		List<Integer> vertices = this.G.getTopologicalOrdering();
 
 		// Output max prob. realisation in ordinary file.
+		Realisation real;
+		if (this.maxRealizationFlag == true){
+			real = this.getMaximumProbabilityRealisation(vertices);
+		}else{
+			real = this.sample(vertices);
+		}
 		
-//		Realisation real = this.getMaximumProbabilityRealisation(vertices);
-		Realisation real = this.sample(vertices);  // uncomment it when test the random sampling and also when everything is working.
+		
+		//Realisation real = this.sample(vertices);  // uncomment it when test the random sampling and also when everything is working.
 													// and comment the line above Realisation real = this.getMaximumProbabilityRealisation(vertices);
 		str.append('\t').append(real.toString());
 
@@ -869,7 +880,6 @@ public class RealisationSampler implements Sampleable {
 					this.out.write('\t');
 					this.out.write("" + i);
 					this.out.write('\t');
-					real = this.sample(vertices);
 					this.out.write(real.toString());
 					this.out.write('\n');
 				} catch (IOException e) {

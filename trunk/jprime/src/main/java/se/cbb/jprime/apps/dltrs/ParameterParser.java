@@ -542,10 +542,10 @@ public class ParameterParser {
 	 * @return the sampler.
 	 * @throws IOException.
 	 */
-	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLTRModel model, DLTRMAPModel msModel, NamesMap names) throws IOException {
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLTRModel model, DLTRMAPModel msModel, NamesMap names, Boolean maxRealizationFlag) throws IOException {
 		if (ps.sampleRealisations == null) { return null; }
 		String fn = ps.sampleRealisations.get(0);
 		int n = Integer.parseInt(ps.sampleRealisations.get(1));
-		return new RealisationSampler(fn, n, iter, prng, model, msModel, names);
+		return new RealisationSampler(fn, n, iter, prng, model, msModel, names, maxRealizationFlag);
 	}
 }
