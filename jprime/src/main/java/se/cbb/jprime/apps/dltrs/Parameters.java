@@ -35,7 +35,7 @@ public class Parameters {
 	public Boolean help = false;
 	
 	/** Compute Max realization. */
-	@Parameter(names = {"-mr", "--maxrealization"}, description = "Compute Max Realizations. Default: false.")
+	@Parameter(names = {"-mr", "--maxrealization"}, description = "Compute Max Realizations.")
 	public Boolean maxRealizationFlag = false;
 	
 	/** Output location. */
