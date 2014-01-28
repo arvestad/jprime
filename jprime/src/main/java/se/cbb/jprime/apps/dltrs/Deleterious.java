@@ -190,7 +190,7 @@ public class Deleterious implements JPrIMEApp {
 			DLTRMAPModel dltrMs = new DLTRMAPModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dltr, dltrMs, gNamesLengths.second);
+			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dltr, dltrMs, gNamesLengths.second, params.maxRealizationFlag);
 			
 			// Proposers.
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
@@ -240,7 +240,16 @@ public class Deleterious implements JPrIMEApp {
 			manager.addModel(edgeRateCVPrior);
 			manager.addModel(lengthsPrior);
 			manager.addModel(sm);
-			manager.addModel(dltr);
+			
+			if (params.maxRealizationFlag == false){
+				manager.addModel(dltr);
+				manager.addSampleable(dltr);
+			}else{
+				manager.addModel(dltrMs);
+				manager.addSampleable(dltrMs);
+			}
+			
+			
 			
 			manager.addSampleable(iter);
 			manager.addSampleable(manager);			// Overall likelihood.
@@ -248,8 +257,9 @@ public class Deleterious implements JPrIMEApp {
 			//manager.addSampleable(edgeRateCVPrior);
 			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
-			manager.addSampleable(dltr);
-			manager.addSampleable(dltrMs);
+			
+			
+			
 			manager.addSampleable(dlt.first);
 			manager.addSampleable(dlt.second);
 			manager.addSampleable(dlt.third);

@@ -34,6 +34,10 @@ public class Parameters {
 	@Parameter(names = {"-h", "--help"}, description = "Display help.")
 	public Boolean help = false;
 	
+	/** Compute Max realization. */
+	@Parameter(names = {"-mr", "--maxrealization"}, description = "Compute Max Realizations. Default: false.")
+	public Boolean maxRealizationFlag = false;
+	
 	/** Output location. */
 	@Parameter(names = {"-o", "--outfile"}, description = "Output file. Default: stdout.")
 	public String outfile = null;
