@@ -22,8 +22,8 @@ public class Parameters {
 	public List<String> sampleRealisations = null;
 	
 	/** Construct heatmap. */
-	@Parameter(names = {"-heatmap", "--heatmap"}, description = "When sampling, output heatmap of dated reconciliations to a file. " +
-			"<file>.")
+	@Parameter(names = {"-heatmap", "--heatmap"}, arity = 3, description = "Read realisations, output heatmap of realisations to a heatmap file. " +
+			"Takes three arguments: <heatmap outputfile> <heatmap_only> <file having realisation samples>.")
 	public List<String> heatmap = null;
 
 	/** Required parameters: S, D and GS. */
