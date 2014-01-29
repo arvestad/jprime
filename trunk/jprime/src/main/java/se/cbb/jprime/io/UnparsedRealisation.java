@@ -150,7 +150,7 @@ public class UnparsedRealisation {
 	 * @return y [realised points in array]
 	 */
 	private static int[] getFromToPoints(String meta){
-		String str = meta.substring(meta.indexOf("FROMTOLINEAGE=("), meta.indexOf("FROMTOLINEAGE=(")+23);
+		String str = meta.substring(meta.indexOf("FROMTOLINEAGE=("), meta.indexOf("DISCPT"));
 		
 		int y1 = Integer.parseInt(str.substring(str.indexOf("FROMTOLINEAGE=(")+15 , str.indexOf(",") ));
 		int y2 = Integer.parseInt(str.substring(str.indexOf(",")+1 , str.lastIndexOf(",") ));
