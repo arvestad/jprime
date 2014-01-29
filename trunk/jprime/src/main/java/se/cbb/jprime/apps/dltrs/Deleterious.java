@@ -18,6 +18,7 @@ import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.apps.dltrs.ParameterParser;
+import se.cbb.jprime.apps.dltrs.Realisation;
 import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
@@ -282,6 +283,7 @@ public class Deleterious implements JPrIMEApp {
 			info.write(manager.getPreInfo("# \t"));
 			info.flush();   // Don't close, maybe using stdout for both sampling and info...
 			
+			if(Integer.parseInt(params.heatmap.get(1)) != 1)			// Dont run MCMC chain if only generating heatmaps
 			// ================ RUN ================
 			manager.run();
 			
@@ -336,77 +338,77 @@ public class Deleterious implements JPrIMEApp {
 			// mehmood's addition here
 			if (realisationSampler != null) { realisationSampler.close(); }
 			
-				if(params.heatmap != null)
-				{
-					int maximumNoofArcsAtOneEpoch = dtimes.getEpoch(0).getNoOfArcs();
-					int possibleCombinations = maximumNoofArcsAtOneEpoch *(maximumNoofArcsAtOneEpoch -1);
-					int [][] heatmap = new int[dtimes.getTotalNoOfPoints()][possibleCombinations];
+			if(params.heatmap != null)
+			{
+				File f = new File(params.heatmap.get(2));									// Read the file having realisation samples 
+//				PrIMENewickTree DSTree = RealisationFileReader.getHostTree(f);
+				int maximumNoofArcsAtOneEpoch = dtimes.getEpoch(0).getNoOfArcs();   		//dtimes.getEpoch(0).getNoOfArcs();
+				int possibleCombinations = maximumNoofArcsAtOneEpoch *(maximumNoofArcsAtOneEpoch -1);
+				int [][] heatmap = new int[dtimes.getTotalNoOfPoints()][possibleCombinations];
+				
+				// Read the realization file given in the arguments of heatmap.
+				byte[] buffer = new byte[(int) f.length()];
+				FileInputStream fis = null;
+				try {
+					fis = new FileInputStream(f);
+					fis.read(buffer);
 					
-					
-					// Read the realization file
-					File f = new File(params.sampleRealisations.get(0)); 
-	//				File f = new File("/Users/mahmudi/Documents/samplerealization.txt");
-					byte[] buffer = new byte[(int) f.length()];
-					FileInputStream fis = null;
-					try {
-						fis = new FileInputStream(f);
-						fis.read(buffer);
-						
-					} finally {
-						if (fis != null) try { fis.close(); } catch (IOException ex) {}
-					}
-				    String str = new String(buffer);
-				    String[] strsplit = str.split("\t|\n");
-				    for(int c=6;c<strsplit.length;c+=3)
-				    {
-				    	if(c % 3 == 0)
-				    	{
-				    		// map transfers of a realization to the corresponding places...
-				    		System.out.println(strsplit[c]);
-				    		Realisation realisation = UnparsedRealisation.parseRealisation(strsplit[c]);
-				    		StringMap fromTos = realisation.getFromTos();
-				    		BooleanMap isTrans = realisation.getTransfers();
-				    		StringMap placements = realisation.getPlacements();
-				    		
-				    		for(int v =0; v< realisation.getTree().getNoOfVertices(); v++){
-				    			if(isTrans.get(v)==true){
-				    				int from , to;
-				    				boolean special_transfer=false;
-				    				from = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).indexOf("(")+1 , fromTos.get(v).indexOf(",")  ) );
-				    				to = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).indexOf(",")+1 , fromTos.get(v).lastIndexOf(",")  ) );
-				    				int sp_transfer = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).lastIndexOf(",")+1 , fromTos.get(v).lastIndexOf(")")  ) );
-				    				special_transfer = (sp_transfer == -1)?false:true;
-				    				int epochNo = Integer.parseInt(placements.get(v).substring( placements.get(v).indexOf("(")+1, placements.get(v).indexOf(",")));
-				    				int discPt = Integer.parseInt(placements.get(v).substring( placements.get(v).indexOf(",")+1, placements.get(v).indexOf(")")));
-	
-				    				int idx = 0;
-				    				for(int i =0; i< epochNo; i++){
-				    					idx += dtimes.getEpoch(i).getNoOfPoints();
-				    				}
-				    				idx += discPt;
-				    				int idx2 = from *(maximumNoofArcsAtOneEpoch-1) + ((from<to)?to-1:to);
-				    				heatmap[idx][idx2]++;
-				    			}
-				    		}
-				    		
-				    	}
-				    }
-						
-				    try {
-					    PrintWriter heatmapout = new PrintWriter(new BufferedWriter(new FileWriter(params.heatmap.get(0), false)));
-					    heatmapout.println("#HeatMap: [colums: epochs+disc_points x rows:transfers_from_to ] (time points x Species Edge/Vertex No) = value (count(realized vertices))");
-				    	for(int i=0; i< dtimes.getTotalNoOfPoints(); i++){
-				    		for(int j=0; j< possibleCombinations; j++)
-				    			heatmapout.print(heatmap[i][j] + "\t");
-				    		heatmapout.println();
-				    	}
-				    	heatmapout.close();
-					} catch (IOException e) {
-					    System.out.println("Problem with accessing file " + params.heatmap);
-					}
-				    
-				    
+				} finally {
+					if (fis != null) try { fis.close(); } catch (IOException ex) {}
 				}
+			    String str = new String(buffer);
+			    String[] strsplit = str.split("\t|\n");
+			    for(int c=6;c<strsplit.length;c+=3)
+			    {
+			    	if(c % 3 == 0)
+			    	{
+			    		// map transfers of a realization to the corresponding places...
+//			    		System.out.println(strsplit[c]);
+			    		Realisation realisation = UnparsedRealisation.parseRealisation(strsplit[c]);
+			    		StringMap fromTos = realisation.getFromTos();
+			    		BooleanMap isTrans = realisation.getTransfers();
+			    		StringMap placements = realisation.getPlacements();
+			    		
+			    		for(int v =0; v< realisation.getTree().getNoOfVertices(); v++){
+			    			if(isTrans.get(v)==true){
+			    				int from , to;
+			    				boolean special_transfer=false;
+			    				from = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).indexOf("(")+1 , fromTos.get(v).indexOf(",")  ) );
+			    				to = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).indexOf(",")+1 , fromTos.get(v).lastIndexOf(",")  ) );
+			    				int sp_transfer = Integer.parseInt(fromTos.get(v).substring( fromTos.get(v).lastIndexOf(",")+1 , fromTos.get(v).lastIndexOf(")")  ) );
+			    				special_transfer = (sp_transfer == -1)?false:true;
+			    				int epochNo = Integer.parseInt(placements.get(v).substring( placements.get(v).indexOf("(")+1, placements.get(v).indexOf(",")));
+			    				int discPt = Integer.parseInt(placements.get(v).substring( placements.get(v).indexOf(",")+1, placements.get(v).indexOf(")")));
+
+			    				int idx = 0;
+			    				for(int i =0; i< epochNo; i++){
+			    					idx += dtimes.getEpoch(i).getNoOfPoints();
+			    				}
+			    				idx += discPt;
+			    				int idx2 = from *(maximumNoofArcsAtOneEpoch-1) + ((from<to)?to-1:to);
+			    				heatmap[idx][idx2]++;
+			    			}
+			    		}
+			    		
+			    	}
+			    }
+					
+			    try {
+				    PrintWriter heatmapout = new PrintWriter(new BufferedWriter(new FileWriter(params.heatmap.get(0), false)));
+				    heatmapout.println("#HeatMap: [colums: epochs+disc_points x rows:transfers_from_to ] (time points x Species Edge/Vertex No) = value (count(realized vertices))");
+			    	for(int i=0; i< dtimes.getTotalNoOfPoints(); i++){
+			    		for(int j=0; j< possibleCombinations; j++)
+			    			heatmapout.print(heatmap[i][j] + "\t");
+			    		heatmapout.println();
+			    	}
+			    	heatmapout.close();
+				} catch (IOException e) {
+				    System.out.println("Problem with accessing file " + params.heatmap);
+				}
+			    
+				sampler.close();
+				info.close();
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
