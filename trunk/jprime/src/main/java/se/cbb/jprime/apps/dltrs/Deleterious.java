@@ -406,8 +406,6 @@ public class Deleterious implements JPrIMEApp {
 				    System.out.println("Problem with accessing file " + params.heatmap);
 				}
 			    
-				sampler.close();
-				info.close();
 			}
 			
 		} catch (Exception e) {
