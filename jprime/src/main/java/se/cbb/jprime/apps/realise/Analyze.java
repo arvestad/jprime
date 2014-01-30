@@ -96,14 +96,14 @@ public class Analyze implements JPrIMEApp {
 			// MCMC chain output and auxiliary info.
 			SampleWriter sampler = ParameterParser.getOut(params);
 			info = ParameterParser.getInfo(params);
-			info.write("# =========================================================================\n");
-			info.write("# ||                             PRE-RUN INFO                            ||\n");
-			info.write("# =========================================================================\n");
-			info.write("# DELIRIOUS\n");
-			info.write("# Arguments: " + Arrays.toString(args) + '\n');
+//			info.write("# =========================================================================\n");
+//			info.write("# ||                             PRE-RUN INFO                            ||\n");
+//			info.write("# =========================================================================\n");
+//			info.write("# DELIRIOUS\n");
+//			info.write("# Arguments: " + Arrays.toString(args) + '\n');
 			Calendar cal = Calendar.getInstance();
 		    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
+//			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
 			if(params.inmcmcfile != null)
 			{
@@ -148,6 +148,95 @@ public class Analyze implements JPrIMEApp {
 			    {
 			    	
 			    }
+			}
+			if(params.addheatmap != null)
+			{
+				String path = params.addheatmap.get(0);
+				int rows=0, columns=0;
+				File folder = new File(path);
+				File[] listOfFiles = folder.listFiles();
+				for (int i = 0; i < listOfFiles.length; i++) {
+				      if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(".heatmap")) {
+				        File f = new File(path+"/"+listOfFiles[i].getName());
+						byte[] buffer = new byte[(int) f.length()];
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(f);
+							fis.read(buffer);
+						} finally {
+							if (fis != null) try { fis.close(); } catch (IOException ex) {}
+						}
+					    String str = new String(buffer);
+					    String[] strsplit = str.split("\n");
+					    rows = strsplit.length;
+
+					    int j = (strsplit[0].contains("#HeatMap:")?1:0);
+					    String[] l = strsplit[j].split("\t");
+					    columns = l.length;
+					    break;
+				      }
+				}
+				int heatmap[][] = new int[rows][columns], heatpoints[]=new int[rows];
+				for (int i = 0; i < listOfFiles.length; i++) {
+				      if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(".heatmap")) {
+				        File f = new File(path+"/"+listOfFiles[i].getName());
+						byte[] buffer = new byte[(int) f.length()];
+						FileInputStream fis = null;
+						try {
+							fis = new FileInputStream(f);
+							fis.read(buffer);
+						} finally {
+							if (fis != null) try { fis.close(); } catch (IOException ex) {}
+						}
+					    String str = new String(buffer);
+					    String[] strsplit = str.split("\n");
+					    rows = strsplit.length;
+
+					    int j = (strsplit[0].contains("#HeatMap:")?1:0);
+					    int offset = j;
+					    String[] l = strsplit[j].split("\t");
+					    columns = l.length;
+					    
+					    for(; j<rows; j++){
+					    	String[] line = strsplit[j].split("\t");
+					    	for(int k=0; k<columns; k++)
+					    	{
+					    		heatmap[j-offset][k] += Integer.parseInt(line[k]);
+					    	}
+					    }
+				      }
+				    }							// End of for loop, that loops over files. Heatmap read here..
+				
+				for (int i=0;i<rows; i++){
+					for(int j=0; j<columns; j++){
+						heatpoints[i] += heatmap[i][j];
+					}
+				}
+					
+				
+				try {
+				    PrintWriter heatmapout = new PrintWriter(new BufferedWriter(new FileWriter(params.addheatmap.get(1), false)));
+				    heatmapout.println("#HeatMap: [colums: epochs+disc_points x rows:transfers_from_to ] (time points x Species Edge/Vertex No) = value (count(realized vertices))");
+			    	for(int i=0; i< rows; i++){
+			    		for(int j=0; j< columns; j++)
+			    			heatmapout.print(heatmap[i][j] + "\t");
+			    		heatmapout.println();
+			    	}
+			    	heatmapout.close();
+			    	
+			    	if(Integer.parseInt(params.addheatmap.get(2))==1)
+			    	{
+					    PrintWriter heatpointsout = new PrintWriter(new BufferedWriter(new FileWriter(params.addheatmap.get(1)+".heatpoints", false)));
+					    heatpointsout.println("#Heatpoints summation of heatmap across columns");
+				    	for(int i=0; i< rows; i++){
+				    		heatpointsout.print(heatpoints[i] + "\n");
+				    	}
+				    	heatpointsout.close();
+			    	}
+				} catch (IOException e) {
+				    System.out.println("Problem with accessing file " + params.addheatmap);
+				}
+			    
 			}
 			//File fmcmc = new File("/Users/mahmudi/Documents/samplerealization.txt");
 //			byte[] buffer = new byte[(int) fmcmc.length()];
