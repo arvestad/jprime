@@ -40,6 +40,11 @@ public class Parameters {
 	@Parameter(names = {"-ro", "--realoutfile"}, description = "Output file for MAP Realisation analysis.")
 	public String outrealfile = null;
 	
+	/** Construct heatmap. */
+	@Parameter(names = {"-ahm", "--addheatmap"}, description = "Add up all heatmap files on the given path and outputs to specified heatmap output. " +
+			"Takes two arguments: <path-containing-heatmap-files-with-.heatmapfile extenstion> <heatmap outputfile>.")
+	public List<String> heatmap = null;
+	
 //	/** Run type. */
 //	@Parameter(names = {"-run", "--runtype"}, description = "Type of run. Valid values are MCMC and HILLCLIMBING.")
 //	public String runtype = "MCMC";
