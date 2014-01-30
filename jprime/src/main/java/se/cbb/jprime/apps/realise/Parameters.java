@@ -15,7 +15,7 @@ import com.beust.jcommander.Parameter;
  */
 public class Parameters {
 
-	/** Required parameters: MCMC file. */
+	/** MCMC file. */
 	@Parameter(names = {"-mi", "--mcmcinfile"}, description = "<MCMC File>")
 	public String inmcmcfile = null;
 	
@@ -41,9 +41,9 @@ public class Parameters {
 	public String outrealfile = null;
 	
 	/** Construct heatmap. */
-	@Parameter(names = {"-ahm", "--addheatmap"}, description = "Add up all heatmap files on the given path and outputs to specified heatmap output. " +
-			"Takes two arguments: <path-containing-heatmap-files-with-.heatmapfile extenstion> <heatmap outputfile>.")
-	public List<String> heatmap = null;
+	@Parameter(names = {"-ahm", "--addheatmap"}, arity = 3, description = "Add up all heatmap files on the given path and outputs to specified heatmap output. " +
+			"Takes three arguments (use 1 to get summation across columns of generalized heatmap): <path-containing-heatmap-files-with-.heatmapfile extenstion> <heatmap outputfile> <sum-across-columns>.")
+	public List<String> addheatmap = null;
 	
 //	/** Run type. */
 //	@Parameter(names = {"-run", "--runtype"}, description = "Type of run. Valid values are MCMC and HILLCLIMBING.")
