@@ -283,9 +283,9 @@ public class Deleterious implements JPrIMEApp {
 			info.write(manager.getPreInfo("# \t"));
 			info.flush();   // Don't close, maybe using stdout for both sampling and info...
 			
-			if(Integer.parseInt(params.heatmap.get(1)) != 1)			// Dont run MCMC chain if only generating heatmaps
+			//if(Integer.parseInt(params.heatmap.get(1)) != 1)			// Dont run MCMC chain if only generating heatmaps
 			// ================ RUN ================
-			manager.run();
+				manager.run();
 			
 //			Code for checking if the encoding and decoding of heatmap matrix is working fine.. 			
 //			int index =0; 
