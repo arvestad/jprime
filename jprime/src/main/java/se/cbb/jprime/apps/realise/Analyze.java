@@ -57,6 +57,7 @@ import com.beust.jcommander.JCommander;
  * report MAP gene tree, MAP realisations, and perhaps distributions of placements
  * on all vertices of MAP gene tree (considers only MAP assignments). 
  * 
+ * @author Joel Sjöstrand.
  * @author Owais Mahmudi.
  */
 public class Analyze implements JPrIMEApp {
@@ -85,7 +86,7 @@ public class Analyze implements JPrIMEApp {
 						"ages.																			 \n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +
-						"    java -jar jprime-X.Y.Z.jar Delirious [options] <args>\n");
+						"    java -jar jprime-X.Y.Z.jar Analyze [options] <args>\n");
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				System.out.println(sb.toString());
 				return;
