@@ -1,5 +1,8 @@
 package se.cbb.jprime.apps.dltrs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.topology.BooleanMap;
@@ -92,6 +95,20 @@ public class Realisation {
 	 */
 	public StringMap getPlacements(){
 		return this.placements;
+	}
+	
+	/**
+	 * Returns the Leaves
+	 * @return List<String>  
+	 */
+	public List<String> getNameOfLeaves(int vertex_no){
+		List<Integer> leaves = this.G.getDescendantLeaves(vertex_no, false);
+		List<String> named_leaves = new ArrayList<String>();
+		
+		for(int i=0; i<leaves.size(); i++){
+			named_leaves.add(this.names.get(leaves.get(i)));
+		}
+		return named_leaves;
 	}
 	
 	/**
