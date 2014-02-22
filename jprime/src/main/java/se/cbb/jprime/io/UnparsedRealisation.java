@@ -1,5 +1,8 @@
 package se.cbb.jprime.io;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,6 +10,7 @@ import se.cbb.jprime.apps.dltrs.Realisation;
 import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
+import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RootedBifurcatingTree;
 import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
@@ -55,19 +59,78 @@ public class UnparsedRealisation {
 	/** Subsample ID. */
 	public final int subSampleID;
 	
+	/** Realisation. */
+	public Realisation realisation;;
+	
 	/**
 	 * Constructor.
 	 * @param real realisation.
 	 * @param realId realisation's mapping to MCMC sample.
 	 * @param subSampleID realisation's subsample within the MCMC sample.
+	 * @throws TopologyException 
 	 * @throws NewickIOException.
 	 */
-	public UnparsedRealisation(String real, int realID, int subSampleID) throws NewickIOException {
+	public UnparsedRealisation(String real, int realID, int subSampleID) throws NewickIOException, TopologyException {
 		this.tree = PrIMENewickTreeReader.readTree(real, true, true);
 		this.treeAsNewickString = tree.toString();  // Guaranteed to be sorted unlike original string.
 		this.realID = realID;
 		this.subSampleID = subSampleID;
+		this.realisation = parseDLRSRealisation(real);
 	}
+	
+	
+	/**
+	 * Parse a string of realization (DLRS) to the realization object
+	 * @throws NewickIOException 
+	 * @throws TopologyException 
+	 */
+	public static Realisation parseDLRSRealisation(String real) throws NewickIOException, TopologyException
+	{
+		PrIMENewickTree tree = PrIMENewickTreeReader.readTree(real, true, true);
+		TimesMap times = tree.getTimesMap(real);	
+		String[] names = new String[tree.getNoOfVertices()];
+		boolean[] isdups = new boolean[tree.getNoOfVertices()];
+		boolean[] istrans = new boolean[tree.getNoOfVertices()];
+		String[] placements = new String[tree.getNoOfVertices()];
+		String[] fromTos = new String[tree.getNoOfVertices()];
+		
+		for(int v =0; v < tree.getNoOfVertices(); v++)
+		{
+			names[v]=tree.getVertex(v).getName();
+			String meta = tree.getVertex(v).getMeta();
+			// 0 for leaf, 1 for speciation, 2 for duplication, 3 for transfer
+			int vertextype = getVertexType(meta);
+			
+			isdups[v] = false;
+			istrans[v] = false;
+			
+			if (vertextype == 2)
+				isdups[v]=true;
+			else if( vertextype == 3)
+				istrans[v]=true;
+			
+			int [] fromtos = {-1, -1, -1};	
+			if (vertextype == 3)
+				fromtos = getFromToPoints(meta);
+			fromTos[v] = "("+fromtos[0]+","+fromtos[1]+","+fromtos[2]+")";
+			
+			
+			int[] placement = getRealisedPoint(meta);
+			placements[v]= "("+placement[0]+","+placement[1]+")";
+		}
+		
+		
+		NamesMap Names = new NamesMap("GuestTreeNames", names);
+		BooleanMap isDups = new BooleanMap("RealisationIsDups", isdups);
+		BooleanMap isTrans = new BooleanMap("RealisationIsTrans", istrans);
+		StringMap Placements = new StringMap("DiscPts",placements);
+		StringMap FromTos = new StringMap("fromToLineage",fromTos);
+
+		RBTree rbtree = new RBTree((NewickTree) tree,"");
+		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos);
+		return (realisation );
+	}	
+	
 	
 	/**
 	 * Parse a string of realization (DLTRS) to the realization object
@@ -76,7 +139,7 @@ public class UnparsedRealisation {
 	 */
 	public static Realisation parseRealisation(String real) throws NewickIOException, TopologyException
 	{
-		PrIMENewickTree tree = PrIMENewickTreeReader.readTree(real, true, true);
+		PrIMENewickTree tree = PrIMENewickTreeReader.readTree(real, true, true);			// Sorts the gene tree
 		TimesMap times = tree.getTimesMap(real);	
 		String[] names = new String[tree.getNoOfVertices()];
 		boolean[] isdups = new boolean[tree.getNoOfVertices()];
@@ -116,7 +179,7 @@ public class UnparsedRealisation {
 		BooleanMap isTrans = new BooleanMap("RealisationIsTrans", istrans);
 		StringMap Placements = new StringMap("DiscPts",placements);
 		StringMap FromTos = new StringMap("fromToLineage",fromTos);
-
+		
 		RBTree rbtree = new RBTree((NewickTree) tree,"");
 		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos);
 		return (realisation );
@@ -218,4 +281,73 @@ public class UnparsedRealisation {
 		return nw.toString();
 	}
 	
+	
+	/**
+	 * Compares two realisations
+	 * @throws TopologyException 
+	 * @throws NewickIOException 
+	 * @params realisation1
+	 * @params realisation2
+	 * returns true if similar or false otherwise
+	 */
+	public static boolean compareRealisation(String real1, String real2) throws NewickIOException, TopologyException
+	{
+		boolean flag = true;
+		
+		Realisation r1=UnparsedRealisation.parseRealisation(real1);
+		Realisation r2=UnparsedRealisation.parseRealisation(real2);
+		RootedBifurcatingTree t1 =  r1.getTree();
+		RootedBifurcatingTree t2 =  r2.getTree();
+		assert(t1==t2);									// Assumes the realisations have same gene tree otherwise comparing realisation makes no sense
+		
+		int noofvertices = r1.getTree().getNoOfVertices();
+		
+		for (int i=0; i<noofvertices; i++)
+		{
+			if(Integer.parseInt(r1.getPlacements().get(i).substring(r1.getPlacements().get(i).indexOf("(")+1, r1.getPlacements().get(i).indexOf(","))) != Integer.parseInt(r2.getPlacements().get(i).substring(r2.getPlacements().get(i).indexOf("(")+1 , r2.getPlacements().get(i).indexOf(",") ))  
+					|| (Integer.parseInt(r1.getPlacements().get(i).substring(r1.getPlacements().get(i).indexOf(",")+1, r1.getPlacements().get(i).indexOf(")"))) != Integer.parseInt(r2.getPlacements().get(i).substring(r2.getPlacements().get(i).indexOf(",")+1 , r2.getPlacements().get(i).indexOf(")") ))))
+					return false;
+		}
+		return flag;
+	}
+	
+	
+	/**
+	 * Compares two realisations
+	 * @throws TopologyException 
+	 * @throws NewickIOException 
+	 * @params realisation
+	 * @params Vertices-Realisation Points Map
+	 * returns the populated map
+	 */
+	public static void verticesDistribution(String real, LinkedHashMap<Integer, List<Double>> vrMap, RBTreeArcDiscretiser dtimes) throws NewickIOException, TopologyException
+	{
+		boolean flag = true;
+		Realisation r=UnparsedRealisation.parseRealisation(real);
+		RootedBifurcatingTree t =  r.getTree();
+		int noofvertices = t.getNoOfVertices();
+		
+		for (int i=0; i<noofvertices; i++){
+			if(vrMap.get(i) != null){
+				List<Double> list = vrMap.get(i);
+				String meta = r.getPlacements().get(i);
+				int [] point = {0,0};
+				point[0]=Integer.parseInt(meta.substring(meta.indexOf("(")+1 , meta.lastIndexOf(",") ));
+				point[1]=Integer.parseInt(meta.substring(meta.indexOf(",")+1 , meta.lastIndexOf(")") ));
+				Double time = dtimes.getDiscretisationTime(point[0], point[1]);
+				list.add(time);
+				vrMap.put(i, list);
+			}
+			else{
+				List<Double> list = new ArrayList<Double>();
+				String meta = r.getPlacements().get(i);
+				int [] point={0,0};
+				point[0]=Integer.parseInt(meta.substring(meta.indexOf("(")+1 , meta.lastIndexOf(",") ));
+				point[1]=Integer.parseInt(meta.substring(meta.indexOf(",")+1 , meta.lastIndexOf(")") ));
+				Double time = dtimes.getDiscretisationTime(point[0], point[1]);
+				list.add(time);
+				vrMap.put(i, list);
+			}			
+		}
+	}
 }
