@@ -59,6 +59,9 @@ public class NewickRBTreeSamples {
 	/** Tree instances sorted by descending frequency. */
 	private ArrayList<TreeInstances> treesByFreq;
 	
+	/** Tree instances, hashed by purified Newick string. */
+	private ArrayList<String> MAPTreeSampleIDs;
+	
 	/** The total no. of instances. */
 	private int totalCount;
 	
@@ -129,6 +132,43 @@ public class NewickRBTreeSamples {
 		// Sort trees according to topology frequency.
 		this.treesByFreq = new ArrayList<NewickRBTreeSamples.TreeInstances>(this.trees.values());
 		Collections.sort(this.treesByFreq, Collections.reverseOrder());
+		
+		sc.reset();
+		i=0;
+		sc = new Scanner(f);
+		while (i < firstLn) {
+			sc.nextLine();
+			
+			
+			i++;
+		}
+		i=0;
+		int count =0; // Count the count of MAP gene trees
+		MAPTreeSampleIDs = new ArrayList<String>();;
+		while (sc.hasNextLine()) {
+			//System.out.println("MAP Trees are :" + this.getTreeCount(0) + "\n" + "gene tree looks like :" + this.getTreeNewickString(0));
+			String[] parts = sc.nextLine().split("\t");
+			i++;
+			// Must sort to ensure equal numbering of identical trees.
+			NewickTree t = NewickTreeReader.readTree(parts[absColIdx], true);
+			DoubleMap lengths = null;
+			if (withLengths) {
+				lengths = t.getBranchLengthsMap("Lengths");
+			}
+			// We want to hash on "pure" Newick tree.
+			t.clearBranchLengths();
+			t.clearMeta();
+			String nw = t.toString();
+			TreeInstances ts = this.trees.get(nw);
+			
+			if(this.getTreeNewickString(0) == (ts.nwTopology))
+			{
+				MAPTreeSampleIDs.add(parts[0]);
+				count=count+1;
+			}
+			
+		}
+		sc.close();
 		
 		// Remove samples not meeting with the coverage requirements.
 		while (this.treesByFreq.get(this.treesByFreq.size() - 1).count / (double) this.totalCount < minCvg) {
@@ -300,6 +340,14 @@ public class NewickRBTreeSamples {
 	 */
 	public boolean hasLengths() {
 		return this.hasLengths;
+	}
+	
+	/**
+	 * Returns MAP tree sample IDs.
+	 * @return List of sample IDs containing MAP tree.
+	 */
+	public ArrayList<String> getMAPTreeSampleIDs() {
+		return this.MAPTreeSampleIDs;
 	}
 	
 	/**
