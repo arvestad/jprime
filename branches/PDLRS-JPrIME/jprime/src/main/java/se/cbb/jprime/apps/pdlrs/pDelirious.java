@@ -59,7 +59,8 @@ import com.beust.jcommander.JCommander;
  * for simultaneous reconciliation and inference
  * of a guest tree evolving inside a dated host tree. Based on the DLRS model. 
  * 
- * @author Joel Sjöstrand.
+ * @author Joel Sjöstrand
+ * @author Owais Mahmudi
  */
 public class pDelirious implements JPrIMEApp {
 	
