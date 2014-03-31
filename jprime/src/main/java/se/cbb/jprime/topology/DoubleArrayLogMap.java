@@ -1,38 +1,37 @@
 package se.cbb.jprime.topology;
 
 import se.cbb.jprime.io.SampleDoubleArrayArray;
+import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.StateParameter;
 
 /**
  * Holds a double array for each vertex of a graph. No generics for the sake of speed.
  * See also <code>GenericMap</code>.
  * 
- * @author Joel Sjöstrand.
- * @author Sayyed Auwn Muhammad.
- * @author Raja Hashim Ali.
+ * @author Sayyed Auwn Muhammad, Raja Hashim Ali.
  */
-public class DoubleArrayMap implements VertexMap, StateParameter {
+public class DoubleArrayLogMap implements VertexMap, StateParameter {
 	
 	/** The name of this map, if any. */
 	protected String name;
 	
 	/** The map values. */
-	protected double[][] values;
+	protected LogDouble[][] values;
 	
 	/** Cache vertices. */
 	protected int[] cacheVertices = null;
 	
 	/** Cache values for affected vertices. */
-	protected double[][] cacheValues = null;
+	protected LogDouble[][] cacheValues = null;
 	
 	/**
 	 * Constructor. Initialises all map values to a null array.
 	 * @param name the map's name.
 	 * @param size the size of the map.
 	 */
-	public DoubleArrayMap(String name, int size) {
+	public DoubleArrayLogMap(String name, int size) {
 		this.name = name;
-		this.values = new double[size][];
+		this.values = new LogDouble[size][];
 	}
 	
 	/**
@@ -40,7 +39,7 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 * @param name the map's name.
 	 * @param vals the initial values of this map, indexed by vertex number in the first dimension.
 	 */
-	public DoubleArrayMap(String name, double[][] vals) {
+	public DoubleArrayLogMap(String name, LogDouble[][] vals) {
 		this.name = name;
 		this.values = vals;
 	}
@@ -49,31 +48,13 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 * Copy constructor.
 	 * @param map the map to be copied.
 	 */
-	public DoubleArrayMap(DoubleArrayMap map) {
+	public DoubleArrayLogMap(DoubleArrayMap map) {
 		this.name = map.name;
-		this.values = new double[map.values.length][];
+		this.values = new LogDouble[map.values.length][];
 		for (int i = 0; i < this.values.length; ++i) {
 			if (map.values[i] != null) {
-				this.values[i] = new double[map.values[i].length];
+				this.values[i] = new LogDouble[map.values[i].length];
 				System.arraycopy(map.values[i], 0, this.values[i], 0, this.values[i].length);
-			}
-		}
-	}
-	
-	/**
-	 * Copy constructor.
-	 * @param map the map to be copied.
-	 */
-	public DoubleArrayMap(DoubleArrayLogMap map) {
-		this.name = map.name;
-		this.values = new double[map.values.length][];
-		for (int i = 0; i < this.values.length; ++i) {
-			if (map.values[i] != null) {
-				this.values[i] = new double[map.values[i].length];
-				double[] tempData = new double[map.values[i].length];
-				for(int j = 0; j < tempData.length; j++)
-					tempData[j] = map.values[i][j].getValue();
-				System.arraycopy(tempData, 0, this.values[i], 0, this.values[i].length);
 			}
 		}
 	}
@@ -95,7 +76,7 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 
 	@Override
 	public void setAsObject(int x, Object value) {
-		this.values[x] = (double[]) value;
+		this.values[x] = (LogDouble[]) value;
 	}
 
 	/**
@@ -103,7 +84,7 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 * @param x the vertex.
 	 * @return the values.
 	 */
-	public double[] get(int x) {
+	public LogDouble[] get(int x) {
 		return this.values[x];
 	}
 	
@@ -114,7 +95,7 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 * @param i the index in the array of the vertex.
 	 * @return the value.
 	 */
-	public double get(int x, int i) {
+	public LogDouble get(int x, int i) {
 		return this.values[x][i];
 	}
 	
@@ -123,7 +104,7 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 * @param x the vertex.
 	 * @param vals the values.
 	 */
-	public void set(int x, double[] vals) {
+	public void set(int x, LogDouble[] vals) {
 		this.values[x] = vals;
 	}
 	
@@ -134,14 +115,14 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 * @param i the index in the array of the vertex.
 	 * @param val the value.
 	 */
-	public void set(int x, int i, double val) {
+	public void set(int x, int i, LogDouble val) {
 		this.values[x][i] = val;
 	}
 
 	@Override
 	public int getNoOfSubParameters() {
 		int cnt = 0;
-		for (double[] vec : this.values) {
+		for (LogDouble[] vec : this.values) {
 			cnt += (vec == null ? 0 : vec.length);
 		}
 		return cnt;
@@ -153,20 +134,20 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	 */
 	public void cache(int[] vertices) {
 		if (vertices == null) {
-			this.cacheValues = new double[this.values.length][];
+			this.cacheValues = new LogDouble[this.values.length][];
 			for (int i = 0; i < this.values.length; ++i) {
 				if (this.values[i] != null) {
-					this.cacheValues[i] = new double[this.values[i].length];
+					this.cacheValues[i] = new LogDouble[this.values[i].length];
 					System.arraycopy(this.values[i], 0, this.cacheValues[i], 0, this.values[i].length);
 				}
 			}
 		} else {
 			this.cacheVertices = new int[vertices.length];
 			System.arraycopy(vertices, 0, this.cacheVertices, 0, vertices.length);
-			this.cacheValues = new double[vertices.length][];
+			this.cacheValues = new LogDouble[vertices.length][];
 			for (int i = 0; i < vertices.length; ++i) {
 				if (this.values[vertices[i]] != null) {
-					this.cacheValues[i] = new double[this.values[vertices[i]].length];
+					this.cacheValues[i] = new LogDouble[this.values[vertices[i]].length];
 					System.arraycopy(this.values[vertices[i]], 0, this.cacheValues[i], 0, this.cacheValues[i].length);
 				}
 			}
@@ -221,5 +202,4 @@ public class DoubleArrayMap implements VertexMap, StateParameter {
 	public int getSize() {
 		return this.values.length;
 	}
-
 }

@@ -26,6 +26,8 @@ import se.cbb.jprime.topology.TimesMap;
  * of G in S according to the probability distribution of embeddings under the DLRS model.
  * 
  * @author Joel Sjöstrand.
+ * @author Raja Hashim Ali.
+ * @author Sayyed Auwn Muhammad.
  */
 public class RealisationSampler implements Sampleable {
 	
@@ -96,7 +98,7 @@ public class RealisationSampler implements Sampleable {
 		this.loLims = model.reconcHelper.loLims;
 		this.dupLossProbs = model.dupLossProbs;
 		this.substPD = model.substPD;
-		this.atsProbs = model.ats;
+		this.atsProbs = new DoubleArrayMap(model.ats);
 		
 		// Write header.
 		this.out.write("# Host tree: " + this.times.toString() + "\n");
