@@ -177,8 +177,11 @@ public class SubstitutionModel implements InferenceModel {
     	this.Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
     	allowStopCodons = false;
     	this.Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
-    	this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
-		this.computeModelLikelihood();
+    	if(this.Qp != null && this.Q!= null)
+    	{
+	    	this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
+			this.computeModelLikelihood();
+    	}
     }
 
     @Override
@@ -190,6 +193,7 @@ public class SubstitutionModel implements InferenceModel {
 		ChangeInfo pgInfo = changeInfos.get(this.pgSwitches);
 		ChangeInfo kInfo = changeInfos.get(this.kappa);
 		ChangeInfo oInfo = changeInfos.get(this.omega);
+		boolean updateSubstitutionModel = true;
 		if (tInfo != null || siteRateInfo != null || (blInfo != null && blInfo.getAffectedElements() == null)
 				|| pgInfo != null || kInfo != null || oInfo!= null) {
 			// Full update if tree or site rates have changed, or if undisclosed
@@ -197,11 +201,22 @@ public class SubstitutionModel implements InferenceModel {
 			if(kInfo != null || oInfo!= null)
 			{
 		    	boolean allowStopCodons = true; 
-		    	this.Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    	SubstitutionMatrixHandler temp_Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
 		    	allowStopCodons = false;
-		    	this.Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    	SubstitutionMatrixHandler temp_Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    	
+		    	if(!(temp_Qp.getInvalidParameters() || temp_Q.getInvalidParameters())){
+		    		this.Qp = temp_Qp;
+		    		this.Q = temp_Q;
+		    		updateSubstitutionModel=true;
+		    	}else
+		    		updateSubstitutionModel=false;
 		    }
-			this.fullUpdate(this.edgeModels, this.pgSwitches);
+			if(updateSubstitutionModel == true)
+				this.fullUpdate(this.edgeModels, this.pgSwitches, false);
+			else
+				this.fullUpdate(this.edgeModels, this.pgSwitches, true);
+				
 			changeInfos.put(this, new ChangeInfo(this, "SubstitutionModel - full update"));
 		} else if (blInfo != null && blInfo.getAffectedElements() != null) {
 			// Partial update if disclosed branch length changes.
@@ -220,15 +235,24 @@ public class SubstitutionModel implements InferenceModel {
     /**
      * Performs a full update, for a pseudogenized gene tree.
      */
-    private void fullUpdate(IntMap edgeModels, DoubleMap pgSwitches) {
-		this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
-		try {
-			this.likelihoods.cache(null);
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-		this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
-		this.computeModelLikelihood();
+    private void fullUpdate(IntMap edgeModels, DoubleMap pgSwitches, boolean invalidSubstitutionModelParameters) {
+    	if(!invalidSubstitutionModelParameters)
+    	{
+			this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
+			try {
+				this.likelihoods.cache(null);
+			} catch (CloneNotSupportedException e) {
+				throw new RuntimeException(e);
+			}
+			if(pgSwitches != null){
+				this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
+			}else{
+				this.updateLikelihood(this.T.getRoot(), true);
+			}
+				this.computeModelLikelihood();
+    	}else{
+    		this.modelLikelihood.mult(0.0);
+    	}
     }
     
     /**
@@ -310,14 +334,22 @@ public class SubstitutionModel implements InferenceModel {
 	 */
 	private void updateLikelihood(int n, boolean doRecurse, IntMap edgeModels, DoubleMap pgSwitches) {
 		if (this.T.isLeaf(n)) {
-			this.updateLeafLikelihood(n, edgeModels, pgSwitches);
+			if(pgSwitches == null)
+				this.updateLeafLikelihood(n);
+			else
+				this.updateLeafLikelihood(n, edgeModels, pgSwitches);
 			
 		} else {
 			
 			// Process kids first.
 			if (doRecurse) {
-				this.updateLikelihood(this.T.getLeftChild(n), true, edgeModels, pgSwitches);
-				this.updateLikelihood(this.T.getRightChild(n), true, edgeModels, pgSwitches);
+				if(pgSwitches == null){
+					this.updateLikelihood(this.T.getLeftChild(n), true);
+					this.updateLikelihood(this.T.getRightChild(n), true);					
+				}else{
+					this.updateLikelihood(this.T.getLeftChild(n), true, edgeModels, pgSwitches);
+					this.updateLikelihood(this.T.getRightChild(n), true, edgeModels, pgSwitches);
+				}
 			}
 			
 			// Get data and likelihood storage.
@@ -527,7 +559,10 @@ public class SubstitutionModel implements InferenceModel {
 	@Override
 	public Dependent[] getParentDependents() {
 		// We assume this.namesMap won't change.
-		return new Dependent[] { this.T, this.branchLengths, this.siteRates, this.pgSwitches, this.kappa, this.omega };
+		if(this.pgSwitches != null)
+			return new Dependent[] { this.T, this.branchLengths, this.siteRates, this.pgSwitches, this.kappa, this.omega };
+		else 
+			return new Dependent[] { this.T, this.branchLengths, this.siteRates };
 	}
 
 
@@ -562,6 +597,7 @@ public class SubstitutionModel implements InferenceModel {
 
 	@Override
 	public LogDouble getDataProbability() {
+//		System.out.println("Kappa = " + this.kappa.getValue() + ", Omega = " + this.omega.getValue());
 		return this.modelLikelihood;
 	}
 

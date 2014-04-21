@@ -252,6 +252,10 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		// First time, assume all objects are up-to-date and compute initial posterior density.
 		this.posteriorDensity = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
+//		for(int i=0;i<this.models.size(); i++){
+//			System.out.println(this.models.get(i).getModelName());
+////			System.out.println(this.models.get(i).getSampleValue());
+//		}
 		for (InferenceModel m : this.models) {
 			this.posteriorDensity.mult(m.getDataProbability());
 		}
@@ -277,7 +281,10 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				
 				// Get proposer(s) to use.
 				Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
-
+//				StringBuilder dbg1 = new StringBuilder(512);
+//				for (Proposer p1 : shakeItBaby)
+//					dbg1.append(p1.toString()).append(", ");
+//				System.out.println(dbg1.toString());
 				// Debug info.
 				if (this.doDebug) {
 					StringBuilder dbg = new StringBuilder(512);
@@ -305,10 +312,15 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					}
 				}
 				
+				Double subst_prob = 0.0;
 				// Get posterior density of proposed state.
 				LogDouble newPosteriorDensity = new LogDouble(1.0);
 				for (InferenceModel m : this.models) {
-					newPosteriorDensity.mult(m.getDataProbability());
+					if(m.getModelName().matches("SubstitutionModel")){ 
+						subst_prob = m.getDataProbability().getValue();
+						newPosteriorDensity.mult(m.getDataProbability());}
+					else
+						newPosteriorDensity.mult(m.getDataProbability());
 				}
 				
 				// Finally, decide whether to accept or reject.
@@ -316,6 +328,8 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				try {
 					if(newPosteriorDensity.greaterThan(0.0))
 						doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
+//					if(doAccept == true)
+//						System.out.println("State accepted with subst prob = " + subst_prob);
 				}
 				catch (ArithmeticException e) {
 				    throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");

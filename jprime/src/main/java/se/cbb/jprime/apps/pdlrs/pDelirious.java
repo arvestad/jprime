@@ -36,6 +36,7 @@ import se.cbb.jprime.mcmc.Proposer;
 import se.cbb.jprime.mcmc.RealParameterUniformPrior;
 import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.misc.Pair;
+import se.cbb.jprime.misc.Quadruple;
 import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
 import se.cbb.jprime.seqevo.MSAData;
@@ -199,7 +200,7 @@ public class pDelirious implements JPrIMEApp {
 			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
 			
 			// Duplication-loss probabilities over discretised S.
-			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
+			Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
 
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
@@ -214,16 +215,19 @@ public class pDelirious implements JPrIMEApp {
 			SubstitutionModel sm = new SubstitutionModel("SubstitutionModel", D, siteRates.second, Q, Qp, gNamesLengths.first, gNamesLengths.second, gNamesLengths.third, true, pgSwitches, edgeModels, kappa, omega);
 			
 			// DLR model.
-			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
+			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.fourth, edgeRatePD.third, pgSwitches, edgeModels);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
+			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second, pgSwitches);
 			
 			// Proposers.
-			UniformProposer kappaProposer = ParameterParser.getUniformProposer(params, kappa, iter, prng, params.tuningKappaRate);
-			UniformProposer omegaProposer = ParameterParser.getUniformProposer(params, omega, iter, prng, params.tuningOmegaRate);
+			NormalProposer kappaNProposer = ParameterParser.getNormalProposer(params, kappa, new RealInterval(0, 100, true, true), iter, prng, params.tuningKappaRate);
+			NormalProposer omegaNProposer = ParameterParser.getNormalProposer(params, omega, new RealInterval(0, 10, true, true), iter, prng, params.tuningOmegaRate);
+//			UniformProposer kappaProposer = ParameterParser.getUniformProposer(params, kappa, iter, prng, params.tuningKappaRate);
+//			UniformProposer omegaProposer = ParameterParser.getUniformProposer(params, omega, iter, prng, params.tuningOmegaRate);
 			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
 			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
+			NormalProposer pseudoRateProposer = ParameterParser.getNormalProposer(params, dupLoss.third, iter, prng, params.tuningPseudoRate);
 			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
 			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
 			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
@@ -235,10 +239,11 @@ public class pDelirious implements JPrIMEApp {
 			
 			// Proposer selector.
 			MultiProposerSelector selector = ParameterParser.getSelector(params, prng);
-			selector.add(kappaProposer, ParameterParser.getProposerWeight(params.tuningWeightKappa, iter));
-			selector.add(omegaProposer, ParameterParser.getProposerWeight(params.tuningWeightOmega, iter));
+			selector.add(kappaNProposer, ParameterParser.getProposerWeight(params.tuningWeightKappa, iter));
+			selector.add(omegaNProposer, ParameterParser.getProposerWeight(params.tuningWeightOmega, iter));
 			selector.add(dupRateProposer, ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
 			selector.add(lossRateProposer, ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
+			selector.add(pseudoRateProposer, ParameterParser.getProposerWeight(params.tuningWeightPseudoRate, iter));
 			selector.add(edgeRateMeanProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
 			selector.add(edgeRateCVProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
 			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
@@ -249,6 +254,7 @@ public class pDelirious implements JPrIMEApp {
 			// Inactivate fixed proposers.
 			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
 			if (params.lossRate != null       && params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
+			if (params.pseudoRate != null       && params.pseudoRate.matches("FIXED|Fixed|fixed"))       { pseudoRateProposer.setEnabled(false); }
 			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
 			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
 			if (params.siteRateCats == 1      || params.siteRateShape.matches("FIXED|Fixed|fixed"))  { siteRateShapeProposer.setEnabled(false); }
@@ -286,10 +292,16 @@ public class pDelirious implements JPrIMEApp {
 			manager.addSampleable(edgeRatePD.first);
 			manager.addSampleable(edgeRatePD.second);
 			
+			if(pgSwitches!= null )
+			{
+				manager.addSampleable(dupLoss.third);
+				manager.addSampleable(kappa);
+				manager.addSampleable(omega);
+			}
 			if (siteRateShapeProposer.isEnabled()) {
 				manager.addSampleable(siteRates.first);
 			}
-			manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second));
+			manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second, null, pgSwitches));
 			if (params.outputLengths) {
 				manager.addSampleable(new RBTreeSampleWrapper(gNamesLengths.first, gNamesLengths.second, gNamesLengths.third));
 			}

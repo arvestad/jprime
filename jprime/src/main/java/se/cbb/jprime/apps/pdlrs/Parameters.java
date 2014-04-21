@@ -70,6 +70,11 @@ public class Parameters {
 			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
 	public String lossRate = null;
 	
+	/** Pseudogenization rate. */
+	@Parameter(names = {"-pseudo", "--pseudogenizationrate"}, description = "Initial pseudogenization rate. Append with FIXED for no " +
+			"perturbation, e.g. 0.1FIXED. Default: Simple rule-of-thumb.")
+	public String pseudoRate = null;
+	
 	/** Edge rate distribution. */
 	@Parameter(names = {"-erpd", "--edgeratepd"}, description = "Probability distribution underlying relaxed molecular clock through IID" +
 			" substitution rates over guest tree edges. Valid values are currently GAMMA and UNIFORM.")
@@ -180,12 +185,12 @@ public class Parameters {
 	public String guestTreeSetMinCvg = "0.01";
 	
 	/** Tuning parameter: kappa (transition/transversion) rate proposal distribution variance. */
-	@Parameter(names = {"-tngkappa", "--tuningkapparate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
+	@Parameter(names = {"-tngkappa", "--tuningkapparate"}, description = "Tuning parameter: Governs kappa rate proposal distribution's CV as " +
 		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
 	public String tuningKappaRate = "[0.75,0.75]";
 	
 	/** Tuning parameter: omega (non-synonymous/synonymous) rate proposal distribution variance. */
-	@Parameter(names = {"-tngomega", "--tuningomegarate"}, description = "Tuning parameter: Governs duplication rate proposal distribution's CV as " +
+	@Parameter(names = {"-tngomega", "--tuningomegarate"}, description = "Tuning parameter: Governs omega rate proposal distribution's CV as " +
 		" [CV_start,CV_end], where start and end refer to values at first and last iteration respectively.")
 	public String tuningOmegaRate = "[0.75,0.75]";
 	
@@ -197,6 +202,10 @@ public class Parameters {
 	/** Tuning parameter: duplication rate proposal distribution variance. */
 	@Parameter(names = {"-tngloss", "--tuninglossrate"}, description = "Tuning parameter: Governs loss rate proposal distribution's CV.")
 	public String tuningLossRate = "[0.75,0.75]";
+	
+	/** Tuning parameter: pseudogenization rate proposal distribution variance. */
+	@Parameter(names = {"-tngpseudo", "--tuningpseudorate"}, description = "Tuning parameter: Governs pseudogenization rate proposal distribution's CV.")
+	public String tuningPseudoRate = "[0.75,0.75]";
 	
 	/** Tuning parameter: edge rate mean proposal distribution variance. */
 	@Parameter(names = {"-tngerm", "--tuningedgeratemean"}, description = "Tuning parameter: Governs edge rate mean proposal distribution's CV.")
@@ -247,6 +256,10 @@ public class Parameters {
 	/** Tuning parameter: loss rate proposer weight. */
 	@Parameter(names = {"-tngwloss", "--tuningweightlossrate"}, description = "Tuning parameter: Relative activation weight for loss rate proposer.")
 	public String tuningWeightLossRate = "[1.0,1.0]";
+	
+	/** Tuning parameter: loss rate proposer weight. */
+	@Parameter(names = {"-tngwpseudo", "--tuningweightpseudorate"}, description = "Tuning parameter: Relative activation weight for pseudogenization rate proposer.")
+	public String tuningWeightPseudoRate = "[1.0,1.0]";
 	
 	/** Tuning parameter: edge rate mean proposer weight. */
 	@Parameter(names = {"-tngwerm", "--tuningweightedgeratemean"}, description = "Tuning parameter: Relative activation weight for edge rate mean proposer.")

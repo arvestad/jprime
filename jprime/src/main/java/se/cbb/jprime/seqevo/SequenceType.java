@@ -47,7 +47,7 @@ public enum SequenceType {
 	 * the nucleotides except for the most common stop codons (4^3-3=61).
 	 * Instead of using three letter symbols we invent a char representation.
 	 */
-	CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<>€¡", "*-", getCodonLeafLike());
+	CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#%&/()=?+@${[]}+?|<>~^:;", "*", getCodonLeafLike());
 	//CODON      ("Codon", "abcdefghijklmnopqrstuvwxyz_.,1234567890!#�%&/()=?+@�${[]}+?|<", "*-", getCodonLeafLike());
 	/** A string describing the type. */
 	private String type;
@@ -67,7 +67,7 @@ public enum SequenceType {
 	/** The probability of observing an ambiguity symbol in a seq. */
 	private double ambiguityProb;
 	
-	private static int CODON_COUNT = 64;
+	private static int CODON_COUNT = SequenceType.CODON.getAlphabetSize();
 	
 	/**
 	 * If you have a string description of a sequence type, the 

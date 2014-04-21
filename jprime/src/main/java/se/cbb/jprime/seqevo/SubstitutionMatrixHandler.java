@@ -81,6 +81,9 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 	
 	/** Small cache for ambiguity leaf likelihoods. Cleared every time P i updated. */
 	private HashMap<Integer, DenseMatrix64F> ambigCache;
+	
+	/** Invalid parameters for substitution model. i.e. may be giving eigen decomposition error or like */
+	boolean invalidParameters;
 
 	/**
 	 * Constructor.
@@ -106,7 +109,10 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 		this.tmp_diagonal = new DenseMatrix64F(alphabetSize, 1);
 		this.PCache = new DoubleKeyMap<DenseMatrix64F>(cacheSize, cacheSize, true);
 		this.ambigCache = new HashMap<Integer, DenseMatrix64F>(14);  // Not more than at most ~14 different ambiguity characters.
-		this.update();
+		if(!this.update())
+			this.setInvalidParameters(true);
+		else
+			this.setInvalidParameters(false);
 	}
 
 
@@ -147,7 +153,7 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 	/**
 	 * Updates Q and the eigensystem based on R and Pi.
 	 */
-	private void update() {
+	private boolean update() {
 		// Creates Q by means of R and Pi.
 		// The diagonal values of Q = -the sum of other values of row, by definition.
 		// R in this implementation holds upper triangle of symmetric matrix, excluding diagonal.
@@ -180,14 +186,18 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 		// To avoid checks, we assume non-symmetric Q. Symmetric models (JC69, etc.) are rarely used in practice anyway.
 		EigenDecomposition<DenseMatrix64F> eigFact = DecompositionFactory.eigGeneral(this.alphabetSize, true);
 		if (!eigFact.decompose(this.Q)) {
-			throw new RuntimeException("Unable to decompose eigensystem for substitution model.");
+			return false;
+//			throw new RuntimeException("Unable to decompose eigensystem for substitution model.");
 		}
 		AdditionalEJMLOps.getEigensystemSolution(this.alphabetSize, eigFact, this.E, this.V);
 		
 		// Compute inverse of V.
 		if (!CommonOps.invert(this.V, this.iV)) {
-			throw new RuntimeException("Unable to invert matrix of eigenvectors in substitution model.");
+			return false;
+//			throw new RuntimeException("Unable to invert matrix of eigenvectors in substitution model.");
 		}
+		
+		return true;
 	}
 
 
@@ -284,7 +294,21 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 		return sb.toString();
 	};
 
+	/** 
+	 * Set invalidParameters true or false
+	 * @param True/False
+	 */
+	public void setInvalidParameters(boolean flag){
+		this.invalidParameters = flag;
+	}
 
+	/** 
+	 * Get the invalidity of Parameters, i.e. true or false
+	 * @return the status of parameters
+	 */
+	public boolean getInvalidParameters(){
+		return this.invalidParameters;
+	}
 	/**
 	 * For debugging and similar purposes, returns R in a String format.
 	 * @return the R matrix.

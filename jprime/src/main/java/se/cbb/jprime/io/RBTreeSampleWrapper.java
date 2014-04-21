@@ -20,6 +20,9 @@ public class RBTreeSampleWrapper implements Sampleable {
 	/** Tree's branch lengths. */
 	private DoubleMap lengths;
 	
+	/** Tree's switches. */
+	private DoubleMap switches;
+	
 	/**
 	 * Constructor.
 	 * @param tree the tree.
@@ -41,6 +44,20 @@ public class RBTreeSampleWrapper implements Sampleable {
 		this.lengths = lengths;
 	}
 	
+	/**
+	 * Constructor.
+	 * @param tree the tree.
+	 * @param names the names of the tree.
+	 * @param lengths the branch lengths of the tree.
+	 * @param pseudogenizatoin switches of the tree.
+	 */
+	public RBTreeSampleWrapper(RBTree tree, NamesMap names, DoubleMap lengths, DoubleMap switches) {
+		this.tree = tree;
+		this.names = names;
+		this.lengths = lengths;
+		this.switches = switches;
+	}
+	
 	@Override
 	public Class<?> getSampleType() {
 		return SampleNewickTree.class;
@@ -54,9 +71,13 @@ public class RBTreeSampleWrapper implements Sampleable {
 	@Override
 	public String getSampleValue(SamplingMode mode) {
 		try {
-			if (this.lengths == null) {
+			if (this.lengths == null && this.switches == null) {
 				return SampleNewickTree.toString(tree, names);
 			}
+//			else
+//			if(this.switches != null){
+//				return SampleNewickTree.toString(tree, names, lengths, switches);
+//			}
 			return SampleNewickTree.toString(tree, names, lengths);
 		} catch (NewickIOException ex) {
 			throw new RuntimeException("Could not assemble Newick tree from RBTree.");

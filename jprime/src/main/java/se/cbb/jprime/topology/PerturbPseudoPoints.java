@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
+import se.cbb.jprime.math.UniformDistribution;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.MetropolisHastingsProposal;
@@ -18,6 +19,7 @@ import se.cbb.jprime.mcmc.ProposerStatistics;
 import se.cbb.jprime.mcmc.RealParameter;
 import se.cbb.jprime.mcmc.StateParameter;
 import se.cbb.jprime.mcmc.TuningParameter;
+import se.cbb.jprime.mcmc.UniformProposer;
 
 /**
  * Proposer which perturbs the topology of a bifurcating rooted tree.
@@ -171,7 +173,10 @@ public class PerturbPseudoPoints implements Proposer {
 		
 		while(pgPointMoved == false)
 		{
-			move = this.prng.nextDouble() - 0.5;
+			UniformDistribution pd = new UniformDistribution(0.0, 1.0, true, true);
+			double x = pd.sampleValue(this.prng);
+			
+			move = x - 0.5;
 			// Perturb until a move is made!
 			int k = getNoOfSwitches();
 			int pgSwitch = this.prng.nextInt(k);
@@ -214,7 +219,7 @@ public class PerturbPseudoPoints implements Proposer {
 										
 										direction = 1;
 										pgPointMoved=true;
-										System.out.println("Point moved upward " + i );
+//										System.out.println("Point moved upward " + i );
 									}
 						} else if(newPoint < 0)
 						{
@@ -231,7 +236,7 @@ public class PerturbPseudoPoints implements Proposer {
 								
 								direction = 0;
 								pgPointMoved=true;
-								System.out.println("Point moved downward " + i );
+//								System.out.println("Point moved downward " + i );
 							}	
 						}else
 						{
