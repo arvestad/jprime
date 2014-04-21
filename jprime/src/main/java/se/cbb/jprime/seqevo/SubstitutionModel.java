@@ -201,11 +201,12 @@ public class SubstitutionModel implements InferenceModel {
 			if(kInfo != null || oInfo!= null)
 			{
 		    	boolean allowStopCodons = true; 
+
 		    	SubstitutionMatrixHandler temp_Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
 		    	allowStopCodons = false;
 		    	SubstitutionMatrixHandler temp_Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
 		    	
-		    	if(!(temp_Qp.getInvalidParameters() || temp_Q.getInvalidParameters())){
+		    	if(temp_Qp!= null && temp_Q!= null){
 		    		this.Qp = temp_Qp;
 		    		this.Q = temp_Q;
 		    		updateSubstitutionModel=true;
@@ -251,6 +252,7 @@ public class SubstitutionModel implements InferenceModel {
 			}
 				this.computeModelLikelihood();
     	}else{
+    		this.cacheModelLikelihood = new LogDouble(this.modelLikelihood);
     		this.modelLikelihood.mult(0.0);
     	}
     }
