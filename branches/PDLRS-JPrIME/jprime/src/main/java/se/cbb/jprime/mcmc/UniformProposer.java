@@ -313,7 +313,7 @@ public class UniformProposer implements Proposer {
 
 	@Override
 	public String toString() {
-		return "NormalProposer perturbing " + this.param.getName();
+		return "UniformProposer perturbing " + this.param.getName();
 	}
 	
 }

@@ -3,6 +3,7 @@ package se.cbb.jprime.apps.pdlrs;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.topology.BooleanMap;
+import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RootedBifurcatingTree;
 import se.cbb.jprime.topology.StringMap;
@@ -39,6 +40,9 @@ public class Realisation {
 	/** Placement info of the vertex in the discretised host tree. */
 	private StringMap placements;
 	
+	/** Pseudogenization switches.*/
+	protected DoubleMap pgSwitches;
+	
 	/**
 	 * Constructor.
 	 * @param G tree topology.
@@ -53,6 +57,23 @@ public class Realisation {
 		this.times = times;
 		this.isDuplication = isDup;
 		this.placements = placements;
+	}
+	
+	/**
+	 * Constructor.
+	 * @param G tree topology.
+	 * @param names names of G.
+	 * @param times times of G.
+	 * @param isDup for each vertex v of G: true if v corresponds to a duplication; false if v corresponds to a speciation or leaf.
+	 * @param placements for each vertex v of G: discretisation placement info.
+	 */
+	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup, StringMap placements, DoubleMap pgSwitches) {
+		this.G = G;
+		this.names = names;
+		this.times = times;
+		this.isDuplication = isDup;
+		this.placements = placements;
+		this.pgSwitches = pgSwitches;
 	}
 
 	/**
@@ -77,7 +98,7 @@ public class Realisation {
 				} else {
 					sb.append("[&&PRIME VERTEXTYPE=Speciation");
 				}
-				sb.append(" DISCPT=").append(placements.get(v)).append("]");
+				sb.append(" DISCPT=").append(placements.get(v)).append(" PG=").append(this.pgSwitches.get(v)).append("]");
 				meta.set(v, sb.toString());
 			}
 			

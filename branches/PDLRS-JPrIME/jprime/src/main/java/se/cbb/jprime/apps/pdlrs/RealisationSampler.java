@@ -68,6 +68,9 @@ public class RealisationSampler implements Sampleable {
 	/** No. of realisations per sampling round. */
 	private int noOfRealisations;
 	
+	/** Pseudogenization switches.*/
+	protected DoubleMap pgSwitches;
+	
 	/**
 	 * Constructor.
 	 * @param file f the output str.
@@ -106,6 +109,45 @@ public class RealisationSampler implements Sampleable {
 	}
 	
 	/**
+	 * Constructor.
+	 * @param file f the output str.
+	 * @param iteration iteration.
+	 * @param prng pseudo-random number generator.
+	 * @param S host tree S.
+	 * @param G guest tree G.
+	 * @param names leaf names of G.
+	 * @param times times of discretised host tree S'.
+	 * @param loLims lowest possible placement of u of V(G) in discretised S'.
+	 * @param dupLossProbs p11, etc.
+	 * @param ats rooted subtree G_u probability for u of V(G).
+	 * @param noOfRealisations number of realisations per sampling round.
+	 * @param pgSwitches pseudogenization switches
+	 * @throws IOException.
+	 */
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLRModel model, NamesMap names, DoubleMap pgSwitches) throws IOException {
+		this.out = new BufferedWriter(new FileWriter(filename));
+		this.noOfRealisations = noOfRealisations;
+		this.iteration = iteration;
+		this.prng = prng;
+		this.S = model.s;
+		this.G = model.g;
+		this.names = names;
+		this.times = model.reconcHelper.times;
+		this.lengths = model.lengths;
+		this.loLims = model.reconcHelper.loLims;
+		this.dupLossProbs = model.dupLossProbs;
+		this.substPD = model.substPD;
+		this.atsProbs = model.ats;
+		this.pgSwitches = pgSwitches;
+		
+		// Write header.
+		this.out.write("# Host tree: " + this.times.toString() + "\n");
+		if (this.noOfRealisations > 0) {
+			this.out.write("RealisationID\tSubsample\tRealisation\n");
+		}
+	}
+	
+	/**
 	 * Retrieves the maximum probability rea	lisation given the current guest tree, "at-probabilities", p11-probabilities, etc.
 	 * JOEL: THIS IS INCORRECTLY IMPLEMENTED AND NEEDS TO BE FIXED. MY BAD - SORRY!
 	 * @param vertices vertices of G in topological ordering from root to leaves.
@@ -128,7 +170,7 @@ public class RealisationSampler implements Sampleable {
 		}
 		
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss));
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss), pgSwitches);
 
 	}
 	
@@ -153,7 +195,7 @@ public class RealisationSampler implements Sampleable {
 		}
 		
 		// Finally, generate guest tree with times.
-		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss));
+		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss), pgSwitches);
 	}
 	
 	/**
@@ -338,7 +380,7 @@ public class RealisationSampler implements Sampleable {
 
 	@Override
 	public String getSampleHeader() {
-		return "RealisationID\tMaxProbabilityRealisation";
+		return "";//"RealisationID\tMaxProbabilityRealisation";
 	}
 
 
@@ -354,8 +396,8 @@ public class RealisationSampler implements Sampleable {
 		List<Integer> vertices = this.G.getTopologicalOrdering();
 		
 		// Output max prob. realisation in ordinary file.
-		Realisation real = this.getMaximumProbabilityRealisation(vertices);
-		str.append('\t').append(real.toString());
+		//Realisation maxreal = this.getMaximumProbabilityRealisation(vertices);
+		//str.append('\t').append(maxreal.toString());
 		
 		// Do sampling to own file, in ordinary cases.
 		if (mode == SamplingMode.ORDINARY) {
@@ -365,7 +407,7 @@ public class RealisationSampler implements Sampleable {
 					this.out.write('\t');
 					this.out.write("" + i);
 					this.out.write('\t');
-					real = this.sample(vertices);
+					Realisation real = this.sample(vertices);
 					this.out.write(real.toString());
 					this.out.write('\n');
 				} catch (IOException e) {
@@ -374,7 +416,7 @@ public class RealisationSampler implements Sampleable {
 			}
 		}
 				
-		return str.toString();
+		return "";//str.toString();
 	}
 
 }

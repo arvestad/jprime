@@ -46,6 +46,18 @@ public class SampleNewickTree implements SampleType {
 	}
 
 	/**
+	 * Converts a rooted tree to a sorted Newick string.
+	 * @param T the tree.
+	 * @param branchLengths the branch lengths.
+	 * @param pseudoSwitches the pseudogenization switches.
+	 * @return the string.
+	 * @throws NewickIOException.
+	 */
+	public static String toString(RootedTree T, NamesMap names, DoubleMap branchLengths, DoubleMap switches) throws NewickIOException {
+		return NewickTreeWriter.write(T, names, branchLengths, switches, true);
+	}
+	
+	/**
 	 * Parses a string into a Newick tree.
 	 * @param s the string.
 	 * @return the Newick tree.

@@ -75,6 +75,24 @@ public class NewickTreeWriter {
 	 * @param T the tree.
 	 * @param names the vertex/leaf names.
 	 * @param branchLengths the branch lengths.
+	 * @param pseudoSwitches the pseudogenization switches.
+	 * @param metas the meta info (e.g., PrIME tags).
+	 * @param doSort true to sort according to vertex names; false to leave unsorted. Sorting requires unique
+	 *        vertex names (no bootstrap values or similarly as names!).
+	 * @return a Newick tree.
+	 * @throws NewickIOException.
+	 */
+	public static String write(RootedTree T, NamesMap names, DoubleMap branchLengths, DoubleMap switches, boolean doSort) throws NewickIOException {
+		NewickVertex nv = createNewickTree(T, T.getRoot(), names, branchLengths, switches, null);
+		NewickTree nt = new NewickTree(nv, null, false, doSort);
+		return nt.toString();
+	}
+	
+	/**
+	 * Converts a rooted tree into a Newick string.
+	 * @param T the tree.
+	 * @param names the vertex/leaf names.
+	 * @param branchLengths the branch lengths.
 	 * @param metas the meta info (e.g., PrIME tags).
 	 * @param treeMeta the meta info for the tree itself (e.g., a PrIME tag).
 	 * @param doSort true to sort according to vertex names; false to leave unsorted. Sorting requires unique
@@ -106,6 +124,32 @@ public class NewickTreeWriter {
 			ArrayList<NewickVertex> children = new ArrayList<NewickVertex>(T.getNoOfChildren(x));
 			for (int c : T.getChildren(x)) {
 				children.add(createNewickTree(T, c, names, bls, metas));
+			}
+			nv.setChildren(children);
+		}
+		return nv;
+	}
+	
+	/**
+	 * Creates a NewickVertex tree for the subtree of T rooted at x.
+	 * @param T the rooted tree.
+	 * @param x the subtree of T rooted at x.
+	 * @param names the vertex/leaf names.
+	 * @param bls the branch lengths. May be null.
+	 * @param switches the pseudogenization switches. May be null.
+	 * @param metas the meta info (e.g., PrIME tags). May be null.
+	 * @return the NewickVertex corresponding to x.
+	 */
+	protected static NewickVertex createNewickTree(RootedTree T, int x, NamesMap names, DoubleMap bls, DoubleMap switches, StringMap metas) {
+		String name = names.get(x);
+		Double bl = (bls != null ? (!Double.isNaN(bls.get(x)) ? bls.get(x) : null) : null);
+		Double sw = (switches != null ? (!Double.isNaN(switches.get(x)) ? switches.get(x) : null) : null);
+		String meta = (metas != null ? metas.get(x) : null);
+		NewickVertex nv = new NewickVertex(x, name, bl, sw, meta);
+		if (!T.isLeaf(x)) {
+			ArrayList<NewickVertex> children = new ArrayList<NewickVertex>(T.getNoOfChildren(x));
+			for (int c : T.getChildren(x)) {
+				children.add(createNewickTree(T, c, names, bls, switches, metas));
 			}
 			nv.setChildren(children);
 		}

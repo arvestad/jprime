@@ -1,5 +1,6 @@
 package se.cbb.jprime.apps.pdlrs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import se.cbb.jprime.io.SampleLogDouble;
@@ -10,6 +11,7 @@ import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.InferenceModel;
 import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
+import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
 
@@ -53,8 +55,11 @@ public class DLRModel implements InferenceModel {
 	/** Substitution rate distribution. */
 	protected Continuous1DPDDependent substPD;
 	
-	/** Pseudogenization switches. (to use its change infos so DLRModel wont get updated on its change)*/
+	/** Pseudogenization switches.*/
 	protected DoubleMap pgSwitches;
+	
+    /** Edge Modes for edges of gene tree, i.e. gene or pseudogene */
+    private IntMap edgeModes;
 	
 	/**
 	 * Probability of rooted subtree G_u for each valid placement of u in S'.
@@ -104,7 +109,7 @@ public class DLRModel implements InferenceModel {
 	 * @param pgSwitches the pseudogenization switches for any branches of gene tree
 	 */
 	public DLRModel(RootedBifurcatingTreeParameter g, RootedBifurcatingTreeParameter s, ReconciliationHelper reconcHelper,
-			DoubleMap lengths, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD, DoubleMap pgSwitches) {
+			DoubleMap lengths, DupLossProbs dupLossProbs, Continuous1DPDDependent substPD, DoubleMap pgSwitches, IntMap edgeModes) {
 		this.g = g;
 		this.s = s;
 		this.reconcHelper = reconcHelper;
@@ -114,6 +119,7 @@ public class DLRModel implements InferenceModel {
 		this.ats = new DoubleArrayMap("DLR.ats", g.getNoOfVertices());
 		this.belows = new DoubleArrayMap("DLR.belows", g.getNoOfVertices());
 		this.pgSwitches = pgSwitches;
+		this.edgeModes = edgeModes;
 		
 		// Update.
 		this.fullUpdate();
@@ -135,13 +141,13 @@ public class DLRModel implements InferenceModel {
 		ChangeInfo rci = changeInfos.get(this.substPD);
 		ChangeInfo pgchi = changeInfos.get(this.pgSwitches);
 		try{
-		if(!(gci == null && sci == null && rhci == null && dpci == null && rci == null && lci == null)) // removed  && pgchi != null
+		if(!(gci == null && sci == null && rhci == null && dpci == null && rci == null && lci == null && pgchi == null)) // removed  && pgchi != null
 		{
 			// One could think of many optimisations here, especially when there are 
 			// time perturbations involved, possibly combined with length perturbations.
 			// However, it is easy to make algorithmic mistakes in such situations,
 			// so at the only moment solitary length changes result in a partial DP update.
-			if (gci == null && sci == null && rhci == null && dpci == null && rci == null) {
+			if (gci == null && sci == null && rhci == null && dpci == null && rci == null && pgchi == null) {
 				if (lci != null && lci.getAffectedElements() != null ) {
 					// Only certain branch lengths have changed. We do a partial update.
 					
@@ -321,7 +327,38 @@ public class DLRModel implements InferenceModel {
 				double yt = this.reconcHelper.getDiscretisationTime(y_j);
 				// Note: We now allow edge rates over stem arc as well.
 				double rateDens = this.substPD.getPDF(length / (xt - yt));
-				double p11 = this.dupLossProbs.getP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]);
+				double p11 = 0.0;
+				// Print the path from x_i[0]:x_i[1] to y_j[0]:y_j[1]
+
+				ArrayList<Integer[]> intermediatePoints = this.reconcHelper.getIntermediateDiscPoints(x_i, y_j);
+				ArrayList<Integer[]> list = new ArrayList<Integer[]>();
+				Integer[] pointx = {x_i[0], x_i[1]};
+				Integer[] pointy = {y_j[0], y_j[1]};
+				list.add(pointx);
+				for(int i=0; i<intermediatePoints.size(); i++) list.add(intermediatePoints.get(i));
+				list.add(pointy);
+				
+				if(this.edgeModes.get(u) == 2)
+				{
+					int size= intermediatePoints.size();
+						
+					int switchingno = (int) Math.round(size*pgSwitches.get(u));
+										
+					double p11_genemode=0.0, p11_psmode=0.0;
+						
+					Integer[] switchingDiscPt = list.get(switchingno+1);
+					p11_genemode = this.dupLossProbs.getP11Probability(x_i[0], x_i[1], switchingDiscPt[0], switchingDiscPt[1]);
+					p11_psmode = this.dupLossProbs.getPseudoP11Probability(switchingDiscPt[0], switchingDiscPt[1], y_j[0], y_j[1]);
+					
+					p11 = p11_genemode * p11_psmode;
+				}else if(this.edgeModes.get(u) == 1)
+				{
+					p11 = this.dupLossProbs.getP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]);
+				}else if(this.edgeModes.get(u) == 0)
+				{
+					p11 = this.dupLossProbs.getPseudoP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]);
+				}
+				
 				uBelows[xcnt] += rateDens * p11 * uAts[ycnt];
 				// Move y_j onto next pure discretisation point above.
 				this.reconcHelper.incrementPt(y_j);

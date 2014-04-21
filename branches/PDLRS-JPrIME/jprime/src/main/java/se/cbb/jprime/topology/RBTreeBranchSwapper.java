@@ -355,83 +355,85 @@ public class RBTreeBranchSwapper implements Proposer {
 
 	public boolean isALegalConfiguration(int vertex, RBTree gtree) {	
 
-		if (!gtree.isLeaf(vertex))
-		{
-			if(this.edgeModels.get(vertex)==2 || this.edgeModels.get(vertex)==0)						// Case of pseudogenization ..
+		if(this.pgSwitches != null ){
+			if (!gtree.isLeaf(vertex))
 			{
-				// Check if all the descendants are pseudogenes
-				List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
-				for(Integer leaf:descendants)
+				if(this.edgeModels.get(vertex)==2 || this.edgeModels.get(vertex)==0)						// Case of pseudogenization ..
 				{
-					Integer g = this.gpgMap.get(this.geneNames.get(leaf));
-						if(g != 1)
+					// Check if all the descendants are pseudogenes
+					List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
+					for(Integer leaf:descendants)
+					{
+						Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+							if(g != 1)
+								return false;
+					}
+					
+					// No descendant edge should be 1
+					List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
+					for(Integer v:alldescendantsvertices)
+					{
+						if(this.edgeModels.get(v) == 1)
 							return false;
+					}
 				}
-				
-				// No descendant edge should be 1
-				List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
-				for(Integer v:alldescendantsvertices)
+				else	// Case of gene edge.. 
 				{
-					if(this.edgeModels.get(v) == 1)
-						return false;
+					return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
 				}
-			}
-			else	// Case of gene edge.. 
+			}else
 			{
-				return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
-			}
-		}else
-		{
-			Integer g = this.gpgMap.get(this.geneNames.get(vertex));
-			if (g == 1) 												// Pseudogene case
-			{
-				if(this.edgeModels.get(vertex)!=1 )
-					return true;
-				else return false;
-			}
-			else 														// Gene case
-			{
-				if(this.edgeModels.get(vertex)==1)
-					return true;
-				else return false;
+				Integer g = this.gpgMap.get(this.geneNames.get(vertex));
+				if (g == 1) 												// Pseudogene case
+				{
+					if(this.edgeModels.get(vertex)!=1 )
+						return true;
+					else return false;
+				}
+				else 														// Gene case
+				{
+					if(this.edgeModels.get(vertex)==1)
+						return true;
+					else return false;
+				}
 			}
 		}
-	
 		return true;
 	}			
 	
 	
 	public void makePseudogenizationConsistant(int vertex, RBTree gtree)
 	{
-		if(!gtree.isLeaf(vertex))
-		{
-			if(this.edgeModels.get(vertex)==0)
+		if(this.pgSwitches != null)
+			if(!gtree.isLeaf(vertex))
 			{
-				if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+				if(this.edgeModels.get(vertex)==0)
 				{
-					this.edgeModels.set(vertex, 2);
-					this.pgSwitches.set(vertex, 0.5);
+					if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+					{
+						this.edgeModels.set(vertex, 2);
+						this.pgSwitches.set(vertex, 0.5);
+					}
+				}
+				if(this.edgeModels.get(vertex)==2)
+				{
+					RemoveHalfPseudogenizedEdges(vertex, gtree);
+				}else if(this.edgeModels.get(vertex)==1)
+				{
+					makePseudogenizationConsistant(gtree.getLeftChild(vertex), gtree);
+					makePseudogenizationConsistant(gtree.getRightChild(vertex), gtree);
+				}
+			}else
+			{
+				if(this.edgeModels.get(vertex)==0)
+				{
+					if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
+					{
+						this.edgeModels.set(vertex, 2);
+						this.pgSwitches.set(vertex, 0.5);
+					}
 				}
 			}
-			if(this.edgeModels.get(vertex)==2)
-			{
-				RemoveHalfPseudogenizedEdges(vertex, gtree);
-			}else if(this.edgeModels.get(vertex)==1)
-			{
-				makePseudogenizationConsistant(gtree.getLeftChild(vertex), gtree);
-				makePseudogenizationConsistant(gtree.getRightChild(vertex), gtree);
-			}
-		}else
-		{
-			if(this.edgeModels.get(vertex)==0)
-			{
-				if ( this.edgeModels.get(gtree.getParent(vertex)) == 1)  // parent is gene, child pseudogene with no switch! (introducing switch on child lineage)
-				{
-					this.edgeModels.set(vertex, 2);
-					this.pgSwitches.set(vertex, 0.5);
-				}
-			}
-		}
 	}
 	
 	

@@ -44,6 +44,7 @@ import se.cbb.jprime.mcmc.RealParameter;
 import se.cbb.jprime.mcmc.Thinner;
 import se.cbb.jprime.mcmc.UniformProposer;
 import se.cbb.jprime.misc.Pair;
+import se.cbb.jprime.misc.Quadruple;
 import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
 import se.cbb.jprime.seqevo.MSAData;
@@ -452,7 +453,7 @@ public class ParameterParser {
 	 * @param times discretisation times.
 	 * @return duplication rate, loss rate, duplication-loss probabilities.
 	 */
-	public static Triple<DoubleParameter, DoubleParameter, DupLossProbs> getDupLossProbs(Parameters ps, MPRMap mpr, RBTree s, RBTree g, RBTreeArcDiscretiser times) {
+	public static Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, DupLossProbs> getDupLossProbs(Parameters ps, MPRMap mpr, RBTree s, RBTree g, RBTreeArcDiscretiser times) {
 						
 		// Set initial duplication rate as number of inferred MPR duplications divided by total time tree span.
 		// Then set loss rate to the same amount.
@@ -469,10 +470,13 @@ public class ParameterParser {
 		
 		double lambda = (ps.dupRate == null ? dups / totTime + 1e-3 : Double.parseDouble(ps.dupRate.replaceFirst("FIXED|Fixed|fixed", "")));
 		double mu = (ps.lossRate == null ? dups / totTime + 1e-3 : Double.parseDouble(ps.lossRate.replaceFirst("FIXED|Fixed|fixed", "")));
+		double prate = (ps.pseudoRate == null ? dups / totTime + 1e-3 : Double.parseDouble(ps.lossRate.replaceFirst("FIXED|Fixed|fixed", "")));
+		
 		DoubleParameter dr = new DoubleParameter("DuplicationRate", lambda);
 		DoubleParameter lr = new DoubleParameter("LossRate", mu);
-		DupLossProbs dlProbs = new DupLossProbs(s, times, dr, lr);
-		return new Triple<DoubleParameter, DoubleParameter, DupLossProbs>(dr, lr, dlProbs);
+		DoubleParameter pr = new DoubleParameter("PseudogenizationRate", prate);
+		DupLossProbs dlProbs = new DupLossProbs(s, times, dr, lr, pr);
+		return new Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, DupLossProbs>(dr, lr, pr,  dlProbs);
 	}
 	
 	/**
@@ -500,6 +504,23 @@ public class ParameterParser {
 		}
 		throw new IllegalArgumentException("Invalid run type.");
 	}
+	
+	/**
+	 * Returns a Normal proposer.
+	 * @param ps parameters.
+	 * @param p MCMC parameter.
+	 * @param iter iterations.
+	 * @param prng PRNG.
+	 * @param tuningCV tuning CV parameter start-stop as an array in string format.
+	 * @return proposer.
+	 */
+	public static NormalProposer getNormalProposer(Parameters ps, RealParameter p, RealInterval interval, Iteration iter, PRNG prng, String tuning) {
+		double[] tng = SampleDoubleArray.toDoubleArray(tuning);
+		LinearTuningParameter tcv = new LinearTuningParameter(iter, tng[0], tng[1]);
+		NormalProposer proposer = new NormalProposer(p, interval, tcv, prng);
+		proposer.setStatistics(new FineProposerStatistics(iter, 8));
+		return proposer;
+	}	
 	
 	/**
 	 * Returns a Normal proposer.
@@ -627,6 +648,24 @@ public class ParameterParser {
 		String fn = ps.sampleRealisations.get(0);
 		int n = Integer.parseInt(ps.sampleRealisations.get(1));
 		return new RealisationSampler(fn, n, iter, prng, model, names);
+	}
+	
+	/**
+	 * Returns a realisation sampler.
+	 * @param ps parameters.
+	 * @param iter iteration.
+	 * @param prng PRNG.
+	 * @param model DLR model.
+	 * @param names names of guest tree leaves.
+	 * @param pgSwitches pseudogenization switches
+	 * @return the sampler.
+	 * @throws IOException.
+	 */
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLRModel model, NamesMap names, DoubleMap pgSwitches) throws IOException {
+		if (ps.sampleRealisations == null) { return null; }
+		String fn = ps.sampleRealisations.get(0);
+		int n = Integer.parseInt(ps.sampleRealisations.get(1));
+		return new RealisationSampler(fn, n, iter, prng, model, names, pgSwitches);
 	}
 
 	/**

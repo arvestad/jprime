@@ -1,5 +1,9 @@
 package se.cbb.jprime.seqevo;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import se.cbb.jprime.io.SampleDoubleArray;
 
 /**
@@ -61,7 +65,21 @@ public class SubstitutionMatrixHandlerFactory {
 	};
 
 	public static SubstitutionMatrixHandler createPseudogenizationModel(String model, double kappa, double omega, int cacheSize, boolean allowStopCodons) {
-		return YangCodon.createYangCodon(kappa, omega, cacheSize, allowStopCodons);
+		SubstitutionMatrixHandler q = YangCodon.createYangCodon(kappa, omega, cacheSize, allowStopCodons);
+		if(q==null)
+		{	
+			try{
+				System.out.println( "Problem with Kappa " + kappa + " and Omega " + omega);
+				BufferedWriter info = new BufferedWriter(new FileWriter("/tmp/error" + ".info"));
+				info.write("Problem with Kappa " + kappa + " and Omega " + omega);
+				info.newLine();
+				info.close();
+			}
+			catch(IOException e){
+			e.printStackTrace();}
+			return null;
+		}
+		return q;
 	};
 	
 

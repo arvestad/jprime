@@ -1,5 +1,6 @@
 package se.cbb.jprime.apps.pdlrs;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -278,6 +279,33 @@ public class ReconciliationHelper implements ProperDependent, InfoProvider {
 		int[] nos = new int[this.g.getNoOfVertices()];
 		this.getNoOfPlacements(this.g.getRoot(), RBTree.NULL, 0, nos);
 		return nos;
+	}
+	
+	/**
+	 * Returns the list of intermediate discretization points between two 
+	 * given discretization points excluding the given points.
+	 * @param x the top discretization point on S (closer to root)
+	 * @param y the bottom discretization point on S (closer to leaves)
+	 * @return the number of points, indexed by guest tree vertex.
+	 */
+	public ArrayList<Integer[]> getIntermediateDiscPoints(int[] x, int[] y) {
+		int[] z = {0,0};
+		ArrayList<Integer[]> list = new ArrayList<Integer[]>(); 
+		
+		System.arraycopy( y, 0, z, 0, y.length );
+		int c=0;
+		this.incrementPt(z);
+		if(z[0]!=-1)
+		while(this.getDiscretisationTime(x) > this.getDiscretisationTime(z)){
+			c++;
+			Integer[] point = {x[0], x[1]};
+			point[0]=z[0]; point[1]=z[1];
+			list.add(point);
+			this.incrementPt(z);
+			if(z[0]==-1)
+				break;
+		}
+		return list;
 	}
 	
 	/**

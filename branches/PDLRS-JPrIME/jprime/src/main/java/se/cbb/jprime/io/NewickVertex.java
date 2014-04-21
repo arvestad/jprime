@@ -26,6 +26,9 @@ public class NewickVertex {
 	/** Branch length. */
 	private Double branchLength = null;
 	
+	/** Pseudogenization switch. */
+	private Double pseudoSwitch = null;
+	
 	/** Meta info between brackets (brackets normally also included). */
 	private String meta = null;
 	
@@ -53,6 +56,18 @@ public class NewickVertex {
 	}
 	
 	/**
+	 * Constructor.
+	 * @param number the number ID of the vertex.
+	 * @param name vertex name.
+	 * @param branchLength branch length.
+	 * @param pseudoSwitch the pseudogenization switch.
+	 * @param meta additional vertex info provided between brackets.
+	 */
+	public NewickVertex(int number, String name, Double branchLength, Double pseudoSwitch, String meta) {
+		this.setValues(number, name, branchLength, pseudoSwitch, meta);
+	}
+	
+	/**
 	 * Copy constructor.
 	 * Note: the parent and children of v are not copied, ie. their references are not changed.
 	 * @param v NewickVertex to copy.
@@ -61,6 +76,7 @@ public class NewickVertex {
 		this.number = v.number;
 		this.name = v.name;
 		this.branchLength = v.branchLength;
+		this.pseudoSwitch = v.pseudoSwitch;
 		this.meta = v.meta;
 		this.parent = v.parent;
 		this.children = v.children;
@@ -77,6 +93,26 @@ public class NewickVertex {
 		this.name = name;
 		this.branchLength = branchLength;
 		this.meta = meta;
+	}
+	
+	/**
+	 * Sets all values.
+	 * @param name vertex name.
+	 * @param branchLength branch length.
+	 * @param meta additional vertex info provided between brackets.
+	 */
+	public void setValues(int number, String name, Double branchLength, Double pseudoSwitch, String meta) {
+		this.number = number;
+		this.name = name;
+		this.branchLength = branchLength;
+		this.pseudoSwitch = pseudoSwitch;
+		if(meta == null)
+			this.meta = "["+"PG="+pseudoSwitch+"]";
+		else{
+			this.meta.replaceFirst("]", " ");
+			this.meta = this.meta + "PG="+pseudoSwitch+"]";
+		}
+//		this.meta = meta;
 	}
 	
 	/**
@@ -231,6 +267,14 @@ public class NewickVertex {
 	 */
 	public boolean hasBranchLength() {
 		return (this.branchLength != null);
+	}
+	
+	/**
+	 * Returns true if pseudogenization switches are not null.
+	 * @return true if vertex has pseudogenization switch.
+	 */
+	public boolean hasPseudoSwitch() {
+		return (this.pseudoSwitch != null);
 	}
 	
 	/**

@@ -39,11 +39,19 @@ public class YangCodon {
 	 * 		w*Pi(j)		if i and j differ by a nonsynonymous transversion
 	 * 		K*w*Pi(j)	if i and j differ by a nonsynonymous transition
 	 * 
-	 * 
+	 * 			1 2 3 4 5
+	 * 		0	. . . . .
+	 * 		1	  . . . .
+	 * 		2	    . . .
+	 * 		3		  . .
+	 * 		4			.
+	 * 		
 	 * @return the model type.
 	 */
 	public static SubstitutionMatrixHandler createYangCodon(Double kappa, Double omega, int cacheSize, boolean allowStopCodons) {
-		final int CODONSIZE = 64;
+		
+		
+		final int CODONSIZE = SequenceType.CODON.getAlphabetSize();
 		int[] aminoacidmap = { 1, 1, 2, 2, 	3, 3, 3, 3,	 4, 4, 5, 5,  6, 6, 5, 7,  		2, 2, 2, 2,  8, 8, 8, 8,  9, 9, 10, 10,  11, 11, 11, 11,  		12, 12, 12, 13,  14, 14, 14, 14,  15, 15, 16, 16,  3, 3, 11, 11, 		17, 17, 17, 17,  18, 18, 18, 18,  19, 19, 20, 20,  21, 21, 21, 21  };
 		double[] Pi = new double[CODONSIZE];
 		double[] Ro = new double[(CODONSIZE*CODONSIZE-CODONSIZE)/2];
@@ -63,7 +71,8 @@ public class YangCodon {
 			for(;j<CODONSIZE;j++)
 			{
 //				(i,j) covers top triangle of the matrix above the diagonal of the matrix
-				Ro[count]= computeTransitionExchangeability(omega, kappa, String.valueOf(decodeIndex(i+1)), String.valueOf(decodeIndex(j+1)), aminoacidmap, Pi, allowStopCodons );
+//				System.out.print(" ["+i+","+j+"] ");
+				Ro[count]= computeTransitionExchangeability(omega, kappa, SequenceType.CODON.codonInt2str(i), SequenceType.CODON.codonInt2str(j), aminoacidmap, Pi, allowStopCodons );
 				count++;
 			}
 		}
@@ -195,16 +204,17 @@ public class YangCodon {
 //		"GCT",  "GCC",  "GCA",  "GCG",  
 //		"GAT",  "GAC",  "GAA",  "GAG",  
 //		"GGT",  "GGC",  "GGA",  "GGG",  
-		
-		
-		return new SubstitutionMatrixHandler("YangCodon", SequenceType.CODON, Ro, Pi, cacheSize);
+		SubstitutionMatrixHandler q = new SubstitutionMatrixHandler("YangCodon", SequenceType.CODON, Ro, Pi, cacheSize);
+		if(q.getInvalidParameters())
+			return null;
+		else
+			return q; 
 	}
 	
 	
 	private static double computeTransitionExchangeability(Double omega,
 			Double kappa, String codon1, String codon2, int[] aminoacidmap, double[] Pi, boolean allowStopCodons) {
-		final int CODONS = 3;
-		boolean transition=false, synonymous = false;
+		boolean transition=false, nonsynonymous = false;
 		
 		//  1. find if the difference is one nucleic acid? 
 		//		a. if i and j differ by a synonymous transversion
@@ -219,50 +229,69 @@ public class YangCodon {
 			if(codon2.equals("133") || codon2.equals("134") || codon2.equals("143"))
 				return 0;
 		
-		int differntChars = 0, position = 0;
-		
-		for(int i=0; i<CODONS; i++)
-		{
-			if(codon1.charAt(i) != codon2.charAt(i))
-			{
-				differntChars++;
-				position = i;
-			}
-		}
+		int differntChars = differences(SequenceType.CODON.codonStr2int(codon1), SequenceType.CODON.codonStr2int(codon2));
 		
 	
 		if (differntChars == 1)
 		{
-			if( ((codon1.charAt(position)) == '1' && (codon2.charAt(position)) == '2' ) ||
-					((codon1.charAt(position)) == '2' && (codon2.charAt(position)) == '1' ) ||
-					((codon1.charAt(position)) == '3' && (codon2.charAt(position)) == '4' ) ||
-					((codon1.charAt(position)) == '4' && (codon2.charAt(position)) == '3' ))
-				transition=true;
+			transition = isTransition(codon1, codon2);
+			
+			if(aminoacidmap[SequenceType.CODON.codonStr2int(codon1)/*encodeCodon(Integer.parseInt(codon1))-1*/] != aminoacidmap[SequenceType.CODON.codonStr2int(codon2)/*encodeCodon(Integer.parseInt(codon2))-1*/])
+				nonsynonymous = true;
 			else
-				transition=false;
+				nonsynonymous = false;
 			
-			if(aminoacidmap[encodeCodon(Integer.parseInt(codon1))-1] == aminoacidmap[encodeCodon(Integer.parseInt(codon2))-1])
-				synonymous = true;
-			else
-				synonymous = false;
+			if(nonsynonymous == true && transition == false)
+			return  omega;
 			
-			if(synonymous == true && transition == false)
-			return  Pi[encodeCodon(Integer.parseInt(codon2))-1];
+			else if(nonsynonymous == true && transition == true)
+			return kappa * omega;
 			
-			else if(synonymous == true && transition == true)
-			return kappa * Pi[encodeCodon(Integer.parseInt(codon2))-1];
+			else if(nonsynonymous == false && transition == false)
+			return 1;
 			
-			else if(synonymous == false && transition == false)
-			return omega*Pi[encodeCodon(Integer.parseInt(codon2))-1];
-			
-			else if(synonymous == false && transition == true)
-			return kappa*omega*Pi[encodeCodon(Integer.parseInt(codon2))-1];
+			else if(nonsynonymous == false && transition == true)
+			return kappa;
 			
 			return -1;
 		}else
 		return 0;
 	}
 
+	public static boolean isTransition(String str_a, String str_b)
+	{
+		final int CODONLENTGH=3;
+    	int i=0;
+    	for(; i<CODONLENTGH; i++){
+    		if(str_a.charAt(i) != str_b.charAt(i))
+    			break;
+    	}
+        	
+        assert(i<CODONLENTGH);
+        
+        if( (str_a.charAt(i)=='A' && str_b.charAt(i)=='G') || (str_a.charAt(i)=='G' && str_b.charAt(i)=='A')
+                || (str_a.charAt(i)=='C' && str_b.charAt(i)=='T') || (str_a.charAt(i)=='T' && str_b.charAt(i)=='C') )
+            return true;
+        else
+            return false;	
+	}        
+	
+	public static int differences(int codon_a, int codon_b)
+	{
+		final int CODONLENTGH=3;
+		String str_a = SequenceType.CODON.codonInt2str(codon_a);
+		String str_b = SequenceType.CODON.codonInt2str(codon_b);
+		
+        int difference=0, idx=0;
+        for(int i=0; i<CODONLENTGH; i++)
+        {       
+            if(str_a.charAt(i)!=str_b.charAt(i)){
+                difference++;
+            }
+        }		
+		return difference;
+		
+	}
 
 	public static int decodeIndex(int index)
 	{	
