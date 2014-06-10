@@ -1,4 +1,4 @@
-#summary Tutorial for using JPrIME-VMCMC.
+#summary Short Tutorial for using JPrIME-VMCMC.
 
 *VMCMC has not yet been released, and the information below is not guaranteed to be up-to-date. Feedback is much appreciated, should you want to try VMCMC out. We hope to be able offer a stable first release in the near future.*
 
@@ -37,4 +37,4 @@ java -jar jprime-x.y.z.jar VMCMC -f myfile.mcmc -n
 
 = Details =
 
-_To be announced._
+Please refer to [https://code.google.com/p/visualmcmc/wiki/VMCMC VMCMC] for a detailed tutorial.
