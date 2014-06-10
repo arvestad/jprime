@@ -12,29 +12,31 @@ VMCMC supports two modes for analyzing an MCMC chain:
   # Graphical user interface (GUI) for showing trace plots, etc.
   # Command-line summary of important statistics.
 
+*Download up-to-date vmcmc jar file from [https://drive.google.com/file/d/0Bxs0shuzgCXscDFvbjB6bFlqNzg/edit?usp=sharing this site].
+
 = Running =
  
 You start the GUI version of VMCMC by running e.g.:
 {{{
-java -jar jprime-x.y.z.jar VMCMC
+java -jar VMCMC-x.y.z.jar
 }}}
 where the details of course refer to your current setup. You can always show all available options by typing e.g.:
 {{{
-java -jar jprime-x.y.z.jar VMCMC -h
+java -jar VMCMC-x.y.z.jar -h
 }}}
 If you run out of memory when using Oracle's HotSpot Java VM, you can allocate more memory by specifying e.g. (these are not options of VMCMC):
 {{{
-java -Xms768m -Xmx1536m -jar jprime-x.y.z.jar VMCMC
+java -Xms768m -Xmx1536m -jar VMCMC-x.y.z.jar
 }}}
 To initialize the GUI directly for a specific file, type e.g.:
 {{{
-java -jar jprime-x.y.z.jar VMCMC -f myfile.mcmc
+java -jar VMCMC-x.y.z.jar myfile.mcmc
 }}}
-To suppress the GUI and only output summary statistics of the chain in the terminal, typ e.g.:
+To suppress the GUI and only output summary statistics of the chain in the terminal, type e.g.:
 {{{
-java -jar jprime-x.y.z.jar VMCMC -f myfile.mcmc -n
+java -jar VMCMC-x.y.z.jar myfile.mcmc -n
 }}}
 
 = Details =
 
-Please refer to [https://code.google.com/p/visualmcmc/wiki/VMCMC VMCMC] for a detailed tutorial.
+Please refer to [https://code.google.com/p/visualmcmc/wiki/VMCMC VMCMC] for a detailed tutorial and parameter settings.
