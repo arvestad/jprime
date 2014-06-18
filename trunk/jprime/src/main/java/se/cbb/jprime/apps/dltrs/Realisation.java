@@ -47,6 +47,8 @@ public class Realisation {
 	
 	/** From-To-lineage info about the children of a particular vertex being subjected to transfer event */
 	private StringMap fromTo;
+	
+	private StringMap speciesEdge;
 	/**
 	 * Constructor.
 	 * @param G tree topology.
@@ -55,7 +57,7 @@ public class Realisation {
 	 * @param isDup for each vertex v of G: true if v corresponds to a duplication; false if v corresponds to a speciation or leaf.
 	 * @param placements for each vertex v of G: discretisation placement info.
 	 */
-	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup,BooleanMap isTrans, StringMap placements, StringMap fromTo) {
+	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup,BooleanMap isTrans, StringMap placements, StringMap fromTo, StringMap speciesEdge) {
 		this.G 					= G;
 		this.names 				= names;
 		this.times 				= times;
@@ -63,6 +65,7 @@ public class Realisation {
 		this.placements 		= placements;
 		this.isTransfer 		= isTrans;  // mehmood's adddition here
 		this.fromTo				= fromTo;		// mehmood's adddition here
+		this.speciesEdge		= speciesEdge;
 	}
 
 	/**
@@ -131,10 +134,13 @@ public class Realisation {
 				} else if (this.isTransfer.get(v)) {  //  mehmood's addition here
 					sb.append("[&&PRIME VERTEXTYPE=Transfer");
 					sb.append(" FROMTOLINEAGE=").append(fromTo.get(v));
+					sb.append(" SPECIES_EDGE=").append(speciesEdge.get(v));
 				} else if (this.isDuplication.get(v)) {
 					sb.append("[&&PRIME VERTEXTYPE=Duplication");
+					sb.append(" SPECIES_EDGE=").append(speciesEdge.get(v));
 				} else {
 					sb.append("[&&PRIME VERTEXTYPE=Speciation");
+					sb.append(" SPECIES_EDGE=").append(speciesEdge.get(v));
 				}
 				sb.append(" DISCPT=").append(placements.get(v)).append("]");
 				meta.set(v, sb.toString());

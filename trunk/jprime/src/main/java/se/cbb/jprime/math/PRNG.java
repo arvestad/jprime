@@ -100,58 +100,58 @@ public class PRNG extends MersenneTwisterRNG implements InfoProvider {
 		return new BigInteger(super.getSeed());
 	}
 	
-//	@Override
-//	public double nextDouble() {
-//		double d = super.nextDouble();
-//		System.out.println("nextDouble(): " + d);
-//		return d;
-//	}
-//	
-//	@Override
-//	public int nextInt() {
-//		int i = super.nextInt();
-//		System.out.println("nextInt(): " + i);
-//		return i;
-//	}
-//	
-//	@Override
-//	public int nextInt(int n) {
-//		int i = super.nextInt(n);
-//		System.out.println("nextInt(n): " + i);
-//		return i;
-//	}
-//	
-//	@Override
-//	public boolean nextBoolean() {
-//		boolean b = super.nextBoolean();
-//		System.out.println("nextBoolean(): " + b);
-//		return b;
-//	}
-//	
-//	@Override
-//	public double nextGaussian() {
-//		double b = super.nextGaussian();
-//		System.out.println("nextGaussian(): " + b);
-//		return b;
-//	}
-//	
-//	@Override
-//	public float nextFloat() {
-//		float b = super.nextFloat();
-//		System.out.println("nextFloat(): " + b);
-//		return b;
-//	}
-//	
-//	@Override
-//	public long nextLong() {
-//		long b = super.nextLong();
-//		System.out.println("nextLong(): " + b);
-//		return b;
-//	}
-//	
-//	@Override
-//	public void nextBytes(byte[] bytes) {
-//		super.nextBytes(bytes);
-//		System.out.println("nextBytes(bytes): ");
-//	}
+	@Override
+	public double nextDouble() {
+		double d = super.nextDouble();
+		//System.out.println("nextDouble(): " + d);
+		return d;
+	}
+	
+	@Override
+	public int nextInt() {
+		int i = super.nextInt();
+		//System.out.println("nextInt(): " + i);
+		return i;
+	}
+	
+	@Override
+	public int nextInt(int n) {
+		int i = super.nextInt(n);
+		//System.out.println("nextInt(n): " + i);
+		return i;
+	}
+	
+	@Override
+	public boolean nextBoolean() {
+		boolean b = super.nextBoolean();
+		//System.out.println("nextBoolean(): " + b);
+		return b;
+	}
+	
+	@Override
+	public double nextGaussian() {
+		double b = super.nextGaussian();
+		//System.out.println("nextGaussian(): " + b);
+		return b;
+	}
+	
+	@Override
+	public float nextFloat() {
+		float b = super.nextFloat();
+		//System.out.println("nextFloat(): " + b);
+		return b;
+	}
+	
+	@Override
+	public long nextLong() {
+		long b = super.nextLong();
+		//System.out.println("nextLong(): " + b);
+		return b;
+	}
+	
+	@Override
+	public void nextBytes(byte[] bytes) {
+		super.nextBytes(bytes);
+		//System.out.println("nextBytes(bytes): ");
+	}
 }

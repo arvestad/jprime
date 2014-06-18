@@ -108,8 +108,16 @@ public class RBTreeBranchSwapper implements Proposer {
 	}
 	
 	@Override
-	public Set<StateParameter> getParameters() {
-		HashSet<StateParameter> ps = new HashSet<StateParameter>(7);
+//	public Set<StateParameter> getParameters() {
+//		HashSet<StateParameter> ps = new HashSet<StateParameter>(7);
+//		ps.add(this.T);
+//		if (this.lengths != null) { ps.add(this.lengths); }
+//		if (this.times != null) { ps.add(this.times); }
+//		return ps;
+//	}
+	
+	public ArrayList<StateParameter> getParameters() {
+		ArrayList<StateParameter> ps = new ArrayList<StateParameter>(7);
 		ps.add(this.T);
 		if (this.lengths != null) { ps.add(this.lengths); }
 		if (this.times != null) { ps.add(this.times); }
@@ -163,6 +171,7 @@ public class RBTreeBranchSwapper implements Proposer {
 	
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
+		
 		// First determine move to make.
 		double w = this.prng.nextDouble() * (this.operationWeights[0] + this.operationWeights[1] + this.operationWeights[2]);
 		

@@ -97,7 +97,7 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 	
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
-		
+		//this.prng= prng;
 		// The higher the score is, the less parsimonious the tree is.
 		double dupScore = this.mprMap.getTotalNoOfDuplications() * this.dupWeight;
 		double lossScore = this.mprMap.getTotalNoOfLosses() * this.lossWeight;

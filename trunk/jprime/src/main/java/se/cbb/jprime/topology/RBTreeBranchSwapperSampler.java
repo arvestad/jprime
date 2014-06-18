@@ -134,8 +134,14 @@ public class RBTreeBranchSwapperSampler implements Proposer {
 	}
 
 	@Override
-	public Set<StateParameter> getParameters() {
-		HashSet<StateParameter> ps = new HashSet<StateParameter>();
+//	public Set<StateParameter> getParameters() {
+//		HashSet<StateParameter> ps = new HashSet<StateParameter>();
+//		ps.add(this.T);
+//		if (this.lengths != null) { ps.add(this.lengths); }
+//		return ps;
+//	}
+	public ArrayList<StateParameter> getParameters() {
+		ArrayList<StateParameter> ps = new ArrayList<StateParameter>();
 		ps.add(this.T);
 		if (this.lengths != null) { ps.add(this.lengths); }
 		return ps;

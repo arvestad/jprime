@@ -14,6 +14,7 @@ import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
+import se.cbb.jprime.math.PRNG;
 
 /**
  * In accordance with the DTLRS model, computes the probability of
@@ -74,6 +75,9 @@ public class DLTRMAPModel implements InferenceModel {
 	/** Probability of planted subtree G^u for each valid placement of tip of u's parent arc in S'. */
 	protected GenericMap<EpochPtMap> belows;
 
+	/** PRNG object */
+	//protected PRNG prng;
+	
 	/**
 	 * Constructor.
 	 * @param g the guest tree G.
@@ -413,6 +417,7 @@ public class DLTRMAPModel implements InferenceModel {
 
 	@Override
 	public LogDouble getDataProbability() {
+
 		// Return value for planted tree G^u with lineage
 		// starting at tip of host tree.
 		int uRoot = g.getRoot();

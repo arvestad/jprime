@@ -35,6 +35,8 @@ public class MetropolisHastingsAcceptor implements ProposalAcceptor {
 	@Override
 	public boolean acceptProposedState(LogDouble proposedStateLikelihood,
 			LogDouble oldStateLikelihood, List<Proposal> proposals) throws RunAbortedException {
+		this.prng= prng;
+		
 		LogDouble a = proposedStateLikelihood.divToNew(oldStateLikelihood);
 		if (proposals != null) {
 			for (Proposal prop : proposals) {

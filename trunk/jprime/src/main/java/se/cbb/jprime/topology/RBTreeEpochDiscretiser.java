@@ -147,7 +147,7 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 		for (int x : q) {
 			vertexToEpoch.set(x, 0);  // Epoch index of all leaves.
 		}
-		
+	
 		int xLo = q.peekFirst();                   // Lower vertex of epoch.
 		double tLo = times.getVertexTime(xLo);     // Lower time of epoch.
 		double tUp;                                // Upper time of epoch.

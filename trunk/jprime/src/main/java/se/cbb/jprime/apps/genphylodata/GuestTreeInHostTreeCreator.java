@@ -21,6 +21,7 @@ import se.cbb.jprime.topology.TopologyException;
  * Creates unpruned trees evolving over a host tree.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  */
 public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 
@@ -101,6 +102,9 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 			
 			GuestVertex lc = null;
 			GuestVertex rc = null;
+			
+			//System.out.println("epoch id:"+lin.epoch.getNo()+" total arcs:"+ lin.epoch.getNoOfArcs());
+			
 			if (lin.event == Event.SPECIATION) {
 				lc = this.createGuestVertex(hostTree.getLeftChild(lin.sigma), lin.abstime, prng);
 				rc = this.createGuestVertex(hostTree.getRightChild(lin.sigma), lin.abstime, prng);
@@ -109,11 +113,27 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 				rc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
 			} else if (lin.event == Event.TRANSFER) {
 				if (prng.nextDouble() < 0.5) {
+					// we need to fix this, select an incident arc of species tree randomly (mehmood)
 					lc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
-					rc = this.createGuestVertex(lin.epoch.sampleArc(prng, lin.sigma), lin.abstime, prng);
+
+					lin.setTransferedFromArc(lin.epoch.findIndexOfArc(lin.sigma));
+					int transferedToArc= lin.epoch.sampleArc(prng, lin.sigma, lin.getTransferedFromArc());
+					
+					rc = this.createGuestVertex(transferedToArc, lin.abstime, prng);			
+					lin.setTransferedToArc(lin.epoch.getTranferedToArc());
+					
+					
 				} else {
-					lc = this.createGuestVertex(lin.epoch.sampleArc(prng, lin.sigma), lin.abstime, prng);
+					lin.setTransferedFromArc(lin.epoch.findIndexOfArc(lin.sigma));
+					int transferedToArc=lin.epoch.sampleArc(prng, lin.sigma, lin.getTransferedFromArc());
+					
+					lc = this.createGuestVertex(transferedToArc, lin.abstime, prng);
 					rc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
+					
+					
+					//lin.setTransferedFromArc(lin.sigma);
+					lin.setTransferedToArc(lin.epoch.getTranferedToArc());
+	
 				}
 			} else {
 				throw new UnsupportedOperationException("Unexpected event type.");
@@ -311,6 +331,32 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 			sb.append(v.abstime).append('\t');
 			sb.append(v.sigma).append('\t');
 			sb.append(v.epoch.getNo()).append('\n');
+			/*
+			// mehmood addition:
+			sb.append(v.epoch.getNo()).append('\t');
+			sb.append(v.epoch.getNoOfArcs()).append('\t');
+			double [] discTimes=v.epoch.getTimes();
+			int i=0;
+			while (true && i < discTimes.length){
+				if (discTimes[i] >= v.abstime){
+					break;
+				}	
+				i++;
+			}
+			sb.append(i).append('\t');
+			if (v.getTransferedFromArc() == 0 && v.getTransferedToArc() == 0){
+				sb.append('\n');
+			}else{
+				String kha= v.getTransferedFromArc()+","+ v.getTransferedToArc();
+				sb.append(kha).append('\n');
+				//System.out.println(v.getName()+" from: "+v.getTransferedFromArc()+" to:"+ v.getTransferedToArc());
+			}
+			
+			
+			//sb.append(discTimes[i]).append('\n');			
+			
+			*/
+			
 		}
 		return sb.toString();
 	}

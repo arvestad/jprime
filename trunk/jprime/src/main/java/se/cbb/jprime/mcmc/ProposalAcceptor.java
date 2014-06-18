@@ -4,6 +4,7 @@ import java.util.List;
 
 import se.cbb.jprime.math.LogDouble;
 
+import se.cbb.jprime.math.PRNG;
 /**
  * Interface for probabilistic techniques of determining whether a suggested
  * parameter state change should be accepted or not. At the moment this

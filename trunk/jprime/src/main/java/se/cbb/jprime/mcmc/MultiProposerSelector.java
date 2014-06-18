@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 import se.cbb.jprime.math.PRNG;
 
@@ -87,26 +88,47 @@ public class MultiProposerSelector implements ProposerSelector {
 	}
 	
 	@Override
-	public Set<Proposer> getDisjointProposers() {
+	public ArrayList<Proposer> getDisjointProposers() {
+		
+		
 		if (this.proposers == null || this.proposers.isEmpty()) {
 			throw new IllegalArgumentException("Cannot select proposer from empty list.");
 		}
 		
+//		// Special cases for speed.
+//		if (this.proposers.size() == 1) {
+//			System.out.println("I am here 1: ");
+//			return new HashSet<Proposer>(this.proposers);
+//		}
+//		
+//		if (this.cumNoWeights.length == 1) {
+//			System.out.println("I am here 2: ");
+//			HashSet<Proposer> ts = new HashSet<Proposer>(1);
+//			ts.add(this.proposers.get(prng.nextInt(this.proposers.size())));
+//			return ts;
+//		}
 		// Special cases for speed.
 		if (this.proposers.size() == 1) {
-			return new HashSet<Proposer>(this.proposers);
+			return new ArrayList<Proposer>(this.proposers);
 		}
+		
 		if (this.cumNoWeights.length == 1) {
-			HashSet<Proposer> ts = new HashSet<Proposer>(1);
-			ts.add(this.proposers.get(this.prng.nextInt(this.proposers.size())));
+			ArrayList<Proposer> ts = new ArrayList<Proposer>(1);
+			ts.add(this.proposers.get(prng.nextInt(this.proposers.size())));
 			return ts;
 		}
 		
+		
+		// HERE IS THE PROBLEM OF RANDOM PERTURBATION
+		//System.out.println("aaaaaaaaaaaaaaa:"+this.prng.nextDouble());
 		// Determine desired number of proposers.
-		double d = this.prng.nextDouble();
+		double d;
+		d= prng.nextDouble();
+		
+		
 		int noOfProps = 1;
 		while (d > this.cumNoWeights[noOfProps-1]) { ++noOfProps; }
-		
+		//System.out.println("noOfProps: "+ noOfProps);
 		// Compute an accumulated weight array for the current proposer weights.
 		double[] accWeights = new double[this.proposers.size()];
 		double tot = 0.0;
@@ -120,13 +142,27 @@ public class MultiProposerSelector implements ProposerSelector {
 		accWeights[accWeights.length - 1] = 1.0;   // For numeric safety.
 		
 		// Try to add proposers.
-		HashSet<Proposer> selProps = new HashSet<Proposer>(noOfProps);
-		HashSet<StateParameter> selParams = new HashSet<StateParameter>(noOfProps * 2);
+//		HashSet<Proposer> selProps = new HashSet<Proposer>(noOfProps);
+//		HashSet<StateParameter> selParams = new HashSet<StateParameter>(noOfProps * 2);
+		ArrayList<Proposer> selProps = new ArrayList<Proposer>(noOfProps);
+		ArrayList<StateParameter> selParams = new ArrayList<StateParameter>(noOfProps * 2);
 		int attempts = 0;
+
 		while (attempts < MAX_NO_OF_ATTEMPTS && selProps.size() < noOfProps) {
-			addProposer(selProps, selParams, this.proposers, accWeights);
+			// HERE IS THE PROBLEM
+			addProposer(selProps, selParams, this.proposers, accWeights, prng);
 			++attempts;
 		}
+//		while (selProps.size() < noOfProps) {
+//			// HERE IS THE PROBLEM
+//			System.out.println("selProps.size():\t"+selProps.size()+ "\tnoOfProps:"+ noOfProps);
+//			if (addProposer(selProps, selParams, this.proposers, accWeights, prng)){
+//				System.out.println(selProps.toString()+ " is added");
+//			}else{ System.out.println("No proposer added is added");}
+//			++attempts;
+//		}
+
+		//System.out.println("attempts:"+ attempts);
 		assert !selProps.isEmpty();
 		
 		return selProps;
@@ -140,17 +176,22 @@ public class MultiProposerSelector implements ProposerSelector {
 	 * @param accWeights the accumulated normalised weights of all proposers.
 	 * @return true if a proposer was added; false if not added.
 	 */
-	private boolean addProposer(Set<Proposer> selProps, Set<StateParameter> selParams, List<Proposer> props, double[] accWeights) {
+	private boolean addProposer(ArrayList<Proposer> selProps, ArrayList<StateParameter> selParams, List<Proposer> props, double[] accWeights, PRNG prng) {
 		// Select a pending proposer.
-		double d = this.prng.nextDouble();
+		double d = prng.nextDouble();
+		
 		int i = 0;
-		while (d > accWeights[i]) { ++i; }
+		while (d > accWeights[i]) { ++i; /*System.out.println(i);*/ }
+		//System.out.println();
 		Proposer p = props.get(i);
+		//System.out.println(p.toString());
 		
 		// If not active, abort.
 		if (!p.isEnabled()) {
 			return false;
 		}
+
+		//System.out.println("p.getParameters"+ p.getParameters().toString());
 		
 		// If corresponding state parameters not already selected, add the proposer.
 		for (StateParameter sp : p.getParameters()) {

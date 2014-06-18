@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 
+
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
@@ -139,6 +140,7 @@ public class Deleterious implements JPrIMEApp {
 			// Pseudo-random number generator.
 			PRNG prng = ParameterParser.getPRNG(params);
 			
+			
 			// Read/create G and l.
 			NewickRBTreeSamples guestTreeSamples = null;
 			if (params.guestTreeSet != null) {
@@ -194,27 +196,27 @@ public class Deleterious implements JPrIMEApp {
 			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dltr, dltrMs, gNamesLengths.second, params.maxRealizationFlag);
 			
 			// Proposers.
-			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
-			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dlt.second, iter, prng, params.tuningLossRate);
-			NormalProposer transRateProposer = ParameterParser.getNormalProposer(params, dlt.third, iter, prng, params.tuningTransferRate);
+			NormalProposer dupRateProposer 		= ParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
+			NormalProposer lossRateProposer 	= ParameterParser.getNormalProposer(params, dlt.second, iter, prng, params.tuningLossRate);
+			NormalProposer transRateProposer 	= ParameterParser.getNormalProposer(params, dlt.third, iter, prng, params.tuningTransferRate);
 			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
-			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
-			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
-			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, iter, prng, guestTreeSamples);
-			NormalProposer lengthsProposer = ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
-			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
+			NormalProposer edgeRateCVProposer 	= ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
+			NormalProposer siteRateShapeProposer= ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
+			Proposer guestTreeProposer 			= ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, iter, prng, guestTreeSamples);
+			NormalProposer lengthsProposer 		= ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
+			double[] lengthsWeights 			= SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
 			// Proposer selector.
-			MultiProposerSelector selector = ParameterParser.getSelector(params, prng);
-			selector.add(dupRateProposer, ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
-			selector.add(lossRateProposer, ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
-			selector.add(transRateProposer, ParameterParser.getProposerWeight(params.tuningWeightTransferRate, iter));
-			selector.add(edgeRateMeanProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
-			selector.add(edgeRateCVProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
+			MultiProposerSelector selector=		ParameterParser.getSelector(params, prng);
+			selector.add(dupRateProposer, 		ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
+			selector.add(lossRateProposer, 		ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
+			selector.add(transRateProposer, 	ParameterParser.getProposerWeight(params.tuningWeightTransferRate, iter));
+			selector.add(edgeRateMeanProposer, 	ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
+			selector.add(edgeRateCVProposer, 	ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
 			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
-			selector.add(guestTreeProposer, ParameterParser.getProposerWeight(params.tuningWeightG, iter));
-			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
+			selector.add(guestTreeProposer, 	ParameterParser.getProposerWeight(params.tuningWeightG, iter));
+			selector.add(lengthsProposer, 		ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
 			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
@@ -244,13 +246,10 @@ public class Deleterious implements JPrIMEApp {
 			
 			if (params.maxRealizationFlag == false){
 				manager.addModel(dltr);
-				manager.addSampleable(dltr);
 			}else{
 				manager.addModel(dltrMs);
-				manager.addSampleable(dltrMs);
 			}
-			
-			
+
 			
 			manager.addSampleable(iter);
 			manager.addSampleable(manager);			// Overall likelihood.
@@ -258,7 +257,11 @@ public class Deleterious implements JPrIMEApp {
 			//manager.addSampleable(edgeRateCVPrior);
 			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
-			
+			if (params.maxRealizationFlag == false){
+				manager.addSampleable(dltr);
+			}else{
+				manager.addSampleable(dltrMs);
+			}
 			
 			
 			manager.addSampleable(dlt.first);

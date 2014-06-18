@@ -3,6 +3,7 @@ package se.cbb.jprime.mcmc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,8 +97,12 @@ public class UniformProposer implements Proposer {
 	}
 	
 	@Override
-	public Set<StateParameter> getParameters() {
-		HashSet<StateParameter> ps = new HashSet<StateParameter>(1);
+	//public Set<StateParameter> getParameters() {
+	public ArrayList<StateParameter> getParameters() {
+//		HashSet<StateParameter> ps = new HashSet<StateParameter>(1);
+//		ps.add(this.param);
+//		return ps;
+		ArrayList<StateParameter> ps = new ArrayList<StateParameter>(1);
 		ps.add(this.param);
 		return ps;
 	}
@@ -150,6 +155,7 @@ public class UniformProposer implements Proposer {
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
 		
+		
 		int k = this.param.getNoOfSubParameters();
 		int m = this.cumSubParamWeights.length;
 		
@@ -163,6 +169,7 @@ public class UniformProposer implements Proposer {
 			// Only one to choose.
 			indices = new int[1];
 			indices[0] = this.prng.nextInt(k);
+
 		} else if (m == k && this.cumSubParamWeights[m-2] == 0.0) {
 			// All should be chosen.
 			indices = new int[k];
@@ -171,12 +178,14 @@ public class UniformProposer implements Proposer {
 			// Remaining cases.
 			int no = 1;
 			double d = this.prng.nextDouble();
+
 			while (d > this.cumSubParamWeights[no-1]) { ++no; }
 			indices = new int[no];
 			ArrayList<Integer> l = new ArrayList<Integer>(k);
 			for (int i = 0; i < k; ++i) { l.add(i); }
 			for (int i = 0; i < no; ++i) {
-				indices[i] = l.remove(this.prng.nextInt(l.size()));				
+				indices[i] = l.remove(this.prng.nextInt(l.size()));	
+				
 			}
 		}
 		

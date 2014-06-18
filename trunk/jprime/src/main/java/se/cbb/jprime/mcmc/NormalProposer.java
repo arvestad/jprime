@@ -3,6 +3,7 @@ package se.cbb.jprime.mcmc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,7 +66,7 @@ public class NormalProposer implements Proposer {
 	 * @param proposalCV tuning parameter governing proposal distribution's CV.
 	 * @param prng pseudo-random number generator.
 	 */
-	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter proposalCV, PRNG prng) {
+	public NormalProposer(RealParameter param, RealInterval interval, TuningParameter proposalCV , PRNG prng) {
 		if (proposalCV.getMinValue() <= 0) {
 			throw new IllegalArgumentException("Illegal tuning parameter for normal proposer for parameter " + param.getName() + ". Value must be in (0,inf).");
 		}
@@ -93,8 +94,15 @@ public class NormalProposer implements Proposer {
 	}
 	
 	@Override
-	public Set<StateParameter> getParameters() {
-		HashSet<StateParameter> ps = new HashSet<StateParameter>(1);
+//	public Set<StateParameter> getParameters() {
+//		HashSet<StateParameter> ps = new HashSet<StateParameter>(1);
+//		ps.add(this.param);
+//		return ps;
+//		
+//	}
+//	
+	public ArrayList<StateParameter> getParameters() {
+		ArrayList<StateParameter> ps = new ArrayList<StateParameter>(1);
 		ps.add(this.param);
 		return ps;
 	}
@@ -147,6 +155,7 @@ public class NormalProposer implements Proposer {
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
 		
+		
 		int k = this.param.getNoOfSubParameters();
 		int m = this.cumSubParamWeights.length;
 		
@@ -168,12 +177,13 @@ public class NormalProposer implements Proposer {
 			// Remaining cases.
 			int no = 1;
 			double d = this.prng.nextDouble();
+
 			while (d > this.cumSubParamWeights[no-1]) { ++no; }
 			indices = new int[no];
 			ArrayList<Integer> l = new ArrayList<Integer>(k);
 			for (int i = 0; i < k; ++i) { l.add(i); }
 			for (int i = 0; i < no; ++i) {
-				indices[i] = l.remove(this.prng.nextInt(l.size()));				
+				indices[i] = l.remove(this.prng.nextInt(l.size()));			
 			}
 		}
 		

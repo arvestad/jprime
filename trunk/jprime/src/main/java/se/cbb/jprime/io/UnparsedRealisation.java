@@ -21,6 +21,7 @@ import se.cbb.jprime.topology.TopologyException;
  * PrIME Newick tree properties. Some useful methods are provided, however, such as string representations for e.g. hashing or comparisons.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  */
 public class UnparsedRealisation {
 
@@ -93,6 +94,8 @@ public class UnparsedRealisation {
 		boolean[] istrans = new boolean[tree.getNoOfVertices()];
 		String[] placements = new String[tree.getNoOfVertices()];
 		String[] fromTos = new String[tree.getNoOfVertices()];
+		String[] speciesEdge = new String[tree.getNoOfVertices()];
+		
 		
 		for(int v =0; v < tree.getNoOfVertices(); v++)
 		{
@@ -110,11 +113,13 @@ public class UnparsedRealisation {
 				istrans[v]=true;
 			
 			int [] fromtos = {-1, -1, -1};	
-			if (vertextype == 3)
+			if (vertextype == 3){
 				fromtos = getFromToPoints(meta);
-			fromTos[v] = "("+fromtos[0]+","+fromtos[1]+","+fromtos[2]+")";
-			
-			
+				fromTos[v] = "("+fromtos[0]+","+fromtos[1]+","+fromtos[2]+")";
+				
+				int[] specieEdgePlacement= getSpeciesEdge(meta);
+				speciesEdge[v]= "("+specieEdgePlacement[0]+","+specieEdgePlacement[1]+")";
+			}
 			int[] placement = getRealisedPoint(meta);
 			placements[v]= "("+placement[0]+","+placement[1]+")";
 		}
@@ -125,9 +130,11 @@ public class UnparsedRealisation {
 		BooleanMap isTrans = new BooleanMap("RealisationIsTrans", istrans);
 		StringMap Placements = new StringMap("DiscPts",placements);
 		StringMap FromTos = new StringMap("fromToLineage",fromTos);
+		StringMap SpeciesEdge =new StringMap("speciesEdge",speciesEdge); 
+		
 
 		RBTree rbtree = new RBTree((NewickTree) tree,"");
-		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos);
+		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos, SpeciesEdge);
 		return (realisation );
 	}	
 	
@@ -146,6 +153,7 @@ public class UnparsedRealisation {
 		boolean[] istrans = new boolean[tree.getNoOfVertices()];
 		String[] placements = new String[tree.getNoOfVertices()];
 		String[] fromTos = new String[tree.getNoOfVertices()];
+		String[] speciesEdge = new String[tree.getNoOfVertices()];
 		
 		for(int v =0; v < tree.getNoOfVertices(); v++)
 		{
@@ -164,11 +172,13 @@ public class UnparsedRealisation {
 			
 			
 			int [] fromtos = {-1, -1, -1};	
-			if (vertextype == 3)
+			if (vertextype == 3){
 				fromtos = getFromToPoints(meta);
-			fromTos[v] = "("+fromtos[0]+","+fromtos[1]+","+fromtos[2]+")";
-			
-			
+				fromTos[v] = "("+fromtos[0]+","+fromtos[1]+","+fromtos[2]+")";
+				
+				int[] specieEdgePlacement= getSpeciesEdge(meta);
+				speciesEdge[v]= "("+specieEdgePlacement[0]+","+specieEdgePlacement[1]+")";
+			}
 			int[] placement = getRealisedPoint(meta);
 			placements[v]= "("+placement[0]+","+placement[1]+")";
 		}
@@ -179,9 +189,10 @@ public class UnparsedRealisation {
 		BooleanMap isTrans = new BooleanMap("RealisationIsTrans", istrans);
 		StringMap Placements = new StringMap("DiscPts",placements);
 		StringMap FromTos = new StringMap("fromToLineage",fromTos);
+		StringMap SpeciesEdge =new StringMap("speciesEdge",speciesEdge); 
 		
 		RBTree rbtree = new RBTree((NewickTree) tree,"");
-		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos);
+		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos, SpeciesEdge);
 		return (realisation );
 	}
 	
@@ -223,6 +234,22 @@ public class UnparsedRealisation {
 		return y;
 		
 	}	
+	
+	/**
+	 * Returns the FromTo transfer points of the meta
+	 * @param meta represents the realized information of vertex
+	 * @return y [realised points in array]
+	 */
+	private static int[] getSpeciesEdge(String meta){
+		String str = meta.substring(meta.indexOf("SPECIES_EDGE=("), meta.indexOf("DISCPT"));
+		
+		int s1 = Integer.parseInt(str.substring(str.indexOf("SPECIES_EDGE=(")+14 , str.indexOf(",") ));
+		int s2 = Integer.parseInt(str.substring(str.lastIndexOf(",")+1 , str.lastIndexOf(")") ));
+
+		int s[] = {s1, s2};
+		return s;
+		
+	}
 	
 	/**
 	 * Returns the Realization points of the meta

@@ -2,6 +2,7 @@ package se.cbb.jprime.mcmc;
 
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.math.LogDouble;
+import se.cbb.jprime.math.PRNG;
 
 /**
  * Interface for probabilistic models that support retrieving the "data probability", i.e., working
