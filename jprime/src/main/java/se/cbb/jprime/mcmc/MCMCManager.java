@@ -60,61 +60,61 @@ import se.cbb.jprime.math.PRNG;
  * @author Joel Sjöstrand.
  */
 public class MCMCManager implements Sampleable, InfoProvider {
-	
+
 	/** Iteration of MCMC chain. */
 	protected Iteration iteration;
-	
+
 	/** Governs how often samples are taken. */
 	protected Thinner thinner;
-	
+
 	/** Governs which proposer(s) should be selected at each iteration. */
 	protected ProposerSelector proposerSelector;
-	
+
 	/** Governs whether the proposed state be accepted or rejected. */
 	protected ProposalAcceptor proposalAcceptor;
-	
+
 	/** Governs how output is produced. */
 	protected Sampler sampler;
-	
+
 	/** Pseudo-random number generator. */
 	protected PRNG prng;
-	
+
 	/** State parameters. */
 	protected ArrayList<StateParameter> parameters;
-	
+
 	/** Proper dependents (in topological order after sorting). */
 	protected ArrayList<ProperDependent> properDependents;
-	
+
 	/** The models of the overall model. */
 	protected ArrayList<InferenceModel> models;
-	
+
 	/** The fields included in each sampling-tuple. */
 	protected ArrayList<Sampleable> sampleables;
-	
+
 	/** Current overall (unnormalised) posterior density. */
 	protected LogDouble posteriorDensity;
-	
+
 	/** Best seen overall (unnormalised) posterior density so far. */
 	protected LogDouble bestPosteriorDensity;
-	
+
 	/** Best seen state so far. */
 	protected String bestState;
-	
+
 	/** Time at iteration start in ns. */
 	protected long startTime;
-	
+
 	/** Time at iteration end in ns. */
 	protected long endTime;
-	
+
 	/** Overall statistics. */
 	protected ProposerStatistics stats;
-	
+
 	/** If run was aborted. */
 	protected String runAbortedMessage = null;
-	
+
 	/** Debug flag. */
 	protected boolean doDebug = false;
-	
+
 	/**
 	 * Constructor.
 	 * @param iteration iteration object of the chain.
@@ -144,7 +144,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.endTime = -1;
 		this.stats = stats;
 	}
-	
+
 	/**
 	 * Adds a model, and recursively adds all <code>Dependent</code> objects on which it relies, down
 	 * to the state parameters.
@@ -154,7 +154,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		this.models.add(model);
 		this.addDependent(model);
 	}
-	
+
 	/**
 	 * Recursive helper. Adds a dependent and all of its ancestors.
 	 * @param dependent the dependent.
@@ -177,7 +177,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 			}
 		}
 	}
-	
+
 	/**
 	 * Adds a "sampleable", i.e. a field which will be included when
 	 * outputting MCMC samples. Typically, these consist of state parameters and models.
@@ -193,14 +193,14 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * be invoked when all dependents have been added.
 	 */
 	private void updateDependencyStructure() {
-				
+
 		// Compute topological sorting using Tarjan's BFS technique.
 		HashSet<Dependent> visited = new HashSet<Dependent>(this.parameters.size() + this.properDependents.size());
 		ArrayList<Dependent> sorted = new ArrayList<Dependent>(visited.size());
 		for (InferenceModel model : this.models) {
 			this.visit(model, visited, sorted);
 		}
-		
+
 		// Store the proper dependents, now sorted.
 		this.properDependents.clear();
 		for (Dependent dep : sorted) {
@@ -209,7 +209,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 			}
 		}
 	}
-	
+
 	/**
 	 * Recursive helper for computing topological ordering of dependencies according to Tarjan's algorithm (1976).
 	 * @param dependent currently visited dependent.
@@ -225,10 +225,10 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					this.visit(parent, visited, sorted);
 				}
 			}
-        	sorted.add(dependent);
+			sorted.add(dependent);
 		}
 	}
-	
+
 	/**
 	 * Turns on/off debugging output information.
 	 * @param isOn true to enable debug mode; false to disable.
@@ -241,60 +241,63 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * Starts and executes the MCMC chain.
 	 * @throws IOException if unable to produce sampling output.
 	 */
-       public void run() throws IOException,  ArithmeticException{
-		
+	public void run() throws IOException,  ArithmeticException{
 		// Update the topological ordering of the dependency DAG.
 		this.updateDependencyStructure();
-		
+
 		// Write sample header.
 		this.sampler.writeSampleHeader(this.sampleables);
-		
+
 		// First time, assume all objects are up-to-date and compute initial posterior density.
 		this.posteriorDensity = new LogDouble(1.0);
 		boolean willSample = this.thinner.doSample();
 		for (InferenceModel m : this.models) {
+
+
 			this.posteriorDensity.mult(m.getDataProbability());
+			//System.out.println( m.toString() + "\t prob:" + m.getDataProbability(this.prng) + "\t density: " + this.posteriorDensity.getValue());
 		}
 		if (willSample) {
 			this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
 		}
 		this.bestPosteriorDensity = this.posteriorDensity;
 		this.bestState = this.sampler.getSample(this.sampleables, SamplingMode.MAX_RECORD);
-		
+
 		// Iterate.
 		this.startTime = System.nanoTime();
 		HashMap<Dependent, ChangeInfo> changeInfos = new HashMap<Dependent, ChangeInfo>(16);
 		ArrayList<Proposal> proposals = new ArrayList<Proposal>(16);
 		try {
 			while (this.iteration.increment()) {
-				
+
 				// Clear lists.
 				changeInfos.clear();
 				proposals.clear();
-				
+
 				// Query whether this is a sample iteration or not.
 				willSample = this.thinner.doSample();
-				
+
 				// Get proposer(s) to use.
-				Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
+				;
+				ArrayList<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
 				
 				// Debug info.
 				if (this.doDebug) {
 					StringBuilder dbg = new StringBuilder(512);
 					dbg.append("# Iteration: ").append(this.iteration.getIteration()).append(", unnormalised posterior density: ").append(this.posteriorDensity.toString())
-						.append(", about to use: ");
+					.append(", about to use: ");
 					for (Proposer p : shakeItBaby) {
 						dbg.append(p.toString()).append(", ");
 					}
 					this.sampler.writeString(dbg.toString());
 				}
-				
+
 				// Perturb state parameters.
 				for (Proposer proposer : shakeItBaby) {
 					Proposal proposal = proposer.cacheAndPerturb(changeInfos);
 					proposals.add(proposal);
 				}
-				
+
 				// Update in topological order, but only if deemed necessary.
 				for (ProperDependent dep : this.properDependents) {
 					for (Dependent parent : dep.getParentDependents()) {
@@ -304,29 +307,35 @@ public class MCMCManager implements Sampleable, InfoProvider {
 						}
 					}
 				}
-				
+
 				// Get posterior density of proposed state.
 				LogDouble newPosteriorDensity = new LogDouble(1.0);
 				for (InferenceModel m : this.models) {
 					newPosteriorDensity.mult(m.getDataProbability());
 				}
-				
+
 				// Finally, decide whether to accept or reject.
 				boolean doAccept = false;
 				try {
-					if(newPosteriorDensity.greaterThan(0.0))
+					if(newPosteriorDensity.greaterThan(0.0)){
 						doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
+						//System.out.println();
+//						for (InferenceModel m : this.models) {	
+//							System.out.println( m.toString() + "\t prob:" + m.getDataProbability(this.prng) );
+//						}
+						//System.out.println();
+					}
 				}
 				catch (ArithmeticException e) {
-				    throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");
+					throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");
 				}
 
-				
+
 				// Debug info.
 				if (this.doDebug) {
 					this.sampler.writeString(doAccept ? " ...state accepted," : " ...state rejected,");
 				}
-				
+
 				// Update accordingly.
 				if (doAccept) {
 					stats.increment(true, "" + shakeItBaby.size() + " used proposers");
@@ -354,12 +363,12 @@ public class MCMCManager implements Sampleable, InfoProvider {
 						}
 					}
 				}
-				
+
 				// Debug info.
 				if (this.doDebug) {
 					this.sampler.writeString(doAccept ? " ...cached state deleted.\n" : " ...cached state reinstated.\n");
 				}
-				
+
 				// Sample, if desired.
 				if (willSample) {
 					this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
@@ -368,7 +377,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		} catch (RunAbortedException rae) {
 			this.runAbortedMessage = rae.getMessage();
 		}
-		
+
 		// Post-run stuff.
 		this.endTime = System.nanoTime();
 	}
@@ -425,13 +434,13 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		double h = m / 60.0;
 		DecimalFormat df = new DecimalFormat("#.##");
 		sb.append(prefix).append("Wall time: ")
-			.append(ns).append(" ns = ")
-			.append(df.format(s)).append(" s = ")
-			.append(df.format(m)).append(" min = ")
-			.append(df.format(h)).append(" h\n");
+		.append(ns).append(" ns = ")
+		.append(df.format(s)).append(" s = ")
+		.append(df.format(m)).append(" min = ")
+		.append(df.format(h)).append(" h\n");
 		sb.append(prefix).append("Best encountered state:\n")
-			.append(prefix + "\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
-			.append(prefix + "\t").append(this.bestState).append("\n");
+		.append(prefix + "\t").append(this.sampler.getSampleHeader(this.sampleables)).append('\n')
+		.append(prefix + "\t").append(this.bestState).append("\n");
 		sb.append(prefix).append("Pseudo-random number generator:\n");
 		sb.append(this.prng.getPostInfo(prefix + '\t'));
 		sb.append(prefix).append("Iteration:\n");

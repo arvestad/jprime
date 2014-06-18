@@ -1,6 +1,8 @@
 package se.cbb.jprime.mcmc;
 
 import java.util.Set;
+import se.cbb.jprime.math.PRNG;
+import java.util.ArrayList;
 
 /**
  * Interface for selecting one or more MCMC proposers for actual
@@ -27,5 +29,5 @@ public interface ProposerSelector extends InfoProvider {
 	 * be acting on disjoint sets of state parameters</b>.
 	 * @return a subset of proposers, no pairs acting on the same state parameter.
 	 */
-	public Set<Proposer> getDisjointProposers();
+	public ArrayList<Proposer> getDisjointProposers();
 }

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.RealInterval;
-
+import se.cbb.jprime.math.PRNG;
 /**
  * Represents a uniform (non-informative) prior for a real-valued
  * parameters (singletons or arrays).

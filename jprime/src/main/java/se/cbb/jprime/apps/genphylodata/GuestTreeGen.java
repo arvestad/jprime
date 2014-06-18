@@ -128,5 +128,4 @@ public class GuestTreeGen implements JPrIMEApp {
 			System.err.print("\nUse option -h or --help to show usage.\n");
 		}
 	}
-
 }

@@ -3,6 +3,8 @@ package se.cbb.jprime.mcmc;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
+import se.cbb.jprime.math.PRNG;
 
 /**
  * Interface for objects perturbing the values of one or more <code>StateParameter</code> objects,
@@ -32,7 +34,8 @@ public interface Proposer extends InfoProvider {
 	 * simultaneously, nor is it prohibited.
 	 * @return the parameters.
 	 */
-	public Set<StateParameter> getParameters();
+	//public Set<StateParameter> getParameters();
+	public ArrayList<StateParameter> getParameters();
 	
 	/**
 	 * Returns the number of parameters.

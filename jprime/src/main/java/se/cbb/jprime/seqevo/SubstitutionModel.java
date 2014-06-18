@@ -17,7 +17,7 @@ import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.TreeAlgorithms;
-
+import se.cbb.jprime.math.PRNG;
 /**
  * Implements the standard (probabilistic) Markov model for
  * the substitution process of sequence evolution for any type 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import se.cbb.jprime.math.LogDouble;
 
+import se.cbb.jprime.math.PRNG;
 /**
  * Hill-climbing proposal acceptor. Only accepts a proposed state x' which has higher likelihood
  * than the old state x.
@@ -48,9 +49,6 @@ public class HillClimbingAcceptor implements ProposalAcceptor {
 				if (!prop.isValid()) { return false; }
 			}
 		}
-		//System.out.println("Proposed: " + proposedStateLikelihood);
-		//System.out.println("Old: " + oldStateLikelihood);
-		//System.out.println("Old*p: " + oldStateLikelihood.multToNew(this.precision));
 		boolean isImproved =
 			proposedStateLikelihood.greaterThan(oldStateLikelihood.multToNew(this.precision));
 		if (isImproved) {

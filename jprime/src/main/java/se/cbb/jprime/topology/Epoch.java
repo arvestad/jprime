@@ -25,6 +25,7 @@ import se.cbb.jprime.math.PRNG;
  * See <code>EpochDiscretiser</code> for more info.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  */
 public class Epoch implements PublicCloneable {
 	
@@ -39,6 +40,9 @@ public class Epoch implements PublicCloneable {
 		
 	/** Timestep between discretised times. Stored explicitly for speed. */
 	private double m_timestep;
+	
+	/** Random Arc selected fro transfer*/
+	private int transferedToArc = -1;
 	
 	/**
 	 * Constructor.
@@ -203,19 +207,77 @@ public class Epoch implements PublicCloneable {
 		return this.m_arcs[prng.nextInt(this.m_arcs.length)];
 	}
 	
+	public int getTranferedToArc(){
+		return this.transferedToArc;
+	}
+	
+	public void setTranferedToArc(int arc){
+		this.transferedToArc= arc;
+	}
+	
+//	/**
+//	 * Samples an arc uniformly from the epoch, excluding a given arc.
+//	 * @param prng PRNG.
+//	 * @param excludeArc arc to exclude.
+//	 */
+//	public int sampleArc(PRNG prng, int excludeArc) {
+//		if (this.m_arcs.length == 1 && excludeArc == m_arcs[0]) {
+//			throw new IllegalArgumentException("Cannot exclude arc from sampling (it's the only one!): " + excludeArc);
+//		}
+//		
+//		int idx= prng.nextInt(this.m_arcs.length);
+//		int arc=this.m_arcs[idx];
+//		while (true){
+//			if (idx != excludeArc){
+//				arc= this.m_arcs[idx];
+//				break;
+//			}
+//			idx= prng.nextInt(this.m_arcs.length);
+//		}
+//		this.setTranferedToArc(idx);
+//		
+//		return arc;
+//	}
+
+	/**
+	 * Find index of the given arc of species tree
+	 * @param arc
+	 * 
+	 */
+	public int findIndexOfArc(int speciesArc){
+		int idx=0;
+		while(true){
+			if (this.m_arcs[idx] == speciesArc){
+				break;
+			}
+			++idx;
+		}
+		return idx;
+	}
+	
 	/**
 	 * Samples an arc uniformly from the epoch, excluding a given arc.
 	 * @param prng PRNG.
 	 * @param excludeArc arc to exclude.
 	 */
-	public int sampleArc(PRNG prng, int excludeArc) {
+	public int sampleArc(PRNG prng, int excludeArc, int fromArc) {
 		if (this.m_arcs.length == 1 && excludeArc == m_arcs[0]) {
 			throw new IllegalArgumentException("Cannot exclude arc from sampling (it's the only one!): " + excludeArc);
 		}
-		int arc = this.m_arcs[prng.nextInt(this.m_arcs.length)];
-		while (arc == excludeArc) {
-			arc = this.m_arcs[prng.nextInt(this.m_arcs.length)];
+		int to= prng.nextInt(this.m_arcs.length);
+		int arc = this.m_arcs[to];
+		//System.out.println("arc: "+  arc+ " idx: "+ idx+ " excludeArc: "+ excludeArc);
+		//while (arc == excludeArc || idx == excludeArc) {
+		while (true ) {
+			if (to != fromArc && arc != excludeArc){
+				break;
+			}
+			to= prng.nextInt(this.m_arcs.length);
+			arc = this.m_arcs[to];
 		}
+		
+		this.setTranferedToArc(to);
+		
 		return arc;
 	}
 	

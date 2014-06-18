@@ -1,6 +1,6 @@
 package se.cbb.jprime.topology;
 
-//import java.util.ArrayList;
+import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -18,6 +18,7 @@ import se.cbb.jprime.mcmc.ProposerStatistics;
 import se.cbb.jprime.mcmc.RealParameter;
 import se.cbb.jprime.mcmc.StateParameter;
 import se.cbb.jprime.mcmc.TuningParameter;
+
 
 /**
  * Proposer which perturbs the topology of a bifurcating rooted tree.
@@ -143,7 +144,8 @@ public class PerturbPseudoPoints implements Proposer {
 	
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
-
+		
+		
 		// First determine move to make.
 		double move = 0.0;
 		double barrier = 0.1;
@@ -357,11 +359,16 @@ public class PerturbPseudoPoints implements Proposer {
 	}
 
 	@Override
-	public Set<StateParameter> getParameters() {
-		HashSet<StateParameter> ps = new HashSet<StateParameter>(7);
-		ps.add(this.pgSwitches);
-		return ps;
-	}
+//	public Set<StateParameter> getParameters() {
+//		HashSet<StateParameter> ps = new HashSet<StateParameter>(7);
+//		ps.add(this.pgSwitches);
+//		return ps;
+//	}
+	public ArrayList<StateParameter> getParameters() {
+		ArrayList<StateParameter> ps = new ArrayList<StateParameter>(7);
+	ps.add(this.pgSwitches);
+	return ps;
+}
 
 	@Override
 	public int getNoOfParameters() {

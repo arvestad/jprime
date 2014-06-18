@@ -8,6 +8,7 @@ import se.cbb.jprime.topology.Epoch;
  * Represents a guest tree vertex during the generative process.
  * 
  * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan
  */
 public class GuestVertex extends NewickVertex {
 	
@@ -41,6 +42,12 @@ public class GuestVertex extends NewickVertex {
 	
 	/** Host vertex/arc. */
 	int sigma;
+	
+	/** Tranfered from arc */
+	int transferedFromArc = 0;
+	
+	/** Tranfered to arc */
+	int transferedToArc = 0;
 	
 	/** Epoch. Not always applicable. */
 	Epoch epoch = null;
@@ -83,6 +90,22 @@ public class GuestVertex extends NewickVertex {
 		this.prunability = orig.prunability;
 	}
 	
+	public void setTransferedToArc(int x){
+		this.transferedToArc= x;
+	}
+	
+	public int getTransferedToArc(){
+		return this.transferedToArc;
+	}
+	
+	public void setTransferedFromArc(int x){
+		this.transferedFromArc= x;
+	}
+	
+	public int getTransferedFromArc(){
+		return this.transferedFromArc;
+	}
+	
 	/**
 	 * Helper. Returns the left child. If there is a single child, returns that one.
 	 * @return left child.
@@ -115,16 +138,49 @@ public class GuestVertex extends NewickVertex {
 			sb.append(" ID=").append(v.getNumber());
 			switch (v.event) {
 			case DUPLICATION:
-				sb.append(" VERTEXTYPE=Duplication");
+				double [] disTimes= v.epoch.getTimes();
+				int j=0;
+				while (true && j < disTimes.length){
+					if (disTimes[j] >= v.abstime){
+						break;
+					}	
+					++j;
+				}
+				String dispt= "DISCPT=(" + v.epoch.getNo() + "," + j +")";
+				sb.append(" VERTEXTYPE=Duplication" + " "+ dispt);
 				break;
+				
 			case LOSS:
 				sb.append(" VERTEXTYPE=Loss");
 				break;
 			case TRANSFER:
 				sb.append(" VERTEXTYPE=Transfer");
+				String fromToArc= "("+v.getTransferedFromArc()+","+ v.getTransferedToArc()+")";
+		
+				double [] discTimes= v.epoch.getTimes();
+				int i=0;
+				while (true && i < discTimes.length){
+					if (discTimes[i] >= v.abstime){
+						break;
+					}	
+					++i;
+				}
+				String discpt= "DISCPT=(" + v.epoch.getNo() + "," + i +")";
+				
+				String speciesEdge= "SPECIES_EDGE=("+ v.getTransferedFromArc() +","+ v.epoch.getNoOfArcs() +")";
+				sb.append(" FROMTOLINEAGE="+ fromToArc +" "+ speciesEdge + " "+ discpt);
 				break;
 			case SPECIATION:
-				sb.append(" VERTEXTYPE=Speciation");
+				double [] disctTimes= v.epoch.getTimes();
+				int k=0;
+				while (true && k < disctTimes.length){
+					if (disctTimes[k] >= v.abstime){
+						break;
+					}	
+					++k;
+				}
+				String disctpt= "DISCPT=(" + v.epoch.getNo() + "," + k +")";
+				sb.append(" VERTEXTYPE=Speciation"+ " "+ disctpt);
 				break;
 			case LEAF:
 				sb.append(" VERTEXTYPE=Leaf");

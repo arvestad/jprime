@@ -15,6 +15,9 @@ import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
 
+// mehmood's addition mar 5 2014
+import se.cbb.jprime.math.PRNG;
+
 /**
  * In accordance with the DTLRS model, computes the probability of
  * a guest tree topology and branch lengths given remaining parameters
@@ -407,6 +410,10 @@ public class DLTRModel implements InferenceModel {
 		// starting at tip of host tree.
 		int uRoot = g.getRoot();
 		double p = this.belows.get(uRoot).getTopmost();
+		//System.out.println("Root Probability: "+ p);
+		//LogDouble logP= new LogDouble(p);
+		//System.out.println("logDouble Probability: "+ logP.toString());
+		//return logP;
 		return new LogDouble(p);
 	}
 
