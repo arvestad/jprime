@@ -20,7 +20,8 @@ import se.cbb.jprime.topology.TimesMap;
  * C:0.2[&&PrIME VERTEXTYPE=Leaf DISCPT=(1,0)]):0.8[&&PrIME VERTEXTYPE=Duplication DISCPT=(1,5)]):1.0[&&PrIME VERTEXTYPE=Speciation DISCPT=(2,0)];
  * </code>.
  * 
- * @author Joel Sjöstrand.
+ * @author Joel Sjöstrand,
+ * @author Owais Mahmudi
  */
 public class Realisation {
 
@@ -55,6 +56,7 @@ public class Realisation {
 		this.placements = placements;
 	}
 
+	
 	/**
 	 * Returns the tree on Newick format.
 	 * @return tree on Newick format.
@@ -88,5 +90,13 @@ public class Realisation {
 		}
 	}
 	
+	/**
+	 * Returns the guest tree
+	 * @return guest tree.
+	 */
+	public RootedBifurcatingTree getGuestTree()
+	{
+		return this.G;
+	}
 	
 }

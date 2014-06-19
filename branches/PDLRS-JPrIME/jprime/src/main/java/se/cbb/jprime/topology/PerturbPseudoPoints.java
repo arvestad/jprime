@@ -138,7 +138,33 @@ public class PerturbPseudoPoints implements Proposer {
 				return false;
 			}
 		}*/
-		return true;
+		
+		int falseSample=0;
+		List<Integer> leaves = T.getLeaves();
+		for(Integer l: leaves)
+		{
+			if(gpgMap.get(gNames.get(l.intValue()))==1)
+			{
+				int numberofswitches=0;
+				int v=l.intValue();
+				while(!T.isRoot(v))
+				{
+					if(pgSwitches.get(v)!=1)
+						numberofswitches++;
+					v=T.getParent(v);
+				}
+				if(T.isRoot(v) && pgSwitches.get(v)!=1)
+					numberofswitches++;
+				if(numberofswitches ==0 )
+					falseSample=1;	
+				if(numberofswitches>1)
+					falseSample=2;
+			}
+		}
+		if(falseSample != 0)
+			return true;
+		else 
+			return false;
 	}	
 	
 	
@@ -146,6 +172,12 @@ public class PerturbPseudoPoints implements Proposer {
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
 
+		this.pgSwitches.cache(null);
+		this.edgeModels.cache(null);
+//		boolean flag = isLegalSwitches(pgSwitches, gpgMap);
+//		if(flag==false)
+//			System.out.println(flag);
+		
 		// First determine move to make.
 		double move = 0.0;
 		double barrier = 0.1;
@@ -267,6 +299,13 @@ public class PerturbPseudoPoints implements Proposer {
 		changeInfos.put(this.param, new ChangeInfo(this.param, "Perturbed by PG Proposer", indices));
 		//System.out.println(this.pgSwitches.toString());
 //		System.out.println();
+		
+//		boolean flag2 = isLegalSwitches(pgSwitches, gpgMap);
+//		if(flag2==false)
+//			System.out.println(flag2);
+//		else
+//			System.out.println("Pseudogenization consistent");
+		
 		return new MetropolisHastingsProposal(this, new LogDouble(forwardDensity), new LogDouble(backwardDensity), this.param, indices.length);
 	}
 
@@ -282,6 +321,7 @@ public class PerturbPseudoPoints implements Proposer {
 				if(g != 1)
 					legalassignment = false;
 		}
+		
 		return legalassignment;
 	}
 
@@ -390,5 +430,38 @@ public class PerturbPseudoPoints implements Proposer {
 			"]";
 	}
 
-
+	/**
+	 * Checks if the switches are a legal pseudogenization
+	 * @param r
+	 * @return true or false
+	 */
+	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
+	{
+		int falseSample=0;
+		List<Integer> leaves = T.getLeaves();
+		for(Integer l: leaves)
+		{
+			if(gpgMap.get(gNames.get(l.intValue()))==1)
+			{
+				int numberofswitches=0;
+				int v=l.intValue();
+				while(!T.isRoot(v))
+				{
+					if(pgSwitches.get(v)!=1)
+						numberofswitches++;
+					v=T.getParent(v);
+				}
+				if(T.isRoot(v) && pgSwitches.get(v)!=1)
+					numberofswitches++;
+				if(numberofswitches ==0 )
+					falseSample=1;	
+				if(numberofswitches>1)
+					falseSample=2;
+			}
+		}		
+		if(falseSample == 0)
+			return true;
+		else
+			return false;
+	}
 }

@@ -63,6 +63,7 @@ import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RBTreeBranchSwapper;
 import se.cbb.jprime.topology.RBTreeBranchSwapperSampler;
+import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TimesMap;
 import se.cbb.jprime.topology.TreeSequenceIdentity;
 import se.cbb.jprime.topology.UniformRBTreeGenerator;
@@ -661,11 +662,11 @@ public class ParameterParser {
 	 * @return the sampler.
 	 * @throws IOException.
 	 */
-	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLRModel model, NamesMap names, DoubleMap pgSwitches) throws IOException {
+	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLRModel model, RootedBifurcatingTreeParameter g, NamesMap names, DoubleMap pgSwitches) throws IOException {
 		if (ps.sampleRealisations == null) { return null; }
 		String fn = ps.sampleRealisations.get(0);
 		int n = Integer.parseInt(ps.sampleRealisations.get(1));
-		return new RealisationSampler(fn, n, iter, prng, model, names, pgSwitches);
+		return new RealisationSampler(fn, n, iter, prng, model, g, names, pgSwitches);
 	}
 
 	/**

@@ -1,6 +1,8 @@
 package se.cbb.jprime.seqevo;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -58,6 +60,11 @@ public class MSAData implements InfoProvider {
 	private LinkedHashMap<String, int[]> patterns;
 	
 	/**
+	 * Nucleotide frequencies according to nameToKey order
+	 */
+	private List<Integer> nucleotideFrequencies;
+	
+	/**
 	 * Private constructor.
 	 * @param seqType sequence type.
 	 * @param sz number of sequences.
@@ -70,6 +77,9 @@ public class MSAData implements InfoProvider {
 		this.nameToKey = new LinkedHashMap<String, Integer>(sz);
 		this.dataAsStrings = new String[sz];
 		this.data = new int[sz][];
+		this.nucleotideFrequencies = new ArrayList<Integer>(seqType.DNA.getAlphabetSize());
+		for(int i=0; i<seqType.DNA.getAlphabetSize(); i++) this.nucleotideFrequencies.add(0);
+		
 	}
 	
 	/**
@@ -103,6 +113,26 @@ public class MSAData implements InfoProvider {
 	 * @param seqIdx the integer key of the sequence.
 	 */
 	private void addData(String name, String sequence, int seqIdx) {
+		//Update nucleotide frequencies
+		for (int i = 0; i < sequence.length(); i++ ) {
+			switch(sequence.charAt(i))
+			{
+			case 'A':
+				this.nucleotideFrequencies.set(0, this.nucleotideFrequencies.get(0)+1);
+				break;
+			case 'C':
+				this.nucleotideFrequencies.set(1, this.nucleotideFrequencies.get(1)+1);
+				break;
+			case 'G':
+				this.nucleotideFrequencies.set(2, this.nucleotideFrequencies.get(2)+1);
+				break;
+			case 'T':
+				this.nucleotideFrequencies.set(3, this.nucleotideFrequencies.get(3)+1);
+				break;
+			}
+			//this.nucleotideFrequencies.set(this.seqType.get(sequence.charAt(i)), this.nucleotideFrequencies.get(this.seqType.get(sequence.charAt(i)))+1);
+		}
+		
 		this.nameToKey.put(name, seqIdx);
 		// Lower case internally.
 		sequence = sequence.toLowerCase();
@@ -305,7 +335,7 @@ public class MSAData implements InfoProvider {
 		this.seqType = newtype;
 	}
 
-
+	
 	@Override
 	public String toString() {
 		return this.getInfoString();
@@ -323,6 +353,15 @@ public class MSAData implements InfoProvider {
 		.append("No. of positions: ").append(this.noOfPositions)
 		.append('\n');
 		return sb.toString();
+	}
+	
+	/**
+	 * Returns the Nucleotide frequencies
+	 * @return frequencies in order of seqType order of nucleotides
+	 */
+	public List<Integer> getNucleotideFrequencies()
+	{
+		return this.nucleotideFrequencies;
 	}
 
 

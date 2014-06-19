@@ -189,8 +189,11 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 			return false;
 //			throw new RuntimeException("Unable to decompose eigensystem for substitution model.");
 		}
+		try {
 		AdditionalEJMLOps.getEigensystemSolution(this.alphabetSize, eigFact, this.E, this.V);
-		
+		}
+		catch(Exception e)
+		{return false;}
 		// Compute inverse of V.
 		if (!CommonOps.invert(this.V, this.iV)) {
 			return false;

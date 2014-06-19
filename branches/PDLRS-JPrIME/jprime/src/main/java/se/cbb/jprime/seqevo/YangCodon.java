@@ -1,5 +1,7 @@
 package se.cbb.jprime.seqevo;
 
+import java.util.List;
+
 /**
  * Substitution model from Journal of Structural and Functional Genomics 3: 201–212, 2003.
  * TODO: 
@@ -48,17 +50,34 @@ public class YangCodon {
 	 * 		
 	 * @return the model type.
 	 */
-	public static SubstitutionMatrixHandler createYangCodon(Double kappa, Double omega, int cacheSize, boolean allowStopCodons) {
+	public static SubstitutionMatrixHandler createYangCodon(Double kappa, Double omega, int cacheSize, boolean allowStopCodons, List<Integer> nucleotideFrequencies) {
 		
 		
 		final int CODONSIZE = SequenceType.CODON.getAlphabetSize();
 		int[] aminoacidmap = { 1, 1, 2, 2, 	3, 3, 3, 3,	 4, 4, 5, 5,  6, 6, 5, 7,  		2, 2, 2, 2,  8, 8, 8, 8,  9, 9, 10, 10,  11, 11, 11, 11,  		12, 12, 12, 13,  14, 14, 14, 14,  15, 15, 16, 16,  3, 3, 11, 11, 		17, 17, 17, 17,  18, 18, 18, 18,  19, 19, 20, 20,  21, 21, 21, 21  };
 		double[] Pi = new double[CODONSIZE];
 		double[] Ro = new double[(CODONSIZE*CODONSIZE-CODONSIZE)/2];
+		double sum=0;
 
 		// Uniform equilibrium frequencies 
-		for (int i = 0; i < CODONSIZE; ++i) {
+		for ( int i = 0; i < CODONSIZE; ++i) {
 			Pi[i] = 1.0 / CODONSIZE;
+		}
+		
+		int totalfreq =0; for(int i=0; i<nucleotideFrequencies.size(); i++) totalfreq += nucleotideFrequencies.get(i);
+		double[] nuclFreq = new double[nucleotideFrequencies.size()]; 
+		for(int i=0; i<nucleotideFrequencies.size(); i++) nuclFreq[i] = nucleotideFrequencies.get(i)/(double)totalfreq;
+		
+		for (int i = 0; i < CODONSIZE; ++i) {
+			String codon = SequenceType.CODON.codonInt2str(i);
+			double codonFrequency = nuclFreq[SequenceType.DNA.char2int(codon.charAt(0))] * nuclFreq[SequenceType.DNA.char2int(codon.charAt(1))] * nuclFreq[SequenceType.DNA.char2int(codon.charAt(2))];
+			Pi[i]=codonFrequency;
+			sum=sum+Pi[i];
+//			Pi[i]=1.0 / CODONSIZE;
+		}
+		
+		for ( int i = 0; i < CODONSIZE; ++i) {
+			Pi[i] = Pi[i] / sum;
 		}
 
 		

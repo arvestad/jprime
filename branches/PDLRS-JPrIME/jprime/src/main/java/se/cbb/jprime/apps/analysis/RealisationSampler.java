@@ -1,19 +1,12 @@
-package se.cbb.jprime.apps.pdlrs;
+package se.cbb.jprime.apps.analysis;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.beust.jcommander.JCommander;
-
-import se.cbb.jprime.io.GenePseudogeneMapReader;
-import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.SampleInt;
-import se.cbb.jprime.io.SampleNewickTree;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.PRNG;
@@ -25,7 +18,6 @@ import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RootedBifurcatingTree;
-import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
@@ -79,8 +71,6 @@ public class RealisationSampler implements Sampleable {
 	/** Pseudogenization switches.*/
 	protected DoubleMap pgSwitches;
 	
-	protected DLRModel model;
-	
 	/**
 	 * Constructor.
 	 * @param file f the output str.
@@ -110,7 +100,6 @@ public class RealisationSampler implements Sampleable {
 		this.dupLossProbs = model.dupLossProbs;
 		this.substPD = model.substPD;
 		this.atsProbs = model.ats;
-		this.model=model;
 		
 		// Write header.
 		this.out.write("# Host tree: " + this.times.toString() + "\n");
@@ -135,13 +124,13 @@ public class RealisationSampler implements Sampleable {
 	 * @param pgSwitches pseudogenization switches
 	 * @throws IOException.
 	 */
-	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLRModel model, RootedBifurcatingTreeParameter g, NamesMap names, DoubleMap pgSwitches) throws IOException {
+	public RealisationSampler(String filename, int noOfRealisations, Iteration iteration, PRNG prng, DLRModel model, NamesMap names, DoubleMap pgSwitches) throws IOException {
 		this.out = new BufferedWriter(new FileWriter(filename));
 		this.noOfRealisations = noOfRealisations;
 		this.iteration = iteration;
 		this.prng = prng;
 		this.S = model.s;
-		this.G = g;
+		this.G = model.g;
 		this.names = names;
 		this.times = model.reconcHelper.times;
 		this.lengths = model.lengths;
@@ -150,7 +139,6 @@ public class RealisationSampler implements Sampleable {
 		this.substPD = model.substPD;
 		this.atsProbs = model.ats;
 		this.pgSwitches = pgSwitches;
-		this.model=model;
 		
 		// Write header.
 		this.out.write("# Host tree: " + this.times.toString() + "\n");
@@ -205,8 +193,6 @@ public class RealisationSampler implements Sampleable {
 			samplePoint(v, placements, abst, arct, isDups);
 			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
 		}
-		
-		Realisation r = new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss), pgSwitches);
 		
 		// Finally, generate guest tree with times.
 		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss), pgSwitches);
@@ -401,9 +387,7 @@ public class RealisationSampler implements Sampleable {
 	@Override
 	public String getSampleValue(SamplingMode mode) {
 		StringBuilder str = new StringBuilder(1024);
-//		System.out.println();
-//		System.out.println(this.G);
-//		System.out.println(this.model.g);
+		
 		// Use current iteration as ID to be able to tie MCMC sample and realisation samples together.
 		String id = "" + this.iteration.getIteration();
 		str.append(id);
@@ -432,94 +416,7 @@ public class RealisationSampler implements Sampleable {
 			}
 		}
 				
-//		try {
-//			return SampleNewickTree.toString(this.G, this.names, null);
-//		} catch (NewickIOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}//str.toString();
-		return "";
+		return "";//str.toString();
 	}
 
-	/**
-	 * Checks if the realisation is a legal pseudogenization
-	 * @param r
-	 * @return true or false
-	 */
-	public boolean isLegalRealisation(Realisation r, LinkedHashMap<String, Integer> gpgMap)
-	{
-		
-		int vertices = r.getGuestTree().getNoOfVertices();
-		DoubleMap pgSwitches = new DoubleMap("Pseudogenization Switches", vertices);
-		for (int vr = 0; vr < vertices; vr++)
-		{
-			if(r.getPGPoint(vr) != 1)
-				pgSwitches.set(vr, r.getPGPoint(vr));
-			else
-				pgSwitches.set(vr, 1);
-		}
-		int falseSample=0;
-		List<Integer> leaves = r.getGuestTree().getLeaves();
-		for(Integer l: leaves)
-		{
-			if(gpgMap.get(r.getVertexName(l.intValue()))==1)
-			{
-				int numberofswitches=0;
-				int v=l.intValue();
-				while(!r.getGuestTree().isRoot(v))
-				{
-					if(pgSwitches.get(v)!=1)
-						numberofswitches++;
-					v=r.getGuestTree().getParent(v);
-				}
-				if(r.getGuestTree().isRoot(v) && pgSwitches.get(v)!=1)
-					numberofswitches++;
-				if(numberofswitches ==0 )
-					falseSample=1;	
-				if(numberofswitches>1)
-					falseSample=2;
-			}
-		}		
-		if(falseSample == 0)
-			return true;
-		else
-			return false;
-	}
-	
-	/**
-	 * Checks if the switches are a legal pseudogenization
-	 * @param r
-	 * @return true or false
-	 */
-	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
-	{
-		
-		int vertices = G.getNoOfVertices();
-		int falseSample=0;
-		List<Integer> leaves = G.getLeaves();
-		for(Integer l: leaves)
-		{
-			if(gpgMap.get(names.get(l.intValue()))==1)
-			{
-				int numberofswitches=0;
-				int v=l.intValue();
-				while(!G.isRoot(v))
-				{
-					if(pgSwitches.get(v)!=1)
-						numberofswitches++;
-					v=G.getParent(v);
-				}
-				if(G.isRoot(v) && pgSwitches.get(v)!=1)
-					numberofswitches++;
-				if(numberofswitches ==0 )
-					falseSample=1;	
-				if(numberofswitches>1)
-					falseSample=2;
-			}
-		}		
-		if(falseSample == 0)
-			return true;
-		else
-			return false;
-	}
 }

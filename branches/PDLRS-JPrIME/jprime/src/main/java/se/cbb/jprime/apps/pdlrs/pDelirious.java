@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -18,6 +19,10 @@ import org.biojava3.core.sequence.template.Sequence;
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
+import se.cbb.jprime.io.NewickTree;
+import se.cbb.jprime.io.NewickTreeReader;
+import se.cbb.jprime.io.PrIMENewickTree;
+import se.cbb.jprime.io.PrIMENewickTreeReader;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleWriter;
@@ -40,6 +45,7 @@ import se.cbb.jprime.misc.Quadruple;
 import se.cbb.jprime.misc.Triple;
 import se.cbb.jprime.seqevo.GammaSiteRateHandler;
 import se.cbb.jprime.seqevo.MSAData;
+import se.cbb.jprime.seqevo.SequenceType;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandler;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
 import se.cbb.jprime.seqevo.SubstitutionModel;
@@ -50,6 +56,7 @@ import se.cbb.jprime.topology.MPRMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
+import se.cbb.jprime.topology.RTree;
 import se.cbb.jprime.topology.TimesMap;
 
 import com.beust.jcommander.JCommander;
@@ -137,16 +144,21 @@ public class pDelirious implements JPrIMEApp {
 			
 			// Pi calculated in prior and hard coded in substitution matrix 
 			
+			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, SequenceType.CODON);
+			MSAData D = new MSAData(SequenceType.CODON, sequences);
+			
 			// Substitution model first, then sequence alignment D and site rates.
 			boolean allowStopCodons=true;
-			SubstitutionMatrixHandler Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel(params.substitutionModel, kappa.getValue(), 1.0001, 4 * gsMap.getNoOfLeafNames(), allowStopCodons);
+			List<Integer> eq_freq = D.getNucleotideFrequencies();
+			if(params.eqfreq == "UNIFORM")
+				for(int eq=0; eq<eq_freq.size(); eq++) eq_freq.set(eq, 1);
+			SubstitutionMatrixHandler Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel(params.substitutionModel, kappa.getValue(), 1.0001, 4 * gsMap.getNoOfLeafNames(), allowStopCodons, eq_freq);
 			allowStopCodons=false;
-			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel(params.substitutionModel, kappa.getValue(), omega.getValue(), 4 * gsMap.getNoOfLeafNames(), allowStopCodons);
+			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel(params.substitutionModel, kappa.getValue(), omega.getValue(), 4 * gsMap.getNoOfLeafNames(), allowStopCodons, eq_freq);
 
 			//SubstitutionMatrixHandler Q_arve = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
 			
-			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
-			MSAData D = new MSAData(Q.getSequenceType(), sequences);
+
 			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
 			
 			// Pseudo-random number generator.
@@ -218,7 +230,7 @@ public class pDelirious implements JPrIMEApp {
 			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.fourth, edgeRatePD.third, pgSwitches, edgeModels);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second, pgSwitches);
+			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.first, gNamesLengths.second, pgSwitches);
 			
 			// Proposers.
 			NormalProposer kappaNProposer = ParameterParser.getNormalProposer(params, kappa, new RealInterval(0, 100, true, true), iter, prng, params.tuningKappaRate);

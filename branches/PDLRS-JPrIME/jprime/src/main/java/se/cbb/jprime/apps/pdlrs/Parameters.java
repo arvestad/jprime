@@ -23,6 +23,10 @@ public class Parameters {
 	@Parameter(names = {"-h", "--help"}, description = "Display help.")
 	public Boolean help = false;
 	
+	/** Equilibrium frequencies. */
+	@Parameter(names = {"-eq", "--equilibriumfreq"}, description = "Equilibrium frequencies for the substitution model. May be either UNIFORM or ESTIMATED.")
+	public String eqfreq = "UNIFORM";
+	
 	/** Output location. */
 	@Parameter(names = {"-o", "--outfile"}, description = "Output file. Default: stdout.")
 	public String outfile = null;
