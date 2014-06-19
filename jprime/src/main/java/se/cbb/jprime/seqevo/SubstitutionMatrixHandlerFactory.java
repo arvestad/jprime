@@ -3,6 +3,7 @@ package se.cbb.jprime.seqevo;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import se.cbb.jprime.io.SampleDoubleArray;
 
@@ -64,8 +65,8 @@ public class SubstitutionMatrixHandlerFactory {
 		}
 	};
 
-	public static SubstitutionMatrixHandler createPseudogenizationModel(String model, double kappa, double omega, int cacheSize, boolean allowStopCodons) {
-		SubstitutionMatrixHandler q = YangCodon.createYangCodon(kappa, omega, cacheSize, allowStopCodons);
+	public static SubstitutionMatrixHandler createPseudogenizationModel(String model, double kappa, double omega, int cacheSize, boolean allowStopCodons, List<Integer> nucleotideFrequencies) {
+		SubstitutionMatrixHandler q = YangCodon.createYangCodon(kappa, omega, cacheSize, allowStopCodons, nucleotideFrequencies);
 		if(q==null)
 		{	
 			try{

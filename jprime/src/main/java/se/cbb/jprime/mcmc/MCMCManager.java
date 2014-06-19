@@ -271,7 +271,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		ArrayList<Proposal> proposals = new ArrayList<Proposal>(16);
 		try {
 			while (this.iteration.increment()) {
-				
+//				this.doDebug=true;
 				// Clear lists.
 				changeInfos.clear();
 				proposals.clear();
@@ -299,6 +299,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				// Perturb state parameters.
 				for (Proposer proposer : shakeItBaby) {
 					Proposal proposal = proposer.cacheAndPerturb(changeInfos);
+//					System.out.println(proposer.toString());
 					proposals.add(proposal);
 				}
 				
@@ -325,13 +326,17 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				
 				// Finally, decide whether to accept or reject.
 				boolean doAccept = false;
+				boolean error = false;
 				try {
 					if(newPosteriorDensity.greaterThan(0.0))
 						doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
 //					if(doAccept == true)
-//						System.out.println("State accepted with subst prob = " + subst_prob);
+//						System.out.println("State accepted ");
+//					else
+//						System.out.println("State rejected ");
 				}
 				catch (ArithmeticException e) {
+//					error=false;
 				    throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");
 				}
 
@@ -342,9 +347,11 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				}
 				
 				// Update accordingly.
-				if (doAccept) {
+				if (doAccept) {  // && error==false
 					stats.increment(true, "" + shakeItBaby.size() + " used proposers");
 					for (Proposer proposer : shakeItBaby) {
+//						if(proposer.toString().contains("GuestTree"))
+//							System.out.println();
 						proposer.clearCache();
 					}
 					for (ProperDependent dep : this.properDependents) {

@@ -1,4 +1,4 @@
-package se.cbb.jprime.apps.pdlrs;
+package se.cbb.jprime.apps.analysis;
 
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
@@ -98,7 +98,7 @@ public class Realisation {
 				} else {
 					sb.append("[&&PRIME VERTEXTYPE=Speciation");
 				}
-				sb.append(" ID=").append(v).append(" DISCPT=").append(placements.get(v)).append(" PG=").append(this.pgSwitches.get(v)).append("]");
+				sb.append(" DISCPT=").append(placements.get(v)).append(" PG=").append(this.pgSwitches.get(v)).append("]");
 				meta.set(v, sb.toString());
 			}
 			
@@ -109,42 +109,5 @@ public class Realisation {
 		}
 	}
 	
-	/**
-	 * Returns the guest tree
-	 * @return guest tree.
-	 */
-	public RootedBifurcatingTree getGuestTree()
-	{
-		return this.G;
-	}
 	
-	/**
-	 * Returns the PG point
-	 * @return pseudogenization switch.
-	 */
-	public double getPGPoint(int v)
-	{
-		return this.pgSwitches.get(v);
-	}
-	
-	public int[] getDiscPt(int v)
-	{
-		int[] plcmnt = new int[2];
-		String placement = this.placements.get(v);
-		int vertexInS = Integer.parseInt(placement.substring(placement.indexOf("(")+1 , placement.lastIndexOf(",") ));
-		int discptInS = Integer.parseInt(placement.substring(placement.indexOf(",")+1 , placement.lastIndexOf(")") ));
-		plcmnt[0]=vertexInS;
-		plcmnt[1]=discptInS;
-		return plcmnt;
-	}
-	
-	public String getVertexName(int vertex)
-	{
-		return names.get(vertex);
-	}
-	
-	public NamesMap getNamesMap()
-	{
-		return names;
-	}
 }

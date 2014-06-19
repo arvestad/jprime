@@ -1,4 +1,4 @@
-package se.cbb.jprime.apps.pdlrs;
+package se.cbb.jprime.apps.analysis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -290,7 +290,6 @@ public class DLRModel implements InferenceModel {
 					2 * this.dupLossProbs.getDuplicationRate() * this.reconcHelper.getSliceTime(x_i);
 				// Move onto next pure discretisation point above.
 				this.reconcHelper.incrementPt(x_i);
-				
 			}
 //			}catch(Exception e)
 //			{System.out.println("Array index out of bound error");}
@@ -323,7 +322,6 @@ public class DLRModel implements InferenceModel {
 			uBelows[xcnt] = 0.0;
 			// For each y_j strictly below x_i.
 			int[] y_j = this.reconcHelper.getLoLim(u);
-
 			double xt = this.reconcHelper.getDiscretisationTime(x_i);
 			for (int ycnt = 0; ycnt < uAts.length; ++ycnt) {
 				double yt = this.reconcHelper.getDiscretisationTime(y_j);

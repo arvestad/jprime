@@ -196,6 +196,11 @@ public class SampleWriter implements Sampler {
 			sample[i] = sampleables.get(i).getSampleValue(mode);
 		}
 		
+//		if(!sample[11].equalsIgnoreCase(sample[12]))
+//		{
+//			System.out.println("Gene trees are not same across classes!");
+//		}
+		
 		// If desired, exchange unchanged parameters for symbol.
 		if (doConcise) {
 			if (this.lastSample == null) {

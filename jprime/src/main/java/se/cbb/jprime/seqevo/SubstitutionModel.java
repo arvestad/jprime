@@ -1,13 +1,18 @@
 package se.cbb.jprime.seqevo;
 
+import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
 
+import se.cbb.jprime.io.GenePseudogeneMapReader;
+import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.SampleLogDouble;
+import se.cbb.jprime.io.SampleNewickTree;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
@@ -174,9 +179,9 @@ public class SubstitutionModel implements InferenceModel {
     	}
     	//this.updateLikelihood(this.T.getRoot(), true);
     	boolean allowStopCodons = true; 
-    	this.Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
+    	this.Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons, D.getNucleotideFrequencies());
     	allowStopCodons = false;
-    	this.Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
+    	this.Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons, D.getNucleotideFrequencies());
     	if(this.Qp != null && this.Q!= null)
     	{
 	    	this.updateLikelihood(this.T.getRoot(), true, edgeModels, pgSwitches);
@@ -186,6 +191,7 @@ public class SubstitutionModel implements InferenceModel {
 
     @Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
+
     	// Find out which parents have changed.
     	ChangeInfo tInfo = changeInfos.get(this.T);
     	ChangeInfo blInfo = changeInfos.get(this.branchLengths);
@@ -193,6 +199,13 @@ public class SubstitutionModel implements InferenceModel {
 		ChangeInfo pgInfo = changeInfos.get(this.pgSwitches);
 		ChangeInfo kInfo = changeInfos.get(this.kappa);
 		ChangeInfo oInfo = changeInfos.get(this.omega);
+//		try {
+//			if(tInfo != null)
+//			System.out.println(SampleNewickTree.toString(this.T, names, null));
+//		} catch (NewickIOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		boolean updateSubstitutionModel = true;
 		if (tInfo != null || siteRateInfo != null || (blInfo != null && blInfo.getAffectedElements() == null)
 				|| pgInfo != null || kInfo != null || oInfo!= null) {
@@ -202,9 +215,9 @@ public class SubstitutionModel implements InferenceModel {
 			{
 		    	boolean allowStopCodons = true; 
 
-		    	SubstitutionMatrixHandler temp_Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    	SubstitutionMatrixHandler temp_Qp = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), 1.0001, 4 * this.T.getNoOfLeaves(), allowStopCodons, D.getNucleotideFrequencies());
 		    	allowStopCodons = false;
-		    	SubstitutionMatrixHandler temp_Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons);
+		    	SubstitutionMatrixHandler temp_Q = SubstitutionMatrixHandlerFactory.createPseudogenizationModel("YangCodon", this.kappa.getValue(), omega.getValue(), 4 * this.T.getNoOfLeaves(), allowStopCodons, D.getNucleotideFrequencies());
 		    	
 		    	if(temp_Qp!= null && temp_Q!= null){
 		    		this.Qp = temp_Qp;
@@ -634,5 +647,41 @@ public class SubstitutionModel implements InferenceModel {
 	public String getModelName() {
 		return this.name;
 	}
-    
+	
+	/**
+	 * Checks if the switches are a legal pseudogenization
+	 * @param r
+	 * @return true or false
+	 */
+	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
+	{
+		
+		int vertices = T.getNoOfVertices();
+		int falseSample=0;
+		List<Integer> leaves = T.getLeaves();
+		for(Integer l: leaves)
+		{
+			if(gpgMap.get(names.get(l.intValue()))==1)
+			{
+				int numberofswitches=0;
+				int v=l.intValue();
+				while(!T.isRoot(v))
+				{
+					if(pgSwitches.get(v)!=1)
+						numberofswitches++;
+					v=T.getParent(v);
+				}
+				if(T.isRoot(v) && pgSwitches.get(v)!=1)
+					numberofswitches++;
+				if(numberofswitches ==0 )
+					falseSample=1;	
+				if(numberofswitches>1)
+					falseSample=2;
+			}
+		}		
+		if(falseSample == 0)
+			return true;
+		else
+			return false;
+	}
 }

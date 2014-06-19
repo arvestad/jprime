@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import se.cbb.jprime.io.NewickIOException;
+import se.cbb.jprime.io.SampleNewickTree;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.ChangeInfo;
@@ -237,11 +240,27 @@ public class RBTreeBranchSwapper implements Proposer {
 	
 	@Override
 	public Proposal cacheAndPerturb(Map<Dependent, ChangeInfo> changeInfos) {
+		
 		// First determine move to make.
 		double w = this.prng.nextDouble() * (this.operationWeights[0] + this.operationWeights[1] + this.operationWeights[2]);
-		
+//		boolean flag = isLegalSwitches(pgSwitches, gpgMap);
+//		if(flag==false)
+//			System.out.println(flag);
+//		try {
+//			System.out.println();
+//			System.out.println(this.T);
+//			System.out.println(SampleNewickTree.toString(this.T, this.geneNames, null));
+//		} catch (NewickIOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// Cache everything.
 		this.T.cache();
+		if(this.pgSwitches != null)
+		{
+			this.pgSwitches.cache(null);
+			this.edgeModels.cache(null);
+		}
 		if (this.lengths != null) {
 			this.lengths.cache(null);
 		}
@@ -272,16 +291,21 @@ public class RBTreeBranchSwapper implements Proposer {
 		}
 		while((!isALegalConfiguration(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
 		
+		
 		if (i >= MAX_LIMIT)
 		{
 			this.T.restoreCache();
+			if(this.pgSwitches!=null)
+			{
+				this.pgSwitches.restoreCache();
+				this.edgeModels.restoreCache();
+			}
 			this.T.cache();
 		}else
 		{	
 			// Converts all switches below switches to plain pseudogenized edge (does not allow a gene edge below a switch)
 			makePseudogenizationConsistant(this.T.getRoot(), this.T);
 		}
-		
 		//System.out.println("\n" + this.T.getSampleValue());
 		assert this.verticesAreUnique();
 		
@@ -301,6 +325,11 @@ public class RBTreeBranchSwapper implements Proposer {
 			no += this.getNoOfSubParameters();
 		}
 		
+//		boolean flag2 = isLegalSwitches(pgSwitches, gpgMap);
+//		if(flag2==false)
+//			System.out.println(flag2);
+//		System.out.println(this.T);
+//		System.out.println(this.geneNames);
 		// Right now, we consider forward-backward probabilities as equal.
 		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), affected, no);
 	}
@@ -1021,6 +1050,11 @@ public class RBTreeBranchSwapper implements Proposer {
 			this.statistics.increment(true, this.lastOperationType);
 		}
 		this.T.clearCache();
+		if(pgSwitches!=null)
+		{
+			this.pgSwitches.clearCache();
+			this.edgeModels.clearCache();
+		}
 		if (this.times != null) {
 			this.times.clearCache();
 		}
@@ -1035,6 +1069,12 @@ public class RBTreeBranchSwapper implements Proposer {
 			this.statistics.increment(false, this.lastOperationType);
 		}
 		this.T.restoreCache();
+		if(this.pgSwitches!=null)
+		{
+			this.pgSwitches.restoreCache();
+			this.edgeModels.restoreCache();
+		}
+		
 		if (this.times != null) {
 			this.times.restoreCache();
 		}
@@ -1056,5 +1096,40 @@ public class RBTreeBranchSwapper implements Proposer {
 			"]";
 	}
 
+	/**
+	 * Checks if the switches are a legal pseudogenization
+	 * @param r
+	 * @return true or false
+	 */
+	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
+	{
+		
+		int falseSample=0;
+		List<Integer> leaves = T.getLeaves();
+		for(Integer l: leaves)
+		{
+			if(gpgMap.get(geneNames.get(l.intValue()))==1)
+			{
+				int numberofswitches=0;
+				int v=l.intValue();
+				while(!T.isRoot(v))
+				{
+					if(pgSwitches.get(v)!=1)
+						numberofswitches++;
+					v=T.getParent(v);
+				}
+				if(T.isRoot(v) && pgSwitches.get(v)!=1)
+					numberofswitches++;
+				if(numberofswitches ==0 )
+					falseSample=1;	
+				if(numberofswitches>1)
+					falseSample=2;
+			}
+		}		
+		if(falseSample == 0)
+			return true;
+		else
+			return false;
+	}
 
 }
