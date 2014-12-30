@@ -244,4 +244,7 @@ public class Parameters {
 	@Parameter(names = {"-dbg", "--debug"}, description = "Output debugging info.")
 	public Boolean debug = false;
 	
+	/** Normalizing weight parameter for branch lengths of gene tree. Particularly useful when gene trees are generated using a different concept of branch lengths e.g. ALF (PAM distance).*/
+	@Parameter(names = {"-normp", "--normalizationparam"}, description = "Normalizing ratio for branch lengths of gene tree.")
+	public String normp = "1.0";
 }
