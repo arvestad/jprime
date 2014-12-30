@@ -143,6 +143,9 @@ public class Delirious implements JPrIMEApp {
 			}
 			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
 			
+			for(int i = 0; i < gNamesLengths.third.getSize(); i++)
+				gNamesLengths.third.set(i, gNamesLengths.third.get(i)/Double.parseDouble(params.normp));
+			
 			// Read number of iterations and thinning factor.
 			Iteration iter = ParameterParser.getIteration(params);
 			Thinner thinner = ParameterParser.getThinner(params, iter);
