@@ -241,8 +241,9 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * Starts and executes the MCMC chain.
 	 * @throws IOException if unable to produce sampling output.
 	 */
-       public void run() throws IOException,  ArithmeticException{
-		
+       @SuppressWarnings("unchecked")
+	public void run() throws IOException,  ArithmeticException{
+//		int acceptedStates=0, rejectedStates=0, genetreeProposals=0, statesWithNaN=0;
 		// Update the topological ordering of the dependency DAG.
 		this.updateDependencyStructure();
 		
@@ -270,7 +271,11 @@ public class MCMCManager implements Sampleable, InfoProvider {
 		HashMap<Dependent, ChangeInfo> changeInfos = new HashMap<Dependent, ChangeInfo>(16);
 		ArrayList<Proposal> proposals = new ArrayList<Proposal>(16);
 		try {
+//			boolean geneTreeSpaceExploration=false;
+			String s= "";
 			while (this.iteration.increment()) {
+//				if(this.iteration.getIteration()%100 == 0)
+//					geneTreeSpaceExploration=true;
 //				this.doDebug=true;
 				// Clear lists.
 				changeInfos.clear();
@@ -278,13 +283,20 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				
 				// Query whether this is a sample iteration or not.
 				willSample = this.thinner.doSample();
-				
+				Set<Proposer> shakeItBaby;
 				// Get proposer(s) to use.
-				Set<Proposer> shakeItBaby = this.proposerSelector.getDisjointProposers();
+//				if(this.iteration.getIteration() < 10000)
+//					shakeItBaby = (Set<Proposer>) this.proposerSelector.getGeneTreeProposers();
+//				else
+					shakeItBaby = this.proposerSelector.getDisjointProposers();
+				
+//				if(this.iteration.getIteration() % 100 == 0)
+//					System.out.println("\n==============================================\n\n");
 //				StringBuilder dbg1 = new StringBuilder(512);
 //				for (Proposer p1 : shakeItBaby)
 //					dbg1.append(p1.toString()).append(", ");
-//				System.out.println(dbg1.toString());
+////				System.out.println(dbg1.toString());
+//				s=dbg1.toString();
 				// Debug info.
 				if (this.doDebug) {
 					StringBuilder dbg = new StringBuilder(512);
@@ -293,9 +305,13 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					for (Proposer p : shakeItBaby) {
 						dbg.append(p.toString()).append(", ");
 					}
+					System.out.println(dbg.toString());
 					this.sampler.writeString(dbg.toString());
 				}
 
+//				if(s.contains("GuestTree"))
+//					System.out.println("Check for gene tree perturber.. ");
+				
 				// Perturb state parameters.
 				for (Proposer proposer : shakeItBaby) {
 					Proposal proposal = proposer.cacheAndPerturb(changeInfos);
@@ -303,6 +319,7 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					proposals.add(proposal);
 				}
 				
+
 				// Update in topological order, but only if deemed necessary.
 				for (ProperDependent dep : this.properDependents) {
 					for (Dependent parent : dep.getParentDependents()) {
@@ -313,38 +330,143 @@ public class MCMCManager implements Sampleable, InfoProvider {
 					}
 				}
 				
-				Double subst_prob = 0.0;
+//				if(s.contains("GuestTree"))
+//					System.out.println();
+
+				
+				
+//				Double subst_prob = 0.0;
 				// Get posterior density of proposed state.
 				LogDouble newPosteriorDensity = new LogDouble(1.0);
 				for (InferenceModel m : this.models) {
-					if(m.getModelName().matches("SubstitutionModel")){ 
-						subst_prob = m.getDataProbability().getValue();
-						newPosteriorDensity.mult(m.getDataProbability());}
-					else
-						newPosteriorDensity.mult(m.getDataProbability());
+					newPosteriorDensity.mult(m.getDataProbability());
+//					if(s.contains("GuestTree") && m.getModelName().contains("ubsti"))
+//						System.out.println("Substitution model : " + m.getDataProbability().getLogValue() + " , " + m.getDataProbability().getValue());
+//					if(s.contains("GuestTree") && (m.getModelName().contains("DLR") || m.getModelName().contains("dlr")))
+//						System.out.println("DLR : " + m.getDataProbability().getLogValue() + " , " + m.getDataProbability().getLogValue());
+//					if(Double.toString(m.getDataProbability().getLogValue()).contains("-Infinity"))
+//						System.out.println();
+					
+//					if(s.contains("GuestTree")){
+//						System.out.println("=======================================================\n Gene Tree data begins\n =======================================================");
+//						System.out.println(m.getModelName() +" : "+ m.getDataProbability().getValue() + ", LogDouble : " + m.getDataProbability());
+//					}
 				}
+//				if(s.contains("GuestTree")) 
+//					System.out.println("New Posterior Probability" +" : "+ newPosteriorDensity.getValue() + ", LogDouble : " + newPosteriorDensity);
+//				if(newPosteriorDensity.getValue() > 0  && s.contains("GuestTree"))
+//					System.out.println("New Posterior greater than zero");
 				
 				// Finally, decide whether to accept or reject.
 				boolean doAccept = false;
-				boolean error = false;
+//				boolean error = false;
 				try {
 					if(newPosteriorDensity.greaterThan(0.0))
 						doAccept = this.proposalAcceptor.acceptProposedState(newPosteriorDensity, this.posteriorDensity, proposals);
 //					if(doAccept == true)
-//						System.out.println("State accepted ");
+//						System.out.println("State accepted (routine code)");
 //					else
-//						System.out.println("State rejected ");
+//						System.out.println("State rejected (routine code)");
 				}
 				catch (ArithmeticException e) {
 //					error=false;
 				    throw new ArithmeticException("The current state has zero probability and that is undefined behaviour in MCMC algorithms. You need better start parameters.");
-				}
+				}	
+					
+				
+//				boolean previousAcceptState=doAccept;
+//				LogDouble oldPosteriorDensity = new LogDouble(1.0);
+//				oldPosteriorDensity = newPosteriorDensity;
+//				newPosteriorDensity = this.posteriorDensity;
+//#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------				
+				//
+				//		Write a function to propose ten other trees, compute their new posterior and see if they will have any chance of getting selected. 
+				//		----------------------------------------------------------------------------------------------------------------------------------
+//				if(this.iteration.getIteration() > 500)
+//				if(geneTreeSpaceExploration){
+//					geneTreeSpaceExploration=false;
+//					System.out.println("\n\n=======================================================\n Gene Tree space exploation begins\n =======================================================\n\n");
+//					for (int geneTreeNo = 0; geneTreeNo<100; geneTreeNo++)
+//					{
+//						proposals.clear();
+//						Proposer proposer = this.proposerSelector.getGeneTreeProposers();
+//						Proposal proposal = proposer.cacheAndPerturb(changeInfos);
+//						// Update in topological order, but only if deemed necessary.
+//						for (ProperDependent dep : this.properDependents) {
+//							for (Dependent parent : dep.getParentDependents()) {
+//								if (changeInfos.get(parent) != null) {
+//									dep.cacheAndUpdate(changeInfos, willSample);
+//									break;
+//								}
+//							}
+//						}
+//						proposals.add(proposal);
+//
+//						// Get posterior density of proposed state.
+//						LogDouble posteriorDensity = new LogDouble(1.0);
+//						for (InferenceModel m1 : this.models) {
+//							posteriorDensity.mult(m1.getDataProbability());
+////							if(s.contains("GuestTree")){
+////								System.out.println(m1.getModelName() +" : "+ m1.getDataProbability().getValue() + ", LogDouble : " + m1.getDataProbability());
+////							}
+//						}
+//						System.out.print("Posterior probability for tree number " + geneTreeNo +" posterior probability = "+posteriorDensity.getValue() + "  ,  Log value[ " + posteriorDensity.getLogValue()+"]");
+//						System.out.print("\tOld = "+oldPosteriorDensity.getValue() + "  ,  Log value[ " + oldPosteriorDensity.getLogValue()+"]");
+//						doAccept = this.proposalAcceptor.acceptProposedState(posteriorDensity, newPosteriorDensity, proposals);
+//						if(doAccept) System.out.print("\tState Accepted"); else System.out.print("\tState Rejected");
+//						
+//						// Update accordingly.
+//						if (doAccept) {  // && error==false
+//							proposer.clearCache();
+//							for (ProperDependent dep : this.properDependents) {
+//								if (changeInfos.get(dep) != null) {
+//									dep.clearCache(willSample);
+//								}
+//							}
+//
+//						} else {
+//							for (Proposer proposer1 : shakeItBaby) {
+//								proposer1.restoreCache();
+//							}
+//							for (ProperDependent dep: this.properDependents) {
+//								if (changeInfos.get(dep) != null) {
+//									dep.restoreCache(willSample);
+//								}
+//							}
+//						}
+//						proposals.clear();
+//					}
+//					System.out.println("\n\n=======================================================\n Gene Tree space exploation ends\n =======================================================\n\n");
+//					
+//				}
+//#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------				
+//				doAccept=previousAcceptState;
+//				newPosteriorDensity = oldPosteriorDensity;
+//				System.out.println("\n\n\n Iteration no : " + this.iteration.getIteration());
+				
+//				if(doAccept && s.contains("GuestTree")){
+////					System.out.println("State Accepted : " + acceptedStates + "/" + rejectedStates + "  (accepted/rejected)");
+//					acceptedStates++;
+//					genetreeProposals++;
+//				}
+//				else if(s.contains("GuestTree")){
+////					System.out.println("State Rejected : " + acceptedStates + "/" + rejectedStates + "  (accepted/rejected)" + "\t Proposal used : " + s);
+//					rejectedStates++;
+//					genetreeProposals++;
+//				}
+				
+//				if(doAccept )
+//					System.out.println("State Accepted : " + acceptedStates + "/" + rejectedStates + "  (accepted/rejected)" + "\t " + this.posteriorDensity.getLogValue() + "\t Proposal used : " + s);
 
+//				if(s.contains("GuestTree") && this.iteration.getIteration() > 200 && this.iteration.getIteration() < 300){
+//					doAccept = true;
+//				}
 				
 				// Debug info.
 				if (this.doDebug) {
 					this.sampler.writeString(doAccept ? " ...state accepted," : " ...state rejected,");
 				}
+				
 				
 				// Update accordingly.
 				if (doAccept) {  // && error==false
@@ -385,8 +507,27 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				if (willSample) {
 					this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
 				}
-				
+//				
+//				if(doAccept) {
+////					System.out.print("Posterior Probability" +" : "+ this.posteriorDensity.getValue() + ", LogDouble : " + this.posteriorDensity.getLogValue() );
+////					System.out.print("\tProposed Probability" +" : "+ oldPosteriorDensity.getValue() + ", LogDouble : " + oldPosteriorDensity.getLogValue() );
+////					System.out.print("\tState Accepted");  
+//				}else
+//				{
+////					System.out.print("Posterior Probability" +" : "+ this.posteriorDensity.getValue() + ", LogDouble : " + this.posteriorDensity.getLogValue() );
+////					System.out.print("\tProposed Probability" +" : "+ oldPosteriorDensity.getValue() + ", LogDouble : " + oldPosteriorDensity.getLogValue() );
+////					System.out.print("\tState Rejected");
+//				}
+//				if(!s.contains("GuestTree"))
+//				{
+//					System.out.println("\t"+s);
+//				}
 			}
+			
+			
+//			System.out.println("Accepted states = " + acceptedStates);
+//			System.out.println("Rejected states = " + rejectedStates);
+//			System.out.println("Gene Tree proposed states = " + genetreeProposals);
 		} catch (RunAbortedException rae) {
 			this.runAbortedMessage = rae.getMessage();
 		}

@@ -246,10 +246,13 @@ public class RBTreeBranchSwapper implements Proposer {
 //		boolean flag = isLegalSwitches(pgSwitches, gpgMap);
 //		if(flag==false)
 //			System.out.println(flag);
+//		System.out.println("Caching the tree before purturbing.. ");
 //		try {
+////			System.out.println("---------- Current ----------");
 //			System.out.println();
 //			System.out.println(this.T);
-//			System.out.println(SampleNewickTree.toString(this.T, this.geneNames, null));
+//			System.out.print(SampleNewickTree.toString(this.T, this.geneNames, null) + "\t");
+//			System.out.println();
 //		} catch (NewickIOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
@@ -289,7 +292,7 @@ public class RBTreeBranchSwapper implements Proposer {
 			}
 
 		}
-		while((!isALegalConfiguration(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
+		while((!isLegalSetting(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
 		
 		
 		if (i >= MAX_LIMIT)
@@ -303,6 +306,7 @@ public class RBTreeBranchSwapper implements Proposer {
 			this.T.cache();
 		}else
 		{	
+//			System.out.println("A new tree is proposed with "+ this.lastOperationType);
 			// Converts all switches below switches to plain pseudogenized edge (does not allow a gene edge below a switch)
 			makePseudogenizationConsistant(this.T.getRoot(), this.T);
 		}
@@ -331,58 +335,119 @@ public class RBTreeBranchSwapper implements Proposer {
 //		System.out.println(this.T);
 //		System.out.println(this.geneNames);
 		// Right now, we consider forward-backward probabilities as equal.
+//		try {
+//			System.out.println();
+//			System.out.println("-------- Proposed -----------");
+//			System.out.println();
+//			System.out.println(this.T);
+//			System.out.println(SampleNewickTree.toString(this.T, this.geneNames, null));
+//			System.out.println();
+//		} catch (NewickIOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return new MetropolisHastingsProposal(this, new LogDouble(1.0), new LogDouble(1.0), affected, no);
 	}
 
 	
-	public boolean isALegalConfigurationNotworking(int vertex, RBTree gtree) {	
+//	public boolean isALegalConfigurationNotworking(int vertex, RBTree gtree) {	
+//
+//		if (!gtree.isLeaf(vertex))
+//		{
+//			if(this.edgeModels.get(vertex)==2)						// Case of pseudogenization ..
+//			{
+//				// Check if all the descendants are pseudogenes
+//				List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
+//				for(Integer leaf:descendants)
+//				{
+//					Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+//						if(g != 1)
+//							return false;
+//				}
+//				
+//				// No descendant edge should be 1
+//				List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
+//				for(Integer v:alldescendantsvertices)
+//				{
+//					if(this.edgeModels.get(v) == 1)
+//						return false;
+//				}
+//			}
+//			else	// Case of gene edge.. 
+//			{
+//				return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
+//			}
+//		}else
+//		{
+//			Integer g = this.gpgMap.get(this.geneNames.get(vertex));
+//			if (g == 1) 												// Pseudogene case
+//			{
+//				if(this.edgeModels.get(vertex)!=1 )
+//					return true;
+//				else return false;
+//			}
+//			else 														// Gene case
+//			{
+//				if(this.edgeModels.get(vertex)==1)
+//					return true;
+//				else return false;
+//			}
+//		}
+//	
+//		return true;
+//	}			
 
-		if (!gtree.isLeaf(vertex))
-		{
-			if(this.edgeModels.get(vertex)==2)						// Case of pseudogenization ..
-			{
-				// Check if all the descendants are pseudogenes
-				List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
-				for(Integer leaf:descendants)
-				{
-					Integer g = this.gpgMap.get(this.geneNames.get(leaf));
-						if(g != 1)
-							return false;
-				}
-				
-				// No descendant edge should be 1
-				List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
-				for(Integer v:alldescendantsvertices)
-				{
-					if(this.edgeModels.get(v) == 1)
-						return false;
-				}
-			}
-			else	// Case of gene edge.. 
-			{
-				return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
-			}
-		}else
-		{
-			Integer g = this.gpgMap.get(this.geneNames.get(vertex));
-			if (g == 1) 												// Pseudogene case
-			{
-				if(this.edgeModels.get(vertex)!=1 )
-					return true;
-				else return false;
-			}
-			else 														// Gene case
-			{
-				if(this.edgeModels.get(vertex)==1)
-					return true;
-				else return false;
-			}
-		}
+//	public boolean isALegalConfiguration(int vertex, RBTree gtree) {	
+//
+//		if(this.pgSwitches != null ){
+//			if (!gtree.isLeaf(vertex))
+//			{
+//				if(this.edgeModels.get(vertex)==2 || this.edgeModels.get(vertex)==0)						// Case of pseudogenization ..
+//				{
+//					// Check if all the descendants are pseudogenes
+//					List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
+//					for(Integer leaf:descendants)
+//					{
+//						Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+//							if(g != 1)
+//								return false;
+//					}
+//					
+//					// No descendant edge should be 1
+//					List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
+//					for(Integer v:alldescendantsvertices)
+//					{
+//						if(this.edgeModels.get(v) == 1)
+//							return false;
+//					}
+//				}
+//				else	// Case of gene edge.. 
+//				{
+//					return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
+//				}
+//			}else
+//			{
+//				Integer g = this.gpgMap.get(this.geneNames.get(vertex));
+//				if (g == 1) 																				// Pseudogene case
+//				{
+//					if(this.edgeModels.get(vertex)!=1 )
+//						return true;
+//					else return false;
+//				}
+//				else 														// Gene case
+//				{
+//					if(this.edgeModels.get(vertex)==1)
+//						return true;
+//					else return false;
+//				}
+//			}
+//		}
+//		return true;
+//	}			
 	
-		return true;
-	}			
-
-	public boolean isALegalConfiguration(int vertex, RBTree gtree) {	
+	
+	
+	public boolean isLegalSetting(int vertex, RBTree gtree) {	
 
 		if(this.pgSwitches != null ){
 			if (!gtree.isLeaf(vertex))
@@ -390,46 +455,83 @@ public class RBTreeBranchSwapper implements Proposer {
 				if(this.edgeModels.get(vertex)==2 || this.edgeModels.get(vertex)==0)						// Case of pseudogenization ..
 				{
 					// Check if all the descendants are pseudogenes
-					List<Integer> descendants = gtree.getDescendantLeaves(vertex, true); 
-					for(Integer leaf:descendants)
-					{
-						Integer g = this.gpgMap.get(this.geneNames.get(leaf));
-							if(g != 1)
-								return false;
+					if(!allDescendantsLeavesArePseudogenes(vertex, gtree)){
+						if(ifOneOfTheChildIsPseudogenizable(vertex, gtree)){
+							if(allDescendantsLeavesArePseudogenes(gtree.getLeftChild(vertex), gtree)){
+								this.edgeModels.set(vertex, 1);
+								this.pgSwitches.set(vertex, 1.0);
+								this.edgeModels.set(gtree.getLeftChild(vertex),2);
+								this.pgSwitches.set(gtree.getLeftChild(vertex),0.5);
+							}else
+								if(allDescendantsLeavesArePseudogenes(gtree.getRightChild(vertex), gtree)){
+									this.edgeModels.set(vertex, 1);
+									this.pgSwitches.set(vertex, 1.0);
+									this.edgeModels.set(gtree.getRightChild(vertex),2);
+									this.pgSwitches.set(gtree.getRightChild(vertex),0.5);
+								}
+							return true;
+						}
+//						System.out.println(gtree);
+//						System.out.println(this.edgeModels);
+						return false;
+					}else{
+						// All leaves are pseudogenes, make them consistent (Along root to leaves path, 1 should not occur between 2 and 0s, 2 should not occur between 2 and 0s)
+						makePseudogenizationConsistant( vertex, gtree);
 					}
-					
-					// No descendant edge should be 1
-					List<Integer> alldescendantsvertices = gtree.getDescendants(vertex, true); 
-					for(Integer v:alldescendantsvertices)
-					{
-						if(this.edgeModels.get(v) == 1)
-							return false;
-					}
+						
 				}
 				else	// Case of gene edge.. 
 				{
-					return (isALegalConfiguration(gtree.getLeftChild(vertex), gtree) && isALegalConfiguration(gtree.getRightChild(vertex), gtree));
+					return (isLegalSetting(gtree.getLeftChild(vertex), gtree) && isLegalSetting(gtree.getRightChild(vertex), gtree));
 				}
 			}else
 			{
 				Integer g = this.gpgMap.get(this.geneNames.get(vertex));
-				if (g == 1) 												// Pseudogene case
+				if (g == 1) 																				// Pseudogene case
 				{
 					if(this.edgeModels.get(vertex)!=1 )
 						return true;
-					else return false;
+					else 
+						return false;
 				}
 				else 														// Gene case
 				{
 					if(this.edgeModels.get(vertex)==1)
 						return true;
-					else return false;
+					else 
+						return false;
 				}
 			}
 		}
 		return true;
-	}			
+	}
 	
+	// Function to see if one of the child is "pseudogenizable"?
+	public boolean ifOneOfTheChildIsPseudogenizable(int vertex, RBTree gtree) {
+		boolean pseudogenizable=false;
+		if (!gtree.isLeaf(vertex)){
+			if(allDescendantsLeavesArePseudogenes(gtree.getLeftChild(vertex), gtree) || allDescendantsLeavesArePseudogenes(gtree.getRightChild(vertex), gtree)  )
+				pseudogenizable = true;
+		}
+		
+		return pseudogenizable;
+	}
+	
+	// Function to ensure all the descendant leaves of a vertex are pseudogenes
+	public boolean allDescendantsLeavesArePseudogenes(int vertex, RBTree gtree) {
+		if (!gtree.isLeaf(vertex))
+		{
+			// Check if all the descendants are pseudogenes
+			List<Integer> descendants = gtree.getDescendantLeaves(vertex, true);
+			for(Integer leaf:descendants)
+			{
+				Integer g = this.gpgMap.get(this.geneNames.get(leaf));
+					if(g != 1)
+						return false;
+			}
+		}
+		return true;
+	}
 	
 	public void makePseudogenizationConsistant(int vertex, RBTree gtree)
 	{
@@ -446,6 +548,7 @@ public class RBTreeBranchSwapper implements Proposer {
 				}
 				if(this.edgeModels.get(vertex)==2)
 				{
+					// remove 2s in the sub-tree rooted at vertex
 					RemoveHalfPseudogenizedEdges(vertex, gtree);
 				}else if(this.edgeModels.get(vertex)==1)
 				{
@@ -1096,40 +1199,40 @@ public class RBTreeBranchSwapper implements Proposer {
 			"]";
 	}
 
-	/**
-	 * Checks if the switches are a legal pseudogenization
-	 * @param r
-	 * @return true or false
-	 */
-	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
-	{
-		
-		int falseSample=0;
-		List<Integer> leaves = T.getLeaves();
-		for(Integer l: leaves)
-		{
-			if(gpgMap.get(geneNames.get(l.intValue()))==1)
-			{
-				int numberofswitches=0;
-				int v=l.intValue();
-				while(!T.isRoot(v))
-				{
-					if(pgSwitches.get(v)!=1)
-						numberofswitches++;
-					v=T.getParent(v);
-				}
-				if(T.isRoot(v) && pgSwitches.get(v)!=1)
-					numberofswitches++;
-				if(numberofswitches ==0 )
-					falseSample=1;	
-				if(numberofswitches>1)
-					falseSample=2;
-			}
-		}		
-		if(falseSample == 0)
-			return true;
-		else
-			return false;
-	}
+//	/**
+//	 * Checks if the switches are a legal pseudogenization
+//	 * @param r
+//	 * @return true or false
+//	 */
+//	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
+//	{
+//		
+//		int falseSample=0;
+//		List<Integer> leaves = T.getLeaves();
+//		for(Integer l: leaves)
+//		{
+//			if(gpgMap.get(geneNames.get(l.intValue()))==1)
+//			{
+//				int numberofswitches=0;
+//				int v=l.intValue();
+//				while(!T.isRoot(v))
+//				{
+//					if(pgSwitches.get(v)!=1)
+//						numberofswitches++;
+//					v=T.getParent(v);
+//				}
+//				if(T.isRoot(v) && pgSwitches.get(v)!=1)
+//					numberofswitches++;
+//				if(numberofswitches ==0 )
+//					falseSample=1;	
+//				if(numberofswitches>1)
+//					falseSample=2;
+//			}
+//		}		
+//		if(falseSample == 0)
+//			return true;
+//		else
+//			return false;
+//	}
 
 }

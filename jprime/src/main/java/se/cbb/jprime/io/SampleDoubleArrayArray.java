@@ -2,6 +2,8 @@ package se.cbb.jprime.io;
 
 import java.util.Arrays;
 
+import se.cbb.jprime.math.LogDouble;
+
 /**
  * Sample type for arrays of double arrays.
  * 
@@ -32,6 +34,22 @@ public class SampleDoubleArrayArray implements SampleType {
 		StringBuilder sb = new StringBuilder(daa.length * (daa[0] == null ? 32 : daa[0].length * 10));
 		sb.append("[");
 		for (double[] da : daa) {
+			sb.append(Arrays.toString(da)).append(", ");
+		}
+		sb.setCharAt(sb.length() - 2, ']');         // Replace last comma.
+		return sb.substring(0, sb.length() - 1);    // Get rid of last space.
+	}
+	
+	/**
+	 * Converts an array of LogDouble arrays to a string thus "[[4.4, 5.5, 1.0E-13], [-2.0E-34, 7.99E23, -5.0E56]]".
+	 * @param daa the LogDouble array array.
+	 * @return the string.
+	 */
+	public static String toString(LogDouble[][] daa) {
+		if (daa == null) { return "null"; }
+		StringBuilder sb = new StringBuilder(daa.length * (daa[0] == null ? 32 : daa[0].length * 10));
+		sb.append("[");
+		for (LogDouble[] da : daa) {
 			sb.append(Arrays.toString(da)).append(", ");
 		}
 		sb.setCharAt(sb.length() - 2, ']');         // Replace last comma.

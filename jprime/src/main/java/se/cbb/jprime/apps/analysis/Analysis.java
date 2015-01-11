@@ -24,6 +24,7 @@ import se.cbb.jprime.apps.pdlrs.Realisation;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickRBTreeSamples;
+import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleNewickTree;
@@ -59,6 +60,7 @@ import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
 import se.cbb.jprime.topology.RBTreeArcDiscretiser;
 import se.cbb.jprime.topology.RootedBifurcatingTree;
+import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
 import com.beust.jcommander.JCommander;
@@ -113,8 +115,199 @@ public class Analysis implements JPrIMEApp {
 				System.out.println(sb.toString());
 				return;
 			}
-			
-			if(params.files.get(2) != null && params.inmcmcfile != null && params.check != false){
+			if( params.biological == true )//biological flag is true)
+			{
+				//Do the synthetic thing without checking the true tree.. 
+				String mapgenetreeproportion = "";
+				double treesToSkip =0;
+				
+				if(params.inmcmcfile != null )
+				{
+					// Read the MCMC file
+					File fmcmc = new File(params.inmcmcfile); 
+		//			int noOfArgs = Integer.parseInt(params.inmcmcfile.get(1));
+					double burnin = Double.parseDouble(params.guestTreeSetBurninProp);
+					NewickRBTreeSamples trees = NewickRBTreeSamples.readTreesWithoutLengths(fmcmc, true, 1, burnin, 0.01);
+					
+					Scanner sc1 = new Scanner(fmcmc);
+					int linescounter = 0;
+					while (sc1.hasNextLine()) {sc1.nextLine(); linescounter++;}
+					int totalTrees=linescounter-1;
+					treesToSkip = burnin*totalTrees;
+					int totalVertices = trees.getTree(0).getNoOfVertices();
+					mapgenetreeproportion = "MAP gene tree proportion:" + "\t" + trees.getTreeCount(0) + "/"+ trees.getTotalTreeCount() + " (" + trees.getTreeCount(0)/(double)trees.getTotalTreeCount() + ") \n";
+					System.out.println(mapgenetreeproportion);
+					String realization="";
+					DoubleMap pgSwitches = new DoubleMap("Pseudogenization Switches", totalVertices);
+					DoubleMap sumPGSwitches = new DoubleMap("True Pseudogenization Switches", totalVertices);
+					DoubleMap sumDscPts = new DoubleMap("Time points", totalVertices);
+					LinkedHashMap<String, Integer> gpgMap = ParameterParser.getGenePseudogeneMap(params);
+					StringMap placements = new StringMap("Placements", totalVertices);
+				
+					if(params.files.get(1) != null)
+					{
+							// Read the Real file
+							File inrealfile = new File(params.files.get(1));
+
+							Scanner sc = new Scanner(inrealfile);
+
+							int i = 0;
+							String sTree="";
+							if(sc.hasNextLine()){
+								sTree = sc.nextLine(); sc.nextLine();}
+
+							// Read S and t.
+							Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(sTree.substring(sTree.indexOf("# Host tree: ")+13, sTree.length()));
+
+							String snmin = sTree.substring(sTree.indexOf("NMIN="), sTree.length());
+							snmin = snmin.substring(5, (snmin.indexOf(" ")==-1)?snmin.indexOf("]"):snmin.indexOf(" ") );
+							int nmin = Integer.parseInt(snmin);
+
+							String snmax = sTree.substring(sTree.indexOf("NMAX="), sTree.length());
+							snmax = snmax.substring(5, (snmax.indexOf(" ")==-1)?snmax.indexOf("]"):snmax.indexOf(" "));
+							int nmax =  Integer.parseInt(snmax);
+
+							String sstep = sTree.substring(sTree.indexOf("DELTAT="), sTree.length());
+							sstep = sstep.substring(7, (sstep.indexOf(" ")==-1)?sstep.indexOf("]"):sstep.indexOf(" "));
+							double step = Double.parseDouble(sstep);
+
+							String sstem = sTree.substring(sTree.indexOf("NROOT="), sTree.length());
+							sstem = sstem.substring(6, (sstem.indexOf(" ")==-1)?sstem.indexOf("]"):sstem.indexOf(" ") );
+							int stem = Integer.parseInt(sstem);
+
+							// Create discretisation of S.
+							RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, nmin, nmax, step, stem);
+
+							try
+							{
+								int mapsamples=0, consideredSamples=0, allsamples=0, unreadable=0;
+								PrintWriter outstats = new PrintWriter(new BufferedWriter(new FileWriter(params.outfile, false)));
+								while (sc.hasNextLine()) {
+									allsamples++;
+									String line = sc.nextLine();
+									
+//									int sampleNo = Integer.parseInt(line.split("\t")[0]);
+									if(allsamples >= treesToSkip){
+										if(UnparsedRealisation.isReadable(line.split("\t")[2] )){
+											String realisation = line.split("\t")[2];
+											Realisation r = UnparsedRealisation.parseToRealisation(realisation, true);
+											realization = r.toString();
+											if( trees.getTree(0).toString().equalsIgnoreCase(r.getGuestTree().toString())){
+												mapsamples++;
+
+												int vertices = r.getGuestTree().getNoOfVertices();
+												
+												for (int vr = 0; vr < vertices; vr++)
+												{													
+													if(r.getPGPoint(vr) != 1)
+														pgSwitches.set(vr, r.getPGPoint(vr));
+													else
+														pgSwitches.set(vr, 1);
+												}
+												int falseSample=0;
+												List<Integer> leaves = r.getGuestTree().getLeaves();
+												for(Integer l: leaves)
+												{
+													if(gpgMap.get(r.getVertexName(l.intValue()))==1)
+													{
+														int numberofswitches=0;
+														int v=l.intValue();
+														while(!r.getGuestTree().isRoot(v))
+														{
+															if(pgSwitches.get(v)!=1)
+																numberofswitches++;
+															v=r.getGuestTree().getParent(v);
+														}
+														if(r.getGuestTree().isRoot(v) && pgSwitches.get(v)!=1)
+															numberofswitches++;
+														if(numberofswitches ==0 )
+															falseSample=1;	
+														if(numberofswitches>1)
+															falseSample=2;
+													}
+												}
+
+//												PrintWriter faultysamples = new PrintWriter(new BufferedWriter(new FileWriter(params.outfile+".faultysamples.txt", true)));
+//												if(falseSample > 0)
+//													faultysamples.printf("%7d \t %d\n", sampleNo, falseSample);
+//												faultysamples.close();
+//												double[] realisationDistance = new double[4];
+//												int countOfSwitches=0;
+//												double sumDistance=0; double sumTime=0;
+												
+												if(falseSample==0)
+												{	
+													consideredSamples++;
+													
+													
+													for (int vr = 0; vr < vertices; vr++)
+													{
+														double parentstime=0.0;
+														int[] pl_parent = new int[2];
+														if(!r.getGuestTree().isRoot(vr)){
+															
+															// get the time point of parent node of the node		p(tx)
+															pl_parent = r.getDiscPt(r.getGuestTree().getParent(vr));
+															parentstime = dtimes.getDiscretisationTime(pl_parent[0], pl_parent[1]);
+														}
+														else{
+															
+															pl_parent[0] = dtimes.getRoot();
+															pl_parent[1] = dtimes.getNoOfSlicesForRootPath(pl_parent[0]);
+															parentstime = dtimes.getDiscretisationTime(pl_parent[0], pl_parent[1]); 
+														}
+														double nodetime=dtimes.getDiscretisationTime(r.getDiscPt(vr)[0], r.getDiscPt(vr)[1]);
+														double diff = parentstime - nodetime; 
+														double pseudoPointTime=nodetime + diff*pgSwitches.get(vr);
+														if(pgSwitches.get(vr)!=1.0)
+															sumDscPts.set(vr, sumDscPts.get(vr) + pseudoPointTime);
+														if(pgSwitches.get(vr) != 1){
+															sumPGSwitches.set(vr, sumPGSwitches.get(vr)+1);
+														}
+													}
+												}		
+												
+												i++;
+											}
+										}
+										else
+											unreadable++;
+									}
+								}
+								for(int c=0; c< sumDscPts.getSize(); c++){
+									if(sumPGSwitches.get(c) != 0.0){
+										sumDscPts.set(c, (sumDscPts.get(c)/(double)sumPGSwitches.get(c)));
+										placements.set(c, "("+Double.toString(sumDscPts.get(c))+")");
+									}else{
+										placements.set(c, "(0.0)");
+									}
+								}
+								outstats.close();
+							}catch(IOException e)
+							{
+								e.printStackTrace();
+							}
+					}
+					
+					Realisation r = UnparsedRealisation.parseToOutputRealisation(realization, sumPGSwitches, placements, true);
+					realization = r.toString();
+					
+					if(params.outfile != null )
+					{
+						try{
+							PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(params.outfile, false)));
+							out.write(realization);
+							out.println();
+							out.close();
+						}catch(Exception e)
+						{e.printStackTrace();}
+					}
+				}
+			}
+
+				
+				
+			if(params.files.get(2) != null && params.inmcmcfile != null && params.check != false && params.biological == false){
 				// Check if all the samples in MCMC file and the Realisation file have one to one correspondence..
 				File inrealfile1 = new File(params.files.get(2));
 				File inmcmcfile1 = new File(params.inmcmcfile);
@@ -165,7 +358,7 @@ public class Analysis implements JPrIMEApp {
 			boolean mapgenetreefound=false;
 			double treesToSkip =0;
 			
-			if(params.inmcmcfile != null )
+			if(params.inmcmcfile != null && params.biological == false)
 			{
 				// Read the MCMC file
 				File fmcmc = new File(params.inmcmcfile); 
@@ -247,8 +440,6 @@ public class Analysis implements JPrIMEApp {
 								String line = sc.nextLine();
 								
 								int sampleNo = Integer.parseInt(line.split("\t")[0]);
-								if(sampleNo == 532000)
-									System.out.println();
 								if(allsamples >= treesToSkip){
 									if(UnparsedRealisation.isReadable(line.split("\t")[2] )){
 										String realisation = line.split("\t")[2];
@@ -781,9 +972,19 @@ public class Analysis implements JPrIMEApp {
 		// Get the time point of true node							tx
 		int[] pl_trueNode = r.getDiscPt(trueNode);
 		double trueNode_time = dtimes.getDiscretisationTime(pl_trueNode[0], pl_trueNode[1]);
-		// get the time point of parent node of the true node		p(tx)
-		int[] pl_parent = r.getDiscPt(tree.getParent(trueNode));
-		double trueNode_parentstime = dtimes.getDiscretisationTime(pl_parent[0], pl_parent[1]);
+		double trueNode_parentstime=-1.0;
+		if(tree.isRoot(trueNode))
+		{
+			int[] pl_parent = new int[2];
+			pl_parent[0] = dtimes.getRoot();
+			pl_parent[1] = dtimes.getNoOfSlicesForRootPath(pl_parent[0]);
+			trueNode_parentstime = dtimes.getDiscretisationTime(pl_parent[0], pl_parent[1]);
+		}else
+		{
+			// get the time point of parent node of the true node		p(tx)
+			int[] pl_parent = r.getDiscPt(tree.getParent(trueNode));
+			trueNode_parentstime = dtimes.getDiscretisationTime(pl_parent[0], pl_parent[1]);
+		}
 		// Get the time point of the pg-point						t_pg
 		double diff = trueNode_parentstime - trueNode_time;
 		double truePG_time = trueNode_time + diff*truePGs.get(trueNode);
@@ -798,8 +999,8 @@ public class Analysis implements JPrIMEApp {
 			pl_parentnode = r.getDiscPt(tree.getParent(node));
 		else
 		{
-			pl_parentnode[0] = pl_node[0];
-			pl_parentnode[1] = dtimes.getNoOfSlicesForRootPath(pl_node[0]);
+			pl_parentnode[0] = dtimes.getRoot();
+			pl_parentnode[1] = dtimes.getNoOfSlicesForRootPath(pl_parentnode[0]);
 		}
 		double pl_parentnodetime = dtimes.getDiscretisationTime(pl_parentnode[0], pl_parentnode[1]);
 		// Get the time point of the pg-point						t'_pg

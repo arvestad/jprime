@@ -39,6 +39,10 @@ public class Parameters {
 	@Parameter(names = {"-check", "--checkingfiles"}, description = "Checking mcmc and real files.")
 	public Boolean check = false;
 	
+	/** Checking files **/
+	@Parameter(names = {"-bio", "--biological"}, description = "Analyse biological data, i.e. no true gene tree available (give some xyz as true tree)")
+	public Boolean biological = false;
+	
 //	/** Required parameters: S, D and GS. */
 //	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map> <Gene-Pseudogene Map>.")
 //	public List<String> files = new ArrayList<String>();

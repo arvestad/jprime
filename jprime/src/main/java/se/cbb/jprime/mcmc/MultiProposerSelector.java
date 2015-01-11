@@ -131,6 +131,21 @@ public class MultiProposerSelector implements ProposerSelector {
 		
 		return selProps;
 	}
+	
+	
+	public Set<Proposer> getGeneTreeProposers() {
+		HashSet<Proposer> selProps = new HashSet<Proposer>(1);
+		Proposer p = this.proposers.get(8);
+		selProps.add(p);
+//		p = this.proposers.get(9);
+//		selProps.add(p);
+//		for(int i=0; i<5; i++){
+//			p = this.proposers.get(i);
+//			selProps.add(p);
+//		}
+		selProps.add(p);
+		return selProps;	
+	}
 
 	/**
 	 * Tries to add a proposer to the current selection.
@@ -158,11 +173,28 @@ public class MultiProposerSelector implements ProposerSelector {
 				return false;
 			}
 		}
+//		if(p.toString().contains("Point"))
+//			System.out.println();
+		// NormalProposer perturbing KappaRate, NormalProposer perturbing OmegaRate, NormalProposer perturbing DuplicationRate, NormalProposer perturbing LossRate, NormalProposer perturbing PseudogenizationRate, NormalProposer perturbing EdgeRateMean, NormalProposer perturbing EdgeRateCV, NormalProposer perturbing SiteRateShape, RBTreeBranchSwapper perturbing [GuestTree, BranchLengths], PerturbPseudoPoints perturbing [G-PGSwitches], NormalProposer perturbing BranchLengths
+		//p.toString().contains("Omega") || p.toString().contains("Kappa") || p.toString().contains("PseudogenizationRate") || p.toString().contains("Point") || p.toString().contains("BranchLengths")
+		// p.toString().contains("Omega") || p.toString().contains("Kappa") || p.toString().contains("DuplicationRate") || p.toString().contains("LossRate") || p.toString().contains("NormalProposer perturbing BranchLengths") || p.toString().contains("EdgeRateMean")
+		// p.toString().contains("Point") || p.toString().contains("PseudogenizationRate")    || p.toString().contains("Omega") || p.toString().contains("Kappa") || p.toString().contains("DuplicationRate") || p.toString().contains("LossRate")  || p.toString().contains("EdgeRateCV") || p.toString().contains("SiteRateShape")  || p.toString().contains("EdgeRateMean") ||   p.toString().contains("Point")
+		
+//		if (!(   p.toString().contains("BranchLengths")    )){
 		selProps.add(p);
 		for (StateParameter sp : p.getParameters()) {
 			selParams.add(sp);
 		}
 		return true;
+//		}else
+//		{
+//			Proposer p1 = this.proposers.get(8);
+//			selProps.add(p1);
+//			for (StateParameter sp : p1.getParameters()) {
+//				selParams.add(sp);
+//			}
+//			return true;
+//		}
 	}
 
 	@Override
