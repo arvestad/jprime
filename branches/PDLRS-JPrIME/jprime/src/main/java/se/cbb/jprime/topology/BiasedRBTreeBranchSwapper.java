@@ -233,7 +233,7 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 				this.doReroot();
 				this.lastOperationType = "Reroot";
 			}
-		}while((!isALegalConfiguration(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
+		}while((!isLegalSetting(this.T.getRoot(), this.T)) && i < MAX_LIMIT);
 			
 		if (i >= MAX_LIMIT)
 		{
@@ -324,39 +324,39 @@ public class BiasedRBTreeBranchSwapper extends RBTreeBranchSwapper {
 			cnt[1]++;
 		}
 	}
-	/**
-	 * Checks if the switches are a legal pseudogenization
-	 * @param r
-	 * @return true or false
-	 */
-	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
-	{
-		
-		int falseSample=0;
-		List<Integer> leaves = T.getLeaves();
-		for(Integer l: leaves)
-		{
-			if(gpgMap.get(geneNames.get(l.intValue()))==1)
-			{
-				int numberofswitches=0;
-				int v=l.intValue();
-				while(!T.isRoot(v))
-				{
-					if(pgSwitches.get(v)!=1)
-						numberofswitches++;
-					v=T.getParent(v);
-				}
-				if(T.isRoot(v) && pgSwitches.get(v)!=1)
-					numberofswitches++;
-				if(numberofswitches ==0 )
-					falseSample=1;	
-				if(numberofswitches>1)
-					falseSample=2;
-			}
-		}		
-		if(falseSample == 0)
-			return true;
-		else
-			return false;
-	}
+//	/**
+//	 * Checks if the switches are a legal pseudogenization
+//	 * @param r
+//	 * @return true or false
+//	 */
+//	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
+//	{
+//		
+//		int falseSample=0;
+//		List<Integer> leaves = T.getLeaves();
+//		for(Integer l: leaves)
+//		{
+//			if(gpgMap.get(geneNames.get(l.intValue()))==1)
+//			{
+//				int numberofswitches=0;
+//				int v=l.intValue();
+//				while(!T.isRoot(v))
+//				{
+//					if(pgSwitches.get(v)!=1)
+//						numberofswitches++;
+//					v=T.getParent(v);
+//				}
+//				if(T.isRoot(v) && pgSwitches.get(v)!=1)
+//					numberofswitches++;
+//				if(numberofswitches ==0 )
+//					falseSample=1;	
+//				if(numberofswitches>1)
+//					falseSample=2;
+//			}
+//		}		
+//		if(falseSample == 0)
+//			return true;
+//		else
+//			return false;
+//	}
 }

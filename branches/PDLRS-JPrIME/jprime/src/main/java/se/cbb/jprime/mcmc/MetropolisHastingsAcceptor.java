@@ -34,17 +34,26 @@ public class MetropolisHastingsAcceptor implements ProposalAcceptor {
 	 */
 	@Override
 	public boolean acceptProposedState(LogDouble proposedStateLikelihood,
-			LogDouble oldStateLikelihood, List<Proposal> proposals) throws RunAbortedException {
+		LogDouble oldStateLikelihood, List<Proposal> proposals) throws RunAbortedException {
 		LogDouble a = proposedStateLikelihood.divToNew(oldStateLikelihood);
+//		System.out.println("-----------------------------------------\nProposedStateLikelihood = " + proposedStateLikelihood.getValue() + " , log value : " + proposedStateLikelihood.getLogValue());
+//		System.out.println("OldStateLikelihood = " + oldStateLikelihood.getValue()+ " , log value : " + oldStateLikelihood.getLogValue()+ "\n-----------------------------------------");
+//		System.out.println( " ProposedStateLikelihood / oldStateLikelihood : " + a.getValue() + " , log value : " + a.getLogValue());
+		int proposal_no=0;
 		if (proposals != null) {
 			for (Proposal prop : proposals) {
+				proposal_no++;
 				if (!prop.isValid()) {
 					return false;
 				}
+//				System.out.println( " Density ratio for Proposal no "+ proposal_no + " : " + ((MetropolisHastingsProposal) prop).getDensityRatio().getValue());
 				a.mult(((MetropolisHastingsProposal) prop).getDensityRatio());
 			}
 		}
-		return a.greaterThanOrEquals(new LogDouble(prng.nextDouble()));   // Accounts also for case a >= 1.0.
+//		System.out.println(" ( proposedStateLikelihood/oldStateLikelihood )*( Q(x;x')/Q(x';x) ) : " + a.getValue() +  " , log value : " + a.getLogValue());
+		Double randomValue = prng.nextDouble();
+//		System.out.println("Random Value = " + randomValue);
+		return a.greaterThanOrEquals(new LogDouble(randomValue));   // Accounts also for case a >= 1.0.
 	}
 	
 	@Override

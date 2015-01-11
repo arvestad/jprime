@@ -474,7 +474,12 @@ public class DupLossProbs implements ProperDependent, ODEFunction, ODEExternalSo
 				if (j == i) {
 					arcp11[sz * i + j] = 1.0;
 				} else {
-					arcp11[sz * i + j] = arcp11[sz * i + 0] / arcp11[sz * j + 0];
+					if(arcp11[sz * i + 0] == 0 && arcp11[sz * j + 0] == 0)
+						arcp11[sz * i + j] = 0;
+					else
+						arcp11[sz * i + j] = arcp11[sz * i + 0] / arcp11[sz * j + 0];
+					if(Double.toString(arcp11[sz * i + j]).contains("NaN"))
+						System.out.print("");
 				}
 			}
 		}

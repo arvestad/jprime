@@ -39,7 +39,6 @@ public final class LogDouble implements Comparable<LogDouble> {
 	public LogDouble(double d) {
 		assert !Double.isNaN(d);
 		//assert !Double.isInfinite(d);
-
 		if (d > 0.0) {
 			this.p = Math.log(d);
 			this.sign = 1;
@@ -543,6 +542,7 @@ public final class LogDouble implements Comparable<LogDouble> {
 	 * @return true if greater than or equals q.
 	 */
 	public boolean greaterThanOrEquals(LogDouble q) {
+//		System.out.println("Random value to be compared is : " + q.getValue());
 		if (this.sign == q.sign) {
 			switch (this.sign) {
 			case 0:  return true;

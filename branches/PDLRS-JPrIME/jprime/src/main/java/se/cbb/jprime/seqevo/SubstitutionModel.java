@@ -191,7 +191,9 @@ public class SubstitutionModel implements InferenceModel {
 
     @Override
 	public void cacheAndUpdate(Map<Dependent, ChangeInfo> changeInfos, boolean willSample) {
-
+//    	System.out.println("....................");
+//    	System.out.println(this.pgSwitches);
+//    	System.out.println("....................");
     	// Find out which parents have changed.
     	ChangeInfo tInfo = changeInfos.get(this.T);
     	ChangeInfo blInfo = changeInfos.get(this.branchLengths);
@@ -239,6 +241,7 @@ public class SubstitutionModel implements InferenceModel {
 			this.partialUpdate(allAffected);
 			changeInfos.put(this, new ChangeInfo(this, "SubstitutionModel - partial update", allAffected));
 		} 
+		
 //		else if (pgInfo != null )
 //		{
 //			this.fullUpdate(this.edgeModels, this.pgSwitches);
@@ -515,7 +518,6 @@ public class SubstitutionModel implements InferenceModel {
 				
 				// Get position of pattern's first occurrence in partition.
 				int pos = pattern.getValue()[0];
-				
 				// Compute likelihood.
 				DenseMatrix64F curr = pl.get(i, j);
 				int state = this.D.getIntState(seqIdx, pos);
@@ -558,13 +560,15 @@ public class SubstitutionModel implements InferenceModel {
 			int i = 0;
 			for (Entry<String, int[]> pattern : patterns.entrySet()) {
 				
+//				System.out.println(pattern.toString());
 				// Get position of pattern's first occurrence in partition.
 				int pos = pattern.getValue()[0];
-				
+//				System.out.println(pattern.toString());
 				// Compute likelihood.
 				DenseMatrix64F curr = pl.get(i, j);
 				int state = this.D.getIntState(seqIdx, pos);
 				this.Q.getLeafLikelihood(state, curr);
+//				System.out.println(curr);
 				i++;
 			}
 		}
@@ -648,40 +652,4 @@ public class SubstitutionModel implements InferenceModel {
 		return this.name;
 	}
 	
-	/**
-	 * Checks if the switches are a legal pseudogenization
-	 * @param r
-	 * @return true or false
-	 */
-	public boolean isLegalSwitches(DoubleMap pgSwitches, LinkedHashMap<String, Integer> gpgMap)
-	{
-		
-		int vertices = T.getNoOfVertices();
-		int falseSample=0;
-		List<Integer> leaves = T.getLeaves();
-		for(Integer l: leaves)
-		{
-			if(gpgMap.get(names.get(l.intValue()))==1)
-			{
-				int numberofswitches=0;
-				int v=l.intValue();
-				while(!T.isRoot(v))
-				{
-					if(pgSwitches.get(v)!=1)
-						numberofswitches++;
-					v=T.getParent(v);
-				}
-				if(T.isRoot(v) && pgSwitches.get(v)!=1)
-					numberofswitches++;
-				if(numberofswitches ==0 )
-					falseSample=1;	
-				if(numberofswitches>1)
-					falseSample=2;
-			}
-		}		
-		if(falseSample == 0)
-			return true;
-		else
-			return false;
-	}
 }

@@ -28,4 +28,5 @@ public interface ProposerSelector extends InfoProvider {
 	 * @return a subset of proposers, no pairs acting on the same state parameter.
 	 */
 	public Set<Proposer> getDisjointProposers();
+	public Set<Proposer> getGeneTreeProposers();
 }

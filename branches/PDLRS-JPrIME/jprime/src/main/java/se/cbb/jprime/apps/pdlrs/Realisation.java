@@ -127,6 +127,24 @@ public class Realisation {
 		return this.pgSwitches.get(v);
 	}
 	
+	/**
+	 * Returns the time on species tree for a vertex
+	 * @return time on the species tree.
+	 */
+	public double getTime(int v)
+	{
+		return this.times.get(v);
+	}
+	
+	/**
+	 * Returns the placements on species tree for a vertex
+	 * @return placements on the species tree.
+	 */
+	public StringMap getPlacements()
+	{
+		return this.placements;
+	} 
+	
 	public int[] getDiscPt(int v)
 	{
 		int[] plcmnt = new int[2];

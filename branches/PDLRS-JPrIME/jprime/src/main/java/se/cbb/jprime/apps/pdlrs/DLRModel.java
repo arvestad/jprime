@@ -9,7 +9,8 @@ import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.mcmc.ChangeInfo;
 import se.cbb.jprime.mcmc.Dependent;
 import se.cbb.jprime.mcmc.InferenceModel;
-import se.cbb.jprime.topology.DoubleArrayMap;
+import se.cbb.jprime.topology.DoubleArrayLogMap;
+//import se.cbb.jprime.topology.DoubleArrayMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
@@ -64,13 +65,13 @@ public class DLRModel implements InferenceModel {
 	/**
 	 * Probability of rooted subtree G_u for each valid placement of u in S'.
 	 */
-	protected DoubleArrayMap ats;
+	protected DoubleArrayLogMap ats;
 	
 	/**
 	 * Probability of planted subtree G^u for each valid placement of tip of u's
 	 * parent arc in S'.
 	 */
-	protected DoubleArrayMap belows;
+	protected DoubleArrayLogMap belows;
 	
 	/**
 	 * Constructor.
@@ -90,8 +91,8 @@ public class DLRModel implements InferenceModel {
 		this.lengths = lengths;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
-		this.ats = new DoubleArrayMap("DLR.ats", g.getNoOfVertices());
-		this.belows = new DoubleArrayMap("DLR.belows", g.getNoOfVertices());
+		this.ats = new DoubleArrayLogMap("DLR.ats", g.getNoOfVertices());
+		this.belows = new DoubleArrayLogMap("DLR.belows", g.getNoOfVertices());
 				
 		// Update.
 		this.fullUpdate();
@@ -116,8 +117,8 @@ public class DLRModel implements InferenceModel {
 		this.lengths = lengths;
 		this.dupLossProbs = dupLossProbs;
 		this.substPD = substPD;
-		this.ats = new DoubleArrayMap("DLR.ats", g.getNoOfVertices());
-		this.belows = new DoubleArrayMap("DLR.belows", g.getNoOfVertices());
+		this.ats = new DoubleArrayLogMap("DLR.ats", g.getNoOfVertices());
+		this.belows = new DoubleArrayLogMap("DLR.belows", g.getNoOfVertices());
 		this.pgSwitches = pgSwitches;
 		this.edgeModes = edgeModes;
 		
@@ -141,38 +142,43 @@ public class DLRModel implements InferenceModel {
 		ChangeInfo rci = changeInfos.get(this.substPD);
 		ChangeInfo pgchi = changeInfos.get(this.pgSwitches);
 		try{
-		if(!(gci == null && sci == null && rhci == null && dpci == null && rci == null && lci == null && pgchi == null)) // removed  && pgchi != null
-		{
-			// One could think of many optimisations here, especially when there are 
-			// time perturbations involved, possibly combined with length perturbations.
-			// However, it is easy to make algorithmic mistakes in such situations,
-			// so at the only moment solitary length changes result in a partial DP update.
-			if (gci == null && sci == null && rhci == null && dpci == null && rci == null && pgchi == null) {
-				if (lci != null && lci.getAffectedElements() != null ) {
-					// Only certain branch lengths have changed. We do a partial update.
-					
-					int[] affected = TreeAlgorithms.getSpanningRootSubtree(this.g, lci.getAffectedElements());
-	//				System.out.println("Affected vertices are:");
-	//				for (int iii=0; iii<affected.length; iii++)
-	//					System.out.print(affected[iii] + " ");
-	//				System.out.println();
-					this.ats.cache(affected);
-					this.belows.cache(affected);
-					this.partialUpdate(affected);
-					changeInfos.put(this, new ChangeInfo(this, "Partial DLR update", affected));
-				} else if (lci != null) {
+			if(!(gci == null && sci == null && rhci == null && dpci == null && rci == null && lci == null && pgchi == null)) // removed  && pgchi != null
+			{
+				// One could think of many optimisations here, especially when there are 
+				// time perturbations involved, possibly combined with length perturbations.
+				// However, it is easy to make algorithmic mistakes in such situations,
+				// so at the only moment solitary length changes result in a partial DP update.
+				if (gci == null && sci == null && rhci == null && dpci == null && rci == null && pgchi == null) {
+					if (lci != null && lci.getAffectedElements() != null ) {
+						// Only certain branch lengths have changed. We do a partial update.
+
+						int[] affected = TreeAlgorithms.getSpanningRootSubtree(this.g, lci.getAffectedElements());
+						//				System.out.println("Affected vertices are:");
+						//				for (int iii=0; iii<affected.length; iii++)
+						//					System.out.print(affected[iii] + " ");
+						//				System.out.println();
+						this.ats.cache(affected);
+						this.belows.cache(affected);
+						this.partialUpdate(affected);
+						changeInfos.put(this, new ChangeInfo(this, "Partial DLR update", affected));
+					} else if (lci != null) {
+						this.ats.cache(null);
+						this.belows.cache(null);
+						this.fullUpdate();
+						changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
+					}
+				} else {
 					this.ats.cache(null);
 					this.belows.cache(null);
 					this.fullUpdate();
 					changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
 				}
-			} else {
-				this.ats.cache(null);
-				this.belows.cache(null);
-				this.fullUpdate();
-				changeInfos.put(this, new ChangeInfo(this, "Full DLR update."));
 			}
-		}
+			if(this.getDataProbability().toString().contains("NaN") || Double.toString(this.getDataProbability().getLogValue()).contains("-Infinity")){
+				System.out.println("Investigate this!");
+				System.out.println(this.belows.toString());
+				System.out.println(this.ats.toString());
+			}
 		}catch(Exception e)
 		{e.printStackTrace();}
 	}
@@ -218,11 +224,11 @@ public class DLRModel implements InferenceModel {
 	protected void clearAtsAndBelows() {
 		int[] nos = this.reconcHelper.getNoOfPlacements();
 		for (int u = 0; u < this.g.getNoOfVertices(); ++u) {
-			this.ats.set(u, new double[nos[u]]);
+			this.ats.set(u, new LogDouble[nos[u]]);
 			if (this.g.isRoot(u)) {
-				this.belows.set(u, new double[1]);  // Only tip of host tree.
+				this.belows.set(u, new LogDouble[1]);  // Only tip of host tree.
 			} else {
-				this.belows.set(u, new double[nos[this.g.getParent(u)]]);
+				this.belows.set(u, new LogDouble[nos[this.g.getParent(u)]]);
 			}	
 		}
 	}
@@ -234,6 +240,20 @@ public class DLRModel implements InferenceModel {
 		int r = this.g.getRoot();
 		this.clearAtsAndBelows();
 		this.updateAtProbs(r, true);
+		if(this.getDataProbability().toString().contains("NaN") || Double.toString(this.getDataProbability().getLogValue()).contains("-Infinity")){
+			System.out.println("Investigate at this point..");
+			System.out.println(this.belows.get(this.g.getRoot(), 0));
+			LogDouble a = new LogDouble(this.belows.get(this.g.getRoot(), 0));
+			System.out.println("Log : " + a.getLogValue() + " , Double : " + a.getValue());	
+			this.updateAtProbs(r, true);
+		}
+		
+//		if(this.getDataProbability().toString().equalsIgnoreCase("0.0") || Double.toString(this.getDataProbability().getLogValue()).equalsIgnoreCase("0.0")){
+//			System.out.println("Checkout!");	
+//			System.out.println(this.belows.get(this.g.getRoot(), 0));
+//			LogDouble a = new LogDouble(this.belows.get(this.g.getRoot(), 0));
+//			System.out.println("Log : " + a.getLogValue() + " , Double : " + a.getValue());
+//		}
 	}
 	
 	/**
@@ -257,7 +277,7 @@ public class DLRModel implements InferenceModel {
 	 */
 	protected void updateAtProbs(int u, boolean doRecurse) {
 		if (this.g.isLeaf(u)) {
-			this.ats.set(u, 0, 1.0);
+			this.ats.set(u, 0, new LogDouble(1.0));
 		} else {
 			int lc = this.g.getLeftChild(u);
 			int rc = this.g.getRightChild(u);
@@ -272,13 +292,13 @@ public class DLRModel implements InferenceModel {
 			int[] x_i = this.reconcHelper.getLoLim(u);
 			int idx = 0;                                // No. of processed viable placements.
 
-			double[] uAts = this.ats.get(u);
-			double[] lcBelows = this.belows.get(lc);
-			double[] rcBelows = this.belows.get(rc);
+			LogDouble[] uAts = this.ats.get(u);
+			LogDouble[] lcBelows = this.belows.get(lc);
+			LogDouble[] rcBelows = this.belows.get(rc);
 			
 			// First placement might correspond to a speciation.
 			if (x_i[1] == 0) {
-				uAts[0] = lcBelows[0] * rcBelows[0];
+				uAts[0] = lcBelows[0].multToNew(rcBelows[0]);
 				++idx;
 				++x_i[1];
 			}
@@ -286,8 +306,8 @@ public class DLRModel implements InferenceModel {
 //			try{
 			// Remaining placements correspond to duplications for sure.
 			for (; idx < uAts.length; ++idx) {
-				uAts[idx] = lcBelows[idx] * rcBelows[idx] *
-					2 * this.dupLossProbs.getDuplicationRate() * this.reconcHelper.getSliceTime(x_i);
+				uAts[idx] = lcBelows[idx].multToNew(rcBelows[idx]).multToNew(
+					2 * this.dupLossProbs.getDuplicationRate() * this.reconcHelper.getSliceTime(x_i));
 				// Move onto next pure discretisation point above.
 				this.reconcHelper.incrementPt(x_i);
 				
@@ -311,16 +331,17 @@ public class DLRModel implements InferenceModel {
 		// y refers to point where u is placed (strictly below x).
 
 		double length = this.lengths.get(u);
-		double[] uAts = this.ats.get(u);
-		double[] uBelows = this.belows.get(u);
-		
+		LogDouble[] uAts = this.ats.get(u);
+		LogDouble[] uBelows = this.belows.get(u);
+//		System.out.println( "Node : " + u);
+//		System.out.println("-------------");
 		// Get limits.
 		int[] x_i = (this.g.isRoot(u) ? this.reconcHelper.getTipPt() : this.reconcHelper.getLoLim(this.g.getParent(u)));
 		
 		// For each x_i.
 		for (int xcnt = 0; xcnt < uBelows.length; ++xcnt) {
 			// Clear old value.
-			uBelows[xcnt] = 0.0;
+			uBelows[xcnt] = new LogDouble(0.0);
 			// For each y_j strictly below x_i.
 			int[] y_j = this.reconcHelper.getLoLim(u);
 
@@ -351,7 +372,12 @@ public class DLRModel implements InferenceModel {
 					Integer[] switchingDiscPt = list.get(switchingno+1);
 					p11_genemode = this.dupLossProbs.getP11Probability(x_i[0], x_i[1], switchingDiscPt[0], switchingDiscPt[1]);
 					p11_psmode = this.dupLossProbs.getPseudoP11Probability(switchingDiscPt[0], switchingDiscPt[1], y_j[0], y_j[1]);
-					
+//					if(Double.toString(p11_genemode).contains("NaN"))
+//						System.out.print("");
+//					if(Double.toString(p11_psmode).contains("NaN")){
+//						System.out.print("");
+//						this.dupLossProbs.getPseudoP11Probability(switchingDiscPt[0], switchingDiscPt[1], y_j[0], y_j[1]);
+//					}
 					p11 = p11_genemode * p11_psmode;
 				}else if(this.edgeModes.get(u) == 1)
 				{
@@ -360,14 +386,20 @@ public class DLRModel implements InferenceModel {
 				{
 					p11 = this.dupLossProbs.getPseudoP11Probability(x_i[0], x_i[1], y_j[0], y_j[1]);
 				}
-				
-				uBelows[xcnt] += rateDens * p11 * uAts[ycnt];
+				LogDouble prod =  uAts[ycnt].multToNew(rateDens * p11);
+				uBelows[xcnt].add(prod); 
+//				System.out.print(uBelows[xcnt] + "\t");
+//				if(Double.toString(uBelows[xcnt]).contains("NaN"))
+//					System.out.print("");
+					
 				// Move y_j onto next pure discretisation point above.
 				this.reconcHelper.incrementPt(y_j);
 				if (y_j[0] == x_i[0] && y_j[1] >= x_i[1]) { break; }
 			}
+//			System.out.println();
 			// Move x_i onto next pure discretisation point above.
 			this.reconcHelper.incrementPt(x_i);
+			
 		}
 	}
 	

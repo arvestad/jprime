@@ -16,10 +16,12 @@ import se.cbb.jprime.io.SampleInt;
 import se.cbb.jprime.io.SampleNewickTree;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.math.Continuous1DPDDependent;
+import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.mcmc.Iteration;
 import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.DoubleArrayMap;
+import se.cbb.jprime.topology.DoubleArrayLogMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.IntMap;
 import se.cbb.jprime.topology.NamesMap;
@@ -71,7 +73,7 @@ public class RealisationSampler implements Sampleable {
 	private Continuous1DPDDependent substPD;
 	
 	/** At-probabilities for vertices v of G. */
-	private DoubleArrayMap atsProbs;
+	private  DoubleArrayMap atsProbs;
 	
 	/** No. of realisations per sampling round. */
 	private int noOfRealisations;
@@ -109,7 +111,7 @@ public class RealisationSampler implements Sampleable {
 		this.loLims = model.reconcHelper.loLims;
 		this.dupLossProbs = model.dupLossProbs;
 		this.substPD = model.substPD;
-		this.atsProbs = model.ats;
+		this.atsProbs = new DoubleArrayMap(model.ats);
 		this.model=model;
 		
 		// Write header.
@@ -148,7 +150,7 @@ public class RealisationSampler implements Sampleable {
 		this.loLims = model.reconcHelper.loLims;
 		this.dupLossProbs = model.dupLossProbs;
 		this.substPD = model.substPD;
-		this.atsProbs = model.ats;
+		this.atsProbs = new DoubleArrayMap(model.ats);
 		this.pgSwitches = pgSwitches;
 		this.model=model;
 		
@@ -201,13 +203,12 @@ public class RealisationSampler implements Sampleable {
 		
 		// For each vertex v of G.
 		String[] placementss = new String[n];
+
 		for (int v : vertices) {
 			samplePoint(v, placements, abst, arct, isDups);
-			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")"; 
+			placementss[v] = "(" + placements[v][0] + "," + placements[v][1] + ")";
 		}
-		
 		Realisation r = new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss), pgSwitches);
-		
 		// Finally, generate guest tree with times.
 		return new Realisation(this.G, this.names, new TimesMap("RealisationTimes", abst, arct), new BooleanMap("RealisationIsDups", isDups), new StringMap("DiscPts",placementss), pgSwitches);
 	}
@@ -221,7 +222,6 @@ public class RealisationSampler implements Sampleable {
 	 * @param isDups type of point.
 	 */
 	private void samplePoint(int v, int[][] placements, double[] absTimes, double[] arcTimes, boolean[] isDups) {
-		
 		// Get placement of parent of v in S'.
 		int[] x;
 		if (this.G.isRoot(v)) {
@@ -231,28 +231,22 @@ public class RealisationSampler implements Sampleable {
 		} else {
 			x = placements[this.G.getParent(v)];
 		}
-		
 		// Start with lowest valid placement of v in S'.
 		int[] y = RealisationSampler.getProperLolim(loLims.get(v));
-		
 		if (!this.G.isLeaf(v)) {
-			
 			int i = 0;             // Current point.
 			double tot = 0.0;      // Current cumulative probability.
 			double[] ats = this.atsProbs.get(v);
-			
 			// Stores all valid placement y's.
 			ArrayList<int[]> ys = new ArrayList<int[]>(ats.length);
-			
 			// Cumulative probabilities for the y's.
 			ArrayList<Double> cps = new ArrayList<Double>(ats.length);
-			
 			// Time of x.
 			double xt = this.times.getDiscretisationTime(x[0], x[1]);
 			double length = this.lengths.get(v);
-			
 			// Compute relative cumulative probabilities for all valid placements y beneath x.
 			while (i < ats.length && !(x[0] == y[0] && x[1] <= y[1])) {
+//				System.out.println("x=[" + x[0] +","+ x[1] +"], y=["+ y[0] +","+ y[1] + "]" );
 				double yt = this.times.getDiscretisationTime(y[0], y[1]);				
 				double rateDens = this.substPD.getPDF(length / (xt - yt));
 				double p11 = this.dupLossProbs.getP11Probability(x[0], x[1], y[0], y[1]);
@@ -263,13 +257,16 @@ public class RealisationSampler implements Sampleable {
 				
 				// Move to point above.
 				++i;
+//				System.out.println("x=[" + x[0] +","+ x[1] +"], y=["+ y[0] +","+ y[1] + "]" );
+				//System.out.println(x[0] +"\t"+ y[0] +"\t"+ y[0] +"\t"+ y[1] );
 				if (y[1] == times.getNoOfSlices(y[0])) {
 					y = new int[] { S.getParent(y[0]), 1 };  // Onto next arc.
 				} else {
 					y = new int[] { y[0], y[1]+1 };
 				}
+				if (x[1] == -1 || x[0] == -1 || y[0] == -1 || y[1] == -1)
+					break;
 			}
-			
 			// Sample a point in the host tree.
 			if (tot < 1e-256) {
 				// No signal: choose a point uniformly.

@@ -153,6 +153,7 @@ public class SampleWriter implements Sampler {
 			this.out.write(sample[i]);
 			this.out.write(this.delim);
 		}
+
 		this.out.write(sample[sample.length - 1]);
 		this.out.newLine();
 		
@@ -189,13 +190,11 @@ public class SampleWriter implements Sampler {
 	 */
 	private String[] getValue(List<Sampleable> sampleables, boolean doConcise, Sampleable.SamplingMode mode) {
 		if (sampleables.size() == 0) { return new String[0]; }
-		
 		// Retrieve all current parameters.
 		String[] sample = new String[sampleables.size()];
 		for (int i = 0; i < sample.length; ++i) {
 			sample[i] = sampleables.get(i).getSampleValue(mode);
 		}
-		
 //		if(!sample[11].equalsIgnoreCase(sample[12]))
 //		{
 //			System.out.println("Gene trees are not same across classes!");
