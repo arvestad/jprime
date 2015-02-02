@@ -378,7 +378,7 @@ Family no. 1,975 from the [http://wolfe.gen.tcd.ie/ygob/ Yeast Gene Order Browse
   * [http://jprime.googlecode.com/files/dlrs_example_2.stree dlrs_example_2.stree] (host tree)
   * [http://jprime.googlecode.com/files/dlrs_example_2.fa dlrs_example_2.fa] (protein MSA)
   * [http://jprime.googlecode.com/files/dlrs_example_2.map dlrs_example_2.map] (guest-to-host leaf map)
-  * [http://jprime.googlecode.com/files/dlrs_example_2.map dlrs_example_2.gtree] (guest tree)
+  * [http://jprime.googlecode.com/files/dlrs_example_2.gtree dlrs_example_2.gtree] (guest tree)
 
 If we hypothesize that we have only orthologs, save for a predicted WGD, and we wish to fix this tree and output branch lengths with the samples, we might execute:
 {{{
