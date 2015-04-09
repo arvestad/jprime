@@ -1,0 +1,12 @@
+Oryctolagus_cuniculus_1 Oryctolagus_cuniculus
+Cavia_porcellus_1       Cavia_porcellus
+Cavia_porcellus_2       Cavia_porcellus
+Mus_musculus_1  Mus_musculus
+Oryctolagus_cuniculus_2 Oryctolagus_cuniculus
+Cavia_porcellus_3       Cavia_porcellus
+Mus_musculus_2  Mus_musculus
+Equus_caballus_1        Equus_caballus
+Felis_catus_1   Felis_catus
+Felis_catus_2   Felis_catus
+Canis_lupus_1   Canis_lupus
+Monodelphis_domestica_1 Monodelphis_domestica

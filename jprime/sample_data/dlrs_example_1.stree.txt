@@ -1,0 +1,1 @@
+(((Oryctolagus_cuniculus:89.9, (Cavia_porcellus:78.3,Mus_musculus:78.3):11.6):11.8, (Equus_caballus:80.8, (Felis_catus:55.7, Canis_lupus:55.7):25.1):20.9):62.2, Monodelphis_domestica:163.9):41.0;

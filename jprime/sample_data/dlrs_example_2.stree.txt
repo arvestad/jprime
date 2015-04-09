@@ -1,0 +1,1 @@
+(((Saccharomyces_cerevisiae [&&PRIME ID=0 ET=0.4],Candida_glabrata [&&PRIME ID=1 ET=0.4])[&&PRIME ID=2 ET=0.2],Saccharomyces_castelli [&&PRIME ID=3 ET=0.6])[&&PRIME ID=4 ET=0.4],((Kluyveromyces_lactis [&&PRIME ID=5 ET=0.4],Ashbya_gossypii [&&PRIME ID=6 ET=0.4])[&&PRIME ID=7 ET=0.4],Kluyveromyces_waltii [&&PRIME ID=8 ET=0.8])[&&PRIME ID=9 ET=0.2])[&&PRIME ID=10 ET=0.2]

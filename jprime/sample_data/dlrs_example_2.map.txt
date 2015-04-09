@@ -1,0 +1,9 @@
+ACR125W	Ashbya_gossypii
+Kwal_26.8724	Kluyveromyces_waltii
+KLLA0D07480g	Kluyveromyces_lactis
+CAGL0M02431g	Candida_glabrata
+Scas_700.32	Saccharomyces_castelli
+YPL145C	Saccharomyces_cerevisiae
+CAGL0J03916g	Candida_glabrata
+Scas_640.10	Saccharomyces_castelli
+YOR237W	Saccharomyces_cerevisiae
