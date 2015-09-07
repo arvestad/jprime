@@ -165,6 +165,7 @@ public class Deleterious implements JPrIMEApp {
 			
 			// Create discretisation of S.
 			RBTreeEpochDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
+                        info.write("# Host tree: " + dtimes.toString() + "\n");
 			
 			// Create reconciliation helper.
 			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes,
