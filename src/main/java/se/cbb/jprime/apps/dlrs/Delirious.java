@@ -204,13 +204,13 @@ public class Delirious implements JPrIMEApp {
 			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
-			if (params.dupRate != null        && (params.dupRate.endsWith("FIXED") || params.dupRate.endsWith("Fixed") || params.dupRate.endsWith("fixed"))) 						{ dupRateProposer.setEnabled(false); }
-			if (params.lossRate != null       && (params.lossRate.endsWith("FIXED") || params.lossRate.endsWith("Fixed") || params.lossRate.endsWith("fixed"))) 					{ lossRateProposer.setEnabled(false); }
-			if (params.edgeRatePDMean != null && (params.edgeRatePDMean.endsWith("FIXED") || params.edgeRatePDMean.endsWith("Fixed") || params.edgeRatePDMean.endsWith("fixed"))) 	{ edgeRateMeanProposer.setEnabled(false); }
-			if (params.edgeRatePDCV != null   && (params.edgeRatePDCV.endsWith("FIXED") || params.edgeRatePDCV.endsWith("Fixed") || params.edgeRatePDCV.endsWith("fixed")))   		{ edgeRateCVProposer.setEnabled(false); }
-			if (params.siteRateCats == 1      || (params.siteRateShape.endsWith("FIXED") || params.siteRateShape.endsWith("Fixed") || params.siteRateShape.endsWith("fixed")))  	{ siteRateShapeProposer.setEnabled(false); }
-			if (params.guestTreeFixed)                                                              																				{ guestTreeProposer.setEnabled(false); }
-			if (params.lengthsFixed)                                                                 																				{ lengthsProposer.setEnabled(false); }
+			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
+			if (params.lossRate != null       && params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
+			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
+			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
+			if (params.siteRateCats == 1      || params.siteRateShape.matches("FIXED|Fixed|fixed"))  { siteRateShapeProposer.setEnabled(false); }
+			if (params.guestTreeFixed)                                                               { guestTreeProposer.setEnabled(false); }
+			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
 			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);

@@ -244,9 +244,9 @@ public class Deleterious implements JPrIMEApp {
 			manager.addModel(lengthsPrior);
 			manager.addModel(sm);
 			
-			if (params.maxRealizationFlag == false){
+			if (params.sampleRealisations == true){
 				manager.addModel(dltr);
-			}else{
+			}else if (params.maxRealizationFlag == true ){
 				manager.addModel(dltrMs);
 			}
 
@@ -257,9 +257,9 @@ public class Deleterious implements JPrIMEApp {
 			//manager.addSampleable(edgeRateCVPrior);
 			//manager.addSampleable(lengthsPrior);
 			manager.addSampleable(sm);
-			if (params.maxRealizationFlag == false){
+			if (params.sampleRealisations == true){
 				manager.addSampleable(dltr);
-			}else{
+			}else if (params.maxRealizationFlag == true ){
 				manager.addSampleable(dltrMs);
 			}
 			
@@ -288,41 +288,8 @@ public class Deleterious implements JPrIMEApp {
 			
 			//if(Integer.parseInt(params.heatmap.get(1)) != 1)			// Dont run MCMC chain if only generating heatmaps
 			// ================ RUN ================
-				manager.run();
 			
-//			Code for checking if the encoding and decoding of heatmap matrix is working fine.. 			
-//			int index =0; 
-//			int epoch = 0;
-//			int dscPt = 0;
-//			// Assign values to the heatmap
-//			for(int i =0; i< dtimes.getTotalNoOfPoints(); i++, dscPt++){
-//				if(dscPt >= dtimes.getEpoch(epoch).getNoOfPoints())
-//				{ dscPt = 0; epoch++;}
-//				
-//				int idx = 0;
-//				for(int i1 =0; i1< epoch; i1++){
-//					idx += dtimes.getEpoch(i1).getNoOfPoints();
-//				}
-//				idx += dscPt;
-//				
-//				System.out.println(i+ "  :  " + epoch + ":"+dscPt + "   :   " + idx );
-////				index += dtimes.getEpoch(i).getNoOfPoints();
-//			}
-//			
-//			int maximumNoofArcsAtOneEpoch1 = dtimes.getEpoch(0).getNoOfArcs();
-//			int fr = 0, t=0;
-//			for(int i =0; i< maximumNoofArcsAtOneEpoch1*(maximumNoofArcsAtOneEpoch1-1); i++){
-//				if(t >=maximumNoofArcsAtOneEpoch1-1)
-//				{
-//					t=0; fr++;
-//				}
-//				int index2 = fr *(maximumNoofArcsAtOneEpoch1-1) + t;
-//				System.out.println(i + "  :  " + fr+"."+((t>=fr)?t+1:t) + "    :   "+ index2);
-//				t++;
-//			}
-//			
-//			System.out.println("maximumNoofArcsAtOneEpoch" + maximumNoofArcsAtOneEpoch1);
-		
+			manager.run();	
 
 			// ================ WRITE POST-INFO ================
 			info.write("# =========================================================================\n");
@@ -339,8 +306,9 @@ public class Deleterious implements JPrIMEApp {
 
 			
 			// mehmood's addition here
-			if (realisationSampler != null) { realisationSampler.close(); }
+			//if (realisationSampler != null) { realisationSampler.close(); }
 			
+			/*
 			if(params.heatmap != null)
 			{
 				File f = new File(params.heatmap.get(2));									// Read the file having realisation samples 
@@ -409,7 +377,8 @@ public class Deleterious implements JPrIMEApp {
 				    System.out.println("Problem with accessing file " + params.heatmap);
 				}
 			    
-			}
+			} // heatmap funcationality ends here
+			*/
 			
 		} catch (Exception e) {
 			e.printStackTrace(System.err);

@@ -275,8 +275,9 @@ public class Epoch implements PublicCloneable {
 			to= prng.nextInt(this.m_arcs.length);
 			arc = this.m_arcs[to];
 		}
-		
-		this.setTranferedToArc(to);
+		// this may be one of the reason why we were getting wrong to's : changes feb 23 2015
+		//this.setTranferedToArc(to);
+		this.setTranferedToArc(arc);
 		
 		return arc;
 	}

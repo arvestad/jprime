@@ -16,15 +16,17 @@ import com.beust.jcommander.Parameter;
  */
 public class Parameters {
 	
-	/** Sample realisations. */
-	@Parameter(names = {"-real", "--samplerealisations"}, arity = 2, description = "When sampling, output dated reconciliations to a file. " +
-			"Takes two arguments: <file> <no of realisations per sample>.")
-	public List<String> sampleRealisations = null;
+
 	
-	/** Construct heatmap. */
-	@Parameter(names = {"-heatmap", "--heatmap"}, arity = 3, description = "Read realisations, output heatmap of realisations to a heatmap file. " +
-			"Takes three arguments: <heatmap outputfile> <heatmap_only> <file having realisation samples>.")
-	public List<String> heatmap = null;
+//	/** Sample realisations. */
+//	@Parameter(names = {"-real", "--samplerealisations"}, arity = 1, description = "When sampling, output discritized species tree to a file. " +
+//			"Takes one arguments: <file>.")
+//	public List<String> sampleRealisations = null;
+	
+//	/** Construct heatmap. */
+//	@Parameter(names = {"-heatmap", "--heatmap"}, arity = 3, description = "Read realisations, output heatmap of realisations to a heatmap file. " +
+//			"Takes three arguments: <heatmap outputfile> <heatmap_only> <file having realisation samples>.")
+//	public List<String> heatmap = null;
 
 	/** Required parameters: S, D and GS. */
 	@Parameter(description = "<Host tree> <Multialignment> <Guest-to-host leaf map>.")
@@ -33,6 +35,10 @@ public class Parameters {
 	/** Help. */
 	@Parameter(names = {"-h", "--help"}, description = "Display help.")
 	public Boolean help = false;
+	
+	/** Compute sample realization. */
+	@Parameter(names = {"-real", "--samplerealisations"}, description = "Sample Realizations.")
+	public Boolean sampleRealisations = false;
 	
 	/** Compute Max realization. */
 	@Parameter(names = {"-mr", "--maxrealization"}, description = "Compute Max Realizations.")
@@ -265,5 +271,9 @@ public class Parameters {
 	/** Exceptions flag. */
 	@Parameter(names = {"-uncatch", "--uncatchexception"}, description = "Allows application exceptions to propagate all the way to the terminal without being caught.")
 	public Boolean uncatch = false;
+	/** offline sampling from posterior. */
+	@Parameter(names = {"-posterior", "--sampleRealFromPosterior"}, arity = 1, description = "Perform offline sampling from posterior " +
+	"Takes one arguments: <file>.")
+	public List<String> runSampRealFromPosterior = null;
 	
 }

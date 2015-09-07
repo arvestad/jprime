@@ -44,10 +44,10 @@ public class GuestVertex extends NewickVertex {
 	int sigma;
 	
 	/** Tranfered from arc */
-	int transferedFromArc = 0;
+	int transferedFromArc = -1;
 	
 	/** Tranfered to arc */
-	int transferedToArc = 0;
+	int transferedToArc = -1;
 	
 	/** Epoch. Not always applicable. */
 	Epoch epoch = null;
@@ -167,8 +167,9 @@ public class GuestVertex extends NewickVertex {
 				}
 				String discpt= "DISCPT=(" + v.epoch.getNo() + "," + i +")";
 				
-				String speciesEdge= "SPECIES_EDGE=("+ v.getTransferedFromArc() +","+ v.epoch.getNoOfArcs() +")";
-				sb.append(" FROMTOLINEAGE="+ fromToArc +" "+ speciesEdge + " "+ discpt);
+				//String speciesEdge= "SPECIES_EDGE=("+ v.getTransferedFromArc() +","+ v.epoch.getNoOfArcs() +")";
+				//sb.append(" FROMTOLINEAGE="+ fromToArc +" "+ speciesEdge + " "+ discpt);
+				sb.append(" FROMTOLINEAGE="+ fromToArc +" "+ discpt);
 				break;
 			case SPECIATION:
 				double [] disctTimes= v.epoch.getTimes();

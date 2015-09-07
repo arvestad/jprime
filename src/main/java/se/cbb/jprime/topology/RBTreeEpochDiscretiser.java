@@ -132,11 +132,11 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 		vertexToEpoch = new IntMap("VertexAboveMap", S.getNoOfVertices());
 		update();
 	}
-	
 		
 	/**
 	 * Updates the discretisation based on the underlying host tree.
 	 */
+	
 	public void update() {
 		epochs = new Epoch[(S.getNoOfVertices()+1)/2];
 		splits = new int[epochs.length];
@@ -498,7 +498,8 @@ public class RBTreeEpochDiscretiser implements RootedTreeDiscretiser, ProperDepe
 		}
 	}
 
-
+	
+	
 	@Override
 	public String getPreInfo(String prefix) {
 		StringBuilder sb = new StringBuilder(16536);

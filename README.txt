@@ -36,11 +36,12 @@ java -cp ~/mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/MyApp
 =========== DOCUMENTATION ===========
 
 For instructions on how to run applications, tutorials, source code, etc., please
-visit JPrIME's home at GitHub.com, https://github.com/arvestad/jprime. 
+visit JPrIME's home on the web at http://code.google.com/p/jprime/.
 
 
 
 =========== RELEASES AND SOURCE CODE ===========
 
-JPrIME is currently hosted at GitHub: https://github.com/arvestad/jprime
+JPrIME is currently hosted on Google Code at http://code.google.com/p/jprime/.
+
 

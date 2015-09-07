@@ -390,6 +390,29 @@ public class ParameterParser {
 	}
 	
 	/**
+	 * Reads the probability distribution used for iid rates over guest tree edges.
+	 * @param ps parameters.
+	 * @return probability distribution.
+	 */
+	public static Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> getEdgeRatePD(Parameters ps, double d1, double d2) {
+		// TODO: Implement more PDs.
+		boolean isUni = ps.edgeRatePD.equalsIgnoreCase("UNIFORM");
+		DoubleParameter p1 = new DoubleParameter(isUni ? "EdgeRateLowerBound" : "EdgeRateMean", d1);
+		DoubleParameter p2 = new DoubleParameter(isUni ? "EdgeRateUpperBound" : "EdgeRateCV", d2);
+		
+		Continuous1DPDDependent pd = null;
+		if (ps.edgeRatePD.equalsIgnoreCase("GAMMA")) {
+			pd = new GammaDistribution(p1, p2);
+		} else if (ps.edgeRatePD.equalsIgnoreCase("UNIFORM")) {
+			pd = new UniformDistribution(p1, p2, true, true);
+		} else {
+			throw new IllegalArgumentException("Invalid edge rate distribution.");
+		}
+		return new Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent>(p1, p2, pd);
+	}
+	
+	
+	/**
 	 * Creates a discretisation of the host tree.
 	 * @param ps parameters.
 	 * @param S host tree.
@@ -438,6 +461,28 @@ public class ParameterParser {
 		EpochDLTProbs dltProbs = new EpochDLTProbs(times, dr, lr, tr, adjust);
 		return new Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs>(dr, lr, tr, dltProbs);
 	}
+	
+	
+	/**
+	 * Creates duplication-loss-transfer probabilities over discretised host tree.
+	 * @param ps parameters.
+	 * @param s host tree.
+	 * @param g guest tree.
+	 * @param times discretisation times.
+	 * @param gsMap 
+	 * @param gNames 
+	 * @param sNames 
+	 * @return duplication rate, loss rate, transfer rate, duplication-loss-transfer probabilities.
+	 */
+	public static Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs> getDLTProbs( RBTreeEpochDiscretiser times, double d, double l, double t) {
+		
+		DoubleParameter dr = new DoubleParameter("DuplicationRate", d);
+		DoubleParameter lr = new DoubleParameter("LossRate", l);
+		DoubleParameter tr = new DoubleParameter("TransferRate", t);
+		EpochDLTProbs dltProbs = new EpochDLTProbs(times, dr, lr, tr, true);
+		return new Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs>(dr, lr, tr, dltProbs);
+	}
+	
 	
 	/**
 	 * Creates a proposer selector.
@@ -543,9 +588,10 @@ public class ParameterParser {
 	 * @throws IOException.
 	 */
 	public static RealisationSampler getRealisationSampler(Parameters ps, Iteration iter, PRNG prng, DLTRModel model, DLTRMAPModel msModel, NamesMap names, Boolean maxRealizationFlag) throws IOException {
-		if (ps.sampleRealisations == null) { return null; }
-		String fn = ps.sampleRealisations.get(0);
-		int n = Integer.parseInt(ps.sampleRealisations.get(1));
-		return new RealisationSampler(fn, n, iter, prng, model, msModel, names, maxRealizationFlag);
+		if (ps.sampleRealisations == false && ps.maxRealizationFlag == false ) { return null; }
+		if (ps.sampleRealisations == true && ps.maxRealizationFlag == true ) { return null; }
+		String fn = ps.outfile.trim() + ".disct.host.tree";
+		int NO_OF_REALIZATION_PER_SATATE= 1;
+		return new RealisationSampler(fn,NO_OF_REALIZATION_PER_SATATE, iter, prng, model, msModel, names, maxRealizationFlag);
 	}
 }

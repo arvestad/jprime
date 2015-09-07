@@ -68,6 +68,9 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 		}
 		this.hostTree = new RBTreeEpochDiscretiser(S, hostNames, hostTimes);
 		
+		// generate epoch and arc id information for each edge of the species tree. this is useful when doing sampling realization from DLTRS model
+		
+		
 		// Rates.
 		this.lambda = lambda;
 		this.mu = mu;
@@ -112,29 +115,50 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 				lc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
 				rc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
 			} else if (lin.event == Event.TRANSFER) {
+//				if (prng.nextDouble() < 0.5) {
+//					// we need to fix this, select an incident arc of species tree randomly (mehmood)
+//					lc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
+//
+//					lin.setTransferedFromArc(lin.epoch.findIndexOfArc(lin.sigma));
+//					int transferedToArc= lin.epoch.sampleArc(prng, lin.sigma, lin.getTransferedFromArc());
+//					
+//					rc = this.createGuestVertex(transferedToArc, lin.abstime, prng);			
+//					lin.setTransferedToArc(lin.epoch.getTranferedToArc());
+//					
+//					
+//				} else {
+//					lin.setTransferedFromArc(lin.epoch.findIndexOfArc(lin.sigma));
+//					int transferedToArc=lin.epoch.sampleArc(prng, lin.sigma, lin.getTransferedFromArc());
+//					
+//					lc = this.createGuestVertex(transferedToArc, lin.abstime, prng);
+//					rc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
+//					
+//					
+//					//lin.setTransferedFromArc(lin.sigma);
+//					lin.setTransferedToArc(lin.epoch.getTranferedToArc());
+//	
+//				}
+				
+				// changes at feb 23 2015. starts
+				
 				if (prng.nextDouble() < 0.5) {
 					// we need to fix this, select an incident arc of species tree randomly (mehmood)
 					lc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
-
-					lin.setTransferedFromArc(lin.epoch.findIndexOfArc(lin.sigma));
-					int transferedToArc= lin.epoch.sampleArc(prng, lin.sigma, lin.getTransferedFromArc());
-					
+					int transferedToArc= lin.epoch.sampleArc(prng, lin.sigma, lin.epoch.findIndexOfArc(lin.sigma));
+					lin.setTransferedFromArc(lin.sigma);
 					rc = this.createGuestVertex(transferedToArc, lin.abstime, prng);			
 					lin.setTransferedToArc(lin.epoch.getTranferedToArc());
 					
-					
 				} else {
-					lin.setTransferedFromArc(lin.epoch.findIndexOfArc(lin.sigma));
-					int transferedToArc=lin.epoch.sampleArc(prng, lin.sigma, lin.getTransferedFromArc());
-					
-					lc = this.createGuestVertex(transferedToArc, lin.abstime, prng);
 					rc = this.createGuestVertex(lin.sigma, lin.abstime, prng);
-					
-					
-					//lin.setTransferedFromArc(lin.sigma);
+					int transferedToArc= lin.epoch.sampleArc(prng, lin.sigma, lin.epoch.findIndexOfArc(lin.sigma));
+					lin.setTransferedFromArc(lin.sigma);
+					lc = this.createGuestVertex(transferedToArc, lin.abstime, prng);
 					lin.setTransferedToArc(lin.epoch.getTranferedToArc());
-	
 				}
+				
+				// changes at feb 23 2015. ends
+				
 			} else {
 				throw new UnsupportedOperationException("Unexpected event type.");
 			}
@@ -331,31 +355,6 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 			sb.append(v.abstime).append('\t');
 			sb.append(v.sigma).append('\t');
 			sb.append(v.epoch.getNo()).append('\n');
-			/*
-			// mehmood addition:
-			sb.append(v.epoch.getNo()).append('\t');
-			sb.append(v.epoch.getNoOfArcs()).append('\t');
-			double [] discTimes=v.epoch.getTimes();
-			int i=0;
-			while (true && i < discTimes.length){
-				if (discTimes[i] >= v.abstime){
-					break;
-				}	
-				i++;
-			}
-			sb.append(i).append('\t');
-			if (v.getTransferedFromArc() == 0 && v.getTransferedToArc() == 0){
-				sb.append('\n');
-			}else{
-				String kha= v.getTransferedFromArc()+","+ v.getTransferedToArc();
-				sb.append(kha).append('\n');
-				//System.out.println(v.getName()+" from: "+v.getTransferedFromArc()+" to:"+ v.getTransferedToArc());
-			}
-			
-			
-			//sb.append(discTimes[i]).append('\n');			
-			
-			*/
 			
 		}
 		return sb.toString();
