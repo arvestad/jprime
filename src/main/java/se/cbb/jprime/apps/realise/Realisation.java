@@ -1,5 +1,8 @@
 package se.cbb.jprime.apps.realise;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import se.cbb.jprime.io.NewickIOException;
 import se.cbb.jprime.io.NewickTreeWriter;
 import se.cbb.jprime.topology.BooleanMap;
@@ -9,7 +12,7 @@ import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
 /**
- * Represents a dated guest tree according to the DLRS model. As such, it also
+ * Represents a dated guest tree according to the DLTRS model. As such, it also
  * induces a reconciliation with the host tree.
  * <p/>
  * A realisation is presented on PrIME-Newick format, with times
@@ -20,7 +23,7 @@ import se.cbb.jprime.topology.TimesMap;
  * C:0.2[&&PrIME VERTEXTYPE=Leaf DISCPT=(1,0)]):0.8[&&PrIME VERTEXTYPE=Duplication DISCPT=(1,5)]):1.0[&&PrIME VERTEXTYPE=Speciation DISCPT=(2,0)];
  * </code>.
  * 
- * @author Joel Sjöstrand.
+ * @author Mehmood Alam Khan, Joel Sjöstrand, Owais Mahmudi.
  */
 public class Realisation {
 
@@ -36,9 +39,16 @@ public class Realisation {
 	/** For each vertex v of G, states whether it corresponds to a duplication or not. */
 	private BooleanMap isDuplication;
 	
+	/** For each vertex v of G, states whether it corresponds to a Transfer or not. */
+	private BooleanMap isTransfer; // mehmood's adddition here
+	
 	/** Placement info of the vertex in the discretised host tree. */
 	private StringMap placements;
 	
+	/** From-To-lineage info about the children of a particular vertex being subjected to transfer event */
+	private StringMap fromTo;
+	
+	private StringMap speciesEdge;
 	/**
 	 * Constructor.
 	 * @param G tree topology.
@@ -47,14 +57,104 @@ public class Realisation {
 	 * @param isDup for each vertex v of G: true if v corresponds to a duplication; false if v corresponds to a speciation or leaf.
 	 * @param placements for each vertex v of G: discretisation placement info.
 	 */
-	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup, StringMap placements) {
-		this.G = G;
-		this.names = names;
-		this.times = times;
-		this.isDuplication = isDup;
-		this.placements = placements;
+	public Realisation(RootedBifurcatingTree G, NamesMap names, TimesMap times, BooleanMap isDup,BooleanMap isTrans, StringMap placements, StringMap fromTo, StringMap speciesEdge) {
+		this.G 					= G;
+		this.names 				= names;
+		this.times 				= times;
+		this.isDuplication 		= isDup;
+		this.placements 		= placements;
+		this.isTransfer 		= isTrans;  // mehmood's adddition here
+		this.fromTo				= fromTo;		// mehmood's adddition here
+		this.speciesEdge		= speciesEdge;
 	}
 
+	/**
+	 * Returns the guest tree
+	 * @return RootedBifurcatingtree 
+	 */
+	public RootedBifurcatingTree getTree(){
+		return this.G;
+	}
+	
+	/**
+	 * Returns the isTransfer map of all vertices
+	 * @return BooleanMap 
+	 */
+	public BooleanMap getDuplication(){
+		return this.isDuplication;
+	}
+        
+	/**
+	 * Returns the isDuplication map of all vertices
+	 * @return BooleanMap
+	 */
+	public BooleanMap getTransfer(){
+		return this.isTransfer;
+	}
+	
+	/**
+	 * Returns the fromTos
+	 * @return StringMap isTranser 
+	 */
+	public StringMap getFromTos(){
+		return this.fromTo;
+	}
+	
+	/**
+	 * Returns the species_edges
+	 * @return StringMap isTranser 
+	 */
+	public StringMap getSpeciesEdges(){
+		return this.speciesEdge;
+	}
+	
+	/**
+	 * Returns the Placements
+	 * @return StringMap isTranser 
+	 */
+	public StringMap getPlacements(){
+		return this.placements;
+	}
+	
+	/**
+	 * Returns the Leaves
+	 * @return List<String>  
+	 */
+	public List<String> getNameOfLeaves(int vertex_no){
+		List<Integer> leaves = this.G.getDescendantLeaves(vertex_no, false);
+		List<String> named_leaves = new ArrayList<String>();
+		
+		for(int i=0; i<leaves.size(); i++){
+			named_leaves.add(this.names.get(leaves.get(i)));
+		}
+                java.util.Collections.sort(named_leaves);
+		return named_leaves;
+	}
+	
+	
+	/**
+	 * Returns the node-to-node-map of two realizations
+	 * @return node-to-node-map of this realization with reference realization
+	 */
+	public int[] getNodeToNodeMap(Realisation ref)
+	{
+		int[] nodesmap = new int[this.G.getNoOfVertices()];
+		List<List<String>> leavesList = new ArrayList<List<String>>();
+		for (int i=0; i<this.G.getNoOfVertices(); i++)
+		{
+			leavesList.add(this.getNameOfLeaves(i));
+		}
+		
+		for (int i=0; i<this.G.getNoOfVertices(); i++){
+			for (int j=0; j<this.G.getNoOfVertices(); j++){
+				if(leavesList.get(i).equals(ref.getNameOfLeaves(j))){
+					nodesmap[i]=j;
+				}
+			}
+		}
+		return nodesmap;
+	}
+	
 	/**
 	 * Returns the tree on Newick format.
 	 * @return tree on Newick format.
@@ -72,10 +172,16 @@ public class Realisation {
 				StringBuilder sb = new StringBuilder(256);
 				if (this.G.isLeaf(v)) {
 					sb.append("[&&PRIME VERTEXTYPE=Leaf");
+				} else if (this.isTransfer.get(v)) {  //  mehmood's addition here
+					sb.append("[&&PRIME VERTEXTYPE=Transfer");
+					sb.append(" FROMTOLINEAGE=").append(fromTo.get(v));
+					sb.append(" SPECIES_EDGE=").append(speciesEdge.get(v));
 				} else if (this.isDuplication.get(v)) {
 					sb.append("[&&PRIME VERTEXTYPE=Duplication");
+					sb.append(" SPECIES_EDGE=").append(speciesEdge.get(v));
 				} else {
 					sb.append("[&&PRIME VERTEXTYPE=Speciation");
+					sb.append(" SPECIES_EDGE=").append(speciesEdge.get(v));
 				}
 				sb.append(" DISCPT=").append(placements.get(v)).append("]");
 				meta.set(v, sb.toString());
@@ -86,6 +192,10 @@ public class Realisation {
 		} catch (NewickIOException e) {
 			throw new RuntimeException("Could not transform realisation into Newick string.", e);
 		}
+	}
+
+	public NamesMap getNamesMap() {
+		return this.names;
 	}
 	
 	
