@@ -5,8 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
-import se.cbb.jprime.apps.dltrs.Realisation;
+import se.cbb.jprime.apps.realise.Realisation;
 import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
@@ -179,8 +180,12 @@ public class UnparsedRealisation {
 				int[] specieEdgePlacement= getSpeciesEdge(meta);
 				speciesEdge[v]= "("+specieEdgePlacement[0]+","+specieEdgePlacement[1]+")";
 			}
-			int[] placement = getRealisedPoint(meta);
-			placements[v]= "("+placement[0]+","+placement[1]+")";
+			int[] placement = {0,0};
+			if(!tree.getVertex(v).isLeaf())
+			{
+				placement = getRealisedPoint(meta);
+				placements[v]= "("+placement[0]+","+placement[1]+")";
+			}
 		}
 		
 		
@@ -197,6 +202,73 @@ public class UnparsedRealisation {
 	}
 	
 	
+	/**
+	 * Parse a string of realization (DLTRS) to the realization object (also sorts the vertices of sampled
+	 * gene tree with the true one)
+	 * @throws NewickIOException 
+	 * @throws TopologyException 
+	 */
+	public static Realisation parseRealisation(String real, NamesMap trueNamesMap) throws NewickIOException, TopologyException
+	{
+		PrIMENewickTree tree = PrIMENewickTreeReader.readTree(real, true, true);			// Sorts the gene tree
+		RBTree rbTree= new RBTree((NewickTree) tree,"");
+		String[] names = new String[tree.getNoOfVertices()];
+		TimesMap times = tree.getTimesMap(real);	
+
+		boolean[] isdups = new boolean[tree.getNoOfVertices()];
+		boolean[] istrans = new boolean[tree.getNoOfVertices()];
+		String[] placements = new String[tree.getNoOfVertices()];
+		String[] fromTos = new String[tree.getNoOfVertices()];
+		String[] speciesEdge = new String[tree.getNoOfVertices()];
+		
+		for(int v =0; v < tree.getNoOfVertices(); v++)
+		{
+			names[v]=tree.getVertex(v).getName();
+			String meta = tree.getVertex(v).getMeta();
+			// 0 for leaf, 1 for speciation, 2 for duplication, 3 for transfer
+			int vertextype = getVertexType(meta);
+			
+			isdups[v] = false;
+			istrans[v] = false;
+			
+			if (vertextype == 2)
+				isdups[v]=true;
+			else if( vertextype == 3)
+				istrans[v]=true;
+			
+			
+			int [] fromtos = {-1, -1, -1};	
+			if (vertextype == 3){
+				fromtos = getFromToPoints(meta);
+				fromTos[v] = "("+fromtos[0]+","+fromtos[1]+","+fromtos[2]+")";
+			}
+                        if(vertextype!=0){
+                            int[] specieEdgePlacement= getSpeciesEdge(meta);
+                            speciesEdge[v]= "("+specieEdgePlacement[0]+","+specieEdgePlacement[1]+")";
+                        }
+			int[] placement = {0,0};
+			if(!tree.getVertex(v).isLeaf())
+			{
+				placement = getRealisedPoint(meta);
+				placements[v]= "("+placement[0]+","+placement[1]+")";
+			}
+			
+		}
+		
+		
+		NamesMap Names = new NamesMap("GuestTreeNames", names);
+		BooleanMap isDups = new BooleanMap("RealisationIsDups", isdups);
+		BooleanMap isTrans = new BooleanMap("RealisationIsTrans", istrans);
+		StringMap Placements = new StringMap("DiscPts",placements);
+		StringMap FromTos = new StringMap("fromToLineage",fromTos);
+		StringMap SpeciesEdge =new StringMap("speciesEdge",speciesEdge); 
+		
+		RBTree rbtree = new RBTree((NewickTree) tree,"");
+		Realisation realisation = new Realisation((RootedBifurcatingTree) rbtree, Names, times, isDups, isTrans, Placements, FromTos, SpeciesEdge);
+		return (realisation );
+	}
+        
+        
 	/**
 	 * Returns the vertex type of the meta
 	 * 0 for leaf, 1 for speciation, 2 for duplication, 3 for transfer
@@ -217,24 +289,42 @@ public class UnparsedRealisation {
 			return -1;
 
 	}
-	
-	/**
+		
+        	/**
 	 * Returns the FromTo transfer points of the meta
 	 * @param meta represents the realized information of vertex
 	 * @return y [realised points in array]
 	 */
 	private static int[] getFromToPoints(String meta){
-		String str = meta.substring(meta.indexOf("FROMTOLINEAGE=("), meta.indexOf("DISCPT"));
 		
-		int y1 = Integer.parseInt(str.substring(str.indexOf("FROMTOLINEAGE=(")+15 , str.indexOf(",") ));
-		int y2 = Integer.parseInt(str.substring(str.indexOf(",")+1 , str.lastIndexOf(",") ));
-		int y3 = Integer.parseInt(str.substring(str.lastIndexOf(",")+1 , str.lastIndexOf(")") ));
+		String str = meta.substring(meta.indexOf("FROMTOLINEAGE=("), meta.length());
+		str = meta.substring(meta.indexOf("FROMTOLINEAGE=("), meta.indexOf(")"));
+		int y1=-1, y2=-1, y3=-1;
+		
+		int noOfelements = StringUtils.countMatches(str, ",")+1;
+		if (noOfelements == 2)
+		{
+			y1 = Integer.parseInt(str.substring(str.indexOf("FROMTOLINEAGE=(")+15 , str.indexOf(",") ));
+			y2 = Integer.parseInt(str.substring(str.indexOf(",")+1 , str.length() ));
+		}else if(noOfelements == 3)
+		{
+			y1 = Integer.parseInt(str.substring(str.indexOf("FROMTOLINEAGE=(")+15 , str.indexOf(",") ));
+			y2 = Integer.parseInt(str.substring(str.indexOf(",")+1 , str.lastIndexOf(",") ));
+			y3 = Integer.parseInt(str.substring(str.lastIndexOf(",")+1 , str.length() ));
+		}
+		
+//		String str = meta.substring(meta.indexOf("FROMTOLINEAGE=("), meta.indexOf("DISCPT"));
+//		
+//		int y1 = Integer.parseInt(str.substring(str.indexOf("FROMTOLINEAGE=(")+15 , str.indexOf(",") ));
+//		int y2 = Integer.parseInt(str.substring(str.indexOf(",")+1 , str.lastIndexOf(",") ));
+//		int y3 = Integer.parseInt(str.substring(str.lastIndexOf(",")+1 , str.lastIndexOf(")") ));
 
 		int y[] = {y1, y2, y3};
 		return y;
 		
 	}	
-	
+        
+        
 	/**
 	 * Returns the FromTo transfer points of the meta
 	 * @param meta represents the realized information of vertex
