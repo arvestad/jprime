@@ -17,7 +17,7 @@ and Auwn Muhammed.
 # Installation
 
 The easiest way to install JPrime is to download the latest [JAR file found in
-our Dropbox directory(https://www.dropbox.com/sh/4yfyav5wmeyk34a/AAAhayS-dwx0OBeJl5RpuOYha?dl=0).
+our Dropbox directory](https://www.dropbox.com/sh/4yfyav5wmeyk34a/AAAhayS-dwx0OBeJl5RpuOYha?dl=0).
 This is a single JAR file bundled with all external
 dependencies. It will most likely be named 'jprime-X.Y.Z.jar', with
 X.Y.Z referring to its current incarnation.
