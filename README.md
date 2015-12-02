@@ -45,7 +45,7 @@ JPrIME is currently hosted at GitHub: https://github.com/arvestad/jprime.
 
 # Frequently Asked Questions
 
-+ How can I sample [realisations](http://www.biomedcentral.com/1471-2105/14/S15/S10) using JPrIME-DLRS?
++ How can I sample dated reconciliation [or d-realisations mahmudi et al. 2013](http://www.biomedcentral.com/1471-2105/14/S15/S10) of gene tree with the species tree using JPrIME-DLRS?
 
 Yes, it is possible to sample realisations using JPrIME-DLRS. Please see the help file for providing arguments by using the following command:
 java -jar jprime.jar Delirious -h
