@@ -54,5 +54,5 @@ java -jar jprime.jar Delirious -h
 
 A typical example of running JPrIME while sampling realisations would look like this: (examples files can be downloaded from [here](https://github.com/arvestad/jprime/tree/master/sample_data))
 ```
-java -jar target/jprime-x.y.z.jar Delirious -i 1000 -t 10 -sm WAG -o samples.mcmc sample_data/dlrs_example_1.stree.txt sample_data/dlrs_example_1.fa.txt sample_data/dlrs_example_1.map.txt
+java -jar target/jprime-x.y.z.jar Delirious -i 1000 -t 10 -sm WAG -real realisations.txt 1 -o samples.mcmc sample_data/dlrs_example_1.stree.txt sample_data/dlrs_example_1.fa.txt sample_data/dlrs_example_1.map.txt
 ```
