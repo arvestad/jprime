@@ -36,7 +36,7 @@ java -cp ~/mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/MyApp
 # Documentation
 
 For instructions on how to run applications, tutorials, source code, etc., please
-visit JPrIME's home at GitHub.com, https://github.com/arvestad/jprime.
+visit the Wiki pages at JPrIME's home at GitHub.com, https://github.com/arvestad/jprime/wiki.
 
 
 # Releases and source code
