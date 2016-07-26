@@ -36,11 +36,23 @@ java -cp ~/mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/MyApp
 # Documentation
 
 For instructions on how to run applications, tutorials, source code, etc., please
-visit JPrIME's home at GitHub.com, https://github.com/arvestad/jprime.
+visit the Wiki pages at JPrIME's home at GitHub.com, https://github.com/arvestad/jprime/wiki.
 
 
 # Releases and source code
 
 JPrIME is currently hosted at GitHub: https://github.com/arvestad/jprime.
 
+# Frequently Asked Questions
 
++ How can I sample dated reconciliations ([or _d_-realisations as defined in Mahmudi et al. 2013](http://www.biomedcentral.com/1471-2105/14/S15/S10)) of a gene tree with a species tree using JPrIME-DLRS?
+
+Yes, it is possible to sample realisations using JPrIME-DLRS. Please see the help file for providing arguments by using the following command:
+```
+java -jar jprime.jar Delirious -h
+```
+
+A typical example of running JPrIME while sampling realisations would look like this: (examples files can be downloaded from [here](https://github.com/arvestad/jprime/tree/master/sample_data))
+```
+java -jar target/jprime-x.y.z.jar Delirious -i 1000 -t 10 -sm WAG -real realisations.txt 1 -o samples.mcmc sample_data/dlrs_example_1.stree.txt sample_data/dlrs_example_1.fa.txt sample_data/dlrs_example_1.map.txt
+```
