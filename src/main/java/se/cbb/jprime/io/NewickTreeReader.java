@@ -23,7 +23,7 @@ import se.cbb.jprime.misc.CharQueue;
  * &lt;subtree&gt;      ::= "(" &lt;subtree&gt; "," &lt;subtreeset&gt; ")" &lt;info&gt;  |  &lt;info&gt;
  * &lt;subtreeset&gt;   ::= &lt;subtree&gt;  |  &lt;subtree&gt; "," &lt;subtreeset&gt;
  * &lt;info&gt;         ::= &lt;name&gt; &lt;branchlength&gt; &lt;meta&gt;
- * &lt;name&gt;         ::= empty  |  string
+ * &lt;name&gt;         ::= empty  |  string  | "'" string "'"
  * &lt;branchlength&gt; ::= empty  |  ":" number
  * &lt;meta&gt;         ::= empty  |  "[" string "]"
  * </pre>
@@ -218,12 +218,25 @@ public class NewickTreeReader {
 	 * @param q remaining characters.
 	 * @return parsed name, null if empty.
 	 */
-	private static String readName(CharQueue q) {
+	private static String readName(CharQueue q) throws NewickIOException {
 		StringBuilder name = new StringBuilder(16);
 		char c = q.peek();
 		while (!q.isEmpty() && c != ',' && c != ';' && c != ')' && c != '[' && c != ':') {
 			name.append(q.get());
 			c = q.peek();
+		}
+		if (name.length() == 0) {
+			return null;
+		} else {
+			String s = name.toString();
+			if (s.charAt(0) == '\'' ) {
+				int n = s.length();
+				if (s.charAt(n-1) == '\'') {
+					return s.substring(1, n-1);
+				} else {
+					throw new NewickIOException("Unmatched quote in leaf name: " + s);
+				}
+			}
 		}
 		return (name.length() == 0 ? null : name.toString());
 	}
