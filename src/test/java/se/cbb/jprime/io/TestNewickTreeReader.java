@@ -34,7 +34,20 @@ public class TestNewickTreeReader {
 		NewickTree t = NewickTreeReader.readTree(in, true);
 		assertNotNull(t);
 	}
-	
+
+
+	@Test
+	public void readQuoteadNewickTree() throws NewickIOException {
+		// Should be able to read a tree and ignore quotes around leaf names
+		String in = "('A':2.0, (B:0.1, 'C':0.1):0.1):0.1;";
+		NewickTree t = NewickTreeReader.readTree(in, false);
+		assertEquals(3, t.getNoOfLeaves());
+		for (NewickVertex leaf: t.getLeavesAsList()) {
+			String name = leaf.getName();
+			assertEquals(1, name.length());
+		}
+	}
+
 	@Test
 	public void readNameAndBLTrees() throws NewickIOException {
 		String in = "(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);\n" +
