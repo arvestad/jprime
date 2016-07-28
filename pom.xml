@@ -4,25 +4,18 @@
 
   <groupId>se.cbb</groupId>
   <artifactId>jprime</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.3.5e</version>
   <packaging>jar</packaging>
 
   <name>JPrIME</name>
   <description>Probabilistic phylogenetic inference tools (and more).</description>
-  <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <issueManagement>
-  	<system>Google Code Issues</system>
-  	<url>https://code.google.com/p/jprime/issues/list</url>
-  </issueManagement>
   <scm>
-  	<connection>scm:svn:https://jprime.googlecode.com/svn/</connection>
-  	<tag>HEAD</tag>
-  	<url>https://jprime.googlecode.com/svn/</url>
+  	<url>https://github.com/arvestad/jprime.git</url>
   </scm>
   <organization>
   	<name>Computational biology groups at SciLifeLab, Stockholm, Sweden</name>
@@ -198,4 +191,5 @@
        		</plugin>
 		</plugins>
 	</build>
+  <url>https://github.com/arvestad/jprime/</url>
 </project>
