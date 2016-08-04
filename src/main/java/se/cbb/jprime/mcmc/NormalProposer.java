@@ -2,11 +2,8 @@ package se.cbb.jprime.mcmc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import se.cbb.jprime.math.NormalDistribution;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.math.LogDouble;
