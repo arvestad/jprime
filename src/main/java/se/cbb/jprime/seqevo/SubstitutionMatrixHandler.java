@@ -34,7 +34,7 @@ import se.cbb.jprime.misc.DoubleKeyMap;
 public class SubstitutionMatrixHandler implements InfoProvider {
 	
 	/** The maximum allowed time w on which transition rate matrix Q can act. */
-	public static final double MAX_MARKOV_TIME = 1000.0;
+	public static final double MAX_MARKOV_TIME = 100.0;
 
 	/** Substitution model name. */
 	private String modelName;
@@ -194,17 +194,15 @@ public class SubstitutionMatrixHandler implements InfoProvider {
 	/**
 	 * Sets up P=exp(Qw), the transition probability matrix for the Markov
 	 * process over 'time' w (where 'time' is not necessarily temporal).
-	 * Precondition: w <= 1000.
+	 * Precondition: w <= 100.
 	 * @param w the "time" (or branch length) over which Q acts.
 	 */
 	public void updateTransitionMatrix(double w) {
-		// C++ comment which may still apply...  /joelgs
-		// If w is too big, the precision of LAPACK seem to get warped!
-		// The choice of max value of 1000 is arbitrary and well below the 
-		// actual max value. /bens
-		// TODO: Could we precondition on a reasonable MarkovTime?
+		// There is a maximum w this code can handle. It is somewhere above w=100. 
+		// Please keep w way below that though. In 2016, I have limited the branchlengths
+		// proposed in DLRS and DLTRS to w<10. 
 		if (w > MAX_MARKOV_TIME) {
-			throw new IllegalArgumentException("In substitution model, cannot compute transition probability matrix P for too large Markov time w=" + w + ".");
+			throw new IllegalArgumentException("Bug: In substitution model, cannot compute transition probability matrix P for too large Markov time w=" + w + ".");
 		}
 		
 		// Clear ambiguity cache.
