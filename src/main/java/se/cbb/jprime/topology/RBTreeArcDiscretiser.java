@@ -81,12 +81,16 @@ public class RBTreeArcDiscretiser implements RootedTreeDiscretiser, ProperDepend
 	 * ordinary discretisation.
 	 */
 	public RBTreeArcDiscretiser(RBTree S, NamesMap names, TimesMap times, int nmin, int nmax, double deltat, int nroot) {
-		if (nmin <= 1 || nmax < nmin) {
+		if (nmin <= 1) {
 			// We must have least two points for other classes to work safely...
-			throw new IllegalArgumentException("Invalid discretisation bounds for RBTreeDiscretiser.");
+			throw new IllegalArgumentException("Invalid discretisation bound: " + nmin + ", must be >= 2 (in RBTreeArcDiscretiser).");
+		}
+		if (nmax < nmin) {
+			// Not consistent!
+			throw new IllegalArgumentException("Invalid and inconsistent discretisation bounds: dmax is smaller than dmin (in RBTreeArcDiscretiser).");
 		}
 		if (nmin != nmax && deltat <= 0) {
-			throw new IllegalArgumentException("Invalid discretisation timestep for RBTreeDiscretiser.");
+			throw new IllegalArgumentException("Invalid discretisation timestep (in RBTreeArcDiscretiser).");
 		}
 		if (nmin == nmax) {
 			deltat = Double.MAX_VALUE;
