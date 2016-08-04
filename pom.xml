@@ -4,7 +4,7 @@
 
   <groupId>se.cbb</groupId>
   <artifactId>jprime</artifactId>
-  <version>0.3.5e</version>
+  <version>0.3.6</version>
   <packaging>jar</packaging>
 
   <name>JPrIME</name>
