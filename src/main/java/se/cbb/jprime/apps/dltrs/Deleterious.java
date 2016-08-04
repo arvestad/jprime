@@ -2,8 +2,6 @@ package se.cbb.jprime.apps.dltrs;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -13,22 +11,17 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 
-
 import org.biojava3.core.sequence.template.Compound;
 import org.biojava3.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.apps.dltrs.ParameterParser;
-import se.cbb.jprime.apps.dltrs.Realisation;
 import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
-import se.cbb.jprime.io.NewickTree;
-import se.cbb.jprime.io.NewickTreeReader;
 import se.cbb.jprime.io.RBTreeSampleWrapper;
 import se.cbb.jprime.io.SampleDoubleArray;
 import se.cbb.jprime.io.SampleWriter;
-import se.cbb.jprime.io.UnparsedRealisation;
 import se.cbb.jprime.math.Continuous1DPDDependent;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.math.RealInterval;
@@ -50,14 +43,12 @@ import se.cbb.jprime.seqevo.MSAData;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandler;
 import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
 import se.cbb.jprime.seqevo.SubstitutionModel;
-import se.cbb.jprime.topology.BooleanMap;
 import se.cbb.jprime.topology.DoubleMap;
 import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GuestHostMap;
 import se.cbb.jprime.topology.LeafLeafMap;
 import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.RBTree;
-import se.cbb.jprime.topology.StringMap;
 import se.cbb.jprime.topology.TimesMap;
 
 import com.beust.jcommander.JCommander;
@@ -204,7 +195,8 @@ public class Deleterious implements JPrIMEApp {
 			NormalProposer edgeRateCVProposer 	= ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
 			NormalProposer siteRateShapeProposer= ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
 			Proposer guestTreeProposer 			= ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, iter, prng, guestTreeSamples);
-			NormalProposer lengthsProposer 		= ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
+			RealInterval lengthsBounds = new RealInterval(0, 10, true, true); // Branchlengths should be limited to this open (true, true) interval. Main point: do no allow lengths >10.
+			NormalProposer lengthsProposer = ParameterParser.getTruncatedNormalProposer(params, lengthsBounds, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights 			= SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
@@ -220,14 +212,15 @@ public class Deleterious implements JPrIMEApp {
 			selector.add(lengthsProposer, 		ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
-			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
-			if (params.lossRate != null       && params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
-			if (params.transRate != null      && params.transRate.matches("FIXED|Fixed|fixed"))      { transRateProposer.setEnabled(false); }
-			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
-			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
-			if (params.siteRateCats == 1      || params.siteRateShape.matches("FIXED|Fixed|fixed"))  { siteRateShapeProposer.setEnabled(false); }
-			if (params.guestTreeFixed)                                                               { guestTreeProposer.setEnabled(false); }
-			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
+			String fixedRegex = ".+[fF][iI][xX][eE][dD]"; // Notice the starting ".+". The regex has to match the whole jaevla string!
+			if (params.dupRate != null        && params.dupRate.matches(fixedRegex))        { dupRateProposer.setEnabled(false); }
+			if (params.lossRate != null       && params.lossRate.matches(fixedRegex))       { lossRateProposer.setEnabled(false); }
+			if (params.transRate != null      && params.transRate.matches(fixedRegex))      { transRateProposer.setEnabled(false); }
+			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches(fixedRegex)) { edgeRateMeanProposer.setEnabled(false); }
+			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches(fixedRegex))   { edgeRateCVProposer.setEnabled(false); }
+			if (params.siteRateCats == 1      || params.siteRateShape.matches(fixedRegex))  { siteRateShapeProposer.setEnabled(false); }
+			if (params.guestTreeFixed)                                                      { guestTreeProposer.setEnabled(false); }
+			if (params.lengthsFixed)                                                        { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
 			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
