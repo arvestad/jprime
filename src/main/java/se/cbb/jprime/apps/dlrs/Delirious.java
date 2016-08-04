@@ -189,7 +189,8 @@ public class Delirious implements JPrIMEApp {
 			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
 			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
 			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples);
-			NormalProposer lengthsProposer = ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
+			RealInterval lengthsBounds = new RealInterval(0, 10, true, true); // Branchlengths should be limited to this open (true, true) interval. Main point: do no allow lengths >10.
+			NormalProposer lengthsProposer = ParameterParser.getTruncatedNormalProposer(params, lengthsBounds, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
@@ -204,13 +205,14 @@ public class Delirious implements JPrIMEApp {
 			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
-			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
-			if (params.lossRate != null       && params.lossRate.matches("FIXED|Fixed|fixed"))       { lossRateProposer.setEnabled(false); }
-			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches("FIXED|Fixed|fixed")) { edgeRateMeanProposer.setEnabled(false); }
-			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches("FIXED|Fixed|fixed"))   { edgeRateCVProposer.setEnabled(false); }
-			if (params.siteRateCats == 1      || params.siteRateShape.matches("FIXED|Fixed|fixed"))  { siteRateShapeProposer.setEnabled(false); }
-			if (params.guestTreeFixed)                                                               { guestTreeProposer.setEnabled(false); }
-			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
+			String fixedRegex = ".+[fF][iI][xX][eE][dD]"; // Notice the starting ".+". The regex has to match the whole jaevla string!
+			if (params.dupRate != null        && params.dupRate.matches(fixedRegex))        { dupRateProposer.setEnabled(false); }
+			if (params.lossRate != null       && params.lossRate.matches(fixedRegex))       { lossRateProposer.setEnabled(false); }
+			if (params.edgeRatePDMean != null && params.edgeRatePDMean.matches(fixedRegex)) { edgeRateMeanProposer.setEnabled(false); }
+			if (params.edgeRatePDCV != null   && params.edgeRatePDCV.matches(fixedRegex))   { edgeRateCVProposer.setEnabled(false); }
+			if (params.siteRateCats == 1      || params.siteRateShape.matches(fixedRegex))  { siteRateShapeProposer.setEnabled(false); }
+			if (params.guestTreeFixed)                                                      { guestTreeProposer.setEnabled(false); }
+			if (params.lengthsFixed)                                                        { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
 			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);

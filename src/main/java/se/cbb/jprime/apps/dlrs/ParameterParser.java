@@ -493,12 +493,27 @@ public class ParameterParser {
 	 * @return proposer.
 	 */
 	public static NormalProposer getNormalProposer(Parameters ps, RealParameter p, Iteration iter, PRNG prng, String tuning) {
+		return getTruncatedNormalProposer(ps, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), p, iter, prng, tuning);
+	}
+	
+	/**
+	 * Returns a Normal proposer, but restricted to an interval. I.e., a truncated normal distribution.
+	 * @param ps parameters.
+	 * @param interval The truncation 
+	 * @param p MCMC parameter.
+	 * @param iter iterations.
+	 * @param prng PRNG.
+	 * @param tuningCV tuning CV parameter start-stop as an array in string format.
+	 * @return proposer.
+	 */
+	public static NormalProposer getTruncatedNormalProposer(Parameters ps, RealInterval interval, RealParameter p, Iteration iter, PRNG prng, String tuning) {
 		double[] tng = SampleDoubleArray.toDoubleArray(tuning);
 		LinearTuningParameter tcv = new LinearTuningParameter(iter, tng[0], tng[1]);
-		NormalProposer proposer = new NormalProposer(p, new RealInterval(0, Double.POSITIVE_INFINITY, true, true), tcv, prng);
+		NormalProposer proposer = new NormalProposer(p, interval, tcv, prng);
 		proposer.setStatistics(new FineProposerStatistics(iter, 8));
 		return proposer;
 	}
+
 	
 	/**
 	 * Returns a branch swapper proposer.
