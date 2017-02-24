@@ -89,7 +89,7 @@ public class Delirious implements JPrIMEApp {
 						"    Sjostrand et al., Bioinformatics, 2012, doi: 10.1093/bioinformatics/bts548.\n\n" +
 						"    Simultaneous Bayesian gene tree reconstruction and reconciliation analysis,\n" +
 						"    Akerborg et al., PNAS, 2009, doi: 10.1073/pnas.0806251106.\n\n" +
-						"Releases, source code and tutorial: http://code.google.com/p/jprime/wiki/DLRS\n\n" +
+						"Releases, source code and tutorial: https://github.com/arvestad/jprime\n\n" +
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +
@@ -97,6 +97,27 @@ public class Delirious implements JPrIMEApp {
 				JCommanderUsageWrapper.getUnsortedUsage(jc, params, sb);
 				System.out.println(sb.toString());
 				return;
+			}
+			if (params.cite) {
+				String bibtex = "@article{Sjostrand22982573,\n" + 
+						"	author = {Joel Sj{\\\"o}strand and Bengt Sennblad and Lars Arvestad and Jens Lagergren},\n" + 
+						"	title = {{DLRS}: gene tree evolution in light of a species tree.},\n" + 
+						"	journal = {Bioinformatics},\n" + 
+						"	volume = {28},\n" + 
+						"	number = {22},\n" + 
+						"	year = {2012},\n" + 
+						"	pages = {2994-2995}};\n" +
+						"@article{Akerborg19299507,\n" + 
+						"	author = {{\\\"O}rjan {\\AA}kerborg and Bength Sennblad and Lars Arvestad and Jens Lagergren},\n" + 
+						"	title = {Simultaneous {B}ayesian gene tree reconstruction and reconciliation analysis.},\n" + 
+						"	journal = {Proc Natl Acad Sci U S A},\n" + 
+						"	volume = {106},\n" + 
+						"	number = {14},\n" + 
+						"	year = {2009},\n" + 
+						"	pages = {5714-5719},\n" + 
+						"	pmid = {19299507}};";
+				System.out.println(bibtex);
+				System.exit(0);
 			}
 			
 			// ================ READ AND CREATE ALL PARAMETERS ================

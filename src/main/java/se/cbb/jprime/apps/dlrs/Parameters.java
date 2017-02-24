@@ -23,6 +23,10 @@ public class Parameters {
 	@Parameter(names = {"-h", "--help"}, description = "Display help.")
 	public Boolean help = false;
 	
+	/** Citation info */
+	@Parameter(names = {"--cite"}, description = "Output citation info (BibTeX) and exit.")
+	public Boolean cite = false;
+	
 	/** Output location. */
 	@Parameter(names = {"-o", "--outfile"}, description = "Output file. Default: stdout.")
 	public String outfile = null;

@@ -36,6 +36,11 @@ public class Parameters {
 	@Parameter(names = {"-h", "--help"}, description = "Display help.")
 	public Boolean help = false;
 	
+	/** Citation info */
+	@Parameter(names = {"--cite"}, description = "Output citation info (BibTeX) and exit.")
+	public Boolean cite = false;
+	
+	
 	/** Compute sample realization. */
 	@Parameter(names = {"-real", "--samplerealisations"}, description = "Sample Realizations.")
 	public Boolean sampleRealisations = false;

@@ -158,7 +158,7 @@ public class RealisationSampler implements Sampleable {
 			this.realizationHeader= "SampledRealisation";
 		}
 		// Write header.
-		this.out.write("# Host tree: " + this.times.toString() + "\n");
+		this.out.write("[Host tree:]" + this.times.toString() + "\n");
 		this.out.flush();
 	}
 
