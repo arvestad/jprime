@@ -2,17 +2,21 @@
 
 # About JPrIME
 
-Thank you for using JPrIME!
-
 JPrIME is a Java library primarily aimed at phylogenetics,
 although other functionality may be added over time as well.
 
-The package is developed and maintained by the computational biology
+The package is developed and maintained by computational biology
 groups at [Science for Life Laboratory Stockholm](http://www.scilifelab.se/).
 It has its roots in a C++ library named PrIME, primarily developed by PIs
-Jens Lagergren, Lars Arvestad, and Bengt Sennblad. Frequent contributors to
-JPrIME includes Joel Sjöstrand, Mehmood Alam Khan, Raja Hashim Ali, Ikram Ullah, Owais Mahmudhi,
-and Auwn Muhammed.
+Jens Lagergren, Lars Arvestad, and Bengt Sennblad. The first version was written
+by __Joel Sjöstrand__. Other important contributors are:
+
+- Mehmood Alam Khan 
+- Raja Hashim Ali
+- Ikram Ullah
+- Owais Mahmudhi
+- Auwn Muhammed
+- Vincent Llorens
 
 # Installation
 
@@ -26,11 +30,34 @@ You may place the JAR file anywhere on your computer. However, for frequent use,
 you may want to add its location to your CLASSPATH or similarly, as outlined
 [on Wikipedia](http://en.wikipedia.org/wiki/Classpath_(Java)).
 
-Alternatively, the location of the JAR file can be specified explicitly when you
+## Invocation
+
+Straightforward invocation of the JAR file, in this case using the _Delirious_ (DLRS) model:
+```
+java -jar jprime-X.Y.Z.jar Delirious Host.tree Seqs.fa Gene2Host.txt
+```
+
+It can be convenient to create a script with the particular call that you want to use! For example, if 
+you want to try different host trees, create a script in a file `dlrs_hosts.sh` (for example) with this contents:
+```
+#! /bin/bash
+JAR=/path/to/jprime-X.Y.Z.jar
+java -jar $JAR Delirious $1 Seqs.fa Gene2Host.txt
+```
+After running `chmod +x dlrs_hosts.sh`, this script can be called like this:
+```
+./dlrs_hosts.sh hostfile1.tree
+```
+if `hostfile1.tree` is a Newick host tree that you want to try.
+
+
+
+## Hacking
+For hacking, the location of the JAR file can be specified explicitly when you
 start an application such as in this fictitious example:
 
 ```
-java -cp ~/mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/MyApp
+java -cp ~/mypath/jprime-X.Y.Z.jar se/cbb/jprime/apps/MyApp <args>
 ```
 
 # Documentation
