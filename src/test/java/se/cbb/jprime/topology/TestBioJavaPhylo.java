@@ -6,18 +6,18 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.biojava3.alignment.Alignments;
-import org.biojava3.alignment.template.AlignedSequence;
-import org.biojava3.alignment.template.Profile;
-import org.biojava3.core.sequence.AccessionID;
-import org.biojava3.core.sequence.ProteinSequence;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.template.Sequence;
-import org.biojava3.core.util.ConcurrencyTools;
-import org.biojava3.phylo.ProgessListenerStub;
-import org.biojava3.phylo.TreeConstructionAlgorithm;
-import org.biojava3.phylo.TreeConstructor;
-import org.biojava3.phylo.TreeType;*/
+import org.biojava.nbio.alignment.Alignments;
+import org.biojava.nbio.alignment.template.AlignedSequence;
+import org.biojava.nbio.alignment.template.Profile;
+import org.biojava.nbio.core.sequence.AccessionID;
+import org.biojava.nbio.core.sequence.ProteinSequence;
+import org.biojava.nbio.core.sequence.compound.AminoAcidCompound;
+import org.biojava.nbio.core.sequence.template.Sequence;
+import org.biojava.nbio.core.util.ConcurrencyTools;
+import org.biojava.nbio.phylo.ProgessListenerStub;
+import org.biojava.nbio.phylo.TreeConstructionAlgorithm;
+import org.biojava.nbio.phylo.TreeConstructor;
+import org.biojava.nbio.phylo.TreeType;*/
 import org.junit.Test;
 
 

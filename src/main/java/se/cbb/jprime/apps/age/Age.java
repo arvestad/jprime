@@ -16,8 +16,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.apps.realise.Realisation;

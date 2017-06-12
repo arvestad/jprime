@@ -9,9 +9,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import org.biojava3.core.sequence.io.FastaReaderHelper;
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
+import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
 
 import se.cbb.jprime.io.GuestHostMapReader;
 import se.cbb.jprime.io.MSAFastPhyloTree;

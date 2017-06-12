@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.apps.dltrs.ParameterParser;
