@@ -114,13 +114,6 @@
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
-		<groupId>org</groupId>
-		<artifactId>forester</artifactId>
-		<version>1.005</version>
-		<type>jar</type>
-		<scope>compile</scope>
-	</dependency>
-	<dependency>
 		<groupId>org.reflections</groupId>
 		<artifactId>reflections</artifactId>
 		<version>0.9.8</version>
