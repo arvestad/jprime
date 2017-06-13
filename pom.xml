@@ -34,11 +34,6 @@
    	 </snapshots>
    	 <url>file://${project.basedir}/lib/java</url>
 	</repository>
-    <repository>
-      <id>biojava-maven-repo</id>
-        <name>BioJava repository</name>
-          <url>http://www.biojava.org/download/maven/</url>			
-    </repository>
   </repositories>
   <dependencies>
   	<dependency>
