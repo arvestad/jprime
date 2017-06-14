@@ -1,26 +1,5 @@
 package se.cbb.jprime.apps.realise;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import se.cbb.jprime.io.SampleInt;
-import se.cbb.jprime.io.Sampleable;
-import se.cbb.jprime.math.Continuous1DPDDependent;
-import se.cbb.jprime.math.PRNG;
-import se.cbb.jprime.mcmc.Iteration;
-import se.cbb.jprime.topology.BooleanMap;
-import se.cbb.jprime.topology.DoubleArrayMap;
-import se.cbb.jprime.topology.DoubleMap;
-import se.cbb.jprime.topology.IntMap;
-import se.cbb.jprime.topology.NamesMap;
-import se.cbb.jprime.topology.RBTreeArcDiscretiser;
-import se.cbb.jprime.topology.RootedBifurcatingTree;
-import se.cbb.jprime.topology.StringMap;
-import se.cbb.jprime.topology.TimesMap;
-
 /**
  * Enables sampling of <i>realisations</i>, i.e., dated embeddings
  * of G in S according to the probability distribution of embeddings under the DLRS model.

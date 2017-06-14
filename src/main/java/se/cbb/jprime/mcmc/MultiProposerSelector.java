@@ -3,10 +3,6 @@ package se.cbb.jprime.mcmc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.TreeSet;
-
 import se.cbb.jprime.math.PRNG;
 
 /**

@@ -1,7 +1,5 @@
 package se.cbb.jprime.mcmc;
 
-import java.util.Set;
-import se.cbb.jprime.math.PRNG;
 import java.util.ArrayList;
 
 /**

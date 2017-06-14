@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.io.Sampler;

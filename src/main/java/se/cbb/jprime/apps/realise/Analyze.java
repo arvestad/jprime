@@ -10,15 +10,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Arrays;
-
 import org.apache.commons.lang3.StringUtils;
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.JCommanderUsageWrapper;

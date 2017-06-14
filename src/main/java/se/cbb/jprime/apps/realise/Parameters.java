@@ -3,8 +3,6 @@ package se.cbb.jprime.apps.realise;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.cbb.jprime.seqevo.SubstitutionMatrixHandlerFactory;
-
 import com.beust.jcommander.Parameter;
 
 /**

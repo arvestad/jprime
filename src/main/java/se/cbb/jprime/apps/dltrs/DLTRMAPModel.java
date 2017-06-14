@@ -14,7 +14,6 @@ import se.cbb.jprime.topology.RBTreeEpochDiscretiser;
 import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
-import se.cbb.jprime.math.PRNG;
 
 /**
  * In accordance with the DTLRS model, computes the probability of
@@ -249,14 +248,12 @@ public class DLTRMAPModel implements InferenceModel {
 		if (ats.length > 1) {
 			for (int e = 0; e < ats.length; ++e) {
 				ats[e] = dt * (dupFact * lclins[e] * rclins[e]);
-				int maxFIndex=-1;
 				double maxProbAtF=0.0;
 				double tempProb=0.0;
 				for (int f = 0; f < lclins.length; ++f) {
 					tempProb =(lclins[e] * rclins[f] + rclins[e] * lclins[f]);
 					if (maxProbAtF < tempProb ) {
 						maxProbAtF=tempProb;
-						maxFIndex= f;
 					}
 				}
 				ats[e]+=trFact * maxProbAtF;

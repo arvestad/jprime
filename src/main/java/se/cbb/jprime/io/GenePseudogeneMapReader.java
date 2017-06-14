@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 
-import se.cbb.jprime.topology.GuestHostMap;
-
 /**
  * Reads a tab or space delimited file mapping a guest tree leaf to
  * a gene (1) or a pseudogene (0)
