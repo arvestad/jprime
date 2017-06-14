@@ -226,8 +226,10 @@ public class Analyze implements JPrIMEApp {
 		    						//								trstats.printf("%3s \t %3f \t %3d \t %3d \t %3d \t %3d \t %3d \t %3d\n", familyname, countOfMapSamples/(float)(current_sample-treesToSkip), countOfMapSamples, correctGeneTreeEdges, correctEpochs, correctFroms, correctTos, correctFromAndTos);
 		    						trstats.close();
 		    					}
+		    					sc.close();
 
 		    				}
+		    				sct.close();
 		    			}
 		    		}
 		    	}else
@@ -338,6 +340,7 @@ public class Analyze implements JPrIMEApp {
                                 itemList.get(j).output(trstats, totalsamples-treesToSkip, THRESHOLD_VERTEX, THRESHOLD_TRANS, THRESHOLD_SPEC, j);
                             }
                             trstats.close();
+                            sc.close();
                         }
 		    }
 		} catch (Exception e) {

@@ -47,10 +47,12 @@ public class ParameterParser {
 			TimesMap sTimes = sRaw.getTimesMap("HostTreeRawTimes");
 			double stemTime = sTimes.getArcTime(s.getRoot());
 			if (Double.isNaN(stemTime) || stemTime <= 0.0) {
+				sct.close();
 				throw new IllegalArgumentException("Missing time for stem in host tree (i.e., \"arc\" predating root).");
 			}
 			double leafTime = sTimes.get(s.getLeaves().get(0));
 			if (Math.abs(leafTime) > 1e-8) {
+				sct.close();
 				throw new IllegalArgumentException("Absolute leaf times for host tree must be 0.");
 			}
 			// Rescale tree so that root has time 1.0.
@@ -64,6 +66,7 @@ public class ParameterParser {
 					ats[x] /= rootTime;
 				}
 			}
+			sct.close();
 			return new Triple<RBTree, NamesMap, TimesMap>(s, sNames, sTimes);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid host tree.", e);

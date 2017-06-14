@@ -70,34 +70,37 @@ public class GeneTreeHomologyReader{
 			if(f.exists())
 			    f.delete();
 			BufferedReader buf = new BufferedReader(new FileReader(fileName));
-		BufferedWriter bw = new BufferedWriter(new FileWriter(gfileName));		
-		String line = "";
-		while((line = buf.readLine()) != null){
-			line = line.trim();
-			if(line.charAt(0) == '#')
-				continue;
-			else {
-//				StringTokenizer stk = new StringTokenizer(line);
-//				String tree = "";
-//				
-//				// true reconciliations is the last token
-//				while(stk.hasMoreTokens())
-//					tree = stk.nextToken();
-				String[] token = line.split(";");
-				
-				String trueFile = "";
-				if(token.length == 1)
-					trueFile = token[0].trim();
-				else
-					trueFile = token[4].trim();
-				bw.write(trueFile);
-				bw.flush();
-				bw.close();
-				buf.close();
-				
-				return gfileName;
+			BufferedWriter bw = new BufferedWriter(new FileWriter(gfileName));		
+			String line = "";
+			while((line = buf.readLine()) != null){
+				line = line.trim();
+				if(line.charAt(0) == '#')
+					continue;
+				else {
+	//				StringTokenizer stk = new StringTokenizer(line);
+	//				String tree = "";
+	//				
+	//				// true reconciliations is the last token
+	//				while(stk.hasMoreTokens())
+	//					tree = stk.nextToken();
+					String[] token = line.split(";");
+					
+					String trueFile = "";
+					if(token.length == 1)
+						trueFile = token[0].trim();
+					else
+						trueFile = token[4].trim();
+					bw.write(trueFile);
+					bw.flush();
+					bw.close();
+					buf.close();
+					
+					return gfileName;
+				}
 			}
-		}
+			bw.flush();
+			bw.close();
+			buf.close();
 		}catch(Exception ex){
 			System.err.println("Error in reading reconciliation file");
 			System.err.println("Reason: " + ex.getMessage());
@@ -111,7 +114,6 @@ public class GeneTreeHomologyReader{
 	}
 
 	private static String getLeafNamesRecursive(NewickVertex vertex) {
-		// TODO Auto-generated method stub
 		if(vertex.isLeaf())
 			return vertex.getName();
 		else {
@@ -127,7 +129,6 @@ public class GeneTreeHomologyReader{
 	}
 
 	private static String getLeafIdsRecursive(NewickVertex vertex) {
-		// TODO Auto-generated method stub
 		if(vertex.isLeaf())
 			return vertex.getNumber()+"";
 		else {
