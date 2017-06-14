@@ -1,0 +1,60 @@
+package se.cbb.jprime.apps;
+
+import java.util.List;
+
+public interface Parameters {
+	public List<String> getFiles();
+	public Boolean getHelp();
+	public String getOutfile();
+	public String getInfofile();
+	public String getRuntype();
+	public String getSeed();
+	public Integer getIterations();
+	public Integer getThinning();
+	public String getSubstitutionModel();
+	public String getDupRate();
+	public String getLossRate();
+	public String getEdgeRatePD();
+	public String getEdgeRatePDMean();
+	public String getEdgeRatePDCV();
+	public Integer getSiteRateCats();
+	public String getSiteRateShape();
+	public String getDiscTimestep();
+	public Integer getDiscMin();
+	public Integer getDiscMax();
+	public Integer getDiscStem();
+	public String getGuestTree();
+	public Boolean getGuestTreeFixed();
+	public Boolean getLengthsFixed();
+	public Integer getMaxLosses();
+	public boolean isMsaFastPhyloTree();
+	public Boolean getOutputLengths();
+	public List<String> getSampleRealisations();
+	public String getGuestTreeBiasedSwapping();
+	public String getGuestTreeSet();
+	public Boolean getGuestTreeSetWithLengths();
+	public Boolean getGuestTreeSetEqualTopoChance();
+	public Boolean getGuestTreeSetFileHasHeader();
+	public Integer getGuestTreeSetFileRelColNo();
+	public String getGuestTreeSetBurninProp();
+	public String getGuestTreeSetMinCvg();
+	public String getTuningDupRate();
+	public String getTuningLossRate();
+	public String getTuningEdgeRateMean();
+	public String getTuningEdgeRateCV();
+	public String getTuningSiteRateShape();
+	public String getTuningLengths();
+	public String getTuningGuestTreeMoveWeights();
+	public String getTuningLengthsSelectorWeights();
+	public String getTuningProposerSelectorWeights();
+	public String getTuningWeightDupRate();
+	public String getTuningWeightLossRate();
+	public String getTuningWeightEdgeRateMean();
+	public String getTuningWeightEdgeRateCV();
+	public String getTuningWeightSiteRateShape();
+	public String getTuningWeightG();
+	public String getTuningWeightLengths();
+	public Boolean getDebug();
+	
+	public void setDiscStem(Integer a);
+}
