@@ -73,7 +73,7 @@ public class pDelirious implements JPrIMEApp {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			
-			Parameters params = new Parameters();
+			PDLRSParameters params = new PDLRSParameters();
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
@@ -104,8 +104,8 @@ public class pDelirious implements JPrIMEApp {
 			// ================ READ AND CREATE ALL PARAMETERS ================
 			
 			// MCMC chain output and auxiliary info.
-			SampleWriter sampler = ParameterParser.getOut(params);
-			info = ParameterParser.getInfo(params);
+			SampleWriter sampler = PDLRSParameterParser.getOut(params);
+			info = PDLRSParameterParser.getInfo(params);
 			info.write("# =========================================================================\n");
 			info.write("# ||                             PRE-RUN INFO                            ||\n");
 			info.write("# =========================================================================\n");
@@ -116,21 +116,20 @@ public class pDelirious implements JPrIMEApp {
 			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
 			// Read S and t.
-			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
+			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = PDLRSParameterParser.getHostTree(params, info);
 			
 			// Read guest-to-host leaf map.
-			GuestHostMap gsMap = ParameterParser.getGSMap(params);
+			GuestHostMap gsMap = PDLRSParameterParser.getGSMap(params);
 			
-			LinkedHashMap<String, Integer> gpgMap = ParameterParser.getGenePseudogeneMap(params);
 			
 			// Substitution model first, then sequence alignment D and site rates.
 			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
-			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
+			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = PDLRSParameterParser.getMultialignment(params, Q.getSequenceType());
 			MSAData D = new MSAData(Q.getSequenceType(), sequences);
-			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
+			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = PDLRSParameterParser.getSiteRates(params);
 			
 			// Pseudo-random number generator.
-			PRNG prng = ParameterParser.getPRNG(params);
+			PRNG prng = PDLRSParameterParser.getPRNG(params);
 			
 			// Read/create G and l.
 			NewickRBTreeSamples guestTreeSamples = null;
@@ -145,7 +144,7 @@ public class pDelirious implements JPrIMEApp {
 							params.guestTreeSetFileRelColNo, burninProp, minCvg);
 				}
 			}
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = PDLRSParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
 			
 			DoubleMap pgSwitches = new DoubleMap("G-PGSwitches", gNamesLengths.first.getNoOfVertices(), 1);
 			IntMap edgeModels = new IntMap("EdgeModels", gNamesLengths.first.getNoOfVertices(), 1);
@@ -158,23 +157,23 @@ public class pDelirious implements JPrIMEApp {
 			
 			
 			// Read number of iterations and thinning factor.
-			Iteration iter = ParameterParser.getIteration(params);
-			Thinner thinner = ParameterParser.getThinner(params, iter);
+			Iteration iter = PDLRSParameterParser.getIteration(params);
+			Thinner thinner = PDLRSParameterParser.getThinner(params, iter);
 			
 			// Sigma (mapping between G and S).
 			MPRMap mprMap = new MPRMap(gsMap, gNamesLengths.first, gNamesLengths.second, sNamesTimes.first, sNamesTimes.second);
 			
 			// Read probability distribution for iid guest tree edge rates (molecular clock relaxation). 
-			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = ParameterParser.getEdgeRatePD(params);
+			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = PDLRSParameterParser.getEdgeRatePD(params);
 			
 			// Create discretisation of S.
-			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
+			RBTreeArcDiscretiser dtimes = PDLRSParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
 			
 			// Create reconciliation helper.
-			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
+			ReconciliationHelper rHelper = PDLRSParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
 			
 			// Duplication-loss probabilities over discretised S.
-			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
+			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = PDLRSParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
 			
@@ -191,28 +190,28 @@ public class pDelirious implements JPrIMEApp {
 			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
+			RealisationSampler realisationSampler = PDLRSParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
 			
 			// Proposers.
-			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
-			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
-			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
-			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
-			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
-			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples);
-			NormalProposer lengthsProposer = ParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
+			NormalProposer dupRateProposer = PDLRSParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
+			NormalProposer lossRateProposer = PDLRSParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
+			NormalProposer edgeRateMeanProposer = PDLRSParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
+			NormalProposer edgeRateCVProposer = PDLRSParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
+			NormalProposer siteRateShapeProposer = PDLRSParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
+			Proposer guestTreeProposer = PDLRSParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples);
+			NormalProposer lengthsProposer = PDLRSParameterParser.getNormalProposer(params, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
 			// Proposer selector.
-			MultiProposerSelector selector = ParameterParser.getSelector(params, prng);
-			selector.add(dupRateProposer, ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
-			selector.add(lossRateProposer, ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
-			selector.add(edgeRateMeanProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
-			selector.add(edgeRateCVProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
-			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
-			selector.add(guestTreeProposer, ParameterParser.getProposerWeight(params.tuningWeightG, iter));
-			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
+			MultiProposerSelector selector = PDLRSParameterParser.getSelector(params, prng);
+			selector.add(dupRateProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
+			selector.add(lossRateProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
+			selector.add(edgeRateMeanProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
+			selector.add(edgeRateCVProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
+			selector.add(siteRateShapeProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
+			selector.add(guestTreeProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightG, iter));
+			selector.add(lengthsProposer, PDLRSParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
 			if (params.dupRate != null        && params.dupRate.matches("FIXED|Fixed|fixed"))        { dupRateProposer.setEnabled(false); }
@@ -224,7 +223,7 @@ public class pDelirious implements JPrIMEApp {
 			if (params.lengthsFixed)                                                                 { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
-			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
+			ProposalAcceptor acceptor = PDLRSParameterParser.getAcceptor(params, prng);
 			
 			// Overall statistics.
 			FineProposerStatistics stats = new FineProposerStatistics(iter, 8);

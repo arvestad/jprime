@@ -71,7 +71,7 @@ public class Delirious implements JPrIMEApp {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			
-			Parameters params = new Parameters();
+			DLRSParameters params = new DLRSParameters();
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
@@ -123,8 +123,8 @@ public class Delirious implements JPrIMEApp {
 			// ================ READ AND CREATE ALL PARAMETERS ================
 			
 			// MCMC chain output and auxiliary info.
-			SampleWriter sampler = ParameterParser.getOut(params);
-			info = ParameterParser.getInfo(params);
+			SampleWriter sampler = DLRSParameterParser.getOut(params);
+			info = DLRSParameterParser.getInfo(params);
 			info.write("# =========================================================================\n");
 			info.write("# ||                             PRE-RUN INFO                            ||\n");
 			info.write("# =========================================================================\n");
@@ -135,19 +135,19 @@ public class Delirious implements JPrIMEApp {
 			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
 			// Read S and t.
-			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
+			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = DLRSParameterParser.getHostTree(params, info);
 			
 			// Read guest-to-host leaf map.
-			GuestHostMap gsMap = ParameterParser.getGSMap(params);
+			GuestHostMap gsMap = DLRSParameterParser.getGSMap(params);
 			
 			// Substitution model first, then sequence alignment D and site rates.
 			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
-			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
+			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = DLRSParameterParser.getMultialignment(params, Q.getSequenceType());
 			MSAData D = new MSAData(Q.getSequenceType(), sequences);
-			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
+			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = DLRSParameterParser.getSiteRates(params);
 			
 			// Pseudo-random number generator.
-			PRNG prng = ParameterParser.getPRNG(params);
+			PRNG prng = DLRSParameterParser.getPRNG(params);
 			
 			// Read/create G and l.
 			NewickRBTreeSamples guestTreeSamples = null;
@@ -162,29 +162,29 @@ public class Delirious implements JPrIMEApp {
 							params.guestTreeSetFileRelColNo, burninProp, minCvg);
 				}
 			}
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = DLRSParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
 			
 			for(int i = 0; i < gNamesLengths.third.getSize(); i++)
 				gNamesLengths.third.set(i, gNamesLengths.third.get(i)/Double.parseDouble(params.normp));
 			
 			// Read number of iterations and thinning factor.
-			Iteration iter = ParameterParser.getIteration(params);
-			Thinner thinner = ParameterParser.getThinner(params, iter);
+			Iteration iter = DLRSParameterParser.getIteration(params);
+			Thinner thinner = DLRSParameterParser.getThinner(params, iter);
 			
 			// Sigma (mapping between G and S).
 			MPRMap mprMap = new MPRMap(gsMap, gNamesLengths.first, gNamesLengths.second, sNamesTimes.first, sNamesTimes.second);
 			
 			// Read probability distribution for iid guest tree edge rates (molecular clock relaxation). 
-			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = ParameterParser.getEdgeRatePD(params);
+			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = DLRSParameterParser.getEdgeRatePD(params);
 			
 			// Create discretisation of S.
-			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
+			RBTreeArcDiscretiser dtimes = DLRSParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
 			
 			// Create reconciliation helper.
-			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
+			ReconciliationHelper rHelper = DLRSParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes, mprMap);
 			
 			// Duplication-loss probabilities over discretised S.
-			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = ParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
+			Triple<DoubleParameter, DoubleParameter, DupLossProbs> dupLoss = DLRSParameterParser.getDupLossProbs(params, mprMap, sNamesTimes.first, gNamesLengths.first, dtimes);
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
 			
@@ -201,29 +201,29 @@ public class Delirious implements JPrIMEApp {
 			DLRModel dlr = new DLRModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dupLoss.third, edgeRatePD.third);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
+			RealisationSampler realisationSampler = DLRSParameterParser.getRealisationSampler(params, iter, prng, dlr, gNamesLengths.second);
 			
 			// Proposers.
-			NormalProposer dupRateProposer = ParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
-			NormalProposer lossRateProposer = ParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
-			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
-			NormalProposer edgeRateCVProposer = ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
-			NormalProposer siteRateShapeProposer = ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
-			Proposer guestTreeProposer = ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples);
+			NormalProposer dupRateProposer = DLRSParameterParser.getNormalProposer(params, dupLoss.first, iter, prng, params.tuningDupRate);
+			NormalProposer lossRateProposer = DLRSParameterParser.getNormalProposer(params, dupLoss.second, iter, prng, params.tuningLossRate);
+			NormalProposer edgeRateMeanProposer = DLRSParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
+			NormalProposer edgeRateCVProposer = DLRSParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
+			NormalProposer siteRateShapeProposer = DLRSParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
+			Proposer guestTreeProposer = DLRSParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, mprMap, iter, prng, guestTreeSamples);
 			RealInterval lengthsBounds = new RealInterval(0, 10, true, true); // Branchlengths should be limited to this open (true, true) interval. Main point: do no allow lengths >10.
-			NormalProposer lengthsProposer = ParameterParser.getTruncatedNormalProposer(params, lengthsBounds, gNamesLengths.third, iter, prng, params.tuningLengths);
+			NormalProposer lengthsProposer = DLRSParameterParser.getTruncatedNormalProposer(params, lengthsBounds, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights = SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
 			// Proposer selector.
-			MultiProposerSelector selector = ParameterParser.getSelector(params, prng);
-			selector.add(dupRateProposer, ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
-			selector.add(lossRateProposer, ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
-			selector.add(edgeRateMeanProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
-			selector.add(edgeRateCVProposer, ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
-			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
-			selector.add(guestTreeProposer, ParameterParser.getProposerWeight(params.tuningWeightG, iter));
-			selector.add(lengthsProposer, ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
+			MultiProposerSelector selector = DLRSParameterParser.getSelector(params, prng);
+			selector.add(dupRateProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
+			selector.add(lossRateProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
+			selector.add(edgeRateMeanProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
+			selector.add(edgeRateCVProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
+			selector.add(siteRateShapeProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
+			selector.add(guestTreeProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightG, iter));
+			selector.add(lengthsProposer, DLRSParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
 			String fixedRegex = ".+[fF][iI][xX][eE][dD]"; // Notice the starting ".+". The regex has to match the whole jaevla string!
@@ -236,7 +236,7 @@ public class Delirious implements JPrIMEApp {
 			if (params.lengthsFixed)                                                        { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
-			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
+			ProposalAcceptor acceptor = DLRSParameterParser.getAcceptor(params, prng);
 			
 			// Overall statistics.
 			FineProposerStatistics stats = new FineProposerStatistics(iter, 8);

@@ -15,7 +15,7 @@ import org.biojava.nbio.core.sequence.template.Compound;
 import org.biojava.nbio.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
-import se.cbb.jprime.apps.dltrs.ParameterParser;
+import se.cbb.jprime.apps.dltrs.DLTRSParameterParser;
 import se.cbb.jprime.apps.dltrs.RealisationSampler;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
 import se.cbb.jprime.io.NewickRBTreeSamples;
@@ -71,12 +71,12 @@ public class Deleterious implements JPrIMEApp {
 	@Override
 	public void main(String[] args) {
 		BufferedWriter info = null;
-		Parameters params = null;
+		DLTRSParameters params = null;
 		try {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			
-			params = new Parameters();
+			params = new DLTRSParameters();
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
@@ -105,8 +105,8 @@ public class Deleterious implements JPrIMEApp {
 			// ================ READ AND CREATE ALL PARAMETERS ================
 			
 			// MCMC chain output and auxiliary info.
-			SampleWriter sampler = ParameterParser.getOut(params);
-			info = ParameterParser.getInfo(params);
+			SampleWriter sampler = DLTRSParameterParser.getOut(params);
+			info = DLTRSParameterParser.getInfo(params);
 			info.write("# =========================================================================\n");
 			info.write("# ||                             PRE-RUN INFO                            ||\n");
 			info.write("# =========================================================================\n");
@@ -117,19 +117,19 @@ public class Deleterious implements JPrIMEApp {
 			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
 			// Read S and t.
-			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
+			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = DLTRSParameterParser.getHostTree(params, info);
 			
 			// Read guest-to-host leaf map.
-			GuestHostMap gsMap = ParameterParser.getGSMap(params);
+			GuestHostMap gsMap = DLTRSParameterParser.getGSMap(params);
 			
 			// Substitution model first, then sequence alignment D and site rates.
 			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
-			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
+			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = DLTRSParameterParser.getMultialignment(params, Q.getSequenceType());
 			MSAData D = new MSAData(Q.getSequenceType(), sequences);
-			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = ParameterParser.getSiteRates(params);
+			Pair<DoubleParameter, GammaSiteRateHandler> siteRates = DLTRSParameterParser.getSiteRates(params);
 			
 			// Pseudo-random number generator.
-			PRNG prng = ParameterParser.getPRNG(params);
+			PRNG prng = DLTRSParameterParser.getPRNG(params);
 			
 			
 			// Read/create G and l.
@@ -145,25 +145,25 @@ public class Deleterious implements JPrIMEApp {
 							params.guestTreeSetFileRelColNo, burninProp, minCvg);
 				}
 			}
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = DLTRSParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples);
 			
 			// Read number of iterations and thinning factor.
-			Iteration iter = ParameterParser.getIteration(params);
-			Thinner thinner = ParameterParser.getThinner(params, iter);
+			Iteration iter = DLTRSParameterParser.getIteration(params);
+			Thinner thinner = DLTRSParameterParser.getThinner(params, iter);
 			
 			// Read probability distribution for iid guest tree edge rates (molecular clock relaxation). 
-			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = ParameterParser.getEdgeRatePD(params);
+			Triple<DoubleParameter, DoubleParameter, Continuous1DPDDependent> edgeRatePD = DLTRSParameterParser.getEdgeRatePD(params);
 			
 			// Create discretisation of S.
-			RBTreeEpochDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
+			RBTreeEpochDiscretiser dtimes = DLTRSParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
                         info.write("# Host tree: " + dtimes.toString() + "\n");
 			
 			// Create reconciliation helper.
-			ReconciliationHelper rHelper = ParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes,
+			ReconciliationHelper rHelper = DLTRSParameterParser.getReconciliationHelper(params, gNamesLengths.first, sNamesTimes.first, dtimes,
 					new LeafLeafMap(gsMap, gNamesLengths.first, gNamesLengths.second, sNamesTimes.first, sNamesTimes.second));
 			
 			// Duplication-loss probabilities over discretised S.
-			Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs> dlt = ParameterParser.getDLTProbs(params, sNamesTimes.first, sNamesTimes.second,
+			Quadruple<DoubleParameter, DoubleParameter, DoubleParameter, EpochDLTProbs> dlt = DLTRSParameterParser.getDLTProbs(params, sNamesTimes.first, sNamesTimes.second,
 					gNamesLengths.first, gNamesLengths.second, gsMap, dtimes);
 			
 			// ================ CREATE MODELS, PROPOSERS, ETC. ================
@@ -185,31 +185,31 @@ public class Deleterious implements JPrIMEApp {
 			DLTRMAPModel dltrMs = new DLTRMAPModel(gNamesLengths.first, sNamesTimes.first, rHelper, gNamesLengths.third, dlt.fourth, edgeRatePD.third);
 			
 			// Realisation sampler.
-			RealisationSampler realisationSampler = ParameterParser.getRealisationSampler(params, iter, prng, dltr, dltrMs, gNamesLengths.second, params.maxRealizationFlag);
+			RealisationSampler realisationSampler = DLTRSParameterParser.getRealisationSampler(params, iter, prng, dltr, dltrMs, gNamesLengths.second, params.maxRealizationFlag);
 			
 			// Proposers.
-			NormalProposer dupRateProposer 		= ParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
-			NormalProposer lossRateProposer 	= ParameterParser.getNormalProposer(params, dlt.second, iter, prng, params.tuningLossRate);
-			NormalProposer transRateProposer 	= ParameterParser.getNormalProposer(params, dlt.third, iter, prng, params.tuningTransferRate);
-			NormalProposer edgeRateMeanProposer = ParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
-			NormalProposer edgeRateCVProposer 	= ParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
-			NormalProposer siteRateShapeProposer= ParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
-			Proposer guestTreeProposer 			= ParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, iter, prng, guestTreeSamples);
+			NormalProposer dupRateProposer 		= DLTRSParameterParser.getNormalProposer(params, dlt.first, iter, prng, params.tuningDupRate);
+			NormalProposer lossRateProposer 	= DLTRSParameterParser.getNormalProposer(params, dlt.second, iter, prng, params.tuningLossRate);
+			NormalProposer transRateProposer 	= DLTRSParameterParser.getNormalProposer(params, dlt.third, iter, prng, params.tuningTransferRate);
+			NormalProposer edgeRateMeanProposer = DLTRSParameterParser.getNormalProposer(params, edgeRatePD.first, iter, prng, params.tuningEdgeRateMean);
+			NormalProposer edgeRateCVProposer 	= DLTRSParameterParser.getNormalProposer(params, edgeRatePD.second, iter, prng, params.tuningEdgeRateCV);
+			NormalProposer siteRateShapeProposer= DLTRSParameterParser.getNormalProposer(params, siteRates.first, iter, prng, params.tuningSiteRateShape);
+			Proposer guestTreeProposer 			= DLTRSParameterParser.getBranchSwapper(params, gNamesLengths.first, gNamesLengths.third, iter, prng, guestTreeSamples);
 			RealInterval lengthsBounds = new RealInterval(0, 10, true, true); // Branchlengths should be limited to this open (true, true) interval. Main point: do no allow lengths >10.
-			NormalProposer lengthsProposer = ParameterParser.getTruncatedNormalProposer(params, lengthsBounds, gNamesLengths.third, iter, prng, params.tuningLengths);
+			NormalProposer lengthsProposer = DLTRSParameterParser.getTruncatedNormalProposer(params, lengthsBounds, gNamesLengths.third, iter, prng, params.tuningLengths);
 			double[] lengthsWeights 			= SampleDoubleArray.toDoubleArray(params.tuningLengthsSelectorWeights);
 			lengthsProposer.setSubParameterWeights(lengthsWeights);
 			
 			// Proposer selector.
-			MultiProposerSelector selector=		ParameterParser.getSelector(params, prng);
-			selector.add(dupRateProposer, 		ParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
-			selector.add(lossRateProposer, 		ParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
-			selector.add(transRateProposer, 	ParameterParser.getProposerWeight(params.tuningWeightTransferRate, iter));
-			selector.add(edgeRateMeanProposer, 	ParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
-			selector.add(edgeRateCVProposer, 	ParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
-			selector.add(siteRateShapeProposer, ParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
-			selector.add(guestTreeProposer, 	ParameterParser.getProposerWeight(params.tuningWeightG, iter));
-			selector.add(lengthsProposer, 		ParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
+			MultiProposerSelector selector=		DLTRSParameterParser.getSelector(params, prng);
+			selector.add(dupRateProposer, 		DLTRSParameterParser.getProposerWeight(params.tuningWeightDupRate, iter));
+			selector.add(lossRateProposer, 		DLTRSParameterParser.getProposerWeight(params.tuningWeightLossRate, iter));
+			selector.add(transRateProposer, 	DLTRSParameterParser.getProposerWeight(params.tuningWeightTransferRate, iter));
+			selector.add(edgeRateMeanProposer, 	DLTRSParameterParser.getProposerWeight(params.tuningWeightEdgeRateMean, iter));
+			selector.add(edgeRateCVProposer, 	DLTRSParameterParser.getProposerWeight(params.tuningWeightEdgeRateCV, iter));
+			selector.add(siteRateShapeProposer, DLTRSParameterParser.getProposerWeight(params.tuningWeightSiteRateShape, iter));
+			selector.add(guestTreeProposer, 	DLTRSParameterParser.getProposerWeight(params.tuningWeightG, iter));
+			selector.add(lengthsProposer, 		DLTRSParameterParser.getProposerWeight(params.tuningWeightLengths, iter));
 			
 			// Inactivate fixed proposers.
 			String fixedRegex = ".+[fF][iI][xX][eE][dD]"; // Notice the starting ".+". The regex has to match the whole jaevla string!
@@ -223,7 +223,7 @@ public class Deleterious implements JPrIMEApp {
 			if (params.lengthsFixed)                                                        { lengthsProposer.setEnabled(false); }
 			
 			// Proposal acceptor.
-			ProposalAcceptor acceptor = ParameterParser.getAcceptor(params, prng);
+			ProposalAcceptor acceptor = DLTRSParameterParser.getAcceptor(params, prng);
 			
 			// Overall statistics.
 			FineProposerStatistics stats = new FineProposerStatistics(iter, 8);
