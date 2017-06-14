@@ -314,7 +314,7 @@ public class Analyze implements JPrIMEApp {
 
                                                     }
 
-                                                    Pair<String, Double> fromAndTo = new Pair(s111 + "->" + s222, time);
+                                                    Pair<String, Double> fromAndTo = new Pair<String, Double>(s111 + "->" + s222, time);
 //                                                                System.out.println(sampledRealisation.toString());
                                                     vertex_stats item = new vertex_stats(leavesOfVertexI, leavesOfLC, leavesOfRC, 1, duplicationsMap.get(i)==false?0.0:1.0,
                                                             transfersMap.get(i)==false?0.0:1.0, (duplicationsMap.get(i)==false && transfersMap.get(i)==false)?1.0:0.0, fromAndTo, parentLeaves, parentalEdgeOnSpeciesTree, parentPlacement, mappingToSpeciesTree);
@@ -443,7 +443,7 @@ public class Analyze implements JPrIMEApp {
 		// Computing distances (minimizing them based on the distance across possible permutations..) 
 		// ./\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\.
 		
-		List<List> scoreList = new ArrayList<List>();
+		List<List<Integer>> scoreList = new ArrayList<>();
 		int[]  nodesmap_r2to_r1 = r2.getNodeToNodeMap(r1);
 		int countOfTrueTransfers=StringUtils.countMatches(r1.toString(), "Transfer");
 		int x=countOfTrueTransfers;
