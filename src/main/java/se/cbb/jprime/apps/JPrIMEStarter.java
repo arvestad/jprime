@@ -66,7 +66,7 @@ public class JPrIMEStarter {
 					"JPrIME is a Java library for primarily phylogenetics developed by groups working\n" +
 					"with computational biology at Science for Life Laboratory (SciLifeLab) in\n" +
 					"Stockholm, Sweden.\n\n" +
-					"Releases, source code and tutorial: http://code.google.com/p/jprime\n\n" +
+					"Releases, source code and tutorial: https://github.com/arvestad/jprime\n\n" +
 					"License: JPrIME is available under the New BSD License.\n"
 					);
 			System.out.println("Usage: jprime-x.y.z.jar <application> [options] <arguments>\n");
