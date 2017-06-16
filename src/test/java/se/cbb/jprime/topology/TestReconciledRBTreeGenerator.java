@@ -37,7 +37,6 @@ public class TestReconciledRBTreeGenerator {
 		NamesMap GNames = GGNames.second;
 		
 		assertEquals(6, GNames.getNames(false).size());
-		assertEquals(1, GNames.getVertex("a1"));
 		assertEquals(6, G.getNoOfLeaves());
 		assertEquals(10, G.getRoot());
 		assertEquals(4, G.getLeftChild(G.getRoot()));
