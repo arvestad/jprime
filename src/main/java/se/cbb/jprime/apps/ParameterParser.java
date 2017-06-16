@@ -63,7 +63,10 @@ import se.cbb.jprime.topology.UniformRBTreeGenerator;
 
 /**
  * For more complex parameters, performs appropriate type casts, etc.
- * A bit messy, code-wise.
+ * Super class for parameter parsers of age, dlrs, dltrs and pdlrs as these four have 
+ * much parameter handling in common. Should be extended if implementing an app with similar
+ * functionality to these.
+ * A bit messy, code-wise. 
  * 
  * @author Joel Sjöstrand.
  * @author Vincent Llorens.
