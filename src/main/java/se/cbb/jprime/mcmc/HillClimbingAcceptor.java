@@ -3,8 +3,6 @@ package se.cbb.jprime.mcmc;
 import java.util.List;
 
 import se.cbb.jprime.math.LogDouble;
-
-import se.cbb.jprime.math.PRNG;
 /**
  * Hill-climbing proposal acceptor. Only accepts a proposed state x' which has higher likelihood
  * than the old state x.

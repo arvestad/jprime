@@ -15,8 +15,6 @@ import se.cbb.jprime.topology.GenericMap;
 import se.cbb.jprime.topology.RootedBifurcatingTreeParameter;
 import se.cbb.jprime.topology.TreeAlgorithms;
 
-// mehmood's addition mar 5 2014
-import se.cbb.jprime.math.PRNG;
 
 /**
  * In accordance with the DTLRS model, computes the probability of

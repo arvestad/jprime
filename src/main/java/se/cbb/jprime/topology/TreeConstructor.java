@@ -3,15 +3,15 @@ package se.cbb.jprime.topology;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import org.biojava3.core.sequence.MultipleSequenceAlignment;
-import org.biojava3.core.sequence.template.AbstractSequence;
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.phylo.Comparison;
-import org.biojava3.phylo.NJTreeProgressListener;
-import org.biojava3.phylo.ResidueProperties;
-import org.biojava3.phylo.ScoreMatrix;
-import org.biojava3.phylo.TreeConstructionAlgorithm;
-import org.biojava3.phylo.TreeType;
+import org.biojava.nbio.core.sequence.MultipleSequenceAlignment;
+import org.biojava.nbio.core.sequence.template.AbstractSequence;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.phylo.Comparison;
+import org.biojava.nbio.phylo.NJTreeProgressListener;
+import org.biojava.nbio.phylo.ResidueProperties;
+import org.biojava.nbio.phylo.ScoreMatrix;
+import org.biojava.nbio.phylo.TreeConstructionAlgorithm;
+import org.biojava.nbio.phylo.TreeType;
 
 
 import org.forester.io.writers.PhylogenyWriter;

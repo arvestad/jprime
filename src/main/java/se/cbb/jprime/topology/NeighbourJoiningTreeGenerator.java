@@ -5,21 +5,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.biojava3.alignment.Alignments;
-import org.biojava3.alignment.template.Profile;
-import org.biojava3.core.sequence.AccessionID;
-import org.biojava3.core.sequence.DNASequence;
-import org.biojava3.core.sequence.ProteinSequence;
-import org.biojava3.core.sequence.RNASequence;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.NucleotideCompound;
-import org.biojava3.core.sequence.template.AbstractSequence;
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
-import org.biojava3.core.util.ConcurrencyTools;
-import org.biojava3.phylo.ProgessListenerStub;
-import org.biojava3.phylo.TreeConstructionAlgorithm;
-import org.biojava3.phylo.TreeType;
+import org.biojava.nbio.alignment.Alignments;
+import org.biojava.nbio.alignment.template.Profile;
+import org.biojava.nbio.core.sequence.AccessionID;
+import org.biojava.nbio.core.sequence.DNASequence;
+import org.biojava.nbio.core.sequence.ProteinSequence;
+import org.biojava.nbio.core.sequence.RNASequence;
+import org.biojava.nbio.core.sequence.compound.AminoAcidCompound;
+import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
+import org.biojava.nbio.core.sequence.template.AbstractSequence;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
+import org.biojava.nbio.core.util.ConcurrencyTools;
+import org.biojava.nbio.phylo.ProgressListenerStub;
+import org.biojava.nbio.phylo.TreeConstructionAlgorithm;
+import org.biojava.nbio.phylo.TreeType;
 
 import se.cbb.jprime.io.NewickTree;
 import se.cbb.jprime.io.NewickTreeReader;
@@ -138,7 +138,7 @@ public class NeighbourJoiningTreeGenerator {
 		// Rename with safe names.
 		LinkedHashMap<String, String> namesMap = setSafeAccessions(alignedSeqs);
 		TreeConstructor<S, C> treeConstructor =
-			new TreeConstructor<S, C>(alignedSeqs, TreeType.NJ, TreeConstructionAlgorithm.PID, new ProgessListenerStub());
+			new TreeConstructor<S, C>(alignedSeqs, TreeType.NJ, TreeConstructionAlgorithm.PID, new ProgressListenerStub());
 	    treeConstructor.process();
 	    String nw = treeConstructor.getNewickString(true, true);
 	    restoreAccessions(namesMap, alignedSeqs);

@@ -16,8 +16,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
 
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.apps.realise.Realisation;
@@ -59,7 +59,7 @@ public class Age implements JPrIMEApp {
 			
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			
-			Parameters params = new Parameters();
+			AgeParameters params = new AgeParameters();
 			JCommander jc = new JCommander(params, args);
 			if (args.length == 0 || params.help) {
 				StringBuilder sb = new StringBuilder(65536);
@@ -77,7 +77,7 @@ public class Age implements JPrIMEApp {
 			
 			// MCMC chain output and auxiliary info.
 //			SampleWriter sampler = ParameterParser.getOut(params);
-			info = ParameterParser.getInfo(params);
+			info = AgeParameterParser.getInfo(params);
 			info.write("# =========================================================================\n");
 			info.write("# ||                             PRE-RUN INFO                            ||\n");
 			info.write("# =========================================================================\n");
@@ -88,18 +88,18 @@ public class Age implements JPrIMEApp {
 			info.write("# Current time: " + df.format(cal.getTime()) + '\n');
 			
 			// Read S and t.
-			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = ParameterParser.getHostTree(params, info);
+			Triple<RBTree, NamesMap, TimesMap> sNamesTimes = AgeParameterParser.getHostTree(params, info);
 			
 			// Read guest-to-host leaf map.
-			GuestHostMap gsMap = ParameterParser.getGSMap(params);
+			GuestHostMap gsMap = AgeParameterParser.getGSMap(params);
 			
 			// Substitution model first, then sequence alignment D and site rates.
 			SubstitutionMatrixHandler Q = SubstitutionMatrixHandlerFactory.create(params.substitutionModel, 4 * gsMap.getNoOfLeafNames());
-			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = ParameterParser.getMultialignment(params, Q.getSequenceType());
+			LinkedHashMap<String, ? extends Sequence<? extends Compound>> sequences = AgeParameterParser.getMultialignment(params, Q.getSequenceType());
 			MSAData D = new MSAData(Q.getSequenceType(), sequences);
 			
 			// Pseudo-random number generator.
-			PRNG prng = ParameterParser.getPRNG(params);
+			PRNG prng = AgeParameterParser.getPRNG(params);
 			
 			// Read/create G and l.
 			NewickRBTreeSamples guestTreeSamples = null;
@@ -114,9 +114,9 @@ public class Age implements JPrIMEApp {
 							params.guestTreeSetFileRelColNo, burninProp, minCvg);
 				}
 			}
-			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = ParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
+			Triple<RBTree, NamesMap, DoubleMap> gNamesLengths = AgeParameterParser.getGuestTreeAndLengths(params, gsMap, prng, sequences, info, guestTreeSamples, D);
 			// Create discretisation of S.
-			RBTreeArcDiscretiser dtimes = ParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
+			RBTreeArcDiscretiser dtimes = AgeParameterParser.getDiscretizer(params, sNamesTimes.first, sNamesTimes.second, sNamesTimes.third, gNamesLengths.first);
 			info.close();
 
 			String mapgenetreeproportion = "";
@@ -161,6 +161,7 @@ public class Age implements JPrIMEApp {
 						if(Integer.parseInt(mapIDs.get(i)) == sampleNo){
 							outrealwriter.write(line+"\n"); i++;}
 					}
+					sc.close();
 					outrealwriter.close();
 				}
 			}

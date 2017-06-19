@@ -2,9 +2,7 @@ package se.cbb.jprime.mcmc;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.ArrayList;
-import se.cbb.jprime.math.PRNG;
 
 /**
  * Interface for objects perturbing the values of one or more <code>StateParameter</code> objects,

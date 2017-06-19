@@ -170,6 +170,8 @@ public class HostTreeGen implements JPrIMEApp {
 			case UNSAMPLED_LEAF:
 				noOfLeaves++;
 				break;
+			default:
+				break;
 			}
 		}
 		totalTime = NumberManipulation.roundToSignificantFigures(totalTime, 8);

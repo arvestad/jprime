@@ -6,9 +6,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.LinkedHashMap;
 
-import org.biojava3.core.sequence.io.FastaReaderHelper;
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
+import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
 import org.junit.Test;
 
 /**

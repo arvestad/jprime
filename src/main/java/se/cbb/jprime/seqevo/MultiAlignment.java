@@ -2,9 +2,9 @@ package se.cbb.jprime.seqevo;
 
 import java.util.LinkedHashMap;
 
-import org.biojava3.core.sequence.MultipleSequenceAlignment;
-import org.biojava3.core.sequence.template.Compound;
-import org.biojava3.core.sequence.template.Sequence;
+import org.biojava.nbio.core.sequence.MultipleSequenceAlignment;
+import org.biojava.nbio.core.sequence.template.Compound;
+import org.biojava.nbio.core.sequence.template.Sequence;
 
 /**
  * Simple wrapper for BioJava's <code>MultipleSequenceAlignment</code> which tries to remedy

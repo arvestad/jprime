@@ -259,6 +259,7 @@ public class NewickRBTreeSamples {
 			}
 		}
 		if (matchCols < relColNo) {
+			sc.close();
 			throw new IllegalArgumentException("Could not find sufficient number of column(s) with Newick trees in input file.");
 		}
 		

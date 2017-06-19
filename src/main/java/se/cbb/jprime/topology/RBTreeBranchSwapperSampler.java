@@ -1,11 +1,8 @@
 package se.cbb.jprime.topology;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import se.cbb.jprime.io.NewickRBTreeSamples;
 import se.cbb.jprime.math.LogDouble;
 import se.cbb.jprime.math.PRNG;

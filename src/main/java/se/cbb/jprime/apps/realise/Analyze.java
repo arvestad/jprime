@@ -10,15 +10,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Arrays;
-
 import org.apache.commons.lang3.StringUtils;
 import se.cbb.jprime.apps.JPrIMEApp;
 import se.cbb.jprime.io.JCommanderUsageWrapper;
@@ -232,8 +226,10 @@ public class Analyze implements JPrIMEApp {
 		    						//								trstats.printf("%3s \t %3f \t %3d \t %3d \t %3d \t %3d \t %3d \t %3d\n", familyname, countOfMapSamples/(float)(current_sample-treesToSkip), countOfMapSamples, correctGeneTreeEdges, correctEpochs, correctFroms, correctTos, correctFromAndTos);
 		    						trstats.close();
 		    					}
+		    					sc.close();
 
 		    				}
+		    				sct.close();
 		    			}
 		    		}
 		    	}else
@@ -320,7 +316,7 @@ public class Analyze implements JPrIMEApp {
 
                                                     }
 
-                                                    Pair<String, Double> fromAndTo = new Pair(s111 + "->" + s222, time);
+                                                    Pair<String, Double> fromAndTo = new Pair<String, Double>(s111 + "->" + s222, time);
 //                                                                System.out.println(sampledRealisation.toString());
                                                     vertex_stats item = new vertex_stats(leavesOfVertexI, leavesOfLC, leavesOfRC, 1, duplicationsMap.get(i)==false?0.0:1.0,
                                                             transfersMap.get(i)==false?0.0:1.0, (duplicationsMap.get(i)==false && transfersMap.get(i)==false)?1.0:0.0, fromAndTo, parentLeaves, parentalEdgeOnSpeciesTree, parentPlacement, mappingToSpeciesTree);
@@ -344,6 +340,7 @@ public class Analyze implements JPrIMEApp {
                                 itemList.get(j).output(trstats, totalsamples-treesToSkip, THRESHOLD_VERTEX, THRESHOLD_TRANS, THRESHOLD_SPEC, j);
                             }
                             trstats.close();
+                            sc.close();
                         }
 		    }
 		} catch (Exception e) {
@@ -449,7 +446,7 @@ public class Analyze implements JPrIMEApp {
 		// Computing distances (minimizing them based on the distance across possible permutations..) 
 		// ./\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\../\.
 		
-		List<List> scoreList = new ArrayList<List>();
+		List<List<Integer>> scoreList = new ArrayList<>();
 		int[]  nodesmap_r2to_r1 = r2.getNodeToNodeMap(r1);
 		int countOfTrueTransfers=StringUtils.countMatches(r1.toString(), "Transfer");
 		int x=countOfTrueTransfers;
