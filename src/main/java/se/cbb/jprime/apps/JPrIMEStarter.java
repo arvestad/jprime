@@ -51,7 +51,12 @@ public class JPrIMEStarter {
 			try {
 				// NOTE: Empty constructor assumed!!!!
 				JPrIMEApp app = c.newInstance();
-				map.put(app.getAppName(), app);
+				String name = app.getAppName();
+				String[] names = name.split("\\s+");
+				for (String n : names) {
+					map.put(n, app);
+				}
+//				map.put(app.getAppName(), app);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {

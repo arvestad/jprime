@@ -65,7 +65,7 @@ public class Deleterious implements JPrIMEApp {
 	
 	@Override
 	public String getAppName() {
-		return "Deleterious";
+		return "Deleterious DLTRS";
 	}
 	
 	@Override
