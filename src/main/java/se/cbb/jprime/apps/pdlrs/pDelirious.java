@@ -63,7 +63,7 @@ public class pDelirious implements JPrIMEApp {
 	
 	@Override
 	public String getAppName() {
-		return "pDelirious";
+		return "pDelirious PDLRS";
 	}
 	
 	@Override
