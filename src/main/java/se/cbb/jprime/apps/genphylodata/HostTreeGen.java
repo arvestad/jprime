@@ -33,6 +33,19 @@ public class HostTreeGen implements JPrIMEApp {
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			HostTreeGenParameters params = new HostTreeGenParameters();
 			JCommander jc = new JCommander(params, args);
+			if (params.cite) {
+				String bibtex = "@article{Sjostrand23803001,\n" +
+								"	author = {Sjostrand, J. and Arvestad, L. and Lagergren, J. and Sennblad, B.},\n" +
+								"	title = {GenPhyloData: realistic simulation of gene family evolution.},\n" +
+								"	journal = {BMC Bioinformatics},\n" +
+								"	volume = {14},\n" +
+								"	year = {2013},\n" +
+								"	month = {Jun},\n" +
+								"	pages = {209},\n" +
+								"	pmid = {23803001}};";
+				System.out.println(bibtex);
+				System.exit(0);
+			}
 			int noargs = params.doQuiet ? 3 : 4;
 			if (args.length == 0 || params.help || params.args.size() != noargs) {
 				StringBuilder sb = new StringBuilder(65536);
@@ -44,8 +57,9 @@ public class HostTreeGen implements JPrIMEApp {
 						"by means of a birth-death process. Auxiliary files detailing the process are\n" +
 						"also created by default.\n\n" +
 						"References:\n" +
-						"    In press\n\n" +
-						"Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData\n\n" +
+						"    Sjöstrand J, Arvestad L, Lagergren J, Sennblad B (2013)\n" +
+						"    GenPhyloData: realistic simulation of gene family evolution. BMC Bioinformatics 14, 209.\n\n" +
+						"Releases, tutorial, etc: https://github.com/arvestad/jprime/wiki/" +
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +

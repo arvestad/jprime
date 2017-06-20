@@ -91,7 +91,7 @@ public class pDelirious implements JPrIMEApp {
 						"    Sjostrand et al., Bioinformatics, 2012, doi: 10.1093/bioinformatics/bts548.\n\n" +
 						"    Simultaneous Bayesian gene tree reconstruction and reconciliation analysis,\n" +
 						"    Akerborg et al., PNAS, 2009, doi: 10.1073/pnas.0806251106.\n\n" +
-						"Releases, source code and tutorial: http://code.google.com/p/jprime/wiki/DLRS\n\n" +
+						"Releases, source code and tutorial: https://github.com/arvestad/jprime/wiki/" +
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +

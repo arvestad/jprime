@@ -41,7 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -------------------- CITATION --------------------
 
 "JPrIME: Phylogenetics library in Java (version X.X.X).
- Available at http://code.google.com/p/jprime/.
+ Available at https://github.com/arvestad/jprime/.
  Computational biology groups, Science for Life Laboratory Stockholm."
  
 

@@ -30,6 +30,10 @@ public class GuestTreeGenParameters {
 	/** Required parameters: S, lambda, mu, tau, outfile. */
 	@Parameter(description = "<host tree file or string> <dup rate> <loss rate> <trans rate> <out prefix>")
 	public List<String> args = new ArrayList<String>();
+	
+	/** Citation info */
+	@Parameter(names = { "--cite" }, description = "Output citation info (BibTeX) and exit.")
+	public Boolean cite = false;
 		
 	/** Help. */
 	@Parameter(names = {"-h", "--help"}, description = "Display help.")
