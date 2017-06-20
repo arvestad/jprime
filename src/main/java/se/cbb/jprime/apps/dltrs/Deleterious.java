@@ -92,7 +92,7 @@ public class Deleterious implements JPrIMEApp {
 						"and model parameters.\n\n" +
 						"References:\n" +
 						"    TBA.\n\n" +
-						"Releases, source code and tutorial: http://code.google.com/p/jprime/wiki/DLTRS\n\n" +
+						"Releases, source code and tutorial: https://github.com/arvestad/jprime/wiki/" +
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +

@@ -51,6 +51,19 @@ public class BranchRelaxer implements JPrIMEApp {
 			// ================ PARSE USER OPTIONS AND ARGUMENTS ================
 			BranchRelaxerParameters params = new BranchRelaxerParameters();
 			JCommander jc = new JCommander(params, args);
+			if (params.cite) {
+				String bibtex = "@article{Sjostrand23803001,\n" +
+								"	author = {Sjostrand, J. and Arvestad, L. and Lagergren, J. and Sennblad, B.},\n" +
+								"	title = {GenPhyloData: realistic simulation of gene family evolution.},\n" +
+								"	journal = {BMC Bioinformatics},\n" +
+								"	volume = {14},\n" +
+								"	year = {2013},\n" +
+								"	month = {Jun},\n" +
+								"	pages = {209},\n" +
+								"	pmid = {23803001}};";
+				System.out.println(bibtex);
+				System.exit(0);
+			}
 			if (params.help || args.length < 1) {
 				StringBuilder sb = new StringBuilder(65536);
 				sb.append(
@@ -61,8 +74,9 @@ public class BranchRelaxer implements JPrIMEApp {
 						"with relaxed (non-clock like) branch lengths by applying rates drawn from a\n" +
 						"probability distribution or similarly. The tree must have at least two leaves.\n\n" +
 						"References:\n" +
-						"    In press\n\n" +
-						"Releases, tutorial, etc: http://code.google.com/p/jprime/wiki/GenPhyloData\n\n" +
+						"    Sjöstrand J, Arvestad L, Lagergren J, Sennblad B (2013)\n" +
+						"    GenPhyloData: realistic simulation of gene family evolution. BMC Bioinformatics 14, 209.\n\n" +
+						"Releases, tutorial, etc: https://github.com/arvestad/jprime/wiki/" +
 						"License: JPrIME is available under the New BSD License.\n" +
 						"================================================================================\n");
 				sb.append("Usage:\n" +
