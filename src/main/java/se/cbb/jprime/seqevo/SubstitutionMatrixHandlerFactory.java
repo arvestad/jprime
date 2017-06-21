@@ -17,7 +17,7 @@ public class SubstitutionMatrixHandlerFactory {
 	
 	/** User message suitable for all available models. */
 	public static final String USER_MESSAGE =
-		"Substitution model. May be JC69, UNIFORMAA, JTT, LG, WAG, " +
+		"Substitution model. May be JC69, UNIFORMAA, JTT, LG, WAG, BLOSUM62, CPREV, DAYHOFF, MTMAM, MTREV24, RTREV, VT, " +
 		"UNIFORMCODON, ARVECODON or USERDEFINED='type;[pi1,...,pik];[r1,...,rj]', where type is DNA/AA/CODON, pi holds " +
 		"the k stationary frequencies of the model, and r holds the j=k*(k-1)/2 time-reversible exchangeability rates of the model " +
 		"in row-major format. Base ordering is 'acgt' for DNA/CODON and 'arndcqeghilkmfpstwyv' for AA. Note: All models may not have " +
