@@ -1,5 +1,6 @@
 package se.cbb.jprime.apps;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -45,18 +46,25 @@ public class JPrIMEStarter {
 		Set<Class<? extends JPrIMEApp>> apps = reflections.getSubTypesOf(JPrIMEApp.class);
 		logger.setLevel(oldLvl);
 		
-		// Create map linking name and app (we assume uniqueness).
+		// Create map linking name and app used for launching apps (we assume uniqueness).
 		TreeMap<String, JPrIMEApp> map = new TreeMap<String, JPrIMEApp>();
+		// A list of application names used to list available apps
+		ArrayList<String> appNames = new ArrayList<>();
 		for (Class<? extends JPrIMEApp> c : apps) {
 			try {
 				// NOTE: Empty constructor assumed!!!!
 				JPrIMEApp app = c.newInstance();
 				String name = app.getAppName();
+				// app can have multiple aliases
 				String[] names = name.split("\\s+");
 				for (String n : names) {
 					map.put(n, app);
 				}
-//				map.put(app.getAppName(), app);
+				String listedAppName = names[0];
+				for (int i = 1; i < names.length; i++) {
+					listedAppName += " (" + names[i] + ")";
+				}
+				appNames.add(listedAppName);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
@@ -76,7 +84,7 @@ public class JPrIMEStarter {
 					);
 			System.out.println("Usage: jprime-x.y.z.jar <application> [options] <arguments>\n");
 			System.out.println("List of available applications:");
-			for (String k : map.keySet()) {
+			for (String k : appNames) {
 				System.out.println("    " + k);
 			}
 			System.out.println("You can usually obtain app-specific help thus:\n" +
