@@ -11,7 +11,7 @@ public interface JPrIMEApp {
 	/**
 	 * Returns the app's name. This can be a string of several names separated by whitespace.
 	 * These names will then be the accepted command line parameters for launching the App.
-	 * @return the name.
+	 * @return the name(s).
 	 */
 	public String getAppName();
 	

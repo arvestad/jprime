@@ -17,7 +17,7 @@ public class SubstitutionMatrixHandlerFactory {
 	
 	/** User message suitable for all available models. */
 	public static final String USER_MESSAGE =
-		"Substitution model. May be JC69, UNIFORMAA, JTT, LG, WAG, " +
+		"Substitution model. May be JC69, UNIFORMAA, JTT, LG, WAG, BLOSUM62, CPREV, DAYHOFF, MTMAM, MTREV24, RTREV, VT, " +
 		"UNIFORMCODON, ARVECODON or USERDEFINED='type;[pi1,...,pik];[r1,...,rj]', where type is DNA/AA/CODON, pi holds " +
 		"the k stationary frequencies of the model, and r holds the j=k*(k-1)/2 time-reversible exchangeability rates of the model " +
 		"in row-major format. Base ordering is 'acgt' for DNA/CODON and 'arndcqeghilkmfpstwyv' for AA. Note: All models may not have " +
@@ -46,6 +46,20 @@ public class SubstitutionMatrixHandlerFactory {
 			return UniformCodon.createUniformCodon(cacheSize);
 		} else if (model.equals("ARVECODON")) {
 			return ArveCodon.createArveCodon(cacheSize);
+		} else if (model.equals("BLOSUM62")) {
+			return Blosum62.createBlosum62(cacheSize);
+		} else if (model.equals("CPREV")) {
+			return Cprev.createCprev(cacheSize);
+		} else if (model.equals("DAYHOFF")) {
+			return Dayhoff.createDayhoff(cacheSize);
+		} else if (model.equals("MTMAM")) {
+			return Mtmam.createMtmam(cacheSize);
+		} else if (model.equals("MTREV24")) {
+			return Mtrev24.createMtrev24(cacheSize);
+		} else if (model.equals("RTREV")) {
+			return Rtrev.createRtrev(cacheSize);
+		} else if (model.equals("VT")) {
+			return Vt.createVt(cacheSize);
 		} else if (model.startsWith("USERDEFINED")) {
 			// TODO: Clean-up.
 			// HACK! Assumes string like "USERDEFINED=DNA;[pi1,...,pik];[r1,...,rj]".
