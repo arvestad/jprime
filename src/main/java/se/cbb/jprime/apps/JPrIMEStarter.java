@@ -23,6 +23,8 @@ import ch.qos.logback.classic.Logger;
  * @author Joel Sjöstrand.
  */
 public class JPrIMEStarter {
+	
+	public static volatile boolean shutDown = false;
 
 	/**
 	 * Starts a JPrIME application located in the <code>se.cbb.jprime.apps</code> folder
@@ -31,6 +33,19 @@ public class JPrIMEStarter {
 	 * @throws Exception.
 	 */
 	public static void main(String[] args) throws Exception {
+		
+		// shutdown hook to make sure jprime quits gracefully upon receiving a SIGTERM unix signal
+		final Thread mainThread = Thread.currentThread();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+		    public void run() {
+		        shutDown = true;
+				try {
+					mainThread.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		    }
+		});
 		
 		// Find all starter methods in apps package.
 		Logger logger = (Logger) Reflections.log;

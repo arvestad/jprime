@@ -284,6 +284,10 @@ public class HybridGraph extends DAG<DiscretisedArc> {
 		return this.vertexNames.get(x);
 	}
 	
+	public NamesMap getVertexNames() {
+		return this.vertexNames;
+	}
+	
 	/**
 	 * Returns the vertex type.
 	 * @param x the vertex.

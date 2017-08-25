@@ -324,12 +324,20 @@ public class GuestTreeInHostTreeCreator implements UnprunedGuestTreeCreator {
 				vertices.add(v.getLeftChild());
 				vertices.add(v.getRightChild());
 			} else {
-				if (v.event == Event.LEAF || v.event == Event.UNSAMPLED_LEAF) {
-					sb.append(v.getName()).append('\t').append(hostNames.get(v.sigma)).append('\n');
+				if (v.event == Event.LEAF || v.event == Event.UNSAMPLED_LEAF || v.event == Event.LOSS) {
+					String hostName = hostNames.get(v.sigma);
+					if (hostName == null) {
+						hostName = String.valueOf(v.sigma);
+					}
+					sb.append(v.getName()).append('\t').append(hostName).append('\n');
 				}
 			}
 		}
 		return sb.toString();
+	}
+	
+	public NamesMap getHostNames() {
+		return this.hostNames;
 	}
 	
 	
