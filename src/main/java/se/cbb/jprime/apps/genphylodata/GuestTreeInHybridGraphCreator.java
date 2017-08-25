@@ -9,6 +9,7 @@ import se.cbb.jprime.math.NumberManipulation;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.topology.HybridGraph;
 import se.cbb.jprime.topology.HybridGraph.VertexType;
+import se.cbb.jprime.topology.NamesMap;
 
 /**
  * Creates unpruned trees evolving over a hybrid graph.
@@ -356,12 +357,20 @@ public class GuestTreeInHybridGraphCreator implements UnprunedGuestTreeCreator {
 				vertices.add(v.getLeftChild());
 				if (v.getNoOfChildren() > 1) { vertices.add(v.getRightChild()); }
 			} else {
-				if (v.event == Event.LEAF || v.event == Event.UNSAMPLED_LEAF) {
-					sb.append(v.getName()).append('\t').append(hostGraph.getVertexName(v.sigma)).append('\n');
+				if (v.event == Event.LEAF || v.event == Event.UNSAMPLED_LEAF || v.event == Event.LOSS) {
+					String hostName = hostGraph.getVertexName(v.sigma);
+					if (hostName == null) {
+						hostName = String.valueOf(v.sigma);
+					}
+					sb.append(v.getName()).append('\t').append(hostName).append('\n');
 				}
 			}
 		}
 		return sb.toString();
+	}
+	
+	public NamesMap getHostNames() {
+		return hostGraph.getVertexNames();
 	}
 	
 	

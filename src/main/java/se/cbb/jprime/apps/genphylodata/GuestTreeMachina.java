@@ -12,6 +12,7 @@ import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.io.PrIMENewickTree;
 import se.cbb.jprime.math.PRNG;
 import se.cbb.jprime.misc.Pair;
+import se.cbb.jprime.topology.NamesMap;
 import se.cbb.jprime.topology.TopologyException;
 
 /**
@@ -92,8 +93,9 @@ public class GuestTreeMachina {
 					throw new MaxAttemptsException("" + attempts + " reached.");
 				}
 				unprunedRoot = mightyGodPlaysDice.createUnprunedTree(this.prng);
-				int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0, vertexPrefix, appendSigma);
-				PruningHelper.labelPrunableVertices(unprunedRoot, no, vertexPrefix, appendSigma);
+				NamesMap hostNames = mightyGodPlaysDice.getHostNames();
+				int no = PruningHelper.labelUnprunableVertices(unprunedRoot, 0, vertexPrefix, appendSigma, hostNames);
+				PruningHelper.labelPrunableVertices(unprunedRoot, no, vertexPrefix, appendSigma, hostNames);
 				attempts++;
 			} while (!unprunedIsOK(unprunedRoot, exact, hostLeaves));
 			

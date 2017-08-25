@@ -2,6 +2,7 @@ package se.cbb.jprime.apps.genphylodata;
 
 import java.util.List;
 import se.cbb.jprime.math.PRNG;
+import se.cbb.jprime.topology.NamesMap;
 
 /**
  * Interface of the all-mighty unpruned tree creators.
@@ -50,5 +51,7 @@ public interface UnprunedGuestTreeCreator {
 	 * @return the info.
 	 */
 	public String getSigma(GuestVertex guestRoot);
+	
+	public NamesMap getHostNames();
 	
 }

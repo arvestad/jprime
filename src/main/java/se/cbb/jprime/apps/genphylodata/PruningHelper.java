@@ -6,6 +6,7 @@ import se.cbb.jprime.apps.genphylodata.GuestVertex.Event;
 import se.cbb.jprime.apps.genphylodata.GuestVertex.Prunability;
 import se.cbb.jprime.io.NewickVertex;
 import se.cbb.jprime.math.NumberManipulation;
+import se.cbb.jprime.topology.NamesMap;
 
 /**
  * Pruning helpers.
@@ -22,13 +23,14 @@ public class PruningHelper {
 	 * @param appendSigma appends the sigma to the name.
 	 * @return the next available name.
 	 */
-	public static int labelUnprunableVertices(GuestVertex v, int nextNo, String vertexPrefix, boolean appendSigma) {
+	public static int labelUnprunableVertices(GuestVertex v, int nextNo, String vertexPrefix, boolean appendSigma, NamesMap hostNames) {
+		String hostName = getHostName(v.sigma, hostNames);
 		if (v.event == Event.LOSS || v.event == Event.UNSAMPLED_LEAF) {
 			v.prunability = Prunability.PRUNABLE;
 		} else if (v.event == Event.LEAF) {
 			v.prunability = Prunability.UNPRUNABLE;
 			v.setNumber(nextNo);
-			String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + v.sigma : "");
+			String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + hostName : "");
 			v.setName(name);
 		} else {
 			ArrayList<NewickVertex> cs = v.getChildren();
@@ -36,7 +38,7 @@ public class PruningHelper {
 			// Special case:
 			if (cs.size() == 1) {
 				GuestVertex c = (GuestVertex) cs.get(0);
-				nextNo = labelUnprunableVertices(c, nextNo, vertexPrefix, appendSigma);
+				nextNo = labelUnprunableVertices(c, nextNo, vertexPrefix, appendSigma, hostNames);
 				v.prunability = (c.prunability == Prunability.PRUNABLE) ? Prunability.PRUNABLE : Prunability.COLLAPSABLE;
 				return nextNo;
 			}
@@ -44,8 +46,8 @@ public class PruningHelper {
 			// Label kiddos first.
 			GuestVertex lc = (GuestVertex) cs.get(0);
 			GuestVertex rc = (GuestVertex) cs.get(1);
-			nextNo = labelUnprunableVertices(lc, nextNo, vertexPrefix, appendSigma);
-			nextNo = labelUnprunableVertices(rc, nextNo, vertexPrefix, appendSigma);
+			nextNo = labelUnprunableVertices(lc, nextNo, vertexPrefix, appendSigma, hostNames);
+			nextNo = labelUnprunableVertices(rc, nextNo, vertexPrefix, appendSigma, hostNames);
 			
 			// Now process vertex based on subtrees' results.
 			if (lc.prunability == Prunability.PRUNABLE && rc.prunability == Prunability.PRUNABLE) {
@@ -57,7 +59,7 @@ public class PruningHelper {
 			} else {
 				v.prunability = Prunability.UNPRUNABLE;
 				v.setNumber(nextNo);
-				String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + v.sigma : "");
+				String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + hostName : "");
 				v.setName(name);
 			}
 		}
@@ -73,17 +75,18 @@ public class PruningHelper {
 	 * @param appendSigma appends the sigma to the name.
 	 * @return the next available name.
 	 */
-	public static int labelPrunableVertices(GuestVertex v, int nextNo, String vertexPrefix, boolean appendSigma) {
+	public static int labelPrunableVertices(GuestVertex v, int nextNo, String vertexPrefix, boolean appendSigma, NamesMap hostNames) {
+		String hostName = getHostName(v.sigma, hostNames);
 		if (!v.isLeaf()) {
 			ArrayList<NewickVertex> ch = v.getChildren();
-			nextNo = labelPrunableVertices((GuestVertex) ch.get(0), nextNo, vertexPrefix, appendSigma);
+			nextNo = labelPrunableVertices((GuestVertex) ch.get(0), nextNo, vertexPrefix, appendSigma, hostNames);
 			if (ch.size() == 2) {
-				nextNo = labelPrunableVertices((GuestVertex) ch.get(1), nextNo, vertexPrefix, appendSigma);
+				nextNo = labelPrunableVertices((GuestVertex) ch.get(1), nextNo, vertexPrefix, appendSigma, hostNames);
 			}
 		}
 		if (v.getNumber() == -1) {
 			v.setNumber(nextNo);
-			String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + v.sigma : "");
+			String name = vertexPrefix + (nextNo++) + (appendSigma ? "_" + hostName : "");
 			v.setName(name);
 		}
 		return nextNo;
@@ -142,5 +145,13 @@ public class PruningHelper {
 		lc.setParent(v);
 		rc.setParent(v);
 		return v;
+	}
+	
+	private static String getHostName(int sigma, NamesMap hostNames) {
+		String hostName = hostNames.get(sigma);
+		if (hostName == null) {
+			hostName = String.valueOf(sigma);
+		}
+		return hostName;
 	}
 }

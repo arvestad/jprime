@@ -5,6 +5,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import se.cbb.jprime.apps.JPrIMEStarter;
 import se.cbb.jprime.io.SampleLogDouble;
 import se.cbb.jprime.io.Sampleable;
 import se.cbb.jprime.io.Sampler;
@@ -240,7 +242,8 @@ public class MCMCManager implements Sampleable, InfoProvider {
 	 * Starts and executes the MCMC chain.
 	 * @throws IOException if unable to produce sampling output.
 	 */
-	public void run() throws IOException,  ArithmeticException{
+	public void run() throws IOException,  ArithmeticException{	
+		
 		// Update the topological ordering of the dependency DAG.
 		this.updateDependencyStructure();
 
@@ -367,7 +370,13 @@ public class MCMCManager implements Sampleable, InfoProvider {
 				if (this.doDebug) {
 					this.sampler.writeString(doAccept ? " ...cached state deleted.\n" : " ...cached state reinstated.\n");
 				}
-
+				
+				if (JPrIMEStarter.shutDown) {
+					// SIGTERM signal received, time to stop running
+					this.endTime = System.nanoTime();
+					return;
+				}
+				
 				// Sample, if desired.
 				if (willSample) {
 					this.sampler.writeSample(this.sampleables, SamplingMode.ORDINARY);
