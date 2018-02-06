@@ -98,6 +98,7 @@ public class HostTreeGen implements JPrIMEApp {
 					outinfo.close();
 				}
 				System.err.println("Failed to produce valid pruned tree within max allowed attempts.");
+				Runtime.getRuntime().halt(1);
 				System.exit(1);
 			}
 			
