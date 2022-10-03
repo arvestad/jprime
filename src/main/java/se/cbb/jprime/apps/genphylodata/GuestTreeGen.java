@@ -89,7 +89,8 @@ public class GuestTreeGen implements JPrIMEApp {
 					outinfo.close();
 				}
 				System.err.println("Failed to produce valid pruned tree within max allowed attempts.");
-				System.exit(0);
+				Runtime.getRuntime().halt(1);
+				System.exit(1);
 			}
 			
 			// Print output.

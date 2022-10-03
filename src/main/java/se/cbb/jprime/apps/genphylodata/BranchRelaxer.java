@@ -105,7 +105,8 @@ public class BranchRelaxer implements JPrIMEApp {
 			do {
 				if (attempts > params.maxAttempts) {
 					System.err.println("Failed to create valid rates within max allowed attempts.");
-					System.exit(0);
+					Runtime.getRuntime().halt(1);
+					System.exit(1);
 				}
 				rates = model.getRates(t, names, origLengths);
 				attempts++;
